@@ -1,0 +1,128 @@
+//@@LIVE
+const LIVE = { route: {}, wx: {}, geo: {}, subs: new Set() };
+const liveNotify = () => LIVE.subs.forEach(fn => fn());
+async function liveFetch(bucket, key, url, parse) {
+  if (LIVE[bucket][key]) return LIVE[bucket][key];
+  LIVE[bucket][key] = { status: 'loading' }; liveNotify();
+  try { const r = await fetch(url, { headers: { Accept: 'application/json' } }); if (!r.ok) throw new Error('HTTP ' + r.status); LIVE[bucket][key] = { status: 'ok', data: parse(await r.json()) }; }
+  catch (e) { LIVE[bucket][key] = { status: 'error', error: String((e && e.message) || e) }; }
+  if (bucket === 'route') for (const k in TRIP_CACHE) delete TRIP_CACHE[k];
+  liveNotify(); return LIVE[bucket][key];
+}
+const PROV_MAP = s => !s ? 'Pakistan' : /Islamabad/.test(s) ? 'Capital' : /Azad|Kashmir/.test(s) ? 'Azad Kashmir' : /Gilgit/.test(s) ? 'Gilgit-Baltistan' : /Khyber/.test(s) ? 'Khyber Pakhtunkhwa' : /Baloch/.test(s) ? 'Balochistan' : /Sindh/.test(s) ? 'Sindh' : /Punjab/.test(s) ? 'Punjab' : s;
+function addPlace(name, prov, lat, lon) { if (CITY[name]) return CITY[name]; const c = { n: name, p: prov, lat: +lat, lon: +lon, osm: true }; CITIES.push(c); CITY[name] = c; return c; }
+const OSM_TYPES = /^(city|town|village|hamlet|suburb|neighbourhood|locality|isolated_dwelling|peak|lake|valley|attraction|viewpoint|national_park|park|administrative|county|district|municipality|state_district)$/;
+function geoSearch(q) {
+  q = q.trim(); if (q.length < 3) return;
+  return liveFetch('geo', q.toLowerCase(), `https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=pk&addressdetails=1&limit=8&accept-language=en&q=${encodeURIComponent(q)}`,
+    rows => rows.filter(r => OSM_TYPES.test(r.type || '') || OSM_TYPES.test(r.addresstype || '')).map(r => { const a = r.address || {}, name = String(r.name || a.city || a.town || a.village || r.display_name.split(',')[0]).trim(); return name ? addPlace(name, PROV_MAP(a.state || a.province || a.region), r.lat, r.lon).n : null; }).filter(Boolean));
+}
+function reverseGeo(lat, lon) {
+  return liveFetch('geo', `rev|${lat.toFixed(3)},${lon.toFixed(3)}`, `https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=12&addressdetails=1&accept-language=en&lat=${lat}&lon=${lon}`,
+    r => { const a = r.address || {}, name = a.city || a.town || a.village || a.suburb || a.county; return name ? addPlace(name, PROV_MAP(a.state), lat, lon).n : null; });
+}
+function routeFetch(o, D) {
+  return liveFetch('route', `${o.n}|${D.id}`, `https://router.project-osrm.org/route/v1/driving/${o.lon},${o.lat};${D.lon},${D.lat}?overview=full&geometries=geojson`,
+    j => { const r = j.routes && j.routes[0]; if (!r) throw new Error('no route'); return { km: r.distance / 1000, h: r.duration / 3600, coords: r.geometry.coordinates }; });
+}
+const isoOff = (iso, n) => { const d = new Date(iso + 'T00:00'); d.setDate(d.getDate() + n); return isoOf(d); };
+const shiftYear = (iso, k) => ((+iso.slice(0, 4) + k) + iso.slice(4)).replace('-02-29', '-02-28');
+const WMO = c => c == null ? ['ph-cloud', 'var(--mute)'] : c === 0 ? ['ph-sun', 'var(--amb)'] : c <= 3 ? ['ph-cloud-sun', 'var(--amb)'] : c <= 48 ? ['ph-cloud-fog', 'var(--mute)'] : ((c >= 71 && c <= 77) || c === 85 || c === 86) ? ['ph-snowflake', 'var(--sky)'] : c >= 95 ? ['ph-cloud-lightning', 'var(--vio)'] : ['ph-cloud-rain', 'var(--sky)'];
+function wxPlan(D, start, days) {
+  const n = Math.max(1, Math.min(days, 14)), end = isoOff(start, n - 1), today = isoAdd(0), elev = D.ft ? `&elevation=${Math.round(D.ft * 0.3048)}` : '';
+  const q = `latitude=${D.lat}&longitude=${D.lon}${elev}&timezone=Asia%2FKarachi`;
+  if (start >= today && end <= isoAdd(15)) return { key: `${D.id}|${start}|${n}|f`, kind: 'forecast', url: `https://api.open-meteo.com/v1/forecast?${q}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,snowfall_sum&start_date=${start}&end_date=${end}` };
+  let y = 0, s0 = start, e0 = end; while (e0 > isoAdd(-6)) { y++; s0 = shiftYear(start, -y); e0 = shiftYear(end, -y); }
+  return { key: `${D.id}|${start}|${n}|a`, kind: 'archive', year: +s0.slice(0, 4), url: `https://archive-api.open-meteo.com/v1/archive?${q}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,snowfall_sum&start_date=${s0}&end_date=${e0}` };
+}
+function wxFetch(D, start, days) { const p = wxPlan(D, start, days); liveFetch('wx', p.key, p.url, j => j.daily); return p; }
+const escH = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+
+//@@METHODS
+  liveTick() {
+    const s = this.state;
+    if (s.screen === 'app') { const o = CITY[s.origin] || CITY.Islamabad, D = DST(s.corridor); if (s.vehicle !== 'air' || s.tab === 'map') routeFetch(o, D); wxFetch(D, s.startDate, s.days); }
+    const q = s.screen === 'onboard' ? (s.step === 0 ? s.oq : s.step === 1 ? s.dq : '') : '';
+    if (q && q.trim().length >= 3 && q !== this.lastQ) { this.lastQ = q; clearTimeout(this.geoT); this.geoT = setTimeout(() => { if (!this.dead && (this.state.oq === q || this.state.dq === q)) geoSearch(q); }, 650); }
+    if (s.screen === 'app' && s.tab === 'map') this.ensureMap();
+    else if (this.map) { this.map.remove(); this.map = null; this.mapOk = false; this.mapKey = null; this.markers = []; }
+  }
+  ensureMap() {
+    const el = this.mapRef.current; if (!el || this.state.mapFail) return;
+    if (this.map && this.map.getContainer() !== el) { this.map.remove(); this.map = null; this.mapOk = false; this.mapKey = null; }
+    if (!window.maplibregl) { if (!this.mapWait) this.mapWait = this.later(7000, () => { this.mapWait = null; if (!window.maplibregl) this.setState({ mapFail: true }); }); return; }
+    if (!this.map) {
+      const ML = window.maplibregl;
+      const m = this.map = new ML.Map({ container: el, style: 'https://tiles.openfreemap.org/styles/liberty', center: [73.4, 34.2], zoom: 5.4, pitch: 55, bearing: -12, maxPitch: 75, attributionControl: { compact: true } });
+      m.addControl(new ML.NavigationControl({ visualizePitch: true }), 'top-right');
+      m.on('load', () => {
+        if (this.map !== m) return; this.mapOk = true;
+        const dem = { type: 'raster-dem', tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'], encoding: 'terrarium', tileSize: 256, maxzoom: 13, attribution: 'Terrain: Mapzen / AWS' };
+        m.addSource('dem', dem); m.addSource('demh', { ...dem });
+        const firstSym = (m.getStyle().layers.find(l => l.type === 'symbol') || {}).id;
+        m.addLayer({ id: 'hills', type: 'hillshade', source: 'demh', paint: { 'hillshade-exaggeration': 0.45, 'hillshade-shadow-color': '#4A4542' } }, firstSym);
+        m.setTerrain({ source: 'dem', exaggeration: 1.5 });
+        const acc = getComputedStyle(el).getPropertyValue('--sky').trim() || '#0088B0';
+        m.addSource('route', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+        m.addLayer({ id: 'route-case', type: 'line', source: 'route', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#FFFFFF', 'line-width': 8 } });
+        m.addLayer({ id: 'route-line', type: 'line', source: 'route', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': acc, 'line-width': 4.5 } });
+        this.mapKey = null; this.updateMap(); });
+      this.later(12000, () => { if (this.map === m && !this.mapOk) this.setState({ mapFail: true }); });
+    }
+    if (this.mapOk) this.updateMap();
+  }
+  updateMap() {
+    const m = this.map, rm = this._rm, ML = window.maplibregl; if (!m || !rm || !ML || !m.getSource('route')) return;
+    const s = this.state, o = CITY[s.origin] || CITY.Islamabad, D = DST(s.corridor), r = LIVE.route[`${o.n}|${D.id}`];
+    const key = `${o.n}|${D.id}|${s.startDate}|${s.days}|${s.vehicle}|${r ? r.status : ''}`; if (key === this.mapKey) return; this.mapKey = key;
+    const coords = !rm.isAir && r && r.status === 'ok' ? r.data.coords : rm.dots.map(d => [+d.p[1], +d.p[0]]);
+    m.getSource('route').setData({ type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: coords } });
+    m.setPaintProperty('route-line', 'line-dasharray', rm.isAir ? [2, 1.5] : null);
+    (this.markers || []).forEach(x => x.remove());
+    this.markers = rm.dots.map(d => { const el = document.createElement('div'); el.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:none';
+      el.innerHTML = `<div style="padding:3px 7px;border-radius:7px;background:var(--sheet);border:1px solid var(--line2);font:700 11px/1.2 var(--font);color:var(--ink);white-space:nowrap;box-shadow:0 4px 10px rgba(0,0,0,.12)">${escH(d.label)}</div><div style="width:12px;height:12px;border-radius:50%;background:${d.color};border:2px solid #FFFFFF;box-shadow:0 0 0 3px ${d.ring}"></div>`;
+      return new ML.Marker({ element: el, anchor: 'bottom' }).setLngLat([+d.p[1], +d.p[0]]).addTo(m); });
+    const b = coords.reduce((bb, c) => bb.extend(c), new ML.LngLatBounds(coords[0], coords[0]));
+    m.fitBounds(b, { padding: { top: 70, bottom: 40, left: 40, right: 50 }, duration: 900, maxZoom: 11 });
+  }
+//@@RV
+      mapRef: this.mapRef, mapLive: !s.mapFail, mapFallback: !!s.mapFail,
+      mapRouteLabel: (() => { const o = CITY[s.origin] || CITY.Islamabad, D = DST(s.corridor), r = LIVE.route[`${o.n}|${D.id}`]; return s.vehicle === 'air' && airFor(s.corridor, s.origin) ? 'Flight path' : r && r.status === 'ok' ? `Road from OpenStreetMap · ${fmtN(r.data.km)} km` : r && r.status === 'loading' ? 'Loading road from OpenStreetMap…' : 'Route from SafarCo road table'; })(),
+      wx: (() => { const D = DST(s.corridor), p = wxPlan(D, s.startDate, s.days), r = LIVE.wx[p.key];
+        const base = { place: D.town || D.name, source: p.kind === 'forecast' ? 'Forecast · Open-Meteo' : `Same dates in ${p.year} · Open-Meteo`, loading: !r || r.status === 'loading', failed: !!r && r.status === 'error', days: [], hasSummary: false, summary: '' };
+        if (!r || r.status !== 'ok' || !r.data || !r.data.time) return base;
+        const d = r.data, days = d.time.map((t, i) => { const [icon, color] = WMO(d.weather_code ? d.weather_code[i] : null), snow = (d.snowfall_sum && d.snowfall_sum[i]) || 0, rain = (d.precipitation_sum && d.precipitation_sum[i]) || 0, pp = d.precipitation_probability_max ? d.precipitation_probability_max[i] : null;
+          const wet = snow >= 0.5 ? `${Math.round(snow)} cm snow` : pp != null ? (pp >= 30 ? `${pp}% rain` : '') : rain >= 1 ? `${Math.round(rain)} mm rain` : '';
+          return { day: dayLabel(s.startDate, i).split(' ').slice(0, 2).join(' '), icon, color, hi: Math.round(d.temperature_2m_max[i]), lo: Math.round(d.temperature_2m_min[i]), wet, hasWet: !!wet, snow: snow >= 0.5, rainy: snow < 0.5 && (pp != null ? pp >= 50 : rain >= 2) }; }).filter(x => !isNaN(x.hi));
+        if (!days.length) return base;
+        const hi = days.map(x => x.hi), lo = days.map(x => x.lo), sn = days.filter(x => x.snow).length, rn = days.filter(x => x.rainy).length, rng = a => Math.min(...a) === Math.max(...a) ? `${a[0]}` : `${Math.min(...a)} to ${Math.max(...a)}`;
+        const summary = `Highs ${rng(hi)}°C, lows ${rng(lo)}°C.` + (sn ? ` Snow on ${sn} day${sn > 1 ? 's' : ''}.` : '') + (rn ? ` Rain likely on ${rn} day${rn > 1 ? 's' : ''}.` : '') + (Math.min(...lo) <= 0 ? ' Below freezing at night.' : '');
+        return { ...base, days, hasSummary: true, summary }; })(),
+      liveRoadNotes: (() => { if (s.screen !== 'app' || (s.vehicle === 'air' && airFor(s.corridor, s.origin))) return []; const o = CITY[s.origin] || CITY.Islamabad, D = DST(s.corridor), r = LIVE.route[`${o.n}|${D.id}`];
+        if (!r) return []; if (r.status === 'loading') return [{ icon: 'ph-globe-hemisphere-east', color: 'var(--mute)', text: 'Checking the road on OpenStreetMap…' }];
+        if (r.status === 'error') return [{ icon: 'ph-wifi-slash', color: 'var(--mute)', text: 'Live road check unavailable. Using SafarCo’s road table.' }];
+        const t = trip(s.corridor, o.n, MAX_DRIVE_H, mon(s)), lv = t.live;
+        if (lv && !lv.ignored) return [{ icon: 'ph-check-circle', color: 'var(--g)', text: `Distance checked on OpenStreetMap: ${fmtN(r.data.km)} km. Drive times use mountain and town speeds, so they are longer than map apps show.` }];
+        return [{ icon: 'ph-warning', color: 'var(--cor)', text: `OpenStreetMap’s fastest road is ${fmtN(r.data.km)} km; this plan is ${t.kmStr} km. It may use a road closed in ${MON[mon(s) - 1]}. Check before you leave.` }]; })(),
+//@@T_WX
+<div data-screen-label="Weather" style="border-radius:30px;padding:18px 18px 16px;background:var(--card);border:1px solid var(--line)">
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px">
+<div style="font-size:14px;font-weight:700;color:var(--mute)">Weather in {{ wx.place }}</div>
+<div style="font-size:11px;font-weight:700;color:var(--mute);white-space:nowrap">{{ wx.source }}</div>
+</div>
+<sc-if value="{{ wx.hasSummary }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;font-weight:600;color:var(--ink2);margin-top:8px;line-height:1.45">{{ wx.summary }}</div></sc-if>
+<sc-if value="{{ wx.loading }}" hint-placeholder-val="{{ true }}"><div style="font-size:13px;font-weight:600;color:var(--mute);margin-top:10px">Loading weather…</div></sc-if>
+<sc-if value="{{ wx.failed }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;font-weight:600;color:var(--mute);margin-top:10px">Weather is unavailable right now.</div></sc-if>
+<div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:14px -18px 0;padding:0 18px 2px">
+<sc-for list="{{ wx.days }}" as="w" hint-placeholder-count="0">
+<div style="flex:none;width:68px;padding:10px 4px;border-radius:16px;background:var(--fill);display:flex;flex-direction:column;align-items:center;gap:5px">
+<div style="font-size:11px;font-weight:800;color:var(--mute);white-space:nowrap">{{ w.day }}</div>
+<i class="ph-duotone {{ w.icon }}" style="font-size:26px;color:{{ w.color }}"></i>
+<div style="font-size:15px;font-weight:800;font-variant-numeric:tabular-nums">{{ w.hi }}°</div>
+<div style="font-size:12px;font-weight:600;color:var(--mute);font-variant-numeric:tabular-nums">{{ w.lo }}°</div>
+<sc-if value="{{ w.hasWet }}" hint-placeholder-val="{{ false }}"><div style="font-size:10px;font-weight:800;color:var(--sky);text-align:center;line-height:1.2">{{ w.wet }}</div></sc-if>
+</div>
+</sc-for>
+</div>
+</div>
+//@@END

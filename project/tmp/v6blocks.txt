@@ -1,0 +1,173 @@
+//@@SHORTEST
+const SPT = {};
+const babusarClosed = m => !(m >= 6 && m <= 10);
+function shortest(dest, month) {
+  const key = dest + '|' + month; if (SPT[key]) return SPT[key];
+  const dist = { [dest]: 0 }, next = {}, done = new Set();
+  while (true) { let u = null; for (const k in dist) if (!done.has(k) && (u === null || dist[k] < dist[u])) u = k; if (u === null) break; done.add(u);
+    (ADJ[u] || []).forEach(([v, e]) => { if (e[7] && !e[7].includes(month)) return; const d = dist[u] + e[2]; if (dist[v] === undefined || d < dist[v]) { dist[v] = d; next[v] = [u, e]; } }); }
+  return (SPT[key] = { dist, next });
+}
+const jeepMatch = (j, p) => { const a = j[1].toLowerCase(), b = p[0].toLowerCase(); return a.includes(b) || b.includes(a) || a.split(/[^a-z]+/).some(w => w.length >= 5 && b.includes(w)); };
+function scheduledPlaces(D, m, n) { const pl = (D.places || []).filter(p => inM(m, p[3])); if (!n) return pl.slice(0, 1); const per = Math.max(1, Math.min(4, Math.ceil(pl.length / n))); return pl.slice(0, per * n); }
+//@@SEASON
+  if (s.vehicle !== 'air') { const now = trip(key, s.origin, MAX_DRIVE_H, m), open = trip(key, s.origin, MAX_DRIVE_H, 7);
+    const shut = [...new Set(open.legs.filter(l => l.months && !l.months.includes(m)).map(l => l.road))], seas = [...new Set(now.legs.filter(l => l.months).map(l => l.road))];
+    if (shut.length) notes.push({ icon: 'ph-road-horizon', color: '#FF8A6B', text: `${shut.join(', ')} closed in ${Mo}. The route goes another way: ${fmtN(Math.max(0, now.km - open.km))} km and about ${dur(Math.max(0, now.hours - open.hours))} longer each way.` });
+    else if (seas.length) notes.push({ icon: 'ph-road-horizon', color: '#6FD3FF', text: `${seas.join(', ')} open in ${Mo}. Cross high passes before the afternoon.` }); }
+//@@NEWDESTS
+  { id: 'kalash', name: 'Kalash Valleys', town: 'Bumburet', region: 'Chitral, KP', lat: 35.73, lon: 71.73, ft: 6400, node: 'BMB', air: 'Chitral', airNote: 'Chitral → Bumburet by jeep, 40 km, about 2 h', best: R(5, 10), warn: [R(12, 2), 'Snow on the valley road. Guesthouses mostly close.'],
+    places: [['Bumburet village', 'In the valley', 'Kalash homes, walnut orchards and the river'], ['Kalasha Dur museum', 'Bumburet', 'Kalash culture and crafts'], ['Rumbur valley', '1 h by jeep', 'Quieter Kalash villages'], ['Chilam Joshi festival', 'Mid-May', 'Spring festival with dance and song', [5]]],
+    eat: 'Walnut bread, cheese and local apricots', jeeps: [['rumbur', 'Rumbur valley', 'Half day, return', 6000]] },
+  { id: 'rama', name: 'Astore & Rama Meadows', town: 'Astore', region: 'Gilgit-Baltistan', lat: 35.37, lon: 74.86, ft: 8500, node: 'AST', best: R(6, 9), warn: [R(11, 4), 'Snowbound. Rama and Deosai are closed.'],
+    places: [['Rama Meadows', '11 km by jeep', 'Pine meadows under Nanga Parbat', R(6, 10)], ['Rama Lake', '1 h hike from Rama', 'Glacial lake', R(7, 9)], ['Astore bazaar', 'In town', 'Valley town and food'], ['Deosai Plains via Chilam', 'By jeep', 'High plateau at 13,500 ft', R(6, 9)]],
+    eat: 'Simple local food and trout', jeeps: [['ramaj', 'Rama Meadows', 'Astore ⇄ Rama, return', 5000, R(6, 10)], ['deosaiA', 'Deosai Plains', 'Full day from Astore', 18000, R(6, 9)]] },
+  { id: 'naltar', name: 'Naltar Valley', town: 'Naltar', region: 'Gilgit-Baltistan', lat: 36.16, lon: 74.18, ft: 9500, node: 'NLT', air: 'Gilgit', airNote: 'Gilgit → Naltar by jeep, 40 km, about 2 h', best: [...R(6, 10), 1, 2], warn: [R(11, 4), 'The jeep road can close after heavy snow.'],
+    places: [['Naltar lakes (Satrangi, Bodlok)', '12 km by jeep', 'Coloured lakes in pine forest', R(6, 10)], ['Naltar pine forest', 'Walk', 'Forest trails above the village'], ['Naltar ski slope', 'In the valley', 'Skiing in winter', [12, 1, 2]]],
+    eat: 'Local food at guesthouses', jeeps: [['naltarj', 'Naltar lakes', 'Satrangi & Bodlok lakes, return', 9000, R(6, 10)]] },
+  { id: 'phander', name: 'Phander & Ghizer', town: 'Phander', region: 'Ghizer, GB', lat: 36.16, lon: 72.94, ft: 9500, node: 'PHD', air: 'Gilgit', airNote: 'Gilgit → Phander by car, 165 km, about 5 h', best: R(5, 10), warn: [R(12, 3), 'Very cold; many guesthouses close.'],
+    places: [['Phander Lake', 'In the valley', 'Clear blue lake by the road'], ['Khalti Lake, Gupis', 'On the way', 'Lake by the Ghizer river'], ['Shandur Pass', '2 h by jeep', 'Highest polo ground at 12,200 ft', R(6, 9)]],
+    eat: 'Trout from Phander Lake', jeeps: [['shandurj', 'Shandur Pass', 'Full day from Phander', 15000, R(6, 9)]] },
+//@@RV_JEEPS
+      jeeps: (() => { const n = s.vehicle === 'air' && air ? Math.max(0, s.days - 2) : Math.max(0, s.days - 2 * c.legDays), sched = scheduledPlaces(c, M, n);
+        return (c.jeeps || []).map(([id, label, sub, rate, months]) => { const closed = !!months && !months.includes(M), inPlan = !closed && sched.some(p => jeepMatch([id, label], p)), k = jeepsFor(P);
+          return { label, sub: `${sub} · ${fmt(rate)} per jeep${k > 1 ? ` × ${k}` : ''}`, cta: closed ? `Closed in ${MON[M - 1]}` : inPlan ? 'In your plan' : 'Needs an extra day', toggle: () => {},
+            bg: inPlan ? 'linear-gradient(135deg,#2EE59D,#19C2B8)' : 'rgba(255,255,255,.06)', fg: inPlan ? '#04211C' : '#8FA9A6', border: inPlan ? '0' : '1px solid rgba(255,255,255,.12)' }; }); })(),
+      isMap: s.tab === 'map',
+      routeMap: (() => {
+        const t = c, legs = t.legs, o = CITY[s.origin] || CITY.Islamabad, D = DST(s.corridor);
+        const co = n => n === 'HOME' ? [o.lat, o.lon] : n === 'DEST' ? [D.lat, D.lon] : NODES[n];
+        const isAir = s.vehicle === 'air' && !!air;
+        const pts = isAir ? [[o.lat, o.lon], [D.lat, D.lon]] : [co(legs[0].a), ...legs.map(l => co(l.b))];
+        let la0 = Math.min(...pts.map(p => p[0])), la1 = Math.max(...pts.map(p => p[0])), lo0 = Math.min(...pts.map(p => p[1])), lo1 = Math.max(...pts.map(p => p[1]));
+        const kx = 0.86, aspect = 1 / 0.88; let w = Math.max(.6, (lo1 - lo0) * kx), h = Math.max(.6, la1 - la0);
+        if (w / h > aspect) h = w / aspect; else w = h * aspect; w *= 1.4; h *= 1.4;
+        const cx = (lo0 + lo1) / 2 * kx, cy = (la0 + la1) / 2, X = lo => ((lo * kx - (cx - w / 2)) / w) * 100, Y = la => (((cy + h / 2) - la) / h) * 100;
+        const seg = (a, b) => `M${X(a[1]).toFixed(2)} ${Y(a[0]).toFixed(2)}L${X(b[1]).toFixed(2)} ${Y(b[0]).toFixed(2)}`;
+        const net = EDGES.map(e => seg(NODES[e[0]], NODES[e[1]])).join('');
+        const route = pts.map((p, i) => `${i ? 'L' : 'M'}${X(p[1]).toFixed(2)} ${Y(p[0]).toFixed(2)}`).join('');
+        const summer = isAir ? null : trip(s.corridor, s.origin, MAX_DRIVE_H, 7);
+        const closed = summer ? summer.legs.filter(l => l.months && !l.months.includes(M)).map(l => seg(co(l.a), co(l.b))).join('') : '';
+        const nightNodes = isAir ? [] : (t.cuts || []).map(i => legs[i].b);
+        const dots = [{ p: [o.lat, o.lon], label: o.n, color: '#2EE59D', ring: 'rgba(46,229,157,.25)' }, ...nightNodes.map((n, i) => ({ p: co(n), label: `Night ${i + 1} · ${NODE_INFO[n][0]}`, color: '#FFB547', ring: 'rgba(255,181,71,.25)' })), { p: [D.lat, D.lon], label: D.town, color: '#FF5A72', ring: 'rgba(255,90,114,.25)' }]
+          .map((d, i) => ({ ...d, x: X(d.p[1]).toFixed(2), y: Y(d.p[0]).toFixed(2), lift: i % 2 ? '-26px' : '-6px' }));
+        const plan = buildPlan(s), groups = [];
+        plan.days.forEach(d => { if (!d.stay) return; const g = groups[groups.length - 1]; if (g && g.name === d.stay.place) g.to = d.num; else groups.push({ name: d.stay.place, hotel: d.stay.name, from: d.num, to: d.num }); });
+        const roads = {}; if (!isAir) legs.forEach(l => { const r = roads[l.road] || (roads[l.road] = { km: 0, months: l.months }); r.km += l.km; });
+        return { net, route, closed, dots, isAir,
+          stat: isAir ? `${air.dep} ⇄ ${air.arr} by air · car and driver there` : `${t.kmStr} km · ${dur(t.hours)} driving each way · ${t.legDays} driving day${t.legDays > 1 ? 's' : ''} each way`,
+          nights: groups.map(g => ({ badge: g.from === g.to ? `Night ${g.from}` : `Nights ${g.from}–${g.to}`, name: g.name, hotel: g.hotel })),
+          roads: Object.entries(roads).map(([name, r]) => ({ name, km: `${fmtN(Math.round(r.km / 5) * 5 || Math.round(r.km))} km`, note: r.months ? (r.months.includes(M) ? `Open in ${MON[M - 1]}` : `Closed in ${MON[M - 1]}`) : '', noteC: r.months && !r.months.includes(M) ? '#FF8A6B' : '#2EE59D', hasNote: !!r.months })) };
+      })(),
+//@@T_MAP
+<sc-if value="{{ isMap }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Route map">
+<div style="height:250px;position:relative;pointer-events:none">
+<div style="position:absolute;left:22px;right:22px;top:58px;text-shadow:0 2px 18px rgba(0,0,0,.4)">
+<div style="font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#FFD39A">{{ c.from }} → {{ c.to }}</div>
+<div style="font-family:Unbounded,sans-serif;font-weight:600;font-size:26px;letter-spacing:-.02em;margin-top:6px">Route map</div>
+<div style="font-size:13px;font-weight:700;color:#E6F0EE;margin-top:8px;line-height:1.45">{{ routeMap.stat }}</div>
+</div>
+</div>
+<div style="padding:4px 16px 150px;display:flex;flex-direction:column;gap:14px;pointer-events:auto;background:#071A1C">
+<div style="border-radius:30px;padding:16px 12px 22px;background:radial-gradient(120% 90% at 50% 15%,#14403F,#081C1E);border:1px solid rgba(255,255,255,.1);overflow:hidden">
+<div style="perspective:900px;perspective-origin:50% 0%">
+<div style="position:relative;width:100%;padding-bottom:88%;transform:rotateX(32deg) scale(.95);transform-origin:50% 35%;transform-style:preserve-3d">
+<div style="position:absolute;inset:0;border-radius:18px;background-color:rgba(46,229,157,.05);background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:10% 10%;box-shadow:0 40px 50px -24px rgba(0,0,0,.7),inset 0 0 0 1px rgba(255,255,255,.08)"></div>
+<svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;border-radius:18px">
+<path d="{{ routeMap.net }}" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="1.2" stroke-linecap="round" vector-effect="non-scaling-stroke"></path>
+<path d="{{ routeMap.closed }}" fill="none" stroke="#FF6B5B" stroke-width="2" stroke-dasharray="5 5" vector-effect="non-scaling-stroke"></path>
+<path d="{{ routeMap.route }}" fill="none" stroke="#FF9A3D" stroke-width="10" stroke-opacity=".25" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+<path d="{{ routeMap.route }}" fill="none" stroke="#FFC060" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+</svg>
+<sc-for list="{{ routeMap.dots }}" as="p" hint-placeholder-count="3">
+<div style="position:absolute;left:{{ p.x }}%;top:{{ p.y }}%;width:0;height:0;transform-style:preserve-3d">
+<div style="position:absolute;left:-7px;top:-7px;width:14px;height:14px;border-radius:50%;background:{{ p.color }};box-shadow:0 0 0 5px {{ p.ring }},0 0 18px {{ p.color }}"></div>
+<div style="position:absolute;left:0;bottom:0;transform:translate(-50%,{{ p.lift }}) rotateX(-32deg);transform-origin:50% 100%;pointer-events:none">
+<div style="padding:4px 8px;border-radius:9px;background:rgba(10,24,30,.85);border:1px solid rgba(255,255,255,.18);font-size:10px;font-weight:800;white-space:nowrap;color:#fff">{{ p.label }}</div>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="display:flex;gap:14px;flex-wrap:wrap;margin:14px 6px 0;font-size:11px;font-weight:700;color:#9FB8B4">
+<span style="display:flex;align-items:center;gap:6px"><span style="width:16px;height:3px;border-radius:2px;background:#FFC060"></span>Your route</span>
+<span style="display:flex;align-items:center;gap:6px"><span style="width:16px;height:2px;background:rgba(255,255,255,.35)"></span>Other roads</span>
+<span style="display:flex;align-items:center;gap:6px"><span style="width:16px;height:0;border-top:2px dashed #FF6B5B"></span>Closed this month</span>
+</div>
+</div>
+<div style="border-radius:30px;padding:18px;background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.1)">
+<div style="font-size:14px;font-weight:700;color:#9FB8B4">Where you sleep</div>
+<div style="display:flex;flex-direction:column;gap:12px;margin-top:14px">
+<sc-for list="{{ routeMap.nights }}" as="n" hint-placeholder-count="3">
+<div style="display:flex;align-items:center;gap:12px">
+<div style="flex:none;min-width:74px;padding:4px 8px;border-radius:9px;background:rgba(255,181,71,.14);color:#FFD39A;font-size:11px;font-weight:800;text-align:center;white-space:nowrap">{{ n.badge }}</div>
+<div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:700">{{ n.name }}</div><div style="font-size:12px;color:#9FB8B4;font-weight:500;margin-top:1px">{{ n.hotel }}</div></div>
+</div>
+</sc-for>
+</div>
+</div>
+<sc-if value="{{ hasRoads }}" hint-placeholder-val="{{ true }}">
+<div style="border-radius:30px;padding:18px;background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.1)">
+<div style="font-size:14px;font-weight:700;color:#9FB8B4">Roads on this route</div>
+<div style="display:flex;flex-direction:column;gap:10px;margin-top:14px">
+<sc-for list="{{ routeMap.roads }}" as="r" hint-placeholder-count="4">
+<div style="display:flex;align-items:center;gap:10px">
+<i class="ph-fill ph-road-horizon" style="font-size:18px;color:#6FD3FF;flex:none"></i>
+<div style="flex:1;min-width:0;font-size:14px;font-weight:700">{{ r.name }}<sc-if value="{{ r.hasNote }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:800;color:{{ r.noteC }}"> · {{ r.note }}</span></sc-if></div>
+<div style="flex:none;font-size:13px;font-weight:800;font-variant-numeric:tabular-nums">{{ r.km }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+</div>
+</div>
+</sc-if>
+
+//@@ASK
+  async ask(text) {
+    if (this.state.busy || !text) return;
+    if (!(window.claude && window.claude.complete)) { this.sendKeyword(text); return; }
+    this.setState(s => ({ busy: true, input: '', msgs: [...s.msgs, { role: 'user', text }, { role: 'ai', text: 'Working on it…', typed: 999, calls: [] }] }));
+    const st = { ...this.state }, calls = [];
+    const apply = patch => { Object.assign(st, patch); this.setState({ ...patch, pickId: null }); };
+    const log = (fn, args, result) => { calls.push({ fn, args: JSON.stringify(args), status: 'executed' }); this.setState(s => { const msgs = s.msgs.slice(); msgs[msgs.length - 1] = { ...msgs[msgs.length - 1], calls: calls.slice() }; return { msgs }; }); return result; };
+    const summary = () => { const t = trip(st.corridor, st.origin, MAX_DRIVE_H, mon(st)), r = costFor(st), p = buildPlan(st);
+      return `Trip: ${t.from} → ${DST(st.corridor).name}, ${dayLabel(st.startDate, 0)} for ${st.days} days (needs ${r.minDays || t.minDays}+), ${st.adults} adults, ${st.kids} kids, ${st.elders} elders, ${VEH[st.vehicle].label}, ${TIERS[st.tier].label} stays. Road ${t.kmStr} km, ${Math.round(t.hours)} h each way. Total ${fmt(r.total)} vs cap ${fmt(st.cap)}. Nights: ${p.days.filter(d => d.stay).map(d => d.stay.town).join(', ')}.${r.ok ? '' : ' WARNING: not enough days.'}`; };
+    const findDest = q => { q = String(q || '').toLowerCase().trim(); if (!q) return null; const d = DESTS.find(d => [d.id, d.name, d.town].some(x => x.toLowerCase() === q)) || DESTS.find(d => [d.name, d.town].some(x => x.toLowerCase().includes(q) || q.includes(x.toLowerCase().split(',')[0])));
+      if (d) return d.id; const c = CITIES.find(c => c.n.toLowerCase() === q) || CITIES.find(c => c.n.toLowerCase().includes(q)); return c ? 'city:' + c.n : null; };
+    const obj = (props, req) => ({ type: 'object', properties: props, required: req || [] });
+    const tools = [
+      { name: 'get_trip_summary', description: 'Get the current trip: route, dates, people, transport, total cost and night stops.', input_schema: obj({}), run: async () => log('get_trip_summary', {}, summary()) },
+      { name: 'set_destination', description: 'Change the destination to any city or tourist place in Pakistan.', input_schema: obj({ place: { type: 'string' } }, ['place']), run: async ({ place }) => { const id = findDest(place); if (!id) return `No match for "${place}".`; apply({ dest: id, corridor: id, mode: 'know' }); return log('set_destination', { place: DST(id).name }, summary()); } },
+      { name: 'set_origin', description: 'Change the home city the trip starts from.', input_schema: obj({ city: { type: 'string' } }, ['city']), run: async ({ city }) => { const c = CITIES.find(x => x.n.toLowerCase() === String(city).toLowerCase()) || CITIES.find(x => x.n.toLowerCase().includes(String(city).toLowerCase())); if (!c) return `No city "${city}".`; apply({ origin: c.n }); return log('set_origin', { city: c.n }, summary()); } },
+      { name: 'set_dates', description: 'Set the start date (YYYY-MM-DD) and/or the number of days (2–14).', input_schema: obj({ start_date: { type: 'string' }, days: { type: 'integer' } }), run: async ({ start_date, days }) => { const p = {}; if (start_date && !isNaN(new Date(start_date + 'T00:00'))) p.startDate = start_date; if (days) p.days = Math.max(2, Math.min(14, days)); apply(p); return log('set_dates', { start_date, days }, summary()); } },
+      { name: 'set_travellers', description: 'Set how many adults, kids (under 12) and elders (60+) are travelling.', input_schema: obj({ adults: { type: 'integer' }, kids: { type: 'integer' }, elders: { type: 'integer' } }), run: async (a) => { const n = { adults: Math.max(1, a.adults ?? st.adults), kids: Math.max(0, a.kids ?? st.kids), elders: Math.max(0, a.elders ?? st.elders) }; apply({ ...n, groupSize: n.adults + n.kids + n.elders }); return log('set_travellers', n, summary()); } },
+      { name: 'set_transport', description: 'Set transport: sedan, suv (own 4x4), bike, public (coach), air, rentcar (car + driver), rent4x4, coaster.', input_schema: obj({ mode: { type: 'string', enum: Object.keys(VEH) } }, ['mode']), run: async ({ mode }) => { if (!VEH[mode]) return 'Unknown mode'; if (mode === 'air' && !airFor(st.corridor, st.origin)) return 'No flights to this destination.'; apply({ vehicle: mode }); return log('set_transport', { mode }, summary()); } },
+      { name: 'set_stay_level', description: 'Set hotel level: backpacker, standard or premium.', input_schema: obj({ tier: { type: 'string', enum: Object.keys(TIERS) } }, ['tier']), run: async ({ tier }) => { apply({ tier }); return log('set_stay_level', { tier }, summary()); } },
+      { name: 'set_rooms', description: 'Rooms: separate (doubles) or shared (family rooms).', input_schema: obj({ rooms: { type: 'string', enum: ['separate', 'shared'] } }, ['rooms']), run: async ({ rooms }) => { apply({ rooms }); return log('set_rooms', { rooms }, summary()); } },
+      { name: 'set_budget', description: 'Set the total budget cap in PKR.', input_schema: obj({ pkr: { type: 'integer' } }, ['pkr']), run: async ({ pkr }) => { apply({ cap: Math.max(20000, pkr) }); return log('set_budget', { pkr }, summary()); } },
+      { name: 'set_departure_time', description: 'Daily departure time on driving days as HH:MM (24h), or "auto".', input_schema: obj({ time: { type: 'string' } }, ['time']), run: async ({ time }) => { const m = /^(\d{1,2}):?(\d{2})?/.exec(time || ''); apply({ depart: time === 'auto' || !m ? null : +m[1] + (+(m[2] || 0)) / 60 }); return log('set_departure_time', { time }, summary()); } },
+      { name: 'show_alert', description: 'Pin a short alert banner on the trip (weather, road, safety).', input_schema: obj({ title: { type: 'string' }, message: { type: 'string' } }, ['title', 'message']), run: async ({ title, message }) => { apply({ aiAlert: { title, message } }); return log('show_alert', { title }, 'Alert pinned.'); } }];
+    const system = `You are SafarCo's trip co-pilot for road trips in Pakistan. Today is ${isoAdd(0)}. Use the tools to change the trip whenever the user asks; never ask the user to edit anything by hand. After acting, reply in 1–3 short sentences in the user's language (English or Roman Urdu), quoting the new total and any warning. Distances are in km and heights in feet. Current state: ${summary()}`;
+    let reply = '';
+    try { reply = await window.claude.complete({ system, messages: [{ role: 'user', content: text }], tools, max_tokens: 500 }); }
+    catch (e) { reply = calls.length ? 'Done. Your trip is updated.' : 'I couldn’t reach the assistant just now. Try again in a moment.'; }
+    reply = String(reply || 'Done.').trim();
+    this.setState(s => { const msgs = s.msgs.slice(); msgs[msgs.length - 1] = { ...msgs[msgs.length - 1], text: reply, typed: 0 }; return { msgs }; });
+    clearInterval(this.typer);
+    this.typer = setInterval(() => { const msgs = this.state.msgs.slice(), m = { ...msgs[msgs.length - 1] }; m.typed += 5; msgs[msgs.length - 1] = m; this.setState({ msgs });
+      if (m.typed >= m.text.length) { clearInterval(this.typer); this.setState({ busy: false });
+        if (calls.length) { this.later(900, () => this.setState({ drawer: false, tab: 'trip', toast: 'Trip updated', flash: 'budget' })); this.later(4000, () => this.setState({ toast: null, flash: null })); } } }, 20);
+  }
+  sendKeyword(raw) {
+    const t = raw.toLowerCase(), key = /fairy|jeep|meadow|raikot/.test(t) ? 'fairy' : /friend|group|backpack|people|log/.test(t) ? 'friends' : /weather|babusar|snow|pass|mausam/.test(t) ? 'weather' : null;
+    this.run(key, raw);
+  }
+  sendText() {
+    const t = this.state.input.trim();
+    this.ask(t || SCRIPTS.fairy.prompt);
+  }
+}
+//@@END

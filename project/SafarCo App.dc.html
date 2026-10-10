@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<style>body{margin:0;background:#E9E4DC;font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}a{color:#0F5257}a:hover{color:#0A3B3F}button{font-family:inherit}*::-webkit-scrollbar{width:0;height:0}.dv-turn{padding:40px 44px 32px;scroll-margin-top:16px}.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 20px}.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1a1a1a;color:#fff;border-radius:4px;text-decoration:none}.dv-tname{font:600 13px/1.2 Manrope,system-ui,sans-serif;color:#1a1a1a}.dv-opts{display:flex;flex-wrap:wrap;gap:36px;align-items:flex-start}.dv-opt{flex:none;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px}.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1a1a1a;border-radius:5px;text-decoration:none}.dv-olabel{display:flex;align-items:baseline;gap:8px;font:500 12px/1.3 Manrope,system-ui,sans-serif;color:rgba(0,0,0,.6)}.dv-opt:target .dv-oid{background:#0F5257;color:#fff}.dv-next{margin:26px 0 0;font:13px/1.5 Manrope,system-ui,sans-serif;color:rgba(0,0,0,.55)}</style>
+</helmet>
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">SafarCo — three directions on the brief palette. <a class="dv-oid" href="#1a">1a</a> is fully interactive.</span></div>
+<div class="dv-opts">
+
+<div class="dv-opt" id="1a">
+<div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>Daylight relief — interactive: quiz → trip builder → co-pilot → offline</div>
+<div style="width:400px;height:860px;border-radius:58px;background:#14191C;padding:10px;box-sizing:border-box;box-shadow:0 40px 80px -30px rgba(20,25,28,.55),0 0 0 1px #2B3A42 inset">
+<div style="position:relative;width:380px;height:840px;border-radius:48px;overflow:hidden;background:#F6F1E9;color:#2B3A42">
+
+<div style="position:absolute;top:0;left:0;right:0;height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 30px;z-index:30;font-size:15px;font-weight:700;color:#2B3A42">
+<span>9:41</span>
+<div style="position:absolute;left:50%;top:11px;width:118px;height:32px;margin-left:-59px;border-radius:20px;background:#0B0E10"></div>
+<div style="display:flex;gap:5px;font-size:16px"><i class="ph-fill ph-cell-signal-high"></i><i class="ph-fill ph-wifi-high"></i><i class="ph-fill ph-battery-full"></i></div>
+</div>
+
+<sc-if value="{{ isOnboard }}" hint-placeholder-val="{{ true }}">
+<div style="position:absolute;top:50px;left:0;right:0;bottom:0;display:flex;flex-direction:column;padding:8px 24px 30px">
+<div style="display:flex;align-items:center;justify-content:space-between">
+<div style="font-size:20px;font-weight:800;letter-spacing:-.02em;color:#0F5257">Safar<span style="color:#F4A261">Co</span></div>
+<div style="font-size:13px;font-weight:600;color:#5E6B72">{{ stepLabel }}</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:14px">
+<sc-for list="{{ stepBars }}" as="b" hint-placeholder-count="4"><div style="height:4px;border-radius:2px;background:{{ b.bg }};transition:background .3s"></div></sc-for>
+</div>
+<div style="position:relative;height:132px;margin:18px -24px 0;perspective:700px;overflow:hidden">
+<div style="position:absolute;inset:0;transform-style:preserve-3d;transform:rotateX(22deg)">
+<svg viewBox="0 0 340 120" preserveAspectRatio="none" style="position:absolute;left:-6%;width:112%;bottom:0;height:120px;transform:translateZ(-80px) scale(1.15)"><path d="{{ hero.ridgeB }}" fill="#E7D9C6"></path></svg>
+<svg viewBox="0 0 340 120" preserveAspectRatio="none" style="position:absolute;left:-3%;width:106%;bottom:0;height:120px;transform:translateZ(-40px) scale(1.07)"><path d="{{ hero.ridgeA }}" fill="#D4E2DF"></path></svg>
+<svg viewBox="0 0 340 120" preserveAspectRatio="none" style="position:absolute;left:0;width:100%;bottom:0;height:120px"><path d="{{ hero.area }}" fill="#0F5257"></path><path d="{{ hero.line }}" fill="none" stroke="#F4A261" stroke-width="2.5" stroke-dasharray="5 5"></path></svg>
+</div>
+</div>
+<div style="font-size:27px;line-height:1.15;font-weight:800;letter-spacing:-.02em;margin-top:18px;text-wrap:pretty">{{ q.q }}</div>
+<div style="font-size:14px;color:#5E6B72;margin-top:6px;font-weight:500">{{ q.effect }}</div>
+<div style="display:flex;flex-direction:column;gap:10px;margin-top:18px;perspective:900px">
+<sc-for list="{{ opts }}" as="o" hint-placeholder-count="4">
+<button onClick="{{ o.onClick }}" style="display:flex;align-items:center;gap:14px;padding:12px 14px;border-radius:18px;border:1.5px solid {{ o.border }};background:{{ o.bg }};text-align:left;cursor:pointer;transform:{{ o.transform }};box-shadow:{{ o.shadow }};transition:all .35s cubic-bezier(.2,.8,.2,1);color:#2B3A42">
+<div style="width:46px;height:46px;flex:none;border-radius:14px;display:flex;align-items:center;justify-content:center;background:{{ o.tileBg }};color:{{ o.tileFg }};font-size:26px;text-shadow:{{ o.extrude }};transition:all .35s"><i class="ph-fill {{ o.icon }}"></i></div>
+<div style="flex:1;min-width:0"><div style="font-size:16px;font-weight:700">{{ o.label }}</div><div style="font-size:13px;color:#5E6B72;margin-top:2px;font-weight:500">{{ o.sub }}</div></div>
+<i class="ph-fill ph-check-circle" style="font-size:22px;color:#0F5257;opacity:{{ o.checkOp }};transition:opacity .25s"></i>
+</button>
+</sc-for>
+</div>
+<div style="flex:1"></div>
+<div style="display:flex;gap:10px">
+<sc-if value="{{ canBack }}" hint-placeholder-val="{{ false }}"><button onClick="{{ back }}" style="height:56px;width:56px;border-radius:18px;border:1.5px solid #E8E0D4;background:#fff;font-size:20px;color:#2B3A42;cursor:pointer"><i class="ph-bold ph-arrow-left"></i></button></sc-if>
+<button onClick="{{ next }}" style="flex:1;height:56px;border-radius:18px;border:0;background:#0F5257;color:#fff;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 10px 24px -10px rgba(15,82,87,.7)" style-active="transform:scale(.98)">{{ nextLabel }}<i class="ph-bold ph-arrow-right"></i></button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isApp }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:50px;left:0;right:0;bottom:84px;overflow-y:auto;scrollbar-width:none">
+
+<sc-if value="{{ isTrip }}" hint-placeholder-val="{{ true }}">
+<div style="padding:6px 20px 110px;display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;align-items:flex-end;justify-content:space-between">
+<div><div style="font-size:13px;font-weight:600;color:#5E6B72">Assalam-o-Alaikum</div><div style="font-size:24px;font-weight:800;letter-spacing:-.02em">Plan your safar</div></div>
+<button onClick="{{ restart }}" style="height:36px;padding:0 12px;border-radius:12px;border:1.5px solid #E8E0D4;background:#fff;font-size:13px;font-weight:700;color:#2B3A42;display:flex;align-items:center;gap:6px;cursor:pointer"><i class="ph-fill ph-sliders-horizontal"></i>Quiz</button>
+</div>
+<div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -20px;padding:2px 20px 6px">
+<sc-for list="{{ corridorChips }}" as="c" hint-placeholder-count="3"><button onClick="{{ c.onClick }}" style="flex:none;height:36px;padding:0 14px;border-radius:12px;border:1.5px solid {{ c.border }};background:{{ c.bg }};color:{{ c.fg }};font-size:13px;font-weight:700;cursor:pointer;transition:all .2s">{{ c.label }}</button></sc-for>
+</div>
+
+<div onMouseMove="{{ onTilt }}" onMouseLeave="{{ resetTilt }}" style="position:relative;height:214px;border-radius:24px;background:#0F5257;overflow:hidden;perspective:800px;color:#fff;box-shadow:{{ routeShadow }};transition:box-shadow .4s">
+<div style="position:absolute;left:18px;top:16px;right:18px;z-index:5">
+<div style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#F4A261">{{ c.region }}</div>
+<div style="font-size:19px;font-weight:800;margin-top:4px;letter-spacing:-.01em">{{ c.from }} → {{ c.to }}</div>
+<div style="font-size:13px;color:#CFE1DE;margin-top:3px;font-weight:600">{{ c.km }} km · {{ c.hrs }}</div>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:0;height:150px;transform-style:preserve-3d;transform:{{ heroTransform }};transition:transform .25s ease-out">
+<svg viewBox="0 0 340 120" preserveAspectRatio="none" style="position:absolute;left:-8%;width:116%;bottom:0;height:130px;transform:translateZ(-90px) scale(1.2)"><path d="{{ hero.ridgeB }}" fill="#1B6A6F"></path></svg>
+<svg viewBox="0 0 340 120" preserveAspectRatio="none" style="position:absolute;left:-4%;width:108%;bottom:0;height:125px;transform:translateZ(-45px) scale(1.1)"><path d="{{ hero.ridgeA }}" fill="#2A7F82"></path></svg>
+<svg viewBox="0 0 340 120" preserveAspectRatio="none" style="position:absolute;left:0;width:100%;bottom:0;height:120px"><path d="{{ hero.area }}" fill="#F6F1E9"></path><path d="{{ hero.line }}" fill="none" stroke="#F4A261" stroke-width="3" stroke-dasharray="6 5"></path></svg>
+<div style="position:absolute;left:{{ hero.peakX }}%;bottom:{{ hero.peakB }}px;transform:translate(-50%,0) translateZ(50px);display:flex;flex-direction:column;align-items:center">
+<div style="padding:5px 9px;border-radius:9px;background:#fff;color:#0F5257;font-size:11px;font-weight:800;white-space:nowrap;box-shadow:0 8px 18px -6px rgba(0,0,0,.4)">{{ c.peakLabel }}</div>
+<div style="width:2px;height:14px;background:#fff"></div>
+</div>
+<sc-if value="{{ hasHub }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;left:{{ hero.hubX }}%;bottom:{{ hero.hubB }}px;transform:translate(-50%,0) translateZ(30px);display:flex;flex-direction:column;align-items:center">
+<div style="padding:5px 9px;border-radius:9px;background:#F4A261;color:#2B3A42;font-size:11px;font-weight:800;white-space:nowrap;display:flex;align-items:center;gap:4px"><i class="ph-fill ph-local-parking"></i>Raikot Bridge</div>
+<div style="width:2px;height:12px;background:#F4A261"></div>
+</div>
+</sc-if>
+</div>
+</div>
+
+<sc-if value="{{ gate.show }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:12px;padding:14px;border-radius:18px;background:{{ gate.bg }};color:{{ gate.fg }}">
+<i class="ph-fill {{ gate.icon }}" style="font-size:24px;flex:none"></i>
+<div><div style="font-size:15px;font-weight:800">{{ gate.title }}</div><div style="font-size:13px;font-weight:600;margin-top:3px;line-height:1.4">{{ gate.msg }}</div></div>
+</div>
+</sc-if>
+<sc-if value="{{ hasAiAlert }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:12px;padding:14px;border-radius:18px;background:#FCEBDD;color:#7A3E10;box-shadow:{{ alertShadow }};transition:box-shadow .4s">
+<i class="ph-fill ph-cloud-snow" style="font-size:24px;flex:none"></i>
+<div style="flex:1"><div style="font-size:15px;font-weight:800">{{ aiAlert.title }}</div><div style="font-size:13px;font-weight:600;margin-top:3px;line-height:1.4">{{ aiAlert.message }}</div></div>
+<button onClick="{{ dismissAlert }}" style="border:0;background:none;color:#7A3E10;font-size:18px;cursor:pointer;align-self:flex-start"><i class="ph-bold ph-x"></i></button>
+</div>
+</sc-if>
+
+<div style="border-radius:24px;background:#fff;padding:18px;box-shadow:{{ budgetShadow }};transition:box-shadow .4s">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<div style="font-size:15px;font-weight:800">Projected budget</div>
+<div style="font-size:12px;font-weight:800;padding:4px 9px;border-radius:8px;background:{{ health.bg }};color:{{ health.fg }}">{{ health.label }}</div>
+</div>
+<div style="position:relative;height:118px;margin-top:6px">
+<svg viewBox="0 0 200 110" style="position:absolute;left:50%;margin-left:-110px;width:220px;height:121px">
+<path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#EFE8DD" stroke-width="16" stroke-linecap="round"></path>
+<path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="{{ health.stroke }}" stroke-width="16" stroke-linecap="round" stroke-dasharray="251.33" stroke-dashoffset="{{ gaugeOffset }}" style="transition:stroke-dashoffset .8s cubic-bezier(.2,.8,.2,1),stroke .4s"></path>
+</svg>
+<div style="position:absolute;left:0;right:0;bottom:4px;text-align:center">
+<div style="font-size:28px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums">{{ totalStr }}</div>
+<div style="font-size:12px;font-weight:600;color:#5E6B72">{{ perPersonStr }} per person · cap {{ capStr }}</div>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;margin-top:16px">
+<sc-for list="{{ rows }}" as="r" hint-placeholder-count="5">
+<div style="display:flex;align-items:center;gap:12px">
+<div style="width:38px;height:38px;flex:none;border-radius:12px;background:{{ r.tint }};color:{{ r.fg }};display:flex;align-items:center;justify-content:center;font-size:19px"><i class="ph-fill {{ r.icon }}"></i></div>
+<div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:700">{{ r.label }}</div><div style="font-size:12px;color:#5E6B72;font-weight:500;margin-top:1px;font-variant-numeric:tabular-nums">{{ r.detail }}</div></div>
+<div style="font-size:14px;font-weight:800;font-variant-numeric:tabular-nums">{{ r.amount }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="border-radius:24px;background:#fff;padding:18px;display:flex;flex-direction:column;gap:16px">
+<div style="font-size:15px;font-weight:800">Trip settings</div>
+<div style="display:flex;gap:8px">
+<sc-for list="{{ vehChips }}" as="v" hint-placeholder-count="4"><button onClick="{{ v.onClick }}" title="{{ v.label }}" style="flex:1;height:48px;border-radius:14px;border:1.5px solid {{ v.border }};background:{{ v.bg }};color:{{ v.fg }};font-size:22px;cursor:pointer;transition:all .2s"><i class="ph-fill {{ v.icon }}"></i></button></sc-for>
+</div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;border-radius:14px;background:#F3EDE3">
+<sc-for list="{{ tierChips }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.onClick }}" style="height:38px;border-radius:11px;border:0;background:{{ t.bg }};color:{{ t.fg }};font-size:13px;font-weight:700;cursor:pointer;box-shadow:{{ t.shadow }};transition:all .2s">{{ t.label }}</button></sc-for>
+</div>
+<sc-for list="{{ steppers }}" as="s" hint-placeholder-count="3">
+<div style="display:flex;align-items:center;justify-content:space-between">
+<div style="font-size:14px;font-weight:700">{{ s.label }}</div>
+<div style="display:flex;align-items:center;gap:12px">
+<button onClick="{{ s.dec }}" style="width:36px;height:36px;border-radius:11px;border:1.5px solid #E8E0D4;background:#fff;color:#2B3A42;cursor:pointer;font-size:15px"><i class="ph-bold ph-minus"></i></button>
+<div style="min-width:74px;text-align:center;font-size:15px;font-weight:800;font-variant-numeric:tabular-nums">{{ s.value }}</div>
+<button onClick="{{ s.inc }}" style="width:36px;height:36px;border-radius:11px;border:1.5px solid #E8E0D4;background:#fff;color:#2B3A42;cursor:pointer;font-size:15px"><i class="ph-bold ph-plus"></i></button>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isOffline }}" hint-placeholder-val="{{ false }}">
+<div style="padding:6px 20px 110px;display:flex;flex-direction:column;gap:14px">
+<div><div style="font-size:13px;font-weight:600;color:#5E6B72">{{ c.from }} → {{ c.to }}</div><div style="font-size:24px;font-weight:800;letter-spacing:-.02em">Offline survival</div></div>
+<div style="border-radius:24px;background:{{ off.cardBg }};color:{{ off.cardFg }};padding:20px;transition:background .4s">
+<div style="display:flex;align-items:center;gap:14px">
+<div style="width:52px;height:52px;border-radius:16px;background:{{ off.tileBg }};display:flex;align-items:center;justify-content:center;font-size:28px"><i class="ph-fill {{ off.icon }}"></i></div>
+<div style="flex:1"><div style="font-size:17px;font-weight:800">{{ off.title }}</div><div style="font-size:13px;font-weight:600;opacity:.85;margin-top:2px">{{ off.sub }}</div></div>
+</div>
+<div style="height:8px;border-radius:4px;background:{{ off.trackBg }};margin-top:18px;overflow:hidden"><div style="height:100%;width:{{ progress }}%;background:#F4A261;border-radius:4px;transition:width .15s linear"></div></div>
+<button onClick="{{ toggleOffline }}" style="margin-top:16px;width:100%;height:50px;border-radius:15px;border:0;background:{{ off.btnBg }};color:{{ off.btnFg }};font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px"><i class="ph-bold {{ off.btnIcon }}"></i>{{ off.btnLabel }}</button>
+</div>
+<div style="font-size:15px;font-weight:800;margin-top:6px">Emergency</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+<sc-for list="{{ helplines }}" as="h" hint-placeholder-count="4">
+<a href="{{ h.href }}" style="display:flex;flex-direction:column;gap:2px;padding:14px;border-radius:18px;background:#fff;text-decoration:none;color:#2B3A42">
+<div style="font-size:22px;font-weight:800;color:#E76F51;font-variant-numeric:tabular-nums">{{ h.num }}</div>
+<div style="font-size:13px;font-weight:700">{{ h.label }}</div>
+</a>
+</sc-for>
+</div>
+<div style="font-size:15px;font-weight:800;margin-top:6px">Stays on this route</div>
+<sc-for list="{{ hotels }}" as="h" hint-placeholder-count="3">
+<div style="border-radius:20px;background:#fff;padding:16px;display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+<div><div style="font-size:16px;font-weight:800">{{ h.name }}</div><div style="font-size:13px;color:#5E6B72;font-weight:500;margin-top:2px">{{ h.note }}</div></div>
+<div style="flex:none;font-size:11px;font-weight:800;padding:4px 8px;border-radius:7px;background:#E2EDEB;color:#0F5257;text-transform:uppercase;letter-spacing:.04em">{{ h.tier }}</div>
+</div>
+<a href="{{ h.href }}" target="_blank" rel="noopener" style="height:42px;border-radius:13px;background:#F3EDE3;color:#2B3A42;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none"><i class="ph-fill ph-google-logo"></i>Read Reviews on Google Maps<i class="ph-bold ph-arrow-up-right"></i></a>
+</div>
+</sc-for>
+</div>
+</sc-if>
+</div>
+
+<div style="position:absolute;left:0;right:0;bottom:0;height:84px;background:rgba(246,241,233,.92);backdrop-filter:blur(14px);display:flex;align-items:flex-start;padding:10px 28px 0;gap:8px;z-index:10">
+<sc-for list="{{ tabs }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="width:76px;height:50px;border:0;background:none;color:{{ t.fg }};display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:700;cursor:pointer"><i class="{{ t.weight }} {{ t.icon }}" style="font-size:24px"></i>{{ t.label }}</button></sc-for>
+<div style="flex:1"></div>
+</div>
+<button onClick="{{ openDrawer }}" style="position:absolute;right:22px;bottom:30px;z-index:12;height:60px;padding:0 20px 0 16px;border-radius:22px;border:0;background:#2B3A42;color:#fff;display:flex;align-items:center;gap:10px;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 16px 30px -12px rgba(43,58,66,.8),inset 0 1px 0 rgba(255,255,255,.15)" style-active="transform:scale(.97)">
+<div style="width:34px;height:34px;border-radius:12px;background:#F4A261;color:#2B3A42;display:flex;align-items:center;justify-content:center;font-size:19px"><i class="ph-fill ph-microphone"></i></div>Co-pilot</button>
+
+<sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;left:20px;right:20px;top:56px;z-index:25;padding:12px 14px;border-radius:16px;background:#2B3A42;color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;gap:10px;box-shadow:0 16px 30px -12px rgba(0,0,0,.5)"><i class="ph-fill ph-sparkle" style="color:#F4A261;font-size:18px"></i>{{ toast }}</div>
+</sc-if>
+
+<div onClick="{{ closeDrawer }}" style="position:absolute;inset:0;z-index:18;background:rgba(20,25,28,.35);opacity:{{ backdropOp }};pointer-events:{{ backdropPe }};transition:opacity .35s"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;height:560px;z-index:20;background:#FFFDF9;border-radius:32px 32px 0 0;box-shadow:0 -20px 50px -20px rgba(0,0,0,.35);transform:{{ drawerY }};transition:transform .45s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column">
+<div style="width:40px;height:5px;border-radius:3px;background:#E0D8CC;margin:10px auto 0"></div>
+<div style="display:flex;align-items:center;gap:10px;padding:12px 20px 10px">
+<div style="width:38px;height:38px;border-radius:13px;background:#0F5257;color:#F4A261;display:flex;align-items:center;justify-content:center;font-size:20px"><i class="ph-fill ph-sparkle"></i></div>
+<div style="flex:1"><div style="font-size:16px;font-weight:800">Co-pilot</div><div style="font-size:12px;font-weight:600;color:#5E6B72">{{ copilotStatus }}</div></div>
+<button onClick="{{ closeDrawer }}" style="width:36px;height:36px;border-radius:12px;border:0;background:#F3EDE3;color:#2B3A42;font-size:16px;cursor:pointer"><i class="ph-bold ph-x"></i></button>
+</div>
+<div ref="{{ chatRef }}" style="flex:1;overflow-y:auto;scrollbar-width:none;padding:4px 20px 10px;display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{ msgView }}" as="m" hint-placeholder-count="1">
+<sc-if value="{{ m.isUser }}" hint-placeholder-val="{{ false }}"><div style="align-self:flex-end;max-width:78%;padding:10px 14px;border-radius:18px 18px 6px 18px;background:#0F5257;color:#fff;font-size:14px;font-weight:600;line-height:1.4">{{ m.text }}</div></sc-if>
+<sc-if value="{{ m.isAi }}" hint-placeholder-val="{{ true }}">
+<div style="align-self:flex-start;max-width:88%;display:flex;flex-direction:column;gap:8px">
+<div style="padding:10px 14px;border-radius:18px 18px 18px 6px;background:#F3EDE3;font-size:14px;font-weight:600;line-height:1.45">{{ m.shown }}</div>
+<sc-for list="{{ m.calls }}" as="k" hint-placeholder-count="0">
+<div style="padding:10px 12px;border-radius:14px;background:#2B3A42;color:#E6EEF0;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:11px;line-height:1.5">
+<div style="display:flex;justify-content:space-between;gap:8px;color:#F4A261;font-weight:500"><span>ƒ {{ k.fn }}()</span><span style="color:{{ k.statusColor }}">{{ k.status }}</span></div>
+<div style="color:#AFC3C8;word-break:break-word;margin-top:3px">{{ k.args }}</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+</sc-for>
+<sc-if value="{{ busy }}" hint-placeholder-val="{{ false }}"><div style="align-self:flex-start;font-size:12px;font-weight:700;color:#5E6B72;display:flex;align-items:center;gap:6px"><i class="ph-fill ph-waveform" style="color:#0F5257;font-size:16px"></i>streaming…</div></sc-if>
+</div>
+<div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:4px 20px 10px">
+<sc-for list="{{ suggestions }}" as="s" hint-placeholder-count="3"><button onClick="{{ s.onClick }}" style="flex:none;padding:9px 13px;border-radius:13px;border:1.5px solid #D4E2DF;background:#fff;color:#0F5257;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">{{ s.prompt }}</button></sc-for>
+</div>
+<div style="display:flex;gap:8px;padding:0 20px 28px">
+<input value="{{ input }}" onChange="{{ onInput }}" onKeyDown="{{ onKey }}" placeholder="Ask in English or Urdu…" style="flex:1;height:50px;border-radius:16px;border:1.5px solid #E8E0D4;background:#fff;padding:0 16px;font:600 14px Manrope,sans-serif;color:#2B3A42;outline:none">
+<button onClick="{{ send }}" style="width:50px;height:50px;border-radius:16px;border:0;background:#0F5257;color:#fff;font-size:20px;cursor:pointer"><i class="ph-fill {{ sendIcon }}"></i></button>
+</div>
+</div>
+</sc-if>
+
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1b">
+<div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>Night drive — slate dark mode, isometric budget stack</div>
+<div style="width:400px;height:860px;border-radius:58px;background:#14191C;padding:10px;box-sizing:border-box;box-shadow:0 40px 80px -30px rgba(20,25,28,.55)">
+<div style="position:relative;width:380px;height:840px;border-radius:48px;overflow:hidden;background:#1E2A30;color:#F6F1E9">
+<div style="height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 30px;font-size:15px;font-weight:700;position:relative"><span>9:41</span><div style="position:absolute;left:50%;top:11px;width:118px;height:32px;margin-left:-59px;border-radius:20px;background:#0B0E10"></div><div style="display:flex;gap:5px;font-size:16px"><i class="ph-fill ph-cell-signal-high"></i><i class="ph-fill ph-wifi-high"></i><i class="ph-fill ph-battery-full"></i></div></div>
+<div style="padding:8px 24px;display:flex;flex-direction:column;gap:18px">
+<div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:13px;font-weight:700;color:#F4A261;letter-spacing:.06em;text-transform:uppercase">Lahore → Kalam · Swat</div><div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:5px 10px;border-radius:10px;background:#2B3A42"><i class="ph-fill ph-car-profile"></i>Corolla GLi</div></div>
+<div><div style="font-size:14px;font-weight:600;color:#9DB0B7">Projected for 4 travellers, 3 nights</div><div style="font-size:46px;font-weight:800;letter-spacing:-.03em;line-height:1.05;margin-top:4px;font-variant-numeric:tabular-nums">PKR 152,560</div><div style="font-size:14px;font-weight:700;color:#7FD1B9;margin-top:6px">PKR 7,440 under your cap</div></div>
+<div style="position:relative;height:300px">
+<div style="position:absolute;left:28px;top:70px;width:150px;height:150px;transform-style:preserve-3d;transform:rotateX(58deg) rotateZ(45deg)">
+<div style="position:absolute;inset:0;transform-style:preserve-3d;transform:translateZ(18px)"><div style="position:absolute;inset:0;background:#2E6E5E;border-radius:4px"></div><div style="position:absolute;left:0;top:100%;width:100%;height:18px;background:#1F4E43;transform-origin:top;transform:rotateX(-90deg)"></div><div style="position:absolute;left:100%;top:0;width:18px;height:100%;background:#163A32;transform-origin:left;transform:rotateY(90deg)"></div></div>
+<div style="position:absolute;inset:0;transform-style:preserve-3d;transform:translateZ(80px)"><div style="position:absolute;inset:0;background:#E76F51;border-radius:4px"></div><div style="position:absolute;left:0;top:100%;width:100%;height:58px;background:#B9533A;transform-origin:top;transform:rotateX(-90deg)"></div><div style="position:absolute;left:100%;top:0;width:58px;height:100%;background:#93402C;transform-origin:left;transform:rotateY(90deg)"></div></div>
+<div style="position:absolute;inset:0;transform-style:preserve-3d;transform:translateZ(126px)"><div style="position:absolute;inset:0;background:#F4A261;border-radius:4px"></div><div style="position:absolute;left:0;top:100%;width:100%;height:44px;background:#C67E45;transform-origin:top;transform:rotateX(-90deg)"></div><div style="position:absolute;left:100%;top:0;width:44px;height:100%;background:#A06434;transform-origin:left;transform:rotateY(90deg)"></div></div>
+<div style="position:absolute;inset:0;transform-style:preserve-3d;transform:translateZ(150px)"><div style="position:absolute;inset:0;background:#3E8A8F;border-radius:4px"></div><div style="position:absolute;left:0;top:100%;width:100%;height:22px;background:#2C6A6E;transform-origin:top;transform:rotateX(-90deg)"></div><div style="position:absolute;left:100%;top:0;width:22px;height:100%;background:#205256;transform-origin:left;transform:rotateY(90deg)"></div></div>
+</div>
+<div style="position:absolute;right:0;top:24px;display:flex;flex-direction:column;gap:22px;width:130px">
+<div><div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#9DB0B7"><span style="width:8px;height:8px;border-radius:2px;background:#3E8A8F"></span>Tolls</div><div style="font-size:16px;font-weight:800">PKR 4,640</div></div>
+<div><div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#9DB0B7"><span style="width:8px;height:8px;border-radius:2px;background:#F4A261"></span>Meals</div><div style="font-size:16px;font-weight:800">PKR 40,000</div></div>
+<div><div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#9DB0B7"><span style="width:8px;height:8px;border-radius:2px;background:#E76F51"></span>Stay</div><div style="font-size:16px;font-weight:800">PKR 54,000</div></div>
+<div><div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#9DB0B7"><span style="width:8px;height:8px;border-radius:2px;background:#2E6E5E"></span>Fuel</div><div style="font-size:16px;font-weight:800">PKR 30,990</div></div>
+</div>
+</div>
+<div style="display:flex;gap:10px">
+<div style="flex:1;padding:14px;border-radius:18px;background:#2B3A42"><i class="ph-fill ph-toilet" style="font-size:22px;color:#7FD1B9"></i><div style="font-size:14px;font-weight:800;margin-top:6px">Bhera</div><div style="font-size:12px;font-weight:600;color:#9DB0B7">Clean washrooms · 112 km</div></div>
+<div style="flex:1;padding:14px;border-radius:18px;background:#2B3A42"><i class="ph-fill ph-wrench" style="font-size:22px;color:#F4A261"></i><div style="font-size:14px;font-weight:800;margin-top:6px">Mingora</div><div style="font-size:12px;font-weight:600;color:#9DB0B7">Mechanic · 24 h</div></div>
+</div>
+</div>
+<div style="position:absolute;left:20px;right:20px;bottom:30px;height:62px;border-radius:22px;background:#F4A261;color:#1E2A30;display:flex;align-items:center;gap:12px;padding:0 10px 0 18px;font-size:15px;font-weight:800"><i class="ph-fill ph-microphone" style="font-size:22px"></i><span style="flex:1">“Make it 5 friends, backpacker”</span><div style="width:44px;height:44px;border-radius:15px;background:#1E2A30;color:#F4A261;display:flex;align-items:center;justify-content:center;font-size:20px"><i class="ph-fill ph-paper-plane-right"></i></div></div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1c">
+<div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>Emerald terrain — tilted 3D topo plane, glass cards</div>
+<div style="width:400px;height:860px;border-radius:58px;background:#14191C;padding:10px;box-sizing:border-box;box-shadow:0 40px 80px -30px rgba(20,25,28,.55)">
+<div style="position:relative;width:380px;height:840px;border-radius:48px;overflow:hidden;background:#0F5257;color:#fff">
+<div style="position:absolute;inset:0;background:radial-gradient(120% 70% at 70% 30%,#16686D 0%,#0F5257 55%,#0A3B3F 100%)"></div>
+<div style="position:absolute;left:-60px;top:110px;width:500px;height:500px;perspective:900px">
+<div style="position:absolute;inset:0;transform-style:preserve-3d;transform:rotateX(60deg) rotateZ(-24deg)">
+<div style="position:absolute;inset:0;border-radius:40px;background:repeating-radial-gradient(circle at 62% 38%,transparent 0 13px,rgba(244,162,97,.32) 13px 14.5px),repeating-radial-gradient(circle at 26% 70%,transparent 0 11px,rgba(255,255,255,.14) 11px 12px),#0D4A4F"></div>
+<svg viewBox="0 0 500 500" style="position:absolute;inset:0;width:100%;height:100%"><path d="M60 450 C140 400 150 330 220 300 S300 230 290 190 S330 130 312 190" fill="none" stroke="#F4A261" stroke-width="7" stroke-linecap="round" stroke-dasharray="2 14"></path></svg>
+<div style="position:absolute;left:268px;top:262px;transform:rotateZ(24deg) rotateX(-60deg);transform-origin:bottom;display:flex;flex-direction:column;align-items:center;margin-top:-58px"><div style="padding:6px 10px;border-radius:10px;background:#F4A261;color:#2B3A42;font-size:12px;font-weight:800;white-space:nowrap">P · Raikot Bridge</div><div style="width:2px;height:24px;background:#F4A261"></div></div>
+<div style="position:absolute;left:296px;top:110px;transform:rotateZ(24deg) rotateX(-60deg);transform-origin:bottom;display:flex;flex-direction:column;align-items:center;margin-top:-58px"><div style="padding:6px 10px;border-radius:10px;background:#fff;color:#0F5257;font-size:12px;font-weight:800;white-space:nowrap">Fairy Meadows · 3,300 m</div><div style="width:2px;height:24px;background:#fff"></div></div>
+</div>
+</div>
+<div style="position:relative;height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 30px;font-size:15px;font-weight:700"><span>9:41</span><div style="position:absolute;left:50%;top:11px;width:118px;height:32px;margin-left:-59px;border-radius:20px;background:#0B0E10"></div><div style="display:flex;gap:5px;font-size:16px"><i class="ph-fill ph-cell-signal-high"></i><i class="ph-fill ph-wifi-high"></i><i class="ph-fill ph-battery-full"></i></div></div>
+<div style="position:relative;padding:10px 24px">
+<div style="font-size:13px;font-weight:700;color:#F4A261;letter-spacing:.06em;text-transform:uppercase">Islamabad → Fairy Meadows</div>
+<div style="font-size:30px;font-weight:800;letter-spacing:-.02em;margin-top:6px;line-height:1.1">530 km, last 12 km<br>by jeep</div>
+</div>
+<div style="position:absolute;left:16px;right:16px;bottom:24px;display:flex;flex-direction:column;gap:10px">
+<div style="padding:16px;border-radius:22px;background:rgba(231,111,81,.95);color:#fff;display:flex;gap:12px;box-shadow:0 20px 40px -18px rgba(0,0,0,.5)"><i class="ph-fill ph-warning-octagon" style="font-size:26px;flex:none;color:#2B1008"></i><div><div style="font-size:15px;font-weight:800;color:#2B1008">Sedan Undercarriage Risk</div><div style="font-size:13px;font-weight:600;color:#3A160C;margin-top:3px;line-height:1.4">Final track requires 4x4. Park at Raikot Bridge.</div></div></div>
+<div style="padding:16px;border-radius:22px;background:rgba(255,255,255,.12);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.18);display:flex;align-items:center;gap:12px"><div style="width:44px;height:44px;border-radius:14px;background:#F4A261;color:#2B3A42;display:flex;align-items:center;justify-content:center;font-size:22px"><i class="ph-fill ph-jeep"></i></div><div style="flex:1"><div style="font-size:15px;font-weight:800">Local jeep to Tato</div><div style="font-size:13px;font-weight:600;color:#CFE1DE">PKR 8,000 – 10,000 return</div></div><i class="ph-bold ph-whatsapp-logo" style="font-size:22px"></i></div>
+<div style="display:flex;gap:10px"><div style="flex:1;padding:14px;border-radius:20px;background:rgba(255,255,255,.12);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.18)"><div style="font-size:12px;font-weight:700;color:#CFE1DE">Total</div><div style="font-size:19px;font-weight:800;margin-top:2px">PKR 148,900</div></div><div style="width:62px;border-radius:20px;background:#fff;color:#0F5257;display:flex;align-items:center;justify-content:center;font-size:26px"><i class="ph-fill ph-microphone"></i></div></div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+<p class="dv-next">Try next: "build <a class="dv-oid" href="#1b">1b</a> out as the interactive one" · "bring the 3D topo from <a class="dv-oid" href="#1c">1c</a> into <a class="dv-oid" href="#1a">1a</a>'s route card" · "add the route map screen"</p>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const PETROL = 387.40;
+const fmt = n => 'PKR ' + Math.round(n).toLocaleString('en-US');
+const VEH = {
+  sedan: { icon: 'ph-car-profile', label: 'Standard Sedan / Hatchback', sub: 'Corolla GLi, City, Alto', mileage: 13 },
+  suv: { icon: 'ph-jeep', label: '4x4 SUV', sub: 'Prado, Fortuner, Land Cruiser', mileage: 8 },
+  bike: { icon: 'ph-motorcycle', label: 'Motorbike', sub: 'CG-125, YBR, heavy bikes', mileage: 35 },
+  public: { icon: 'ph-bus', label: 'Public Transport', sub: 'Daewoo, NATCO, coasters', mileage: 0 }
+};
+const TIERS = {
+  backpacker: { label: 'Backpacker', night: 3500, meal: 1200 },
+  standard: { label: 'Standard', night: 9000, meal: 2500 },
+  premium: { label: 'Premium', night: 28000, meal: 5500 }
+};
+const QUIZ = [
+  { key: 'vehicle', q: 'What will you be traveling in?', effect: 'Sets the terrain rules your route is checked against.',
+    opts: Object.entries(VEH).map(([id, v]) => ({ id, icon: v.icon, label: v.label, sub: v.sub })) },
+  { key: 'group', q: 'Who are you traveling with?', effect: 'Toggles family-friendly pitstops and caps driving hours per leg.',
+    opts: [{ id: 'solo', icon: 'ph-user', label: 'Solo / Couple', sub: '1–2 travellers', size: 2 },
+      { id: 'family', icon: 'ph-baby', label: 'Family with Kids', sub: 'Max 5 h driving per leg', size: 4 },
+      { id: 'friends', icon: 'ph-users-three', label: 'Friends Group', sub: 'Costs split per person', size: 4 }] },
+  { key: 'vibe', q: 'What is your ideal trip vibe?', effect: 'Filters points of interest toward hikes or easy viewpoints.',
+    opts: [{ id: 'rugged', icon: 'ph-mountains', label: 'Rugged & Off-Grid', sub: 'Meadows, treks, jeep tracks' },
+      { id: 'scenic', icon: 'ph-binoculars', label: 'Relaxed & Scenic', sub: 'Accessible viewpoints' },
+      { id: 'heritage', icon: 'ph-mosque', label: 'Heritage & Culture', sub: 'Forts, bazaars, shrines' }] },
+  { key: 'tier', q: 'How do you prefer to manage expenses?', effect: 'Sets per-meal and per-night baselines for the budget.',
+    opts: [{ id: 'backpacker', icon: 'ph-bowl-food', label: 'Backpacker', sub: 'Dhabas · PKR 3,500 / night' },
+      { id: 'standard', icon: 'ph-house-line', label: 'Standard', sub: 'Guesthouses · PKR 9,000 / night' },
+      { id: 'premium', icon: 'ph-sparkle', label: 'Premium', sub: 'Resorts · PKR 28,000 / night' }] }
+];
+const CORR = {
+  hunza: { label: 'Hunza', from: 'Islamabad', to: 'Karimabad, Hunza', km: 615, hrs: '13–14 h', region: 'Gilgit-Baltistan', peakLabel: 'Karimabad · 2,438 m', tiles: 212,
+    elev: [540, 610, 980, 1150, 1050, 1300, 1180, 1480, 1650, 2050, 2438], tolls: [['Hazara Motorway', 600]],
+    hotels: [['Eagle\'s Nest Hotel Duikar', 'Standard', 'Sunrise over Rakaposhi and Ultar'], ['Hunza Embassy Hotel', 'Backpacker', 'Walk to Baltit Fort'], ['Luxus Hunza', 'Premium', 'On Attabad Lake']] },
+  kalam: { label: 'Kalam', from: 'Lahore', to: 'Kalam, Swat', km: 520, hrs: '9–10 h', region: 'Swat, KP', peakLabel: 'Kalam · 2,000 m', tiles: 96,
+    elev: [217, 300, 420, 520, 400, 700, 980, 1200, 1500, 1800, 2000], tolls: [['M-2', 1850], ['Swat Motorway', 470]],
+    hotels: [['Walnut Heights Kalam', 'Premium', 'Riverside cabins'], ['Kalam Hotel Swat', 'Standard', 'Main bazaar'], ['Ushu Forest Camp', 'Backpacker', 'Tents in the pines']] },
+  skardu: { label: 'Skardu', from: 'Rawalpindi', to: 'Skardu', km: 640, hrs: '15–16 h', region: 'Baltistan', peakLabel: 'Skardu · 2,228 m', tiles: 240,
+    elev: [508, 600, 980, 1150, 1050, 1300, 1180, 1250, 1600, 2000, 2228], tolls: [['Hazara Motorway', 600]],
+    hotels: [['Shangrila Resort Skardu', 'Premium', 'Lower Kachura Lake'], ['Mashabrum Hotel Skardu', 'Standard', 'Airport road'], ['Indus Motel Skardu', 'Backpacker', 'Indus riverfront']] },
+  fairy: { label: 'Fairy Meadows', from: 'Islamabad', to: 'Fairy Meadows', km: 530, hrs: '11 h + 1.5 h jeep', region: 'Diamer, GB', peakLabel: 'Fairy Meadows · 3,300 m', tiles: 168, hub: 7,
+    elev: [540, 610, 980, 1150, 1050, 1300, 1180, 1150, 2100, 2800, 3300], tolls: [['Hazara Motorway', 600]],
+    hotels: [['Raikot Sarai Fairy Meadows', 'Standard', 'Nanga Parbat view'], ['Fairy Meadows Cottages', 'Backpacker', 'Log huts, shared baths']] }
+};
+const SCRIPTS = {
+  fairy: { prompt: 'Switch to Fairy Meadows, we\'re in a Corolla',
+    reply: 'Fairy Meadows needs a 4x4 for the last 12 km from Raikot Bridge. I\'ve routed you to the parking hub there and added a local jeep to the budget.',
+    calls: [['update_map_route', { origin: 'Islamabad', destination: 'Fairy Meadows', parking_hub_needed: true }]],
+    apply: { corridor: 'fairy', vehicle: 'sedan' }, flash: 'route', toast: 'Route updated · parking hub at Raikot Bridge' },
+  friends: { prompt: 'We\'re 5 friends now, keep it backpacker',
+    reply: 'Updated for 5 travellers on the backpacker tier: three rooms, dhaba meals, and the total split five ways.',
+    calls: [['recalculate_budget', { petrol_rate: 387.40, group_size: 5, tier: 'backpacker' }]],
+    apply: { groupSize: 5, tier: 'backpacker', group: 'friends' }, flash: 'budget', toast: 'Budget recalculated for 5' },
+  weather: { prompt: 'Is Babusar Pass open this weekend?',
+    reply: 'Snow is forecast on Babusar Top after 3 PM on Saturday. Cross before noon, or take the KKH via Besham.',
+    calls: [['show_alert_banner', { title: 'Babusar Top: snow after 3 PM', message: 'Cross before noon or reroute via KKH (Besham), about 2 h longer.', severity: 'warning' }]],
+    apply: { aiAlert: { title: 'Babusar Top: snow after 3 PM', message: 'Cross before noon or reroute via KKH (Besham), about 2 h longer.' } }, flash: 'alert', toast: 'Alert pinned to your trip' }
+};
+
+function profile(elev) {
+  const w = 340, h = 120, max = 3600, n = elev.length;
+  const pts = elev.map((e, i) => [i * w / (n - 1), h - 6 - (Math.min(e, max) / max) * (h - 20)]);
+  const path = p => { let d = `M${p[0][0].toFixed(1)},${p[0][1].toFixed(1)}`; for (let i = 1; i < p.length; i++) { const [x0, y0] = p[i - 1], [x1, y1] = p[i], cx = (x0 + x1) / 2; d += ` C${cx.toFixed(1)},${y0.toFixed(1)} ${cx.toFixed(1)},${y1.toFixed(1)} ${x1.toFixed(1)},${y1.toFixed(1)}`; } return d; };
+  const area = p => path(p) + ` L${w},${h} L0,${h} Z`;
+  const ridge = (f) => elev.map((e, i) => [i * w / (n - 1), h - 6 - Math.min(f(e, i), max) / max * (h - 20)]);
+  const line = path(pts);
+  let pi = 0; elev.forEach((e, i) => { if (e > elev[pi]) pi = i; });
+  return { pts, line, area: line + ` L${w},${h} L0,${h} Z`,
+    ridgeA: area(ridge((e, i) => e * 0.8 + 900 + 420 * Math.sin(i * 1.3 + 1))),
+    ridgeB: area(ridge((e, i) => e * 0.6 + 1500 + 380 * Math.sin(i * 2.1 + 2))),
+    peakX: Math.min(pts[pi][0] / w * 100, 76), peakB: (h - pts[pi][1]) - 2 };
+}
+
+class Component extends DCLogic {
+  state = { screen: 'onboard', step: 0, vehicle: 'sedan', group: 'family', vibe: 'scenic', tier: 'standard', groupSize: 4, nights: 3, cap: 160000,
+    corridor: 'hunza', tab: 'trip', drawer: false, input: '', busy: false, aiAlert: null, flash: null, toast: null, offline: 'off', progress: 0, tilt: { x: 0, y: 0 },
+    msgs: [{ role: 'ai', text: 'Assalam-o-Alaikum. Ask me to change your route, budget or alerts and I\'ll update the screen directly.', typed: 999, calls: [] }] };
+  timers = [];
+  chatRef = React.createRef();
+  later(ms, fn) { const t = setTimeout(fn, ms); this.timers.push(t); return t; }
+  componentWillUnmount() { this.timers.forEach(clearTimeout); clearInterval(this.typer); clearInterval(this.dl); }
+  componentDidUpdate() { const el = this.chatRef.current; if (el) el.scrollTop = el.scrollHeight; }
+
+  pick(key, id) {
+    const patch = { [key]: id };
+    if (key === 'group') patch.groupSize = QUIZ[1].opts.find(o => o.id === id).size;
+    this.setState(patch);
+  }
+  run(key, custom) {
+    if (this.state.busy) return;
+    const S = SCRIPTS[key];
+    const prompt = custom || (S ? S.prompt : '');
+    this.setState(s => ({ busy: true, input: '', msgs: [...s.msgs, { role: 'user', text: prompt }] }));
+    const reply = S ? S.reply : 'I can reroute you (try “Fairy Meadows”), recalculate the budget for a new group or tier, or check a pass for weather alerts.';
+    this.later(550, () => {
+      this.setState(s => ({ msgs: [...s.msgs, { role: 'ai', text: reply, typed: 0, calls: [] }] }));
+      clearInterval(this.typer);
+      this.typer = setInterval(() => {
+        const msgs = this.state.msgs.slice(); const m = { ...msgs[msgs.length - 1] };
+        m.typed += 4; msgs[msgs.length - 1] = m; this.setState({ msgs });
+        if (m.typed >= m.text.length) { clearInterval(this.typer); this.afterReply(S); }
+      }, 22);
+    });
+  }
+  afterReply(S) {
+    if (!S) { this.setState({ busy: false }); return; }
+    const setCalls = status => this.setState(s => { const msgs = s.msgs.slice(); const m = { ...msgs[msgs.length - 1] };
+      m.calls = S.calls.map(([fn, a]) => ({ fn, args: JSON.stringify(a), status })); msgs[msgs.length - 1] = m; return { msgs }; });
+    this.later(250, () => setCalls('running'));
+    this.later(900, () => { setCalls('✓ executed'); this.setState({ ...S.apply, tab: 'trip', flash: S.flash }); });
+    this.later(1900, () => this.setState({ drawer: false, toast: S.toast, busy: false }));
+    this.later(4600, () => this.setState({ toast: null, flash: null }));
+  }
+  startDownload() {
+    clearInterval(this.dl);
+    this.setState({ offline: 'downloading', progress: 0 });
+    this.dl = setInterval(() => {
+      const p = Math.min(100, this.state.progress + 4);
+      this.setState({ progress: p });
+      if (p >= 100) { clearInterval(this.dl); this.setState({ offline: 'ready' }); }
+    }, 90);
+  }
+  calc() {
+    const s = this.state, c = CORR[s.corridor], v = VEH[s.vehicle], t = TIERS[s.tier], rt = c.km * 2, rows = [];
+    if (s.vehicle === 'public') rows.push({ icon: 'ph-bus', label: 'Transport', detail: `Coach fare PKR 4,200 × ${s.groupSize}, return`, val: 4200 * s.groupSize });
+    else { const units = s.vehicle === 'bike' ? Math.ceil(s.groupSize / 2) : 1;
+      rows.push({ icon: 'ph-gas-pump', label: 'Fuel', detail: `${rt} km ÷ ${v.mileage} km/L × ${PETROL.toFixed(2)}${units > 1 ? ` × ${units} bikes` : ''}`, val: rt / v.mileage * PETROL * units }); }
+    const tollSum = c.tolls.reduce((a, b) => a + b[1], 0) * 2;
+    if (s.vehicle === 'bike') rows.push({ icon: 'ph-road-horizon', label: 'Tolls', detail: 'Motorways closed to bikes · N-5 / N-35', val: 0 });
+    else if (s.vehicle !== 'public') rows.push({ icon: 'ph-road-horizon', label: 'Tolls', detail: c.tolls.map(x => x[0]).join(' + ') + ' · return', val: tollSum });
+    const rooms = Math.ceil(s.groupSize / 2);
+    rows.push({ icon: 'ph-bed', label: 'Stay', detail: `${rooms} room${rooms > 1 ? 's' : ''} × ${s.nights} nights · ${t.label}`, val: t.night * rooms * s.nights });
+    rows.push({ icon: 'ph-fork-knife', label: 'Meals', detail: `${s.groupSize} people × ${s.nights + 1} days`, val: t.meal * s.groupSize * (s.nights + 1) });
+    if (c.hub !== undefined && s.vehicle !== 'suv') rows.push({ icon: 'ph-jeep', label: 'Local jeep', detail: 'Raikot Bridge → Tato, return', val: 10000, jeep: true });
+    const total = rows.reduce((a, r) => a + r.val, 0);
+    return { rows, total };
+  }
+
+  renderVals() {
+    const s = this.state, c = CORR[s.corridor], step = QUIZ[s.step];
+    const { rows, total } = this.calc();
+    const pct = total / s.cap;
+    const health = pct < 0.85 ? { label: 'Healthy', bg: '#E2EDEB', fg: '#0F5257', stroke: '#0F5257' }
+      : pct <= 1 ? { label: 'Near cap', bg: '#FCEBDD', fg: '#7A3E10', stroke: '#F4A261' }
+      : { label: 'Over cap', bg: '#FBE3DC', fg: '#8A2E17', stroke: '#E76F51' };
+    const hero = profile(c.elev);
+    if (c.hub !== undefined) { hero.hubX = hero.pts[c.hub][0] / 340 * 100; hero.hubB = 120 - hero.pts[c.hub][1] - 2; }
+    const hasHub = c.hub !== undefined;
+    let gate = { show: false };
+    if (hasHub && s.vehicle !== 'suv') gate = { show: true, icon: 'ph-warning-octagon', bg: '#FBE3DC', fg: '#8A2E17',
+      title: s.vehicle === 'sedan' ? 'Sedan Undercarriage Risk: Final track requires 4x4.' : 'Final track requires 4x4.',
+      msg: 'Park at Raikot Bridge. Local jeep for the last 12 km: PKR 8,000 – 10,000.' };
+    else if (hasHub) gate = { show: true, icon: 'ph-check-circle', bg: '#E2EDEB', fg: '#0F5257', title: '4x4 cleared for the Raikot–Tato track', msg: 'Expect about 1.5 h at walking pace. Low range recommended.' };
+    const ring = k => s.flash === k ? '0 0 0 3px #F4A261, 0 18px 40px -16px rgba(244,162,97,.8)' : '0 1px 0 rgba(43,58,66,.04)';
+    const sel = (on) => on;
+    const val = s[step.key];
+    const off = s.offline === 'ready'
+      ? { cardBg: '#0F5257', cardFg: '#fff', tileBg: 'rgba(255,255,255,.14)', trackBg: 'rgba(255,255,255,.2)', icon: 'ph-shield-check', title: 'Survival Mode on', sub: `${c.region} tiles · ${c.tiles} MB · works with no signal`, btnBg: 'rgba(255,255,255,.14)', btnFg: '#fff', btnIcon: 'ph-trash', btnLabel: 'Clear cache' }
+      : s.offline === 'downloading'
+      ? { cardBg: '#2B3A42', cardFg: '#fff', tileBg: 'rgba(255,255,255,.1)', trackBg: 'rgba(255,255,255,.15)', icon: 'ph-cloud-arrow-down', title: 'Caching for offline…', sub: `${Math.round(c.tiles * s.progress / 100)} of ${c.tiles} MB · tiles, bookings, SOS points`, btnBg: 'rgba(255,255,255,.1)', btnFg: '#fff', btnIcon: 'ph-pause', btnLabel: 'Downloading' }
+      : { cardBg: '#fff', cardFg: '#2B3A42', tileBg: '#F3EDE3', trackBg: '#F3EDE3', icon: 'ph-wifi-slash', title: 'No signal past Chilas?', sub: `Save ${c.region} map tiles, bookings and emergency points (${c.tiles} MB).`, btnBg: '#0F5257', btnFg: '#fff', btnIcon: 'ph-download-simple', btnLabel: 'Download for offline' };
+    const last = s.msgs.length - 1;
+    return {
+      isOnboard: s.screen === 'onboard', isApp: s.screen === 'app', isTrip: s.tab === 'trip', isOffline: s.tab === 'offline',
+      stepLabel: `${s.step + 1} of ${QUIZ.length}`,
+      stepBars: QUIZ.map((_, i) => ({ bg: i <= s.step ? '#0F5257' : '#E3DACD' })),
+      q: step, hero, c, hasHub, gate,
+      opts: step.opts.map(o => { const on = sel(o.id === val); return { ...o, onClick: () => this.pick(step.key, o.id),
+        bg: on ? '#fff' : 'rgba(255,255,255,.55)', border: on ? '#0F5257' : '#E8E0D4',
+        transform: on ? 'translateZ(26px) rotateX(6deg)' : 'translateZ(0) rotateX(0)',
+        shadow: on ? '0 18px 30px -16px rgba(15,82,87,.55)' : 'none',
+        tileBg: on ? '#0F5257' : '#F3EDE3', tileFg: on ? '#fff' : '#0F5257',
+        extrude: on ? '1px 1px 0 #0A3B3F,2px 2px 0 #0A3B3F,3px 3px 0 #082F32,4px 5px 6px rgba(0,0,0,.35)' : 'none',
+        checkOp: on ? 1 : 0 }; }),
+      canBack: s.step > 0,
+      back: () => this.setState({ step: s.step - 1 }),
+      next: () => s.step < QUIZ.length - 1 ? this.setState({ step: s.step + 1 }) : this.setState({ screen: 'app', tab: 'trip' }),
+      nextLabel: s.step < QUIZ.length - 1 ? 'Next' : 'Build my trip',
+      restart: () => this.setState({ screen: 'onboard', step: 0, drawer: false }),
+      corridorChips: Object.entries(CORR).filter(([k, v]) => !v.hub || s.corridor === k).map(([k, v]) => { const on = s.corridor === k;
+        return { label: `${v.from.slice(0, 3)} → ${v.label}`, onClick: () => this.setState({ corridor: k }), bg: on ? '#0F5257' : '#fff', fg: on ? '#fff' : '#2B3A42', border: on ? '#0F5257' : '#E8E0D4' }; }),
+      heroTransform: `rotateX(${14 + s.tilt.y}deg) rotateY(${s.tilt.x}deg)`,
+      onTilt: e => { const r = e.currentTarget.getBoundingClientRect(); this.setState({ tilt: { x: ((e.clientX - r.left) / r.width - .5) * 16, y: ((e.clientY - r.top) / r.height - .5) * -10 } }); },
+      resetTilt: () => this.setState({ tilt: { x: 0, y: 0 } }),
+      routeShadow: s.flash === 'route' ? '0 0 0 3px #F4A261, 0 18px 40px -16px rgba(244,162,97,.8)' : '0 20px 40px -24px rgba(15,82,87,.8)',
+      budgetShadow: ring('budget'), alertShadow: ring('alert'),
+      hasAiAlert: !!s.aiAlert, aiAlert: s.aiAlert || {}, dismissAlert: () => this.setState({ aiAlert: null }),
+      health, gaugeOffset: 251.33 * (1 - Math.min(pct, 1)),
+      totalStr: fmt(total), perPersonStr: fmt(total / s.groupSize), capStr: fmt(s.cap),
+      rows: rows.map(r => ({ ...r, amount: fmt(r.val), tint: r.jeep ? '#FCEBDD' : '#E2EDEB', fg: r.jeep ? '#B4602A' : '#0F5257' })),
+      vehChips: Object.entries(VEH).map(([k, v]) => { const on = s.vehicle === k; return { icon: v.icon, label: v.label, onClick: () => this.setState({ vehicle: k }), bg: on ? '#0F5257' : '#fff', fg: on ? '#fff' : '#2B3A42', border: on ? '#0F5257' : '#E8E0D4' }; }),
+      tierChips: Object.entries(TIERS).map(([k, t]) => { const on = s.tier === k; return { label: t.label, onClick: () => this.setState({ tier: k }), bg: on ? '#fff' : 'transparent', fg: on ? '#0F5257' : '#5E6B72', shadow: on ? '0 2px 6px rgba(43,58,66,.12)' : 'none' }; }),
+      steppers: [
+        { label: 'Travellers', value: `${s.groupSize}`, dec: () => this.setState({ groupSize: Math.max(1, s.groupSize - 1) }), inc: () => this.setState({ groupSize: Math.min(12, s.groupSize + 1) }) },
+        { label: 'Nights', value: `${s.nights}`, dec: () => this.setState({ nights: Math.max(1, s.nights - 1) }), inc: () => this.setState({ nights: Math.min(14, s.nights + 1) }) },
+        { label: 'Budget cap', value: `${Math.round(s.cap / 1000)}k`, dec: () => this.setState({ cap: Math.max(40000, s.cap - 10000) }), inc: () => this.setState({ cap: s.cap + 10000 }) }
+      ],
+      off, progress: s.progress,
+      toggleOffline: () => s.offline === 'ready' ? this.setState({ offline: 'off', progress: 0 }) : s.offline === 'off' ? this.startDownload() : null,
+      helplines: [['1122', 'Rescue'], ['15', 'Police'], ['130', 'Motorway Police'], ['115', 'Edhi Ambulance']].map(([num, label]) => ({ num, label, href: `tel:${num}` })),
+      hotels: c.hotels.map(([name, tier, note]) => ({ name, tier, note, href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name).replace(/%20/g, '+')}` })),
+      tabs: [['trip', 'ph-path', 'Trip'], ['offline', 'ph-cloud-slash', 'Offline']].map(([k, icon, label]) => ({ icon, label, weight: s.tab === k ? 'ph-fill' : 'ph', fg: s.tab === k ? '#0F5257' : '#8A969C', onClick: () => this.setState({ tab: k }) })),
+      hasToast: !!s.toast, toast: s.toast,
+      openDrawer: () => this.setState({ drawer: true }), closeDrawer: () => this.setState({ drawer: false }),
+      drawerY: s.drawer ? 'translateY(0)' : 'translateY(105%)', backdropOp: s.drawer ? 1 : 0, backdropPe: s.drawer ? 'auto' : 'none',
+      copilotStatus: s.busy ? 'Thinking and acting on your trip…' : 'Controls route, budget and alerts',
+      chatRef: this.chatRef, busy: s.busy,
+      msgView: s.msgs.map((m, i) => ({ ...m, isUser: m.role === 'user', isAi: m.role === 'ai', shown: m.role === 'ai' ? m.text.slice(0, m.typed) : m.text,
+        calls: (m.calls || []).map(k => ({ ...k, statusColor: k.status === 'running' ? '#F4A261' : '#7FD1B9' })) })),
+      suggestions: Object.entries(SCRIPTS).map(([k, v]) => ({ prompt: v.prompt, onClick: () => this.run(k) })),
+      input: s.input, sendIcon: s.input ? 'ph-paper-plane-right' : 'ph-microphone',
+      onInput: e => this.setState({ input: e.target.value }),
+      onKey: e => { if (e.key === 'Enter') this.sendText(); },
+      send: () => this.sendText()
+    };
+  }
+  sendText() {
+    const t = this.state.input.trim().toLowerCase();
+    if (!t) { this.run('fairy'); return; }
+    const key = /fairy|jeep|meadow|raikot/.test(t) ? 'fairy' : /friend|group|backpack|people|log/.test(t) ? 'friends' : /weather|babusar|snow|pass|mausam/.test(t) ? 'weather' : null;
+    this.run(key, this.state.input.trim());
+  }
+}
+</script>
+</body>
+</html>

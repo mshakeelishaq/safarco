@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/broadsheet-4d1cf449-e47b-4d8f-bb3c-de49b76676da/styles.css">
+<script src="_ds/broadsheet-4d1cf449-e47b-4d8f-bb3c-de49b76676da/_ds_bundle.js"></script>
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<style>body{margin:0;background:var(--color-neutral-200)}a{color:var(--color-accent-700)}a:hover{color:var(--color-accent-800)}button{font-family:inherit}*::-webkit-scrollbar{width:0;height:0}</style>
+</helmet>
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px;box-sizing:border-box">
+<div style="width:400px;height:860px;flex:none;border-radius:58px;background:var(--color-neutral-900);padding:10px;box-sizing:border-box;box-shadow:var(--shadow-lg)">
+<div data-screen-label="SafarCo phone" style="position:relative;width:380px;height:840px;border-radius:48px;overflow:hidden;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)">
+
+<div style="position:absolute;top:0;left:0;right:0;height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 30px;z-index:30;font-size:15px;font-weight:600">
+<span>9:41</span>
+<div style="position:absolute;left:50%;top:11px;width:118px;height:32px;margin-left:-59px;border-radius:20px;background:#0B0E10"></div>
+<div style="display:flex;gap:5px;font-size:16px"><i class="ph-fill ph-cell-signal-high"></i><i class="ph-fill ph-wifi-high"></i><i class="ph-fill ph-battery-full"></i></div>
+</div>
+
+<sc-if value="{{ isOnboard }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="Onboarding quiz" style="position:absolute;top:50px;left:0;right:0;bottom:0;display:flex;flex-direction:column;padding:10px 24px 30px">
+<div style="font-family:var(--font-heading);font-weight:600;font-size:38px;letter-spacing:-.025em;line-height:1">SafarCo</div>
+<div style="margin-top:var(--space-2);border-top:3px solid var(--color-text);padding-top:2px"><div style="border-top:1px solid var(--color-text)"></div></div>
+<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:11px;letter-spacing:.08em;text-transform:uppercase"><span>Trip questionnaire</span><span>{{ stepLabel }}</span></div>
+<div style="border-top:1px solid var(--color-text);padding-top:2px"><div style="border-top:3px solid var(--color-text)"></div></div>
+
+<div class="halftone" style="position:relative;height:120px;margin:var(--space-3) -24px 0;perspective:700px">
+<div style="position:absolute;inset:0;transform-style:preserve-3d;transform:rotateX(24deg)">
+<svg viewBox="0 0 340 120" preserveAspectRatio="none" style="position:absolute;left:-6%;width:112%;bottom:0;height:120px;transform:translateZ(-80px) scale(1.15)"><path d="{{ hero.ridgeB }}" style="fill:var(--color-accent-200)"></path></svg>
+<svg viewBox="0 0 340 120" preserveAspectRatio="none" style="position:absolute;left:-3%;width:106%;bottom:0;height:120px;transform:translateZ(-40px) scale(1.07)"><path d="{{ hero.ridgeA }}" style="fill:var(--color-accent-400)"></path></svg>
+<svg viewBox="0 0 340 120" preserveAspectRatio="none" style="position:absolute;left:0;width:100%;bottom:0;height:120px"><path d="{{ hero.area }}" style="fill:var(--color-neutral-900)"></path><path d="{{ hero.line }}" fill="none" style="stroke:var(--color-accent-2)" stroke-width="2.5" stroke-dasharray="5 5"></path></svg>
+</div>
+</div>
+
+<h2 style="font-size:28px;margin:var(--space-4) 0 0;text-wrap:pretty">{{ q.q }}</h2>
+<p class="text-muted" style="font-style:italic;font-size:14px;margin:var(--space-1) 0 0">{{ q.effect }}</p>
+<div style="display:flex;flex-direction:column;gap:2px;margin-top:var(--space-3)">
+<sc-for list="{{ opts }}" as="o" hint-placeholder-count="4">
+<label class="radio" style="display:flex;align-items:center;gap:14px;min-height:58px;padding:4px 0;transform:{{ o.transform }};transition:transform .35s cubic-bezier(.2,.8,.2,1)">
+<input type="radio" name="quiz" checked="{{ o.on }}" onChange="{{ o.onClick }}">
+<span class="dot"></span>
+<i class="ph-duotone {{ o.icon }}" style="font-size:28px;color:{{ o.iconFg }};transition:color .25s"></i>
+<span style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:17px;font-weight:600;color:{{ o.labelFg }}">{{ o.label }}</span><span class="text-muted" style="font-size:13px">{{ o.sub }}</span></span>
+</label>
+</sc-for>
+</div>
+<div style="flex:1"></div>
+<div style="display:flex;gap:var(--space-2)">
+<sc-if value="{{ canBack }}" hint-placeholder-val="{{ false }}"><button class="btn btn-secondary btn-icon" onClick="{{ back }}" aria-label="Back" style="width:52px;height:52px;font-size:20px"><i class="ph-duotone ph-arrow-left"></i></button></sc-if>
+<button class="btn btn-primary" onClick="{{ next }}" style="flex:1;height:52px;font-size:16px">{{ nextLabel }}<i class="ph-duotone ph-arrow-right" style="font-size:18px"></i></button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isApp }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:50px;left:0;right:0;bottom:84px;overflow-y:auto;scrollbar-width:none">
+
+<sc-if value="{{ isTrip }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="Trip builder" style="padding:8px 20px 120px;display:flex;flex-direction:column">
+<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:var(--space-2)">
+<div style="min-width:0">
+<div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent-700)">{{ c.region }}</div>
+<h2 style="font-size:27px;margin:4px 0 2px;text-wrap:pretty">{{ c.from }} to {{ c.to }}</h2>
+<div class="text-muted" style="font-size:14px;font-variant-numeric:tabular-nums">{{ c.km }} km · {{ c.hrs }}</div>
+</div>
+<button class="btn btn-ghost" onClick="{{ restart }}" style="flex:none;min-height:44px"><i class="ph-duotone ph-sliders-horizontal" style="font-size:18px"></i>Quiz</button>
+</div>
+
+<div style="display:flex;gap:var(--space-4);margin-top:var(--space-2);overflow-x:auto;scrollbar-width:none">
+<sc-for list="{{ corridorChips }}" as="c" hint-placeholder-count="3"><button onClick="{{ c.onClick }}" style="flex:none;min-height:44px;padding:0;border:0;background:none;cursor:pointer;font-size:15px;font-weight:{{ c.weight }};color:{{ c.fg }};text-decoration:{{ c.deco }};text-decoration-thickness:2px;text-underline-offset:6px">{{ c.label }}</button></sc-for>
+</div>
+
+<div onMouseMove="{{ onTilt }}" onMouseLeave="{{ resetTilt }}" class="halftone" style="position:relative;height:200px;margin:var(--space-2) -20px 0;perspective:800px;outline:{{ routeRing }};outline-offset:-3px;transition:outline-color .3s">
+<div style="position:absolute;left:0;right:0;bottom:0;height:170px;transform-style:preserve-3d;transform:{{ heroTransform }};transition:transform .25s ease-out">
+<svg viewBox="0 0 340 120" preserveAspectRatio="none" style="position:absolute;left:-8%;width:116%;bottom:0;height:140px;transform:translateZ(-90px) scale(1.2)"><path d="{{ hero.ridgeB }}" style="fill:var(--color-accent-200)"></path></svg>
+<svg viewBox="0 0 340 120" preserveAspectRatio="none" style="position:absolute;left:-4%;width:108%;bottom:0;height:135px;transform:translateZ(-45px) scale(1.1)"><path d="{{ hero.ridgeA }}" style="fill:var(--color-accent-400)"></path></svg>
+<svg viewBox="0 0 340 120" preserveAspectRatio="none" style="position:absolute;left:0;width:100%;bottom:0;height:130px"><path d="{{ hero.area }}" style="fill:var(--color-neutral-900)"></path><path d="{{ hero.line }}" fill="none" style="stroke:var(--color-accent-2)" stroke-width="3" stroke-dasharray="6 5"></path></svg>
+<div style="position:absolute;left:{{ hero.peakX }}%;bottom:{{ hero.peakB }}px;transform:translate(-50%,0) translateZ(50px);display:flex;flex-direction:column;align-items:center">
+<div style="padding:4px 8px;border-radius:var(--radius-md);background:var(--color-bg);font-size:12px;font-weight:600;white-space:nowrap;box-shadow:var(--shadow-md)">{{ c.peakLabel }}</div>
+<div style="width:1px;height:16px;background:var(--color-bg)"></div>
+</div>
+<sc-if value="{{ hasHub }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;left:{{ hero.hubX }}%;bottom:{{ hero.hubB }}px;transform:translate(-50%,0) translateZ(30px);display:flex;flex-direction:column;align-items:center">
+<div style="padding:4px 8px;border-radius:var(--radius-md);background:var(--color-accent-2);color:var(--color-bg);font-size:12px;font-weight:600;white-space:nowrap;display:flex;align-items:center;gap:4px;box-shadow:var(--shadow-md)"><i class="ph-duotone ph-local-parking"></i>Raikot Bridge</div>
+<div style="width:1px;height:14px;background:var(--color-accent-2)"></div>
+</div>
+</sc-if>
+</div>
+</div>
+
+<sc-if value="{{ gate.show }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:12px;padding:var(--space-3);margin-top:var(--space-3);border-radius:var(--radius-md);background:{{ gate.bg }};color:{{ gate.fg }}">
+<i class="ph-duotone {{ gate.icon }}" style="font-size:26px;flex:none"></i>
+<div><div style="font-size:16px;font-weight:600;line-height:1.25">{{ gate.title }}</div><div style="font-size:14px;margin-top:4px;line-height:1.4">{{ gate.msg }}</div></div>
+</div>
+</sc-if>
+<sc-if value="{{ hasAiAlert }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:12px;padding:var(--space-3);margin-top:var(--space-3);border-radius:var(--radius-md);background:var(--color-accent-2-100);color:var(--color-accent-2-800);outline:{{ alertRing }};outline-offset:2px">
+<i class="ph-duotone ph-cloud-snow" style="font-size:26px;flex:none"></i>
+<div style="flex:1"><div style="font-size:16px;font-weight:600;line-height:1.25">{{ aiAlert.title }}</div><div style="font-size:14px;margin-top:4px;line-height:1.4">{{ aiAlert.message }}</div></div>
+<button class="btn btn-icon" onClick="{{ dismissAlert }}" aria-label="Dismiss" style="width:44px;height:44px;margin:-10px -10px 0 0;color:var(--color-accent-2-800);font-size:18px"><i class="ph-duotone ph-x"></i></button>
+</div>
+</sc-if>
+
+<div style="margin-top:var(--space-8);outline:{{ budgetRing }};outline-offset:8px;border-radius:var(--radius-md);transition:outline-color .3s">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<h6 style="margin:0">Projected budget</h6>
+<span class="tag {{ health.tag }}">{{ health.label }}</span>
+</div>
+<div style="display:flex;align-items:flex-end;gap:var(--space-2);margin-top:var(--space-4)">
+<span style="font-family:var(--font-heading);font-weight:600;font-size:20px;padding-bottom:6px">PKR</span>
+<div class="cmyk-num" style="font-family:var(--font-heading);font-weight:600;font-size:58px;font-variant-numeric:tabular-nums"><span class="paper">{{ totalNum }}</span><span class="plate plate-c" aria-hidden="true">{{ totalNum }}</span><span class="plate plate-m" aria-hidden="true">{{ totalNum }}</span><span class="plate plate-y" aria-hidden="true">{{ totalNum }}</span></div>
+</div>
+<div style="position:relative;height:6px;margin-top:var(--space-4);border-radius:3px;background:var(--color-neutral-300);overflow:hidden"><div style="height:100%;width:{{ meterPct }}%;background:{{ health.bar }};transition:width .8s cubic-bezier(.2,.8,.2,1),background .3s"></div></div>
+<div class="text-muted" style="display:flex;justify-content:space-between;font-size:13px;margin-top:6px;font-variant-numeric:tabular-nums"><span>{{ perPersonStr }} per person</span><span>Cap {{ capStr }}</span></div>
+<div style="display:flex;flex-direction:column;gap:var(--space-4);margin-top:var(--space-6)">
+<sc-for list="{{ rows }}" as="r" hint-placeholder-count="5">
+<div style="display:flex;align-items:center;gap:14px">
+<i class="ph-duotone {{ r.icon }}" style="font-size:26px;flex:none;color:{{ r.fg }}"></i>
+<div style="flex:1;min-width:0"><div style="font-size:16px;font-weight:600">{{ r.label }}</div><div class="text-muted" style="font-size:13px;font-style:italic;font-variant-numeric:tabular-nums">{{ r.detail }}</div></div>
+<div style="font-size:16px;font-weight:600;font-variant-numeric:tabular-nums">{{ r.amount }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<h6 style="margin:var(--space-8) 0 var(--space-3)">Trip settings</h6>
+<div class="seg" style="display:flex;width:100%">
+<sc-for list="{{ vehChips }}" as="v" hint-placeholder-count="4"><label class="seg-opt" title="{{ v.label }}" style="flex:1;justify-content:center;min-height:48px;font-size:22px"><input type="radio" name="veh" checked="{{ v.on }}" onChange="{{ v.onClick }}"><i class="ph-duotone {{ v.icon }}"></i></label></sc-for>
+</div>
+<div class="seg" style="display:flex;width:100%;margin-top:var(--space-2)">
+<sc-for list="{{ tierChips }}" as="t" hint-placeholder-count="3"><label class="seg-opt" style="flex:1;justify-content:center;min-height:44px;font-size:14px"><input type="radio" name="tier" checked="{{ t.on }}" onChange="{{ t.onClick }}">{{ t.label }}</label></sc-for>
+</div>
+<div style="display:flex;flex-direction:column;gap:var(--space-2);margin-top:var(--space-4)">
+<sc-for list="{{ steppers }}" as="s" hint-placeholder-count="3">
+<div style="display:flex;align-items:center;justify-content:space-between">
+<div style="font-size:16px">{{ s.label }}</div>
+<div style="display:flex;align-items:center;gap:var(--space-2)">
+<button class="btn btn-secondary btn-icon" onClick="{{ s.dec }}" aria-label="Decrease" style="width:44px;height:44px"><i class="ph-duotone ph-minus"></i></button>
+<div style="min-width:60px;text-align:center;font-size:17px;font-weight:600;font-variant-numeric:tabular-nums">{{ s.value }}</div>
+<button class="btn btn-secondary btn-icon" onClick="{{ s.inc }}" aria-label="Increase" style="width:44px;height:44px"><i class="ph-duotone ph-plus"></i></button>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isOffline }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Offline mode" style="padding:8px 20px 120px;display:flex;flex-direction:column">
+<div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent-700)">{{ c.from }} to {{ c.to }}</div>
+<h2 style="font-size:30px;margin:4px 0 0">Offline survival</h2>
+<div style="display:flex;align-items:flex-start;gap:14px;margin-top:var(--space-6)">
+<i class="ph-duotone {{ off.icon }}" style="font-size:40px;flex:none;color:{{ off.iconFg }}"></i>
+<div style="flex:1"><div style="font-size:18px;font-weight:600">{{ off.title }}</div><div class="text-muted" style="font-size:14px;margin-top:2px">{{ off.sub }}</div></div>
+</div>
+<div style="height:6px;border-radius:3px;background:var(--color-neutral-300);margin-top:var(--space-4);overflow:hidden"><div style="height:100%;width:{{ progress }}%;background:var(--color-accent);transition:width .15s linear"></div></div>
+<button class="btn {{ off.btnClass }}" onClick="{{ toggleOffline }}" style="margin-top:var(--space-3);height:50px;font-size:15px"><i class="ph-duotone {{ off.btnIcon }}" style="font-size:18px"></i>{{ off.btnLabel }}</button>
+
+<h6 style="margin:var(--space-8) 0 var(--space-3)">Emergency</h6>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4) var(--space-3)">
+<sc-for list="{{ helplines }}" as="h" hint-placeholder-count="4">
+<a href="{{ h.href }}" style="display:flex;flex-direction:column;text-decoration:none;color:var(--color-text);min-height:44px">
+<span style="font-family:var(--font-heading);font-weight:600;font-size:34px;line-height:1;color:var(--color-accent-2-700);font-variant-numeric:tabular-nums">{{ h.num }}</span>
+<span style="font-size:14px;margin-top:4px">{{ h.label }}</span>
+</a>
+</sc-for>
+</div>
+
+<h6 style="margin:var(--space-8) 0 var(--space-3)">Stays on this route</h6>
+<div style="display:flex;flex-direction:column;gap:var(--space-3)">
+<sc-for list="{{ hotels }}" as="h" hint-placeholder-count="3">
+<div class="card">
+<div class="card-kicker" style="color:var(--color-accent-700)">{{ h.tier }}</div>
+<div class="card-title">{{ h.name }}</div>
+<p class="card-body">{{ h.note }}</p>
+<a class="btn btn-secondary" href="{{ h.href }}" target="_blank" rel="noopener" style="min-height:44px"><i class="ph-duotone ph-map-pin" style="font-size:17px"></i>Read Reviews on Google Maps<i class="ph-duotone ph-arrow-up-right"></i></a>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+</div>
+
+<div style="position:absolute;left:0;right:0;bottom:0;height:84px;background:color-mix(in srgb,var(--color-bg) 92%,transparent);backdrop-filter:blur(14px);display:flex;align-items:flex-start;padding:8px 24px 0;gap:var(--space-2);z-index:10">
+<sc-for list="{{ tabs }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="width:72px;height:52px;border:0;background:none;color:{{ t.fg }};display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;cursor:pointer"><i class="{{ t.cls }}" style="font-size:25px"></i>{{ t.label }}</button></sc-for>
+</div>
+<button class="btn btn-primary" onClick="{{ openDrawer }}" style="position:absolute;right:20px;bottom:28px;z-index:12;height:56px;padding:0 20px 0 16px;font-size:16px;gap:10px;white-space:nowrap;box-shadow:var(--shadow-lg)"><i class="ph-duotone ph-microphone" style="font-size:24px"></i>Co-pilot</button>
+
+<sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;left:20px;right:20px;top:56px;z-index:25;padding:12px 14px;border-radius:var(--radius-lg);background:var(--color-neutral-900);color:var(--color-bg);font-size:14px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow-lg)"><i class="ph-duotone ph-sparkle" style="color:var(--color-accent-400);font-size:20px"></i>{{ toast }}</div>
+</sc-if>
+
+<div onClick="{{ closeDrawer }}" style="position:absolute;inset:0;z-index:18;background:color-mix(in srgb,var(--color-neutral-900) 45%,transparent);opacity:{{ backdropOp }};pointer-events:{{ backdropPe }};transition:opacity .35s"></div>
+<div data-screen-label="Co-pilot drawer" style="position:absolute;left:0;right:0;bottom:0;height:570px;z-index:20;background:var(--color-surface);border-radius:var(--radius-lg) var(--radius-lg) 0 0;box-shadow:var(--shadow-lg);transform:{{ drawerY }};transition:transform .45s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column">
+<div style="width:40px;height:4px;border-radius:2px;background:var(--color-neutral-400);margin:10px auto 0"></div>
+<div style="display:flex;align-items:center;gap:var(--space-2);padding:10px 14px 8px 20px">
+<div style="flex:1"><div style="font-family:var(--font-heading);font-weight:600;font-size:22px">Co-pilot</div><div class="text-muted" style="font-size:13px;font-style:italic">{{ copilotStatus }}</div></div>
+<button class="btn btn-ghost btn-icon" onClick="{{ closeDrawer }}" aria-label="Close" style="width:44px;height:44px;font-size:20px"><i class="ph-duotone ph-x"></i></button>
+</div>
+<div ref="{{ chatRef }}" style="flex:1;overflow-y:auto;scrollbar-width:none;padding:6px 20px 10px;display:flex;flex-direction:column;gap:var(--space-3)">
+<sc-for list="{{ msgView }}" as="m" hint-placeholder-count="1">
+<sc-if value="{{ m.isUser }}" hint-placeholder-val="{{ false }}"><div style="align-self:flex-end;max-width:80%;padding:9px 13px;border-radius:var(--radius-lg);background:var(--color-accent);color:var(--color-bg);font-size:15px;line-height:1.4">{{ m.text }}</div></sc-if>
+<sc-if value="{{ m.isAi }}" hint-placeholder-val="{{ true }}">
+<div style="align-self:flex-start;max-width:94%;display:flex;flex-direction:column;gap:var(--space-2)">
+<div style="font-size:16px;line-height:1.5">{{ m.shown }}</div>
+<sc-for list="{{ m.calls }}" as="k" hint-placeholder-count="0">
+<div style="padding:9px 11px;border-radius:var(--radius-md);background:var(--color-bg);font-size:13px;line-height:1.45">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="font-style:italic;color:var(--color-accent-700)">{{ k.fn }}()</span><span class="tag {{ k.tag }}">{{ k.status }}</span></div>
+<div class="text-muted" style="word-break:break-word;margin-top:3px;font-size:12px">{{ k.args }}</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+</sc-for>
+<sc-if value="{{ busy }}" hint-placeholder-val="{{ false }}"><div class="text-muted" style="align-self:flex-start;font-size:13px;font-style:italic;display:flex;align-items:center;gap:6px"><i class="ph-duotone ph-waveform" style="color:var(--color-accent);font-size:18px"></i>Working on your trip…</div></sc-if>
+</div>
+<div style="display:flex;gap:var(--space-2);overflow-x:auto;scrollbar-width:none;padding:4px 20px 10px">
+<sc-for list="{{ suggestions }}" as="s" hint-placeholder-count="3"><button class="btn btn-secondary" onClick="{{ s.onClick }}" style="flex:none;min-height:44px;white-space:nowrap;font-weight:400;font-style:italic">{{ s.prompt }}</button></sc-for>
+</div>
+<div style="display:flex;gap:var(--space-2);padding:0 20px 28px">
+<input class="input" value="{{ input }}" onChange="{{ onInput }}" onKeyDown="{{ onKey }}" placeholder="Ask in English or Urdu…" style="flex:1;height:48px;background:var(--color-bg);font-size:15px">
+<button class="btn btn-primary btn-icon" onClick="{{ send }}" aria-label="Send" style="width:48px;height:48px;font-size:21px"><i class="ph-duotone {{ sendIcon }}"></i></button>
+</div>
+</div>
+</sc-if>
+
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const PETROL = 387.40;
+const fmtN = n => Math.round(n).toLocaleString('en-US');
+const fmt = n => 'PKR ' + fmtN(n);
+const V = k => `var(--color-${k})`;
+const VEH = {
+  sedan: { icon: 'ph-car-profile', label: 'Standard Sedan / Hatchback', sub: 'Corolla GLi, City, Alto', mileage: 13 },
+  suv: { icon: 'ph-jeep', label: '4x4 SUV', sub: 'Prado, Fortuner, Land Cruiser', mileage: 8 },
+  bike: { icon: 'ph-motorcycle', label: 'Motorbike', sub: 'CG-125, YBR, heavy bikes', mileage: 35 },
+  public: { icon: 'ph-bus', label: 'Public Transport', sub: 'Daewoo, NATCO, coasters', mileage: 0 }
+};
+const TIERS = {
+  backpacker: { label: 'Backpacker', night: 3500, meal: 1200 },
+  standard: { label: 'Standard', night: 9000, meal: 2500 },
+  premium: { label: 'Premium', night: 28000, meal: 5500 }
+};
+const QUIZ = [
+  { key: 'vehicle', q: 'What will you be traveling in?', effect: 'Sets the terrain rules your route is checked against.',
+    opts: Object.entries(VEH).map(([id, v]) => ({ id, icon: v.icon, label: v.label, sub: v.sub })) },
+  { key: 'group', q: 'Who are you traveling with?', effect: 'Toggles family-friendly pitstops and caps driving hours per leg.',
+    opts: [{ id: 'solo', icon: 'ph-user', label: 'Solo / Couple', sub: '1–2 travellers', size: 2 },
+      { id: 'family', icon: 'ph-baby', label: 'Family with Kids', sub: 'Max 5 h driving per leg', size: 4 },
+      { id: 'friends', icon: 'ph-users-three', label: 'Friends Group', sub: 'Costs split per person', size: 4 }] },
+  { key: 'vibe', q: 'What is your ideal trip vibe?', effect: 'Filters points of interest toward hikes or easy viewpoints.',
+    opts: [{ id: 'rugged', icon: 'ph-mountains', label: 'Rugged & Off-Grid', sub: 'Meadows, treks, jeep tracks' },
+      { id: 'scenic', icon: 'ph-binoculars', label: 'Relaxed & Scenic', sub: 'Accessible viewpoints' },
+      { id: 'heritage', icon: 'ph-mosque', label: 'Heritage & Culture', sub: 'Forts, bazaars, shrines' }] },
+  { key: 'tier', q: 'How do you prefer to manage expenses?', effect: 'Sets per-meal and per-night baselines for the budget.',
+    opts: [{ id: 'backpacker', icon: 'ph-bowl-food', label: 'Backpacker', sub: 'Dhabas · PKR 3,500 / night' },
+      { id: 'standard', icon: 'ph-house-line', label: 'Standard', sub: 'Guesthouses · PKR 9,000 / night' },
+      { id: 'premium', icon: 'ph-sparkle', label: 'Premium', sub: 'Resorts · PKR 28,000 / night' }] }
+];
+const CORR = {
+  hunza: { label: 'Hunza', from: 'Islamabad', to: 'Hunza', km: 615, hrs: '13–14 h', region: 'Gilgit-Baltistan', peakLabel: 'Karimabad · 2,438 m', tiles: 212,
+    elev: [540, 610, 980, 1150, 1050, 1300, 1180, 1480, 1650, 2050, 2438], tolls: [['Hazara Motorway', 600]],
+    hotels: [['Eagle\'s Nest Hotel Duikar', 'Standard', 'Sunrise over Rakaposhi and Ultar'], ['Hunza Embassy Hotel', 'Backpacker', 'Walk to Baltit Fort'], ['Luxus Hunza', 'Premium', 'On Attabad Lake']] },
+  kalam: { label: 'Kalam', from: 'Lahore', to: 'Kalam', km: 520, hrs: '9–10 h', region: 'Swat, KP', peakLabel: 'Kalam · 2,000 m', tiles: 96,
+    elev: [217, 300, 420, 520, 400, 700, 980, 1200, 1500, 1800, 2000], tolls: [['M-2', 1850], ['Swat Motorway', 470]],
+    hotels: [['Walnut Heights Kalam', 'Premium', 'Riverside cabins'], ['Kalam Hotel Swat', 'Standard', 'Main bazaar'], ['Ushu Forest Camp', 'Backpacker', 'Tents in the pines']] },
+  skardu: { label: 'Skardu', from: 'Rawalpindi', to: 'Skardu', km: 640, hrs: '15–16 h', region: 'Baltistan', peakLabel: 'Skardu · 2,228 m', tiles: 240,
+    elev: [508, 600, 980, 1150, 1050, 1300, 1180, 1250, 1600, 2000, 2228], tolls: [['Hazara Motorway', 600]],
+    hotels: [['Shangrila Resort Skardu', 'Premium', 'Lower Kachura Lake'], ['Mashabrum Hotel Skardu', 'Standard', 'Airport road'], ['Indus Motel Skardu', 'Backpacker', 'Indus riverfront']] },
+  fairy: { label: 'Fairy Meadows', from: 'Islamabad', to: 'Fairy Meadows', km: 530, hrs: '11 h + 1.5 h jeep', region: 'Diamer, GB', peakLabel: 'Fairy Meadows · 3,300 m', tiles: 168, hub: 7,
+    elev: [540, 610, 980, 1150, 1050, 1300, 1180, 1150, 2100, 2800, 3300], tolls: [['Hazara Motorway', 600]],
+    hotels: [['Raikot Sarai Fairy Meadows', 'Standard', 'Nanga Parbat view'], ['Fairy Meadows Cottages', 'Backpacker', 'Log huts, shared baths']] }
+};
+const SCRIPTS = {
+  fairy: { prompt: 'Switch to Fairy Meadows, we\'re in a Corolla',
+    reply: 'Fairy Meadows needs a 4x4 for the last 12 km from Raikot Bridge. I\'ve routed you to the parking hub there and added a local jeep to the budget.',
+    calls: [['update_map_route', { origin: 'Islamabad', destination: 'Fairy Meadows', parking_hub_needed: true }]],
+    apply: { corridor: 'fairy', vehicle: 'sedan' }, flash: 'route', toast: 'Route updated · parking hub at Raikot Bridge' },
+  friends: { prompt: 'We\'re 5 friends now, keep it backpacker',
+    reply: 'Updated for 5 travellers on the backpacker tier: three rooms, dhaba meals, and the total split five ways.',
+    calls: [['recalculate_budget', { petrol_rate: 387.40, group_size: 5, tier: 'backpacker' }]],
+    apply: { groupSize: 5, tier: 'backpacker', group: 'friends' }, flash: 'budget', toast: 'Budget recalculated for 5' },
+  weather: { prompt: 'Is Babusar Pass open this weekend?',
+    reply: 'Snow is forecast on Babusar Top after 3 PM on Saturday. Cross before noon, or take the KKH via Besham.',
+    calls: [['show_alert_banner', { title: 'Babusar Top: snow after 3 PM', message: 'Cross before noon or reroute via KKH (Besham), about 2 h longer.', severity: 'warning' }]],
+    apply: { aiAlert: { title: 'Babusar Top: snow after 3 PM', message: 'Cross before noon or reroute via KKH (Besham), about 2 h longer.' } }, flash: 'alert', toast: 'Alert pinned to your trip' }
+};
+
+function profile(elev) {
+  const w = 340, h = 120, max = 3600, n = elev.length;
+  const toPts = arr => arr.map((e, i) => [i * w / (n - 1), h - 6 - (Math.min(e, max) / max) * (h - 20)]);
+  const path = p => { let d = `M${p[0][0].toFixed(1)},${p[0][1].toFixed(1)}`; for (let i = 1; i < p.length; i++) { const [x0, y0] = p[i - 1], [x1, y1] = p[i], cx = (x0 + x1) / 2; d += ` C${cx.toFixed(1)},${y0.toFixed(1)} ${cx.toFixed(1)},${y1.toFixed(1)} ${x1.toFixed(1)},${y1.toFixed(1)}`; } return d; };
+  const close = d => d + ` L${w},${h} L0,${h} Z`;
+  const pts = toPts(elev), line = path(pts);
+  let pi = 0; elev.forEach((e, i) => { if (e > elev[pi]) pi = i; });
+  return { pts, line, area: close(line),
+    ridgeA: close(path(toPts(elev.map((e, i) => e * 0.8 + 900 + 420 * Math.sin(i * 1.3 + 1))))),
+    ridgeB: close(path(toPts(elev.map((e, i) => e * 0.6 + 1500 + 380 * Math.sin(i * 2.1 + 2))))),
+    peakX: Math.min(pts[pi][0] / w * 100, 74), peakB: (h - pts[pi][1]) - 2 };
+}
+
+class Component extends DCLogic {
+  state = { screen: 'onboard', step: 0, vehicle: 'sedan', group: 'family', vibe: 'scenic', tier: 'standard', groupSize: 4, nights: 3, cap: 160000,
+    corridor: 'hunza', tab: 'trip', drawer: false, input: '', busy: false, aiAlert: null, flash: null, toast: null, offline: 'off', progress: 0, tilt: { x: 0, y: 0 },
+    msgs: [{ role: 'ai', text: 'Assalam-o-Alaikum. Ask me to change your route, budget or alerts and I\'ll update the screen directly.', typed: 999, calls: [] }] };
+  timers = [];
+  chatRef = React.createRef();
+  later(ms, fn) { const t = setTimeout(fn, ms); this.timers.push(t); return t; }
+  componentWillUnmount() { this.timers.forEach(clearTimeout); clearInterval(this.typer); clearInterval(this.dl); }
+  componentDidUpdate() { const el = this.chatRef.current; if (el) el.scrollTop = el.scrollHeight; }
+
+  pick(key, id) {
+    const patch = { [key]: id };
+    if (key === 'group') patch.groupSize = QUIZ[1].opts.find(o => o.id === id).size;
+    this.setState(patch);
+  }
+  run(key, custom) {
+    if (this.state.busy) return;
+    const S = SCRIPTS[key];
+    const prompt = custom || (S ? S.prompt : '');
+    this.setState(s => ({ busy: true, input: '', msgs: [...s.msgs, { role: 'user', text: prompt }] }));
+    const reply = S ? S.reply : 'I can reroute you (try “Fairy Meadows”), recalculate the budget for a new group or tier, or check a pass for weather alerts.';
+    this.later(550, () => {
+      this.setState(s => ({ msgs: [...s.msgs, { role: 'ai', text: reply, typed: 0, calls: [] }] }));
+      clearInterval(this.typer);
+      this.typer = setInterval(() => {
+        const msgs = this.state.msgs.slice(); const m = { ...msgs[msgs.length - 1] };
+        m.typed += 4; msgs[msgs.length - 1] = m; this.setState({ msgs });
+        if (m.typed >= m.text.length) { clearInterval(this.typer); this.afterReply(S); }
+      }, 22);
+    });
+  }
+  afterReply(S) {
+    if (!S) { this.setState({ busy: false }); return; }
+    const setCalls = status => this.setState(s => { const msgs = s.msgs.slice(); const m = { ...msgs[msgs.length - 1] };
+      m.calls = S.calls.map(([fn, a]) => ({ fn, args: JSON.stringify(a), status })); msgs[msgs.length - 1] = m; return { msgs }; });
+    this.later(250, () => setCalls('running'));
+    this.later(900, () => { setCalls('executed'); this.setState({ ...S.apply, tab: 'trip', flash: S.flash }); });
+    this.later(1900, () => this.setState({ drawer: false, toast: S.toast, busy: false }));
+    this.later(4600, () => this.setState({ toast: null, flash: null }));
+  }
+  startDownload() {
+    clearInterval(this.dl);
+    this.setState({ offline: 'downloading', progress: 0 });
+    this.dl = setInterval(() => {
+      const p = Math.min(100, this.state.progress + 4);
+      this.setState({ progress: p });
+      if (p >= 100) { clearInterval(this.dl); this.setState({ offline: 'ready' }); }
+    }, 90);
+  }
+  calc() {
+    const s = this.state, c = CORR[s.corridor], v = VEH[s.vehicle], t = TIERS[s.tier], rt = c.km * 2, rows = [];
+    if (s.vehicle === 'public') rows.push({ icon: 'ph-bus', label: 'Transport', detail: `Coach fare PKR 4,200 × ${s.groupSize}, return`, val: 4200 * s.groupSize });
+    else { const units = s.vehicle === 'bike' ? Math.ceil(s.groupSize / 2) : 1;
+      rows.push({ icon: 'ph-gas-pump', label: 'Fuel', detail: `${rt} km ÷ ${v.mileage} km/L × ${PETROL.toFixed(2)}${units > 1 ? ` × ${units} bikes` : ''}`, val: rt / v.mileage * PETROL * units }); }
+    const tollSum = c.tolls.reduce((a, b) => a + b[1], 0) * 2;
+    if (s.vehicle === 'bike') rows.push({ icon: 'ph-road-horizon', label: 'Tolls', detail: 'Motorways closed to bikes · N-5 / N-35', val: 0 });
+    else if (s.vehicle !== 'public') rows.push({ icon: 'ph-road-horizon', label: 'Tolls', detail: c.tolls.map(x => x[0]).join(' + ') + ' · return', val: tollSum });
+    const rooms = Math.ceil(s.groupSize / 2);
+    rows.push({ icon: 'ph-bed', label: 'Stay', detail: `${rooms} room${rooms > 1 ? 's' : ''} × ${s.nights} nights · ${t.label}`, val: t.night * rooms * s.nights });
+    rows.push({ icon: 'ph-fork-knife', label: 'Meals', detail: `${s.groupSize} people × ${s.nights + 1} days`, val: t.meal * s.groupSize * (s.nights + 1) });
+    if (c.hub !== undefined && s.vehicle !== 'suv') rows.push({ icon: 'ph-jeep', label: 'Local jeep', detail: 'Raikot Bridge to Tato, return', val: 10000, jeep: true });
+    return { rows, total: rows.reduce((a, r) => a + r.val, 0) };
+  }
+
+  renderVals() {
+    const s = this.state, c = CORR[s.corridor], step = QUIZ[s.step];
+    const { rows, total } = this.calc();
+    const pct = total / s.cap;
+    const health = pct < 0.85 ? { label: 'Healthy', tag: 'tag-accent', bar: V('accent') }
+      : pct <= 1 ? { label: 'Near cap', tag: 'tag-neutral', bar: V('neutral-700') }
+      : { label: 'Over cap', tag: 'tag-accent-2', bar: V('accent-2') };
+    const hero = profile(c.elev);
+    const hasHub = c.hub !== undefined;
+    if (hasHub) { hero.hubX = hero.pts[c.hub][0] / 340 * 100; hero.hubB = 120 - hero.pts[c.hub][1] - 2; }
+    let gate = { show: false };
+    if (hasHub && s.vehicle !== 'suv') gate = { show: true, icon: 'ph-warning-octagon', bg: V('accent-2-100'), fg: V('accent-2-800'),
+      title: s.vehicle === 'sedan' ? 'Sedan Undercarriage Risk: Final track requires 4x4.' : 'Final track requires 4x4.',
+      msg: 'Park at Raikot Bridge. Local jeep for the last 12 km: PKR 8,000 – 10,000.' };
+    else if (hasHub) gate = { show: true, icon: 'ph-check-circle', bg: V('accent-100'), fg: V('accent-800'), title: '4x4 cleared for the Raikot–Tato track', msg: 'Expect about 1.5 h at walking pace. Low range recommended.' };
+    const ring = k => s.flash === k ? `2px solid ${V('accent')}` : '2px solid transparent';
+    const val = s[step.key];
+    const off = s.offline === 'ready'
+      ? { icon: 'ph-shield-check', iconFg: V('accent'), title: 'Survival Mode on', sub: `${c.region} tiles · ${c.tiles} MB · works with no signal`, btnClass: 'btn-secondary', btnIcon: 'ph-trash', btnLabel: 'Clear cache' }
+      : s.offline === 'downloading'
+      ? { icon: 'ph-cloud-arrow-down', iconFg: V('accent'), title: 'Caching for offline…', sub: `${Math.round(c.tiles * s.progress / 100)} of ${c.tiles} MB · tiles, bookings, SOS points`, btnClass: 'btn-secondary', btnIcon: 'ph-hourglass', btnLabel: 'Downloading' }
+      : { icon: 'ph-wifi-slash', iconFg: V('text'), title: 'No signal past Chilas?', sub: `Save ${c.region} map tiles, bookings and emergency points (${c.tiles} MB).`, btnClass: 'btn-primary', btnIcon: 'ph-download-simple', btnLabel: 'Download for offline' };
+    return {
+      isOnboard: s.screen === 'onboard', isApp: s.screen === 'app', isTrip: s.tab === 'trip', isOffline: s.tab === 'offline',
+      stepLabel: `No. ${s.step + 1} of ${QUIZ.length}`,
+      q: step, hero, c, hasHub, gate,
+      opts: step.opts.map(o => { const on = o.id === val; return { ...o, on, onClick: () => this.pick(step.key, o.id),
+        transform: on ? 'translateX(6px)' : 'translateX(0)',
+        iconFg: on ? V('accent') : V('neutral-600'), labelFg: on ? V('accent-700') : V('text') }; }),
+      canBack: s.step > 0,
+      back: () => this.setState({ step: s.step - 1 }),
+      next: () => s.step < QUIZ.length - 1 ? this.setState({ step: s.step + 1 }) : this.setState({ screen: 'app', tab: 'trip' }),
+      nextLabel: s.step < QUIZ.length - 1 ? 'Next' : 'Build my trip',
+      restart: () => this.setState({ screen: 'onboard', step: 0, drawer: false }),
+      corridorChips: Object.entries(CORR).filter(([k, v]) => !v.hub || s.corridor === k).map(([k, v]) => { const on = s.corridor === k;
+        return { label: v.label, onClick: () => this.setState({ corridor: k }), fg: on ? V('accent-700') : V('text'), weight: on ? 600 : 400, deco: on ? 'underline' : 'none' }; }),
+      heroTransform: `rotateX(${16 + s.tilt.y}deg) rotateY(${s.tilt.x}deg)`,
+      onTilt: e => { const r = e.currentTarget.getBoundingClientRect(); this.setState({ tilt: { x: ((e.clientX - r.left) / r.width - .5) * 16, y: ((e.clientY - r.top) / r.height - .5) * -10 } }); },
+      resetTilt: () => this.setState({ tilt: { x: 0, y: 0 } }),
+      routeRing: ring('route'), budgetRing: ring('budget'), alertRing: ring('alert'),
+      hasAiAlert: !!s.aiAlert, aiAlert: s.aiAlert || {}, dismissAlert: () => this.setState({ aiAlert: null }),
+      health, meterPct: Math.min(pct, 1) * 100,
+      totalNum: fmtN(total), perPersonStr: fmt(total / s.groupSize), capStr: fmt(s.cap),
+      rows: rows.map(r => ({ ...r, amount: fmtN(r.val), fg: r.jeep ? V('accent-2') : V('accent') })),
+      vehChips: Object.entries(VEH).map(([k, v]) => ({ icon: v.icon, label: v.label, on: s.vehicle === k, onClick: () => this.setState({ vehicle: k }) })),
+      tierChips: Object.entries(TIERS).map(([k, t]) => ({ label: t.label, on: s.tier === k, onClick: () => this.setState({ tier: k }) })),
+      steppers: [
+        { label: 'Travellers', value: `${s.groupSize}`, dec: () => this.setState({ groupSize: Math.max(1, s.groupSize - 1) }), inc: () => this.setState({ groupSize: Math.min(12, s.groupSize + 1) }) },
+        { label: 'Nights', value: `${s.nights}`, dec: () => this.setState({ nights: Math.max(1, s.nights - 1) }), inc: () => this.setState({ nights: Math.min(14, s.nights + 1) }) },
+        { label: 'Budget cap', value: `${Math.round(s.cap / 1000)}k`, dec: () => this.setState({ cap: Math.max(40000, s.cap - 10000) }), inc: () => this.setState({ cap: s.cap + 10000 }) }
+      ],
+      off, progress: s.progress,
+      toggleOffline: () => s.offline === 'ready' ? this.setState({ offline: 'off', progress: 0 }) : s.offline === 'off' ? this.startDownload() : null,
+      helplines: [['1122', 'Rescue'], ['15', 'Police'], ['130', 'Motorway Police'], ['115', 'Edhi Ambulance']].map(([num, label]) => ({ num, label, href: `tel:${num}` })),
+      hotels: c.hotels.map(([name, tier, note]) => ({ name, tier, note, href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name).replace(/%20/g, '+')}` })),
+      tabs: [['trip', 'ph-path', 'Trip'], ['offline', 'ph-cloud-slash', 'Offline']].map(([k, icon, label]) => ({ icon, label, cls: (s.tab === k ? 'ph-duotone ' : 'ph ') + icon, fg: s.tab === k ? V('accent-700') : V('neutral-700'), onClick: () => this.setState({ tab: k }) })),
+      hasToast: !!s.toast, toast: s.toast,
+      openDrawer: () => this.setState({ drawer: true }), closeDrawer: () => this.setState({ drawer: false }),
+      drawerY: s.drawer ? 'translateY(0)' : 'translateY(105%)', backdropOp: s.drawer ? 1 : 0, backdropPe: s.drawer ? 'auto' : 'none',
+      copilotStatus: s.busy ? 'Acting on your trip…' : 'Controls route, budget and alerts',
+      chatRef: this.chatRef, busy: s.busy,
+      msgView: s.msgs.map(m => ({ ...m, isUser: m.role === 'user', isAi: m.role === 'ai', shown: m.role === 'ai' ? m.text.slice(0, m.typed) : m.text,
+        calls: (m.calls || []).map(k => ({ ...k, tag: k.status === 'running' ? 'tag-neutral' : 'tag-accent' })) })),
+      suggestions: Object.entries(SCRIPTS).map(([k, v]) => ({ prompt: v.prompt, onClick: () => this.run(k) })),
+      input: s.input, sendIcon: s.input ? 'ph-paper-plane-right' : 'ph-microphone',
+      onInput: e => this.setState({ input: e.target.value }),
+      onKey: e => { if (e.key === 'Enter') this.sendText(); },
+      send: () => this.sendText()
+    };
+  }
+  sendText() {
+    const t = this.state.input.trim().toLowerCase();
+    if (!t) { this.run('fairy'); return; }
+    const key = /fairy|jeep|meadow|raikot/.test(t) ? 'fairy' : /friend|group|backpack|people|log/.test(t) ? 'friends' : /weather|babusar|snow|pass|mausam/.test(t) ? 'weather' : null;
+    this.run(key, this.state.input.trim());
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,406 @@
+//@@EDGE_STOPS
+const EDGE_STOPS = {
+  'LHR-ISB': [[185, 'food', 'Bhera service area', 'Fuel and clean washrooms'], [245, 'view', 'Kallar Kahar', 'Salt Range views and pakoras']],
+  'FSD-ISB': [[75, 'tea', 'Pindi Bhattian interchange', 'Tea and fuel'], [145, 'food', 'Bhera service area', 'Fuel and clean washrooms'], [195, 'view', 'Kallar Kahar', 'Salt Range views']],
+  'MUL-FSD': [[100, 'food', 'Abdul Hakeem service area', 'Fuel and washrooms']], 'MUL-LHR': [[165, 'food', 'Motorway service area', 'Fuel and washrooms']], 'FSD-LHR': [[90, 'tea', 'M-3 service area', 'Tea and fuel']],
+  'SKR-MUL': [[200, 'food', 'M-5 service area', 'Fuel and washrooms'], [300, 'view', 'Uch Sharif turn-off', 'Shrines of Uch, 15 min detour']],
+  'KHI-HYD': [[85, 'tea', 'Nooriabad service area', 'Tea, fuel and washrooms']], 'HYD-SKR': [[175, 'food', 'Moro', 'Highway dhabas and fuel'], [320, 'tea', 'Rohri', 'Tea before the Indus bridge']],
+  'ISB-PSH': [[75, 'food', 'Chach service area', 'Fuel and washrooms']], 'PSH-MGR': [[115, 'food', 'Chakdara', 'Fuel before the valley']], 'ISB-MGR': [[205, 'food', 'Chakdara', 'Fuel before the valley']],
+  'ISB-CKD': [[75, 'tea', 'Chach service area', 'Tea and fuel']],
+  'MGR-KLM': [[55, 'view', 'Madyan', 'Swat river views, walnut and honey sellers'], [65, 'food', 'Bahrain', 'River trout by the Swat river']],
+  'ISB-MNS': [[85, 'tea', 'Havelian service area', 'Tea and fuel'], [140, 'fuel', 'Mansehra', 'Last big fuel stop and ATMs']],
+  'MNS-NRN': [[38, 'tea', 'Balakot', 'Tea and chapli kebab'], [63, 'food', 'Kiwai waterfall', 'Trout and pakoras by the waterfall'], [98, 'fuel', 'Kaghan town', 'Fuel top-up']],
+  'NRN-CHL': [[48, 'view', 'Lulusar Lake', 'Photo stop at 11,000 ft'], [70, 'tea', 'Babusar Top', 'Tea at 13,690 ft. Windy and cold, carry a jacket'], [112, 'food', 'Chilas', 'Fuel on the KKH']],
+  'MNS-BSM': [[95, 'tea', 'Thakot', 'Tea by the Indus bridge']], 'BSM-CHL': [[75, 'food', 'Dasu', 'Fuel and washrooms'], [150, 'view', 'Shatial', 'Ancient rock carvings by the road']],
+  'CHL-RKT': [[40, 'view', 'Nanga Parbat viewpoint', 'Clear-day views of the 26,660 ft peak']],
+  'RKT-GLT': [[40, 'view', 'Junction of Three Mountains', 'Himalaya, Karakoram and Hindu Kush meet'], [83, 'food', 'Gilgit', 'Fuel and ATMs']],
+  'GLT-KRM': [[60, 'tea', 'Rakaposhi View Point, Ghulmet', 'Tea facing 25,550 ft Rakaposhi']],
+  'RKT-SKD': [[35, 'view', 'Alam Bridge', 'Gilgit and Indus rivers meet'], [110, 'tea', 'Roundu valley', 'Tea stalls along the Indus']],
+  'GLT-SKD': [[25, 'view', 'Alam Bridge', 'Gilgit and Indus rivers meet'], [115, 'tea', 'Roundu valley', 'Tea stalls along the Indus']],
+  'KRM-PSU': [[20, 'view', 'Attabad Lake', 'Turquoise lake and tunnels']], 'SKD-KHP': [[50, 'view', 'Shyok river', 'Valley views on the way']],
+  'MRE-MZD': [[40, 'tea', 'Kohala bridge', 'Tea by the Jhelum river']], 'MZD-KEL': [[93, 'view', 'Keran', 'Neelum river views'], [136, 'food', 'Sharda', 'By the Neelum river']],
+  'DIR-CTR': [[30, 'view', 'Lowari Tunnel', '8.5 km tunnel under the pass'], [75, 'tea', 'Drosh', 'Tea stop']],
+  'QTA-SKR': [[160, 'food', 'Sibi', 'Fuel and washrooms']], 'QTA-KHI': [[300, 'food', 'Khuzdar', 'Fuel and washrooms'], [520, 'tea', 'Bela', 'Tea stop']], 'DIK-ISB': [[165, 'tea', 'M-14 service area', 'Tea and fuel']],
+  'KHI-KML': [[125, 'food', 'Zero Point, Makran Coastal Highway', 'Last dhabas and fuel before the coast']], 'KML-GWD': [[40, 'view', 'Princess of Hope', 'Rock formation by the highway'], [135, 'food', 'Ormara', 'Fuel by the sea']] };
+//@@DAYSTOPS
+const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const MONTH_FULL = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const SUNSET = [17.4, 17.9, 18.3, 18.6, 19.0, 19.3, 19.3, 19.0, 18.4, 17.8, 17.2, 17.1];
+const SUNRISE = [7.1, 6.9, 6.3, 5.7, 5.2, 5.0, 5.1, 5.4, 5.8, 6.2, 6.6, 7.0];
+const isoOf = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const isoAdd = n => { const d = new Date(); d.setDate(d.getDate() + n); return isoOf(d); };
+const mon = o => { const d = o && o.startDate ? new Date(o.startDate + 'T00:00') : null; return d && !isNaN(d) ? d.getMonth() + 1 : 7; };
+const dayLabel = (iso, add) => { const d = new Date(iso + 'T00:00'); if (isNaN(d)) return ''; d.setDate(d.getDate() + add); return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }); };
+const inM = (m, arr) => !arr || arr.includes(m);
+const dur = h => { const t = Math.max(0, Math.round(h * 60)), H = Math.floor(t / 60), M = t % 60; return H ? `${H} h${M ? ` ${M} min` : ''}` : `${M} min`; };
+const STOP_DUR = { food: 40, tea: 20, view: 15, fuel: 10 };
+const mealName = t => t < 10.75 ? 'Breakfast' : t < 16 ? 'Lunch' : t < 18.75 ? 'Tea break' : 'Dinner';
+function stopsOn(l) {
+  const f = EDGE_STOPS[`${l.a}-${l.b}`], r = EDGE_STOPS[`${l.b}-${l.a}`];
+  let st = f ? f.map(x => [...x]) : r ? r.map(x => [l.km - x[0], x[1], x[2], x[3]]) : [];
+  if (!st.length && l.h > 2.5) { const n = Math.floor(l.h / 2.5); for (let i = 1; i <= n; i++) st.push([l.km * i / (n + 1), 'tea', 'Roadside dhaba', 'Tea, fuel and washrooms']); }
+  return st.filter(x => x[0] > 0 && x[0] < l.km).sort((a, b) => a[0] - b[0]);
+}
+function dayStops(ls, fromName, toName, dep, sunset) {
+  const out = []; let t = dep, driveH = 0, stopMin = 0, km = 0, pend = { h: 0, km: 0, roads: [] };
+  out.push({ time: clock(t), kind: 'go', label: `Leave ${fromName}`, note: '' });
+  const road = r => { if (!pend.roads.includes(r)) pend.roads.push(r); };
+  const flush = () => { if (pend.h > 0.02) out.push({ isDrive: true, kind: 'drive', time: '', label: `${dur(pend.h)} drive`, note: `${fmtN(pend.km < 20 ? pend.km : Math.round(pend.km / 5) * 5)} km · ${pend.roads.join(', ')}` });
+    t += pend.h; driveH += pend.h; km += pend.km; pend = { h: 0, km: 0, roads: [] }; };
+  ls.forEach(l => { const sp = l.km / Math.max(l.h, 0.01); let done = 0; road(l.road);
+    stopsOn(l).forEach(([at, kind, label, note]) => { pend.h += (at - done) / sp; pend.km += at - done; done = at; flush(); const m = STOP_DUR[kind] || 15;
+      out.push({ time: clock(t), kind, label, note: kind === 'food' ? `${mealName(t)} · ${note}` : note, dur: `${m} min stop` }); t += m / 60; stopMin += m; road(l.road); });
+    pend.h += (l.km - done) / sp; pend.km += l.km - done; });
+  flush();
+  const late = t > sunset;
+  out.push({ time: clock(t), kind: 'bed', label: `Arrive ${toName}`, note: late ? `After sunset (about ${clock(sunset)}). Leave earlier if you can.` : `Before sunset (about ${clock(sunset)})` });
+  return { items: out, arrive: t, driveH, stopMin, km, late };
+}
+//@@SHORTEST
+const SPT = {};
+const babusarClosed = m => !(m >= 6 && m <= 10);
+function shortest(dest, closed) {
+  const key = dest + (closed ? '|c' : ''); if (SPT[key]) return SPT[key];
+  const dist = { [dest]: 0 }, next = {}, done = new Set();
+  while (true) { let u = null; for (const k in dist) if (!done.has(k) && (u === null || dist[k] < dist[u])) u = k; if (u === null) break; done.add(u);
+    (ADJ[u] || []).forEach(([v, e]) => { if (closed && /Babusar/.test(e[6])) return; const d = dist[u] + e[2]; if (dist[v] === undefined || d < dist[v]) { dist[v] = d; next[v] = [u, e]; } }); }
+  return (SPT[key] = { dist, next });
+}
+//@@AIR
+const FARES = { Skardu: { ISB: 22000, LHR: 30000, KHI: 38000 }, Gilgit: { ISB: 20000, LHR: 32000, KHI: 42000 }, Chitral: { ISB: 18000 }, Gwadar: { KHI: 18000, ISB: 32000, LHR: 32000 },
+  Karachi: { ISB: 24000, LHR: 22000 }, Lahore: { KHI: 22000 }, Islamabad: { KHI: 24000 }, Quetta: { KHI: 20000, ISB: 26000, LHR: 26000 }, Peshawar: { KHI: 26000 }, Multan: { KHI: 20000 } };
+function airFor(key, origin) {
+  const D = DST(key), fares = D.air && FARES[D.air]; if (!fares) return null; const o = CITY[origin] || CITY.Islamabad;
+  const opts = Object.entries(AIRPORTS).filter(([k, v]) => fares[k] && v[0] !== D.air).map(([k, [dep, la, lo]]) => { const km = hav(o.lat, o.lon, la, lo) * 1.3, pp = km < 40 ? 0 : Math.round(km * 6.5 / 100) * 100 * 2;
+    return { dep, arr: D.air, fare: fares[k], km, pp, score: fares[k] * 2 + pp }; });
+  return opts.length ? opts.sort((a, b) => a.score - b.score)[0] : null;
+}
+//@@TRIP
+const R = (a, b) => { const o = []; for (let m = a; ; m = m % 12 + 1) { o.push(m); if (m === b) break; } return o; };
+const mapsQ = q => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q).replace(/%20/g, '+')}`;
+const DESTS = [
+  { id: 'hunza', name: 'Hunza', town: 'Karimabad, Hunza', region: 'Gilgit-Baltistan', lat: 36.32, lon: 74.66, ft: 8000, node: 'KRM', air: 'Gilgit', airNote: 'Gilgit → Karimabad by car, 100 km, about 2.5 h', best: R(4, 10), warn: [R(12, 2), 'Very cold in winter. Many hotels close and Khunjerab Pass is shut.'], terrain: { seed: 3.1, amp: 10, rise: 2.6, wig: 1 },
+    hotels: [['Eagle’s Nest Hotel Duikar', 'Standard', 'Sunrise over Rakaposhi and Ultar'], ['Hunza Embassy Hotel', 'Backpacker', 'Walk to Baltit Fort'], ['Luxus Hunza', 'Premium', 'On Attabad Lake']],
+    places: [['Baltit Fort', 'Karimabad · 10 min walk', '700-year-old fort above the town'], ['Altit Fort & Royal Garden', '3 km', 'Oldest fort in the valley'], ['Eagle’s Nest, Duikar', '20 min drive', 'Sunrise over Rakaposhi and Ultar'], ['Attabad Lake', '25 km · 40 min', 'Turquoise lake, boating'], ['Passu Cones & Hussaini Bridge', '50 km · 1.25 h', 'Cathedral peaks and a rope bridge'], ['Khunjerab Pass', '150 km · 3 h', 'China border at 15,397 ft. Carry your CNIC', R(4, 11)], ['Hopper Glacier, Nagar', '1 h', 'Short walk to the glacier view']],
+    eat: 'Chapshuro and walnut cake at Karimabad cafés', jeeps: [['khunjerab', 'Khunjerab Pass day trip', 'Up to 15,397 ft · full day', 18000, R(4, 11)], ['hopper', 'Hopper Glacier, Nagar', 'Half day, return', 7000]] },
+  { id: 'skardu', name: 'Skardu', town: 'Skardu', region: 'Gilgit-Baltistan', lat: 35.30, lon: 75.63, ft: 7310, node: 'SKD', air: 'Skardu', airNote: 'Airport → town, 20 min', best: R(4, 10), warn: [R(12, 2), 'Freezing winter. Deosai and Basho are closed.'], terrain: { seed: 11.2, amp: 8.5, rise: 2.3, wig: .7 },
+    hotels: [['Shangrila Resort Skardu', 'Premium', 'Lower Kachura Lake'], ['Mashabrum Hotel Skardu', 'Standard', 'Airport road'], ['Indus Motel Skardu', 'Backpacker', 'Indus riverfront']],
+    places: [['Upper Kachura Lake', '30 km · 45 min', 'Clear lake, short walk down'], ['Shangrila, Lower Kachura', '25 km', 'Heart-shaped lake and resort'], ['Sarfaranga Cold Desert', '20 km · 30 min', 'Sand dunes at 7,500 ft'], ['Shigar Fort', '32 km · 45 min', 'Restored 17th-century palace'], ['Satpara Lake', '8 km', 'Lake above the town'], ['Deosai Plains', 'By jeep · 13,500 ft', 'High plateau of wildflowers', R(6, 9)], ['Manthokha Waterfall', '75 km · 2 h', 'Tall falls in Kharmang']],
+    eat: 'Balti food, apricot dishes, trout at Kachura', jeeps: [['deosai', 'Deosai Plains', '13,500 ft · full day', 18000, R(6, 9)], ['shigar', 'Shigar Fort & cold desert', 'Half day', 7000], ['basho', 'Basho Valley', 'Half day', 9000, R(5, 10)]] },
+  { id: 'naran', name: 'Naran', town: 'Naran', region: 'Kaghan valley, KP', lat: 34.91, lon: 73.65, ft: 7900, node: 'NRN', best: R(5, 9), warn: [R(12, 4), 'Snow usually closes the road beyond Kaghan from December to April.'], hotels: STOP_HOTELS.NRN,
+    places: [['Lake Saif-ul-Malook', '10 km · 1 h by jeep', 'Lake under Malika Parbat at 10,580 ft', R(6, 9)], ['Lalazar meadows', '21 km by jeep', 'Pine meadows above Battakundi', R(6, 9)], ['Lulusar Lake', '48 km · 1.5 h', 'Source of the Kunhar river', R(6, 10)], ['Babusar Top', '70 km · 2.5 h', 'Views from the 13,690 ft pass', R(6, 10)], ['Naran bazaar & riverside', 'Walk', 'Trout grills along the Kunhar']],
+    eat: 'River trout and chapli kebab', jeeps: [['saif', 'Lake Saif-ul-Malook', 'Return with waiting time', 5000, R(6, 9)], ['lalazar', 'Lalazar meadows', 'Half day', 6000, R(6, 9)]] },
+  { id: 'kalam', name: 'Kalam', town: 'Kalam, Swat', region: 'Swat, KP', lat: 35.49, lon: 72.58, ft: 6560, node: 'KLM', best: R(5, 9), warn: [R(12, 3), 'Snow often blocks the road above Bahrain in winter.'], terrain: { seed: 7.4, amp: 6.5, rise: 2, wig: -1.2 },
+    hotels: [['Walnut Heights Kalam', 'Premium', 'Riverside cabins'], ['Kalam Hotel Swat', 'Standard', 'Main bazaar'], ['Ushu Forest Camp', 'Backpacker', 'Tents in the pines']],
+    places: [['Ushu Forest', '8 km · 20 min', 'Pine forest by the river'], ['Mahodand Lake', '35 km · 2 h by jeep', 'Lake of fish at 9,400 ft', R(6, 10)], ['Kalam bazaar & riverside', 'Walk', 'Trout, dry fruit and shawls'], ['Matiltan & Falak Sar view', '12 km', 'Glacier peaks above Kalam']],
+    eat: 'River trout and Swati pulao', jeeps: [['mahodand', 'Mahodand Lake', '2 h each way, return', 8000, R(6, 10)], ['ushu', 'Ushu Forest & Matiltan', 'Half day', 5000]] },
+  { id: 'fairy', name: 'Fairy Meadows', town: 'Fairy Meadows', region: 'Diamer, GB', lat: 35.39, lon: 74.59, ft: 10830, node: 'RKT', hub: .66, air: 'Gilgit', airNote: 'Gilgit → Raikot Bridge by car, 85 km, 2 h, then jeep and hike', best: R(5, 10), warn: [R(11, 4), 'Camps close and the jeep track is snowbound from November to April.'], terrain: { seed: 5.5, amp: 12, rise: 4.2, wig: 1.3 },
+    hotels: [['Raikot Sarai Fairy Meadows', 'Standard', 'Nanga Parbat view'], ['Fairy Meadows Cottages', 'Backpacker', 'Log huts, shared baths']],
+    places: [['Nanga Parbat at sunrise', 'At camp', 'The mountain fills the skyline'], ['Reflection Lake', '30 min walk', 'Nanga Parbat mirrored in the water'], ['Beyal Camp', '2 h hike', 'Pine meadows and wooden huts'], ['Nanga Parbat Base Camp', '5–6 h return from Beyal', 'Glacier views. Start early', R(6, 9)]],
+    eat: 'Simple camp meals. Carry snacks' },
+  { id: 'neelum', name: 'Neelum Valley', town: 'Kel, Neelum', region: 'Azad Kashmir', lat: 34.82, lon: 74.35, ft: 6900, node: 'KEL', best: R(4, 10), warn: [R(12, 2), 'Snow closes roads beyond Sharda in winter.'],
+    places: [['Keran', 'On the way in', 'Neelum river views'], ['Sharda', 'On the way in', 'Ruins of the ancient Sharda temple'], ['Arang Kel', 'Chairlift + 45 min hike', 'Meadow village at 8,400 ft'], ['Ratti Gali Lake', 'By jeep from Dowarian', 'Alpine lake at 12,100 ft', R(7, 9)]],
+    eat: 'Kashmiri chai and river trout', jeeps: [['ratti', 'Ratti Gali Lake', 'Dowarian ⇄ base, full day', 15000, R(7, 9)]] },
+  { id: 'chitral', name: 'Chitral', town: 'Chitral', region: 'Khyber Pakhtunkhwa', lat: 35.85, lon: 71.79, ft: 4900, node: 'CTR', air: 'Chitral', airNote: 'Airport → town, 15 min', best: R(4, 10), warn: [R(12, 2), 'Cold winter. Lowari Tunnel stays open but roads can be icy.'],
+    hotels: [['Hindukush Heights Chitral', 'Premium', 'Hillside hotel above the town'], ['PTDC Motel Chitral', 'Standard', 'Near the fort']],
+    places: [['Chitral Fort & Shahi Masjid', 'Town centre', 'Royal fort by the river'], ['Bumburet, Kalash valley', '40 km · 2 h', 'Kalash villages and museum'], ['Garam Chashma hot springs', '45 km · 1.5 h', 'Natural hot spring baths'], ['Tirich Mir view', 'From town', '25,289 ft peak on clear mornings']],
+    eat: 'Chitrali bread and walnut dishes', jeeps: [['kalash', 'Kalash valleys day trip', 'Bumburet and Rumbur', 9000]] },
+  { id: 'khaplu', name: 'Khaplu', town: 'Khaplu', region: 'Gilgit-Baltistan', lat: 35.15, lon: 76.33, ft: 8500, node: 'KHP', air: 'Skardu', airNote: 'Skardu → Khaplu by car, 103 km, about 2.5 h', best: R(4, 10), warn: [R(12, 2), 'Freezing winter nights.'],
+    hotels: [['Serena Khaplu Palace', 'Premium', 'Restored royal palace']],
+    places: [['Khaplu Palace', 'In town', 'Restored 19th-century palace'], ['Chaqchan Mosque', 'In town', '14th-century wooden mosque'], ['Thoqsikhar', 'Short walk', 'Old royal fort site'], ['Saling', '12 km', 'Riverside village']],
+    eat: 'Balti food and apricot soups' },
+  { id: 'passu', name: 'Passu', town: 'Passu', region: 'Gojal, GB', lat: 36.47, lon: 74.89, ft: 8200, node: 'PSU', air: 'Gilgit', airNote: 'Gilgit → Passu by car, 155 km, about 4 h', best: R(4, 10), warn: [R(12, 2), 'Very cold. Most guesthouses close.'],
+    places: [['Passu Cones', 'At Passu', 'Cathedral peaks over the village'], ['Hussaini Suspension Bridge', '10 km', 'Rope bridge over the Hunza river'], ['Borith Lake', '4 km', 'Quiet lake near Hussaini'], ['Khunjerab Pass', '85 km · 2 h', 'China border at 15,397 ft', R(4, 11)]],
+    eat: 'Gojali food and apricot cake' },
+  { id: 'shogran', name: 'Shogran', town: 'Shogran', region: 'Kaghan valley, KP', lat: 34.64, lon: 73.46, ft: 7750, best: R(4, 10), warn: [R(12, 2), 'Heavy snow. The road up from Kiwai can close.'],
+    places: [['Siri Paye meadows', '10 km by jeep · 1 h', 'Meadows at 9,800 ft with Makra peak views', R(5, 10)], ['Kiwai waterfall', '8 km below', 'Trout and pakoras'], ['Shogran forest walks', 'Walk', 'Pine trails around the plateau']],
+    eat: 'Trout and pakoras at Kiwai', jeeps: [['siri', 'Siri Paye meadows', 'Shogran ⇄ Siri Paye, return', 4000, R(5, 10)]] },
+  { id: 'malam', name: 'Malam Jabba', town: 'Malam Jabba', region: 'Swat, KP', lat: 34.80, lon: 72.57, ft: 8700, node: 'MJB', best: [12, 1, 2, ...R(5, 9)],
+    hotels: [['Pearl Continental Malam Jabba', 'Premium', 'Ski resort hotel']],
+    places: [['Ski slopes', 'At the resort', 'Skiing December to February', [12, 1, 2]], ['Chairlift & zipline', 'At the resort', 'Valley views'], ['Mingora & Swat Museum', '40 km · 1 h', 'Gandhara collection'], ['Marghazar White Palace', '50 km', 'Former royal summer palace']],
+    eat: 'Swati pulao and trout' },
+  { id: 'kumrat', name: 'Kumrat Valley', town: 'Kumrat', region: 'Upper Dir, KP', lat: 35.53, lon: 72.22, ft: 7550, best: R(6, 9), warn: [R(11, 4), 'Snowbound from November to April.'],
+    places: [['Kumrat forest', 'Thal → 1 h by jeep', 'Deodar forest by the Panjkora river'], ['Kala Chashma', 'By jeep', 'Black spring at the valley head'], ['Jahaz Banda', 'Trek, 4–5 h', 'High meadow at 10,500 ft', R(6, 9)], ['Thal wooden mosque', 'Thal village', 'Carved wooden mosque']],
+    eat: 'Trout and simple camp meals', jeeps: [['kumratj', 'Thal ⇄ Kumrat forest', 'Full day, return', 10000]] },
+  { id: 'murree', name: 'Murree', town: 'Murree', region: 'Punjab', lat: 33.91, lon: 73.39, ft: 7500, node: 'MRE', best: [...R(3, 10), 12, 1], warn: [R(12, 2), 'Snowfall brings traffic jams. Check the snow advisory and avoid weekends.'],
+    hotels: [['Pearl Continental Bhurban', 'Premium', 'Bhurban, forest and golf views']],
+    places: [['Mall Road', 'Town centre', 'Shops, food and the GPO'], ['Pindi Point', '2 km', 'Chairlift views'], ['Patriata chairlift', '15 km', 'Cable car and chairlift'], ['Kashmir Point', 'Walk', 'Forest walks and views']],
+    eat: 'Chapli kebab and roasted corn on Mall Road' },
+  { id: 'nathia', name: 'Nathia Gali', town: 'Nathia Gali', region: 'Galiyat, KP', lat: 34.07, lon: 73.38, ft: 8200, best: R(4, 10), warn: [R(12, 2), 'Snow and icy roads.'],
+    places: [['Mushkpuri Top', '4 km hike', 'Highest point in the Galiyat'], ['Pipeline Track', '4 km walk', 'Flat forest trail to Dunga Gali'], ['Miranjani', 'Hike', 'Galiyat views'], ['Ayubia chairlift', '10 km', 'Chairlift and forest']],
+    eat: 'Tea and pakoras at the bazaar' },
+  { id: 'ziarat', name: 'Ziarat', town: 'Ziarat', region: 'Balochistan', lat: 30.38, lon: 67.73, ft: 8200, node: 'ZRT', best: R(4, 10), warn: [R(12, 2), 'Snow and freezing nights.'],
+    hotels: [['PTDC Motel Ziarat', 'Standard', 'Near the Residency']],
+    places: [['Quaid-e-Azam Residency', 'Town', 'Where Jinnah spent his last days'], ['Juniper forest', 'Around town', 'One of the oldest juniper forests'], ['Prospect Point', '6 km', 'Valley viewpoint']],
+    eat: 'Sajji and Balochi food' },
+  { id: 'gwadar', name: 'Gwadar', town: 'Gwadar', region: 'Balochistan', lat: 25.13, lon: 62.32, ft: 30, node: 'GWD', icon: 'ph-waves', air: 'Gwadar', airNote: 'Airport → town, 20 min', best: R(10, 3), warn: [R(5, 8), 'Hot and humid in summer.'],
+    hotels: [['Pearl Continental Gwadar', 'Premium', 'On Koh-e-Batil']],
+    places: [['Koh-e-Batil (Hammerhead)', 'Town', 'Clifftop views over both bays'], ['Marine Drive', 'Town', 'Sea front'], ['Ormara beach', 'On the way', 'Quiet beach town']],
+    eat: 'Fresh fish and prawns' },
+  { id: 'kundmalir', name: 'Kund Malir', town: 'Kund Malir', region: 'Hingol, Balochistan', lat: 25.40, lon: 65.47, ft: 30, node: 'KML', icon: 'ph-waves', best: R(10, 3), warn: [R(5, 9), 'Very hot. Little shade on the coast.'],
+    places: [['Kund Malir beach', 'On arrival', 'Blue water and a wide beach'], ['Princess of Hope', '40 km west', 'Natural rock formation'], ['Hingol mud volcanoes', 'By jeep', 'Chandragup mud volcano'], ['Hinglaj Mata temple', 'Hingol', 'Cave temple and pilgrimage site']],
+    eat: 'Few dhabas on the coast. Carry food and water' },
+  { id: 'mohenjo', name: 'Mohenjo-daro', town: 'Mohenjo-daro', region: 'Sindh', lat: 27.33, lon: 68.14, ft: 150, node: 'MJD', icon: 'ph-bank', best: R(11, 2), warn: [R(4, 9), 'Extremely hot. Visit at sunrise.'],
+    places: [['Mohenjo-daro ruins', 'On site', '4,500-year-old city of the Indus civilisation'], ['Site museum', 'On site', 'Seals, pottery and the Priest-King'], ['Larkana', '28 km', 'City stop and food']],
+    eat: 'Sindhi biryani in Larkana' },
+  { id: 'lahore', name: 'Lahore', town: 'Lahore', region: 'Punjab', lat: 31.55, lon: 74.34, ft: 710, node: 'LHR', icon: 'ph-buildings', air: 'Lahore', best: R(10, 3), warn: [R(5, 7), 'Very hot from May to July.'], hotels: STOP_HOTELS.LHR,
+    places: [['Badshahi Mosque', 'Walled City', 'One of the largest Mughal mosques'], ['Lahore Fort & Sheesh Mahal', 'Walled City', 'Mughal fort and mirror palace'], ['Walled City food street', 'Fort Road', 'Dinner with fort views'], ['Wagah border ceremony', '28 km', 'Evening flag ceremony']],
+    eat: 'Nihari, paye and Lakshmi Chowk food' },
+  { id: 'islamabad', name: 'Islamabad', town: 'Islamabad', region: 'Capital', lat: 33.69, lon: 73.05, ft: 1770, node: 'ISB', icon: 'ph-buildings', air: 'Islamabad', best: R(10, 4), warn: [R(6, 7), 'Hot and humid in June and July.'], hotels: STOP_HOTELS.ISB,
+    places: [['Faisal Mosque', 'E-7', 'Iconic mosque below the Margallas'], ['Daman-e-Koh', 'Margalla Hills', 'City viewpoint'], ['Pakistan Monument & museum', 'Shakarparian', 'Monument shaped like petals'], ['Margalla Trail 3', 'Sector F-6', '1–2 h hike to the ridge'], ['Lok Virsa Museum', 'Shakarparian', 'Heritage museum']],
+    eat: 'Karahi and barbecue at Melody food street' },
+  { id: 'karachi', name: 'Karachi', town: 'Karachi', region: 'Sindh', lat: 24.86, lon: 67.01, ft: 30, node: 'KHI', icon: 'ph-buildings', air: 'Karachi', best: R(11, 2), warn: [R(5, 8), 'Hot and humid.'],
+    hotels: [['Pearl Continental Karachi', 'Premium', 'Club Road']],
+    places: [['Mazar-e-Quaid', 'Central', 'Jinnah’s mausoleum'], ['Frere Hall', 'Saddar', 'Colonial hall and gardens'], ['Mohatta Palace', 'Clifton', 'Museum in a stone palace'], ['Clifton Beach & Sea View', 'Clifton', 'Sunset by the sea'], ['Burns Road food street', 'Saddar', 'Nihari, rabri and bun kebab']],
+    eat: 'Burns Road nihari and Boat Basin barbecue' }];
+function autoTerrain(d) { const ft = d.ft ?? d.ftEst ?? 800, seed = (d.name.split('').reduce((a, ch) => a + ch.charCodeAt(0), 0) % 97) / 7;
+  return { seed, amp: Math.max(2.2, Math.min(12, ft / 800)), rise: Math.max(.3, Math.min(4.2, ft / 2600)), wig: Math.sin(seed * 3) * 1.3 }; }
+function finishDest(d) {
+  const town = d.town || d.name, ft = d.ft ?? null;
+  const out = { icon: 'ph-mountains', jeeps: [], hotels: null, best: null, warn: null, ...d, town, ft, label: d.name, peakLabel: `${town}${ft != null ? ` · ${fmtN(ft)} ft` : ''}` };
+  if (!out.terrain) out.terrain = autoTerrain(out);
+  if (!out.places) out.places = [[`Top sights in ${d.name}`, 'Google Maps', 'No guide for this place yet', null, mapsQ('things to do in ' + d.name)], [`Where to eat in ${d.name}`, 'Google Maps', 'Local restaurants and street food', null, mapsQ('best food in ' + d.name)]];
+  if (!out.eat) out.eat = `Ask locals for the best food in ${d.name}`;
+  return out;
+}
+const CORR = {}; DESTS.forEach(d => { CORR[d.id] = finishDest(d); });
+const CITY_AIR = { Karachi: 'Karachi', Lahore: 'Lahore', Islamabad: 'Islamabad', Rawalpindi: 'Islamabad', Quetta: 'Quetta', Peshawar: 'Peshawar', Multan: 'Multan', Gilgit: 'Gilgit', Skardu: 'Skardu', Chitral: 'Chitral', Gwadar: 'Gwadar' };
+const PROV_FT = { 'Gilgit-Baltistan': 7000, 'Azad Kashmir': 3500, 'Khyber Pakhtunkhwa': 2500, Balochistan: 2000, Punjab: 650, Sindh: 100, Capital: 1770 };
+function DST(id) {
+  if (CORR[id]) return CORR[id];
+  const n = String(id).replace(/^city:/, ''), c = CITY[n] || CITY.Islamabad, near = Object.keys(NODES).find(k => hav(c.lat, c.lon, NODES[k][0], NODES[k][1]) < 8);
+  return (CORR[id] = finishDest({ id, name: c.n, region: c.p, lat: c.lat, lon: c.lon, ft: near ? NODE_INFO[near][1] : null, ftEst: PROV_FT[c.p], node: near || null, air: CITY_AIR[c.n] || null, generic: true, icon: 'ph-buildings' }));
+}
+const CITY_DUP = new Set(DESTS.flatMap(d => [d.name, (d.town || d.name).split(',')[0]]));
+const SUGGEST_POOL = ['hunza', 'skardu', 'naran', 'kalam', 'fairy', 'neelum', 'chitral', 'khaplu', 'passu', 'shogran', 'malam', 'kumrat', 'murree', 'nathia', 'ziarat', 'gwadar', 'kundmalir', 'mohenjo'];
+const POP_DEST = ['hunza', 'skardu', 'naran', 'kalam', 'fairy', 'neelum', 'chitral', 'murree', 'khaplu', 'gwadar', 'lahore', 'karachi'];
+const placesFor = (D, m) => (D.places || []).filter(p => inM(m, p[3]));
+const seasonFactor = (D, m) => { const ft = D.ft ?? D.ftEst ?? 0; if (ft >= 4000) return [6, 7, 8].includes(m) ? 1.3 : [12, 1, 2].includes(m) ? 0.8 : 1; if (D.lat < 30 && ft < 1500) return [5, 6, 7, 8].includes(m) ? 0.85 : 1; return 1; };
+const rangeTxt = b => { const runs = []; for (let m = 1; m <= 12; m++) { const p = m === 1 ? 12 : m - 1; if (b.includes(m) && !b.includes(p)) { let e = m; while (b.includes(e % 12 + 1)) e = e % 12 + 1; runs.push(e === m ? MONTH_FULL[m - 1] : `${MONTH_FULL[m - 1]} to ${MONTH_FULL[e - 1]}`); } } return runs.length ? 'best ' + runs.join(' and ') : 'good all year'; };
+const TRIP_CACHE = {};
+function attachTo(lat, lon, mtn) {
+  return Object.keys(NODES).map(n => ({ n, air: hav(lat, lon, NODES[n][0], NODES[n][1]) })).sort((a, b) => a.air - b.air).filter((x, i, arr) => i < 4 && x.air <= arr[0].air * 1.5 + 20)
+    .map(x => { const mt = mtn || MTN_NODES.has(x.n); return { ...x, mtn: mt, local: x.air < 8 ? 0 : x.air * (mt ? 1.6 : 1.3) }; });
+}
+function trip(key, origin, cap = MAX_DRIVE_H, month = 7) {
+  const ck = `${key}|${origin}|${month}`; if (TRIP_CACHE[ck]) return TRIP_CACHE[ck];
+  const D = DST(key), o = CITY[origin] || CITY.Islamabad, closed = babusarClosed(month);
+  const oc = attachTo(o.lat, o.lon, false), dc = D.node ? [{ n: D.node, local: 0, mtn: MTN_NODES.has(D.node) }] : attachTo(D.lat, D.lon, (D.ft ?? D.ftEst ?? 0) > 3000);
+  let best = null;
+  dc.forEach(d => { const { dist } = shortest(d.n, closed); oc.forEach(st => { if (dist[st.n] === undefined) return; const tot = st.local + dist[st.n] + d.local; if (!best || tot < best.tot) best = { st, d, tot }; }); });
+  const start = best.st, end = best.d, { next } = shortest(end.n, closed);
+  let flat = 0, mtn = 0, hours = 0; const tolls = [], via = [], legs = [];
+  const addLocal = (a, b, x) => { const sp = x.mtn ? 30 : 55; legs.push({ a, b, km: x.local, h: x.local / sp, road: 'Local roads' }); hours += x.local / sp; if (x.mtn) mtn += x.local; else flat += x.local; };
+  if (start.local > 0) addLocal('HOME', start.n, start);
+  let n = start.n;
+  while (n !== end.n) { const [m, e] = next[n]; if (e[5]) mtn += e[2]; else flat += e[2]; hours += e[2] / e[3]; legs.push({ a: n, b: m, km: e[2], h: e[2] / e[3], road: e[6] });
+    if (e[4]) tolls.push([e[6], e[4]]); if (!via.includes(e[6])) via.push(e[6]); n = m; }
+  if (end.local > 0) addLocal(end.n, 'DEST', end);
+  if (!legs.length) addLocal('HOME', 'DEST', { local: Math.max(10, hav(o.lat, o.lon, D.lat, D.lon) * 1.3), mtn: false });
+  const km = Math.max(10, Math.round((flat + mtn) / 5) * 5), legDays = Math.max(1, Math.ceil(hours / cap - 0.05)), minDays = legDays * 2 + 1;
+  return (TRIP_CACHE[ck] = { ...D, from: o.n, to: D.name, km, kmStr: fmtN(km), flatKm: flat, mtnKm: mtn, hours, hrs: `${Math.round(hours)} h drive${D.hub !== undefined ? ' + jeep' : ''}`, tolls, legs, cap, via: via.length ? via.slice(0, 4).join(' · ') : 'Local roads', legDays, minDays, tiles: Math.round(km / 3 + 40) });
+}
+//@@PLAN
+function stayAt(node, key, tier, isDest) {
+  const D = DST(key), town = isDest ? D.town : NODE_INFO[node][0], ft = isDest ? D.ft : NODE_INFO[node][1];
+  const list = isDest ? D.hotels : STOP_HOTELS[node], place = `${town}${ft != null ? ` · ${fmtN(ft)} ft` : ''}`;
+  if (!list) return { town, place, name: `Hotels in ${town}`, note: 'Opens a Google Maps search', tier: 'Search', alts: '', href: mapsHref('hotels in ' + town) };
+  const h = hotelFor(list, tier), alts = list.filter(x => x !== h).map(x => x[0]).join(' · ');
+  return { town, place, name: h[0], note: h[2], tier: h[1], alts: alts ? 'Also: ' + alts : '', href: mapsHref(h[0]) };
+}
+function exploreDays(D, m, n) {
+  const pl = placesFor(D, m), out = []; if (!n) return out; const per = Math.max(1, Math.ceil(pl.length / n));
+  for (let i = 0; i < n; i++) { const list = pl.slice(i * per, i * per + per);
+    const stops = list.length ? list.map((p, j) => ({ time: SLOTS[Math.min(j, 3)], kind: 'pin', label: p[0], note: `${p[1]} · ${p[2]}`, href: p[4] })) : [{ time: 'All day', kind: 'pin', label: 'Free day', note: 'Rest, shop, or go back to a favourite spot' }];
+    stops.push({ time: 'Food', kind: 'food', label: 'Eat local', note: D.eat });
+    out.push({ kind: 'explore', title: list.length ? `Explore ${D.town}` : `Free day in ${D.town}`, meta: list.length ? `${list.length} place${list.length > 1 ? 's' : ''} · local car or jeep` : 'Nothing scheduled', note: '', stops }); }
+  return out;
+}
+function seasonInfo(s, key) {
+  const D = DST(key), m = mon(s), notes = [], Mo = MONTH_FULL[m - 1];
+  if (D.best) notes.push(D.best.includes(m) ? { icon: 'ph-sun', color: '#2EE59D', text: `${Mo} is a good time for ${D.name} (${rangeTxt(D.best)}).` } : { icon: 'ph-calendar-x', color: '#FFB547', text: `${Mo} is outside the best season for ${D.name} (${rangeTxt(D.best)}).` });
+  if (D.warn && D.warn[0].includes(m)) notes.push({ icon: 'ph-warning', color: '#FF8A6B', text: D.warn[1] });
+  if (s.vehicle !== 'air') { const now = trip(key, s.origin, MAX_DRIVE_H, m), open = trip(key, s.origin, MAX_DRIVE_H, 7), usesB = open.legs.some(l => /Babusar/.test(l.road));
+    if (usesB && babusarClosed(m)) notes.push({ icon: 'ph-road-horizon', color: '#FF8A6B', text: `Babusar Pass is closed in ${Mo}. The route goes via Besham on the KKH: ${fmtN(Math.max(0, now.km - open.km))} km and about ${dur(Math.max(0, now.hours - open.hours))} longer each way.` });
+    else if (usesB) notes.push({ icon: 'ph-road-horizon', color: '#6FD3FF', text: 'Babusar Pass is open (June to October). Cross it before the afternoon.' }); }
+  const f = seasonFactor(D, m);
+  if (f > 1) notes.push({ icon: 'ph-trend-up', color: '#FFB547', text: `Peak season: hotel rates about ${Math.round((f - 1) * 100)}% higher. Book early.` });
+  else if (f < 1) notes.push({ icon: 'ph-trend-down', color: '#2EE59D', text: `Off season: hotel rates about ${Math.round((1 - f) * 100)}% lower, and some places are closed.` });
+  const cl = [...new Set([...(D.places || []).filter(p => p[3] && !p[3].includes(m)).map(p => p[0]), ...(D.jeeps || []).filter(j => j[4] && !j[4].includes(m)).map(j => j[1])])];
+  if (cl.length) notes.push({ icon: 'ph-prohibit', color: '#FF8A6B', text: `Not possible in ${Mo}: ${cl.join(', ')}.` });
+  notes.push({ icon: 'ph-sun-horizon', color: '#C4B2FF', text: `Daylight about ${clock(SUNRISE[m - 1])} to ${clock(SUNSET[m - 1])}.` });
+  return notes;
+}
+function buildPlan(s) {
+  const key = s.corridor, D = DST(key), m = mon(s), sunset = SUNSET[m - 1], c = trip(key, s.origin, MAX_DRIVE_H, m), L = c.legDays, legs = c.legs, cum = [];
+  const nm = n => n === 'DEST' ? D.town : n === 'HOME' ? c.from : NODE_INFO[n][0];
+  const notes = roads => roads.map(r => ROAD_NOTE[r]).filter(Boolean).join(' ');
+  const elderNote = (roads, last) => s.elders && (roads.some(r => /Babusar/.test(r)) || (last && (D.ft || 0) >= 7000)) ? 'Elders: high altitude. Go slow, keep water and any BP or heart medicine handy.' : '';
+  const days = [];
+  const finish = extra => { days.forEach((d, i) => { d.num = i + 1; d.date = dayLabel(s.startDate, i); }); return { days, total: days.length, sunset, rec: 6, dep: 6, late: false, hasDrive: false, air: null, ...extra }; };
+  if (s.vehicle === 'air') { const a = airFor(key, s.origin);
+    if (a) { const tn = D.airNote || 'Airport → hotel by taxi', north = (D.ft || 0) >= 4000;
+      days.push({ kind: 'fly', title: `${a.dep} → ${a.arr} by air`, meta: `About 1–2 h flight · ${tn}`, note: [a.pp ? `${c.from} → ${a.dep} airport by coach first.` : '', north ? 'Northern flights are weather-dependent. Keep a buffer day.' : ''].filter(Boolean).join(' '),
+        stops: [{ time: '6:00 am', kind: 'go', label: `${a.dep} airport`, note: 'Check in 90 minutes before departure' }, { time: '7:30 am', kind: 'plane', label: `Fly to ${a.arr}`, note: north ? 'Scenic on a clear day' : '' }, { time: '9:30 am', kind: 'bed', label: 'Transfer to your stay', note: tn }], stay: stayAt(null, key, s.tier, true) });
+      exploreDays(D, m, Math.max(0, s.days - 2)).forEach(d => days.push({ ...d, stay: stayAt(null, key, s.tier, true) }));
+      days.push({ kind: 'fly', title: `${a.arr} → ${a.dep} by air`, meta: 'Morning flight', note: '', stops: [{ time: '6:00 am', kind: 'go', label: `Leave for ${a.arr} airport`, note: north ? 'Morning flights are the most reliable' : '' }, { time: '8:00 am', kind: 'plane', label: `Fly to ${a.dep}`, note: north ? 'If cancelled, the next flight or the road is the fallback' : '' }], stay: null });
+      return finish({ air: a }); } }
+  legs.reduce((acc, l, i) => (cum[i] = acc + l.h), 0);
+  const cut = []; let prev = -1;
+  for (let k = 1; k < L; k++) { const target = k * c.hours / L; let best = -1, bd = 1e9;
+    for (const strict of [true, false]) { for (let i = prev + 1; i < legs.length - 1; i++) { if (legs[i].b === 'RKT') continue; const day = cum[i] - (prev < 0 ? 0 : cum[prev]); if (strict && day > MAX_DRIVE_H + 1.5) continue; const d = Math.abs(cum[i] - target); if (d < bd) { bd = d; best = i; } } if (best >= 0) break; }
+    if (best < 0) break; cut.push(best); prev = best; }
+  const bounds = [-1, ...cut, legs.length - 1], segs = [];
+  for (let i = 0; i < bounds.length - 1; i++) { const ls = legs.slice(bounds[i] + 1, bounds[i + 1] + 1), last = i === bounds.length - 2, toNode = legs[bounds[i + 1]].b;
+    segs.push({ ls, roads: [...new Set(ls.map(l => l.road))], last, toNode, from: i === 0 ? c.from : nm(legs[bounds[i]].b), to: last ? D.town : nm(toNode) }); }
+  const longest = Math.max(...segs.map(g => dayStops(g.ls, '', '', 6, 30).arrive - 6));
+  const rec = Math.max(4.5, Math.min(8, Math.floor((sunset - 0.5 - longest) * 2) / 2)), dep = s.depart ?? rec;
+  let late = false;
+  const meta = r => `${fmtN(r.km < 20 ? r.km : Math.round(r.km / 5) * 5)} km · ${dur(r.driveH)} driving + ${dur(r.stopMin / 60)} stops`;
+  segs.forEach(g => { const r = dayStops(g.ls, g.from, g.to, dep, sunset); late = late || r.late;
+    days.push({ kind: 'drive', title: `${g.from} → ${g.to}`, meta: meta(r), stops: r.items,
+      note: [notes(g.roads), g.last && D.hub !== undefined ? 'Park at Raikot Bridge, jeep to Tato (1.5 h), then a 2–3 h hike.' : '', elderNote(g.roads, g.last)].filter(Boolean).join(' '),
+      stay: g.last ? stayAt(null, key, s.tier, true) : stayAt(g.toNode, key, s.tier, false) }); });
+  const free = Math.max(0, s.days - 2 * segs.length);
+  if (!free && days.length) { const pl = placesFor(D, m)[0]; if (pl) days[days.length - 1].stops.push({ time: 'Evening', kind: 'pin', label: pl[0], note: `${pl[1]} · ${pl[2]}`, href: pl[4] }); }
+  exploreDays(D, m, free).forEach(d => days.push({ ...d, stay: stayAt(null, key, s.tier, true) }));
+  for (let i = segs.length - 1; i >= 0; i--) { const g = segs[i], back = g.ls.slice().reverse().map(l => ({ ...l, a: l.b, b: l.a })), r = dayStops(back, g.to, g.from, dep, sunset); late = late || r.late;
+    days.push({ kind: 'return', title: `${g.to} → ${g.from}`, meta: meta(r), stops: r.items, note: '', stay: i === 0 ? null : stayAt(segs[i - 1].toNode, key, s.tier, false) }); }
+  return finish({ rec, dep, late, hasDrive: segs.length > 0 });
+}
+
+//@@COST_HEAD
+  const M = mon(o), c = trip(o.corridor, o.origin, MAX_DRIVE_H, M), sf = seasonFactor(c, M), sfTxt = sf > 1 ? ` · peak +${Math.round((sf - 1) * 100)}%` : sf < 1 ? ` · off-season −${Math.round((1 - sf) * 100)}%` : '', v = VEH[o.vehicle], t = TIERS[o.tier], rt = c.km * 2, rows = [], nights = Math.max(1, o.days - 1);
+//@@OBTITLES
+    const obTitles = [
+      { title: 'Which city do you live in?', sub: 'Your trip starts here. Distance, fuel, tolls and travel time are calculated from it.' },
+      { title: 'Where do you want to go?', sub: `From ${s.origin || 'Islamabad'}. Search any city or tourist spot, or let SafarCo suggest one.` },
+      { title: 'When are you going?', sub: 'Tentative dates are fine. Roads, season and prices change with the month.' },
+      { title: 'Who’s travelling?', sub: 'Fares, meals and rooms are worked out for each person.' },
+      { title: 'What’s your budget?', sub: 'Total for the whole group: transport, stays and food.' },
+      s.mode === 'know' ? { title: `Your ${DST(s.dest).name} options`, sub: 'Move the budget and the options re-rank instantly.' } : { title: 'Trips that fit your budget', sub: 'Ranked for your dates, days and budget.' }];
+    const destRows = (() => { if (s.step !== 1 || s.mode !== 'know') return []; const q = s.dq.trim().toLowerCase(), o = s.origin || 'Islamabad';
+      let ids;
+      if (!q) ids = POP_DEST.slice();
+      else { const cur = DESTS.filter(d => [d.name, d.town || '', d.region].some(x => x.toLowerCase().includes(q))).map(d => d.id);
+        const cit = CITIES.filter(c => !CITY_DUP.has(c.n) && (c.n.toLowerCase().includes(q) || c.p.toLowerCase().includes(q))).sort((a, b) => (b.n.toLowerCase().startsWith(q) - a.n.toLowerCase().startsWith(q)) || a.n.localeCompare(b.n)).map(c => 'city:' + c.n);
+        ids = [...cur, ...cit]; }
+      ids = ids.filter(id => DST(id).name !== o);
+      if (!q && !ids.includes(s.dest) && DST(s.dest).name !== o) ids.unshift(s.dest);
+      return ids.slice(0, 30).map(id => { const D = DST(id), t = trip(id, o, MAX_DRIVE_H, M), on = s.dest === id;
+        return { name: D.name, sub: `${D.region}${D.ft != null && !D.generic ? ` · ${fmtN(D.ft)} ft` : ''}`, meta: `${t.kmStr} km · ${Math.round(t.hours)} h`, icon: D.icon, onClick: () => this.setState({ dest: id, corridor: id, pickId: null, addons: [] }),
+          bg: on ? 'rgba(255,181,71,.12)' : 'transparent', border: on ? 'rgba(255,181,71,.5)' : 'transparent', iconC: on ? '#FFB547' : '#9FB8B4', checkOp: on ? 1 : 0 }; }); })();
+//@@RV_DEST
+      dq: s.dq, hasDq: !!s.dq, onDq: e => this.setState({ dq: e.target.value }), clearDq: () => this.setState({ dq: '' }),
+      destListLabel: s.dq ? 'Matching places' : 'Popular destinations',
+      destRows, noDest: !!s.dq.trim() && !destRows.length,
+      startDate: s.startDate, todayIso: isoAdd(0), onDate: e => { if (e.target.value) this.setState({ startDate: e.target.value, pickId: null }); },
+      dateRange: `${dayLabel(s.startDate, 0)} → ${dayLabel(s.startDate, s.days - 1)}`,
+      monthChips: (() => { const now = new Date(), sd = new Date(s.startDate + 'T00:00'); return Array.from({ length: 12 }, (_, i) => { const d = new Date(now.getFullYear(), now.getMonth() + i, 1), on = sd.getMonth() === d.getMonth() && sd.getFullYear() === d.getFullYear();
+        return { label: MON[d.getMonth()], sub: i === 0 || d.getMonth() === 0 ? String(d.getFullYear()) : '', onClick: () => this.setState({ startDate: i === 0 ? isoAdd(3) : isoOf(new Date(d.getFullYear(), d.getMonth(), 15)), pickId: null }),
+          bg: on ? 'linear-gradient(135deg,#FFB547,#FF7A3D)' : 'rgba(255,255,255,.05)', fg: on ? '#2A1500' : '#F2F7F5', border: on ? 'transparent' : 'rgba(255,255,255,.12)' }; }); })(),
+      whenNotes: s.mode === 'know' ? seasonInfo(s, s.dest) : (() => { const inS = SUGGEST_POOL.filter(k => (DST(k).best || []).includes(M)).map(k => DST(k).name);
+        return [{ icon: 'ph-sun', color: '#2EE59D', text: inS.length ? `In season in ${MONTH_FULL[M - 1]}: ${inS.slice(0, 6).join(', ')}${inS.length > 6 ? ' and more' : ''}.` : `Few destinations are in season in ${MONTH_FULL[M - 1]}.` },
+          ...(babusarClosed(M) ? [{ icon: 'ph-road-horizon', color: '#FF8A6B', text: `Babusar Pass is closed in ${MONTH_FULL[M - 1]}. Northern routes go via Besham on the KKH.` }] : []),
+          { icon: 'ph-sun-horizon', color: '#C4B2FF', text: `Daylight about ${clock(SUNRISE[M - 1])} to ${clock(SUNSET[M - 1])}.` }]; })(),
+      seasonNotes: seasonInfo(s, s.corridor),
+//@@RV_DAYHINT
+      dayHint: (() => { const o = s.origin || 'Islamabad', okS = { tile: 'linear-gradient(135deg,#2EE59D,#0FA678)', bg: 'rgba(46,229,157,.1)', border: 'rgba(46,229,157,.3)' }, badS = { tile: 'linear-gradient(135deg,#FF8A6B,#FF4F7B)', bg: 'rgba(255,107,91,.12)', border: 'rgba(255,107,91,.4)' };
+        if (s.mode === 'know') { const t = trip(s.dest, o, MAX_DRIVE_H, M), bad = s.days < t.minDays;
+          return { text: `${o} → ${DST(s.dest).name}: ${t.kmStr} km by road, about ${Math.round(t.hours)} h each way. ${bad ? `You need at least ${t.minDays} days.` : `Plan: ${t.legDays} driving day${t.legDays > 1 ? 's' : ''} each way.`}`, icon: bad ? 'ph-calendar-x' : 'ph-path', ...(bad ? badS : okS) }; }
+        const pool = SUGGEST_POOL.filter(k => DST(k).name !== o), ok = pool.filter(k => s.days >= trip(k, o, MAX_DRIVE_H, M).minDays).length;
+        return { text: `${ok} of ${pool.length} popular destinations are reachable from ${o} in ${s.days} days, driving up to ${MAX_DRIVE_H} h a day.`, icon: 'ph-path', ...(ok ? okS : badS) }; })(),
+//@@RV_CORR
+      corridorChips: [s.corridor, ...POP_DEST.filter(k => k !== s.corridor && DST(k).name !== s.origin)].slice(0, 6).map(k => { const on = s.corridor === k, v = DST(k);
+        return { label: v.name, onClick: () => this.setState({ corridor: k, dest: k, addons: [] }), bg: on ? 'linear-gradient(135deg,#2EE59D,#19C2B8)' : 'rgba(10,30,34,.45)', fg: on ? '#04211C' : '#fff', border: on ? 'transparent' : 'rgba(255,255,255,.2)', shadow: on ? '0 10px 24px -10px rgba(46,229,157,.8)' : 'none' }; }),
+//@@RV_PLAN
+      plan: (() => { const p = buildPlan(s), K = { drive: ['linear-gradient(135deg,#2EE59D,#0FA678)', 'Drive'], explore: ['linear-gradient(135deg,#9B7BFF,#5B6CFF)', 'Explore'], return: ['linear-gradient(135deg,#FFB547,#FF7A3D)', 'Return'], fly: ['linear-gradient(135deg,#6FD3FF,#3B8DFF)', 'Fly'] };
+        const depChips = [null, 4.5, 5.5, 6.5, 7.5, 8.5].map(v => { const on = (s.depart ?? null) === v; return { label: v === null ? `Auto · ${clock(p.rec)}` : clock(v), onClick: () => this.setState({ depart: v }),
+          bg: on ? 'linear-gradient(135deg,#2EE59D,#19C2B8)' : 'rgba(255,255,255,.06)', fg: on ? '#04211C' : '#D6E3E0', border: on ? 'transparent' : 'rgba(255,255,255,.12)' }; });
+        return { summary: `${p.total} days · ${p.total - 1} nights`, via: p.air ? `Flights ${p.air.dep} ⇄ ${p.air.arr} · car and driver at the destination` : `${c.kmStr} km each way by road · ${c.via}`,
+          hasDep: !p.air && p.hasDrive, depChips, depNoteC: p.late ? '#FFB547' : '#9FB8B4',
+          depNote: p.late ? `Some driving days end after sunset (about ${clock(p.sunset)}). ${p.dep > p.rec ? `Leave by ${clock(p.rec)}.` : 'Consider an extra night stop.'}` : s.depart == null ? `Recommended ${clock(p.rec)}, so every driving day ends before sunset (about ${clock(p.sunset)}).` : `Every driving day ends before sunset (about ${clock(p.sunset)}).`,
+          days: p.days.map((d, i) => ({ ...d, stops: (d.stops || []).map(t => ({ ...t, isDrive: !!t.isDrive, isStop: !t.isDrive, icon: STOP_KIND[t.kind][0], color: STOP_KIND[t.kind][1], hasNote: !!t.note, hasDur: !!t.dur, dur: t.dur || '', hasHref: !!t.href, href: t.href || '' })),
+            hasStops: !!(d.stops && d.stops.length), tile: K[d.kind][0], kindLabel: K[d.kind][1], hasNote: !!d.note, hasStay: !!d.stay, stay: d.stay || {}, hasAlts: !!(d.stay && d.stay.alts), lineOp: i === p.days.length - 1 ? 0 : 1 })) }; })(),
+//@@RV_JEEPS
+      jeeps: (c.jeeps || []).map(([id, label, sub, rate, months]) => { const closed = !!months && !months.includes(M), on = !closed && (s.addons || []).includes(id), n = jeepsFor(P);
+        return { label, sub: closed ? `${sub} · not possible in ${MON[M - 1]}` : `${sub} · ${fmt(rate)} per jeep${n > 1 ? ` × ${n}` : ''}`, cta: closed ? 'Closed' : on ? 'Added' : '+ Add', toggle: () => { if (!closed) this.setState({ addons: on ? s.addons.filter(x => x !== id) : [...(s.addons || []), id] }); },
+          bg: on ? 'linear-gradient(135deg,#2EE59D,#19C2B8)' : 'rgba(255,255,255,.06)', fg: on ? '#04211C' : closed ? '#8FA9A6' : '#F2F7F5', border: on ? '0' : '1px solid rgba(255,255,255,.14)' }; }),
+//@@T_WHERE
+<sc-if value="{{ showDest }}" hint-placeholder-val="{{ false }}">
+<div style="position:relative;margin-top:14px">
+<i class="ph-bold ph-magnifying-glass" style="position:absolute;left:16px;top:50%;margin-top:-9px;font-size:18px;color:#9FB8B4;pointer-events:none"></i>
+<input value="{{ dq }}" onChange="{{ onDq }}" placeholder="Search any place, e.g. Neelum, Ziarat" aria-label="Search destination" style="width:100%;box-sizing:border-box;height:54px;border-radius:18px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);padding:0 48px 0 46px;font-size:15px;font-weight:600;color:#fff;outline:none" style-focus="border-color:#FFB547;box-shadow:0 0 0 4px rgba(255,181,71,.15)">
+<sc-if value="{{ hasDq }}" hint-placeholder-val="{{ false }}"><button onClick="{{ clearDq }}" aria-label="Clear search" style="position:absolute;right:5px;top:5px;width:44px;height:44px;border:0;background:none;color:#9FB8B4;font-size:17px;cursor:pointer"><i class="ph-fill ph-x-circle"></i></button></sc-if>
+</div>
+<div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#9FB8B4;margin:16px 4px 6px">{{ destListLabel }}</div>
+<div style="display:flex;flex-direction:column;gap:2px">
+<sc-for list="{{ destRows }}" as="r" hint-placeholder-count="6"><button onClick="{{ r.onClick }}" style="display:flex;align-items:center;gap:12px;min-height:56px;padding:6px 12px;border-radius:16px;border:1px solid {{ r.border }};background:{{ r.bg }};color:#F2F7F5;text-align:left;cursor:pointer;transition:all .2s" style-hover="background:rgba(255,255,255,.06)">
+<i class="ph-fill {{ r.icon }}" style="font-size:20px;color:{{ r.iconC }};flex:none"></i>
+<span style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:15px;font-weight:700">{{ r.name }}</span><span style="font-size:12px;font-weight:600;color:#9FB8B4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.sub }}</span></span>
+<span style="flex:none;font-size:12px;font-weight:700;color:#BFD2CF;font-variant-numeric:tabular-nums;white-space:nowrap">{{ r.meta }}</span>
+<i class="ph-bold ph-check" style="font-size:16px;color:#FFB547;opacity:{{ r.checkOp }};flex:none"></i>
+</button></sc-for>
+</div>
+<sc-if value="{{ noDest }}" hint-placeholder-val="{{ false }}"><div style="padding:16px 12px;font-size:14px;color:#9FB8B4;font-weight:600;line-height:1.45">No place found. Try the nearest town or district city.</div></sc-if>
+</sc-if>
+</sc-if>
+
+//@@T_WHEN_HEAD
+<div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#9FB8B4;margin:0 4px 8px">Month</div>
+<div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -22px;padding:0 22px 4px">
+<sc-for list="{{ monthChips }}" as="m" hint-placeholder-count="6"><button onClick="{{ m.onClick }}" style="flex:none;width:58px;height:56px;border-radius:16px;border:1px solid {{ m.border }};background:{{ m.bg }};color:{{ m.fg }};cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;transition:all .2s"><span style="font-size:14px;font-weight:800">{{ m.label }}</span><span style="font-size:10px;font-weight:700;opacity:.7">{{ m.sub }}</span></button></sc-for>
+</div>
+<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;padding:8px 8px 8px 16px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)">
+<div style="font-size:15px;font-weight:700">Start date</div>
+<input type="date" value="{{ startDate }}" min="{{ todayIso }}" onChange="{{ onDate }}" aria-label="Start date" style="height:44px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#fff;padding:0 12px;font-size:14px;font-weight:700;color-scheme:dark;outline:none">
+</div>
+<div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#9FB8B4;margin:20px 4px 10px">How many days</div>
+//@@T_WHEN_RANGE
+<div style="text-align:center;font-size:13px;font-weight:800;color:#FFD39A;margin-top:12px">{{ dateRange }}</div>
+//@@T_WHEN_NOTES
+<div style="margin-top:12px;padding:14px;border-radius:20px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{ whenNotes }}" as="n" hint-placeholder-count="3"><div style="display:flex;gap:10px;align-items:flex-start"><i class="ph-fill {{ n.icon }}" style="font-size:18px;color:{{ n.color }};flex:none;margin-top:1px"></i><div style="font-size:13px;font-weight:600;line-height:1.45;color:#E6F0EE">{{ n.text }}</div></div></sc-for>
+</div>
+//@@T_STOPS
+<sc-for list="{{ d.stops }}" as="t" hint-placeholder-count="4">
+<sc-if value="{{ t.isDrive }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:10px;align-items:center;min-height:26px">
+<div style="width:58px;flex:none;display:flex;justify-content:center"><div style="width:2px;height:24px;border-radius:1px;background:repeating-linear-gradient(180deg,rgba(255,255,255,.3) 0 4px,transparent 4px 8px)"></div></div>
+<i class="ph-fill ph-car-simple" style="font-size:15px;color:#8FA9A6;flex:none"></i>
+<div style="flex:1;min-width:0;font-size:12px;font-weight:800;color:#BFD2CF;line-height:1.4">{{ t.label }}<span style="font-weight:500;color:#8FA9A6"> · {{ t.note }}</span></div>
+</div>
+</sc-if>
+<sc-if value="{{ t.isStop }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;gap:10px;align-items:flex-start">
+<div style="width:58px;flex:none;font-size:11px;font-weight:800;color:#9FB8B4;padding-top:2px;font-variant-numeric:tabular-nums;white-space:nowrap">{{ t.time }}</div>
+<i class="ph-fill {{ t.icon }}" style="font-size:16px;color:{{ t.color }};flex:none;margin-top:1px"></i>
+<div style="flex:1;min-width:0">
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px"><span style="font-size:13px;font-weight:700;line-height:1.3">{{ t.label }}</span><sc-if value="{{ t.hasDur }}" hint-placeholder-val="{{ false }}"><span style="flex:none;padding:2px 7px;border-radius:7px;background:rgba(255,181,71,.14);color:#FFD39A;font-size:10px;font-weight:800;white-space:nowrap">{{ t.dur }}</span></sc-if></div>
+<sc-if value="{{ t.hasNote }}" hint-placeholder-val="{{ true }}"><div style="font-size:12px;color:#9FB8B4;font-weight:500;line-height:1.4;margin-top:1px">{{ t.note }}</div></sc-if>
+<sc-if value="{{ t.hasHref }}" hint-placeholder-val="{{ false }}"><a href="{{ t.href }}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:4px;min-height:28px;font-size:12px;font-weight:700;color:#2EE59D;text-decoration:none">Open in Google Maps<i class="ph-bold ph-arrow-up-right"></i></a></sc-if>
+</div>
+</div>
+</sc-if>
+//@@T_DEP
+<sc-if value="{{ plan.hasDep }}" hint-placeholder-val="{{ true }}">
+<div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#9FB8B4;margin-top:16px">Leave at</div>
+<div style="display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:8px -18px 0;padding:0 18px 2px">
+<sc-for list="{{ plan.depChips }}" as="p" hint-placeholder-count="6"><button onClick="{{ p.onClick }}" style="flex:none;height:40px;padding:0 12px;border-radius:13px;border:1px solid {{ p.border }};background:{{ p.bg }};color:{{ p.fg }};font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;transition:all .2s">{{ p.label }}</button></sc-for>
+</div>
+<div style="font-size:12px;color:{{ plan.depNoteC }};font-weight:600;margin-top:8px;line-height:1.45">{{ plan.depNote }}</div>
+</sc-if>
+//@@T_SEASON
+<div data-screen-label="Dates and season" style="border-radius:30px;padding:18px 18px 16px;background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.1)">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+<div style="font-size:14px;font-weight:700;color:#9FB8B4">Dates & season</div>
+<button onClick="{{ openSettings }}" style="height:36px;padding:0 12px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#FFD39A;font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap"><i class="ph-fill ph-calendar-blank"></i>{{ dateRange }}</button>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px;margin-top:14px">
+<sc-for list="{{ seasonNotes }}" as="n" hint-placeholder-count="3"><div style="display:flex;gap:10px;align-items:flex-start"><i class="ph-fill {{ n.icon }}" style="font-size:18px;color:{{ n.color }};flex:none;margin-top:1px"></i><div style="font-size:13px;font-weight:600;line-height:1.45;color:#E6F0EE">{{ n.text }}</div></div></sc-for>
+</div>
+</div>
+
+//@@T_SHEET_DATE
+<div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><div style="font-size:15px;font-weight:700">Start date</div><input type="date" value="{{ startDate }}" min="{{ todayIso }}" onChange="{{ onDate }}" aria-label="Start date" style="height:44px;border-radius:14px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#fff;padding:0 12px;font-size:14px;font-weight:700;color-scheme:dark;outline:none"></div>
+//@@END

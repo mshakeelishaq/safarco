@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<style>body{margin:0;background:radial-gradient(120% 90% at 50% 0%,#14363A 0%,#071214 70%);font-family:'Plus Jakarta Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh}a{color:#2EE59D}a:hover{color:#7DF5C4}button,input{font-family:inherit}*::-webkit-scrollbar{width:0;height:0}@keyframes spin{to{transform:rotate(360deg)}}</style>
+</helmet>
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px;box-sizing:border-box">
+<div style="width:404px;height:864px;flex:none;border-radius:60px;padding:12px;box-sizing:border-box;background:linear-gradient(145deg,#3A4A4E,#0D1314 45%,#2A3538);box-shadow:0 60px 120px -40px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.08) inset,0 0 80px -20px rgba(46,229,157,.25)">
+<div data-screen-label="SafarCo phone" style="position:relative;width:380px;height:840px;border-radius:48px;overflow:hidden;background:#071A1C;color:#F2F7F5">
+
+<div ref="{{ sceneRef }}" onPointerDown="{{ onPD }}" onPointerMove="{{ onPM }}" onPointerUp="{{ onPU }}" onPointerLeave="{{ onPU }}" style="position:absolute;left:0;top:0;width:380px;height:440px;z-index:0;touch-action:none;cursor:grab;background:linear-gradient(180deg,#0B1E3A 0%,#24427A 34%,#B76E8A 62%,#F2A473 80%,#FFD39A 100%);will-change:transform,opacity">
+<div style="position:absolute;right:46px;top:250px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(255,236,190,.95) 0%,rgba(255,196,130,.55) 30%,rgba(255,170,110,0) 70%)"></div>
+<div ref="{{ destRef }}" style="position:absolute;left:0;top:0;z-index:3;opacity:0;pointer-events:none;transition:opacity .4s">
+<div style="display:flex;align-items:center;gap:6px;padding:7px 11px 7px 8px;border-radius:14px;background:rgba(10,24,30,.62);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.18);font-size:12px;font-weight:700;white-space:nowrap;box-shadow:0 10px 24px -8px rgba(0,0,0,.5)"><span style="width:18px;height:18px;border-radius:6px;background:linear-gradient(135deg,#FF8A6B,#FF4F7B);display:flex;align-items:center;justify-content:center;font-size:11px"><i class="ph-fill ph-flag-banner"></i></span>{{ c.peakLabel }}</div>
+</div>
+<div ref="{{ hubRef }}" style="position:absolute;left:0;top:0;z-index:3;opacity:0;pointer-events:none;transition:opacity .4s">
+<div style="display:flex;align-items:center;gap:6px;padding:7px 11px 7px 8px;border-radius:14px;background:linear-gradient(135deg,#FFB547,#FF8A3D);color:#2A1500;font-size:12px;font-weight:800;white-space:nowrap;box-shadow:0 10px 24px -6px rgba(255,150,60,.7)"><i class="ph-fill ph-local-parking" style="font-size:15px"></i>Raikot Bridge · park here</div>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:0;height:200px;background:linear-gradient(180deg,rgba(7,26,28,0) 0%,rgba(7,26,28,.75) 55%,#071A1C 100%);pointer-events:none;z-index:2"></div>
+</div>
+
+<div style="position:absolute;top:0;left:0;right:0;height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 30px;z-index:40;font-size:15px;font-weight:700;color:#fff;pointer-events:none">
+<span>9:41</span>
+<div style="position:absolute;left:50%;top:11px;width:118px;height:32px;margin-left:-59px;border-radius:20px;background:#000"></div>
+<div style="display:flex;gap:5px;font-size:16px"><i class="ph-fill ph-cell-signal-high"></i><i class="ph-fill ph-wifi-high"></i><i class="ph-fill ph-battery-full"></i></div>
+</div>
+
+<sc-if value="{{ isOnboard }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="Onboarding" style="position:absolute;inset:0;z-index:5;pointer-events:none">
+<sc-if value="{{ showPerm }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;z-index:20;background:rgba(3,10,12,.6);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:0 34px;pointer-events:auto">
+<div data-screen-label="Location permission" style="width:100%;border-radius:28px;background:rgba(22,48,51,.96);border:1px solid rgba(255,255,255,.12);box-shadow:0 30px 60px -20px rgba(0,0,0,.7);overflow:hidden;text-align:center">
+<div style="padding:22px 20px 18px;display:flex;flex-direction:column;align-items:center">
+<div style="width:56px;height:56px;border-radius:18px;background:linear-gradient(135deg,#6FD3FF,#3B8DFF);display:flex;align-items:center;justify-content:center;font-size:28px;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 12px 24px -10px rgba(59,141,255,.8)"><i class="ph-fill ph-navigation-arrow"></i></div>
+<div style="font-size:16px;font-weight:800;margin-top:14px;line-height:1.3">Allow “SafarCo” to use your location?</div>
+<div style="font-size:13px;color:#BFD2CF;font-weight:500;margin-top:6px;line-height:1.45">Used to find your starting city and calculate distance, fuel and tolls. It is not shared.</div>
+</div>
+<button onClick="{{ allowLoc }}" style="width:100%;height:50px;border:0;border-top:1px solid rgba(255,255,255,.1);background:none;color:#2EE59D;font-size:15px;font-weight:800;cursor:pointer">Allow While Using App</button>
+<button onClick="{{ allowLoc }}" style="width:100%;height:50px;border:0;border-top:1px solid rgba(255,255,255,.1);background:none;color:#2EE59D;font-size:15px;font-weight:600;cursor:pointer">Allow Once</button>
+<button onClick="{{ denyLoc }}" style="width:100%;height:50px;border:0;border-top:1px solid rgba(255,255,255,.1);background:none;color:#D6E3E0;font-size:15px;font-weight:600;cursor:pointer">Don’t Allow</button>
+</div>
+</div>
+</sc-if>
+<div style="position:absolute;left:24px;right:24px;top:58px;display:flex;align-items:center;justify-content:space-between">
+<div style="font-family:Unbounded,sans-serif;font-weight:700;font-size:22px;letter-spacing:-.02em;text-shadow:0 2px 16px rgba(0,0,0,.35)">Safar<span style="background:linear-gradient(90deg,#FFB547,#FF6B5B);-webkit-background-clip:text;background-clip:text;color:transparent">Co</span></div>
+<div style="padding:6px 11px;border-radius:12px;background:rgba(255,255,255,.14);backdrop-filter:blur(10px);font-size:12px;font-weight:700">{{ stepLabel }}</div>
+</div>
+<div style="position:absolute;left:24px;right:24px;top:100px;display:grid;grid-template-columns:repeat(5,1fr);gap:6px">
+<sc-for list="{{ stepBars }}" as="b" hint-placeholder-count="4"><div style="height:4px;border-radius:2px;background:{{ b.bg }};box-shadow:{{ b.glow }};transition:all .4s"></div></sc-for>
+</div>
+<div style="position:absolute;left:0;right:0;top:262px;bottom:0;padding:26px 22px 30px;display:flex;flex-direction:column;pointer-events:auto;background:linear-gradient(180deg,rgba(7,26,28,0) 0,#071A1C 44px)">
+<div style="font-family:Unbounded,sans-serif;font-weight:600;font-size:24px;line-height:1.2;letter-spacing:-.02em;text-wrap:pretty">{{ ob.title }}</div>
+<div style="font-size:14px;color:#9FB8B4;margin-top:8px;font-weight:500;line-height:1.4">{{ ob.sub }}</div>
+<div style="flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;margin:16px -22px 12px;padding:2px 22px 8px;perspective:900px">
+
+<sc-if value="{{ isOrigin }}" hint-placeholder-val="{{ true }}">
+<button onClick="{{ askLoc }}" style="width:100%;display:flex;align-items:center;gap:14px;min-height:68px;padding:10px 14px;border-radius:22px;border:1px solid {{ locBtn.border }};background:rgba(255,255,255,.05);color:#F2F7F5;text-align:left;cursor:pointer;transition:border-color .3s">
+<div style="width:46px;height:46px;flex:none;border-radius:15px;background:{{ locBtn.tile }};display:flex;align-items:center;justify-content:center;color:#fff;font-size:23px;box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 -3px 0 rgba(0,0,0,.18)"><sc-if value="{{ isLocating }}" hint-placeholder-val="{{ false }}">{{ spinner }}</sc-if><sc-if value="{{ notLocating }}" hint-placeholder-val="{{ true }}"><i class="ph-fill {{ locBtn.icon }}"></i></sc-if></div>
+<div style="flex:1;min-width:0"><div style="font-size:16px;font-weight:800">{{ locBtn.title }}</div><div style="font-size:12px;color:#9FB8B4;margin-top:2px;font-weight:600">{{ locBtn.sub }}</div></div>
+<i class="ph-bold ph-caret-right" style="font-size:16px;color:#9FB8B4"></i>
+</button>
+<div style="position:relative;margin-top:12px">
+<i class="ph-bold ph-magnifying-glass" style="position:absolute;left:16px;top:50%;margin-top:-9px;font-size:18px;color:#9FB8B4;pointer-events:none"></i>
+<input value="{{ oq }}" onChange="{{ onOq }}" placeholder="Search {{ cityCount }} cities, e.g. Sukkur" aria-label="Search city" style="width:100%;box-sizing:border-box;height:54px;border-radius:18px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);padding:0 48px 0 46px;font-size:15px;font-weight:600;color:#fff;outline:none" style-focus="border-color:#2EE59D;box-shadow:0 0 0 4px rgba(46,229,157,.15)">
+<sc-if value="{{ hasOq }}" hint-placeholder-val="{{ false }}"><button onClick="{{ clearOq }}" aria-label="Clear search" style="position:absolute;right:5px;top:5px;width:44px;height:44px;border:0;background:none;color:#9FB8B4;font-size:17px;cursor:pointer"><i class="ph-fill ph-x-circle"></i></button></sc-if>
+</div>
+<div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#9FB8B4;margin:16px 4px 6px">{{ listLabel }}</div>
+<div style="display:flex;flex-direction:column;gap:2px">
+<sc-for list="{{ cityRows }}" as="r" hint-placeholder-count="6"><button onClick="{{ r.onClick }}" style="display:flex;align-items:center;gap:12px;min-height:52px;padding:6px 12px;border-radius:16px;border:1px solid {{ r.border }};background:{{ r.bg }};color:#F2F7F5;text-align:left;cursor:pointer;transition:all .2s" style-hover="background:rgba(255,255,255,.06)">
+<i class="ph-fill ph-map-pin" style="font-size:19px;color:{{ r.pinC }};flex:none"></i>
+<span style="flex:1;min-width:0;display:flex;align-items:baseline;gap:8px"><span style="font-size:15px;font-weight:700">{{ r.name }}</span><span style="font-size:12px;font-weight:600;color:#9FB8B4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.prov }}</span></span>
+<i class="ph-bold ph-check" style="font-size:16px;color:#2EE59D;opacity:{{ r.checkOp }}"></i>
+</button></sc-for>
+</div>
+<sc-if value="{{ noCity }}" hint-placeholder-val="{{ false }}"><div style="padding:16px 12px;font-size:14px;color:#9FB8B4;font-weight:600;line-height:1.45">No city found. Try the nearest district city, or use your current location.</div></sc-if>
+</sc-if>
+
+<sc-if value="{{ isWhere }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{ modeOpts }}" as="o" hint-placeholder-count="2">
+<button onClick="{{ o.onClick }}" style="display:flex;align-items:center;gap:14px;min-height:66px;padding:10px 14px;border-radius:22px;border:1.5px solid transparent;background:{{ o.bg }};text-align:left;cursor:pointer;color:#F2F7F5;transform:{{ o.transform }};box-shadow:{{ o.shadow }};transition:all .4s cubic-bezier(.2,.8,.2,1)">
+<div style="width:44px;height:44px;flex:none;border-radius:15px;display:flex;align-items:center;justify-content:center;background:{{ o.tile }};color:#fff;font-size:23px;box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 -3px 0 rgba(0,0,0,.18),0 8px 18px -8px {{ o.glow }}"><i class="ph-fill {{ o.icon }}"></i></div>
+<div style="flex:1;min-width:0"><div style="font-size:16px;font-weight:700">{{ o.label }}</div><div style="font-size:13px;color:#9FB8B4;margin-top:2px;font-weight:500">{{ o.sub }}</div></div>
+<div style="width:24px;height:24px;flex:none;border-radius:50%;border:2px solid {{ o.ringC }};display:flex;align-items:center;justify-content:center;background:{{ o.dotBg }};color:#04211C;font-size:13px;transition:all .3s"><i class="ph-bold ph-check" style="opacity:{{ o.checkOp }}"></i></div>
+</button>
+</sc-for>
+</div>
+<sc-if value="{{ showDest }}" hint-placeholder-val="{{ false }}">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px">
+<sc-for list="{{ destChips }}" as="d" hint-placeholder-count="4"><button onClick="{{ d.onClick }}" style="min-height:60px;padding:10px 12px;border-radius:18px;border:1px solid {{ d.border }};background:{{ d.bg }};color:{{ d.fg }};text-align:left;cursor:pointer;box-shadow:{{ d.shadow }};transition:all .25s"><div style="font-size:14px;font-weight:800">{{ d.name }}</div><div style="font-size:11px;font-weight:600;opacity:.75;margin-top:2px">{{ d.meta }}</div></button></sc-for>
+</div>
+</sc-if>
+</sc-if>
+
+<sc-if value="{{ isDays }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;justify-content:center;gap:26px;margin-top:4px">
+<button onClick="{{ decDays }}" aria-label="Fewer days" style="width:56px;height:56px;border-radius:50%;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#fff;cursor:pointer;font-size:20px"><i class="ph-bold ph-minus"></i></button>
+<div style="text-align:center;min-width:96px"><div style="font-family:Unbounded,sans-serif;font-weight:600;font-size:64px;line-height:1;letter-spacing:-.04em;background:linear-gradient(180deg,#FFFFFF,#9FF0CF);-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums">{{ daysVal }}</div><div style="font-size:13px;font-weight:700;color:#9FB8B4;margin-top:6px">{{ nightsLabel }}</div></div>
+<button onClick="{{ incDays }}" aria-label="More days" style="width:56px;height:56px;border-radius:50%;border:0;background:linear-gradient(135deg,#2EE59D,#19C2B8);color:#04211C;cursor:pointer;font-size:20px;box-shadow:0 12px 26px -10px rgba(46,229,157,.8)"><i class="ph-bold ph-plus"></i></button>
+</div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:22px">
+<sc-for list="{{ dayPresets }}" as="p" hint-placeholder-count="4"><button onClick="{{ p.onClick }}" style="height:44px;border-radius:14px;border:1px solid {{ p.border }};background:{{ p.bg }};color:{{ p.fg }};font-size:13px;font-weight:800;cursor:pointer;transition:all .2s">{{ p.label }}</button></sc-for>
+</div>
+<div style="display:flex;align-items:center;gap:12px;margin-top:14px;padding:12px 14px;border-radius:20px;background:{{ dayHint.bg }};border:1px solid {{ dayHint.border }}">
+<div style="width:38px;height:38px;flex:none;border-radius:12px;background:{{ dayHint.tile }};display:flex;align-items:center;justify-content:center;color:#fff;font-size:19px"><i class="ph-fill {{ dayHint.icon }}"></i></div>
+<div style="font-size:13px;font-weight:600;line-height:1.45;color:#E6F0EE">{{ dayHint.text }}</div>
+</div>
+<div style="margin-top:12px;padding:4px 12px 4px 14px;border-radius:20px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)">
+<sc-for list="{{ people }}" as="p" hint-placeholder-count="3">
+<div style="display:flex;align-items:center;gap:10px;min-height:60px">
+<i class="ph-fill {{ p.icon }}" style="font-size:22px;color:{{ p.color }};flex:none"></i>
+<div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:700">{{ p.label }}</div><div style="font-size:12px;color:#9FB8B4;font-weight:500">{{ p.sub }}</div></div>
+<button onClick="{{ p.dec }}" aria-label="Fewer" style="width:44px;height:44px;flex:none;border-radius:50%;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#fff;cursor:pointer;font-size:15px"><i class="ph-bold ph-minus"></i></button>
+<div style="min-width:22px;text-align:center;font-family:Unbounded,sans-serif;font-size:17px;font-weight:600">{{ p.value }}</div>
+<button onClick="{{ p.inc }}" aria-label="More" style="width:44px;height:44px;flex:none;border-radius:50%;border:0;background:linear-gradient(135deg,#2EE59D,#19C2B8);color:#04211C;cursor:pointer;font-size:15px"><i class="ph-bold ph-plus"></i></button>
+</div>
+</sc-for>
+</div>
+<div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#9FB8B4;margin:16px 4px 8px">Rooms</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+<sc-for list="{{ roomOpts }}" as="r" hint-placeholder-count="2"><button onClick="{{ r.onClick }}" style="min-height:60px;padding:10px 12px;border-radius:18px;border:1px solid {{ r.border }};background:{{ r.bg }};color:{{ r.fg }};text-align:left;cursor:pointer;transition:all .25s"><div style="font-size:14px;font-weight:800">{{ r.label }}</div><div style="font-size:11px;font-weight:600;opacity:.75;margin-top:2px">{{ r.sub }}</div></button></sc-for>
+</div>
+<sc-if value="{{ hasFamilyNote }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px;color:#FFD39A;font-weight:600;margin:10px 4px 0;line-height:1.45">{{ familyNote }}</div></sc-if>
+</sc-if>
+
+<sc-if value="{{ isBudget }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:baseline;gap:8px"><span style="font-size:15px;font-weight:800;color:#9FB8B4">PKR</span><span style="font-family:Unbounded,sans-serif;font-weight:600;font-size:42px;letter-spacing:-.03em;font-variant-numeric:tabular-nums;background:linear-gradient(180deg,#FFFFFF,#FFD39A);-webkit-background-clip:text;background-clip:text;color:transparent">{{ capBig }}</span></div>
+<div style="font-size:13px;color:#9FB8B4;font-weight:600">{{ capPer }}</div>
+<div style="position:relative;height:44px;margin-top:12px">
+<div style="position:absolute;left:0;right:0;top:19px;height:6px;border-radius:3px;background:rgba(255,255,255,.12)"></div>
+<div style="position:absolute;left:0;top:19px;height:6px;border-radius:3px;width:{{ sliderPct }}%;background:linear-gradient(90deg,#2EE59D,#FFB547 60%,#FF6B5B);box-shadow:0 0 18px rgba(46,229,157,.45)"></div>
+<div style="position:absolute;top:8px;left:{{ sliderPct }}%;width:28px;height:28px;margin-left:-14px;border-radius:50%;background:#fff;box-shadow:0 6px 16px rgba(0,0,0,.45),0 0 0 7px rgba(46,229,157,.22);pointer-events:none"></div>
+<input type="range" min="20000" max="500000" step="5000" value="{{ cap }}" onChange="{{ onCap }}" aria-label="Budget" style="position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer">
+</div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px">
+<sc-for list="{{ capPresets }}" as="p" hint-placeholder-count="4"><button onClick="{{ p.onClick }}" style="height:44px;border-radius:14px;border:1px solid {{ p.border }};background:{{ p.bg }};color:{{ p.fg }};font-size:13px;font-weight:800;cursor:pointer;transition:all .2s">{{ p.label }}</button></sc-for>
+</div>
+<div style="display:flex;align-items:center;gap:12px;margin-top:16px;padding:14px;border-radius:20px;background:linear-gradient(135deg,rgba(46,229,157,.16),rgba(25,194,184,.05));border:1px solid rgba(46,229,157,.3)">
+<div style="width:40px;height:40px;flex:none;border-radius:13px;background:linear-gradient(135deg,#2EE59D,#0FA678);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px"><i class="ph-fill ph-sparkle"></i></div>
+<div style="font-size:14px;font-weight:700;line-height:1.4">{{ budgetHint }}</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isSuggest }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px"><div style="display:flex;align-items:baseline;gap:6px"><span style="font-size:13px;font-weight:800;color:#9FB8B4">PKR</span><span style="font-family:Unbounded,sans-serif;font-weight:600;font-size:26px;letter-spacing:-.02em;font-variant-numeric:tabular-nums">{{ capBig }}</span></div><span style="font-size:12px;font-weight:700;color:#9FB8B4">{{ tripMeta }}</span></div>
+<div style="position:relative;height:44px;margin-top:12px">
+<div style="position:absolute;left:0;right:0;top:19px;height:6px;border-radius:3px;background:rgba(255,255,255,.12)"></div>
+<div style="position:absolute;left:0;top:19px;height:6px;border-radius:3px;width:{{ sliderPct }}%;background:linear-gradient(90deg,#2EE59D,#FFB547 60%,#FF6B5B);box-shadow:0 0 18px rgba(46,229,157,.45)"></div>
+<div style="position:absolute;top:8px;left:{{ sliderPct }}%;width:28px;height:28px;margin-left:-14px;border-radius:50%;background:#fff;box-shadow:0 6px 16px rgba(0,0,0,.45),0 0 0 7px rgba(46,229,157,.22);pointer-events:none"></div>
+<input type="range" min="20000" max="500000" step="5000" value="{{ cap }}" onChange="{{ onCap }}" aria-label="Budget" style="position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer">
+</div>
+<div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+<sc-for list="{{ sugg }}" as="g" hint-placeholder-count="4">
+<button onClick="{{ g.onClick }}" style="display:flex;align-items:center;gap:12px;min-height:72px;padding:12px;border-radius:22px;border:1.5px solid transparent;background:{{ g.bg }};color:#F2F7F5;text-align:left;cursor:pointer;opacity:{{ g.op }};transform:{{ g.transform }};box-shadow:{{ g.shadow }};transition:all .35s cubic-bezier(.2,.8,.2,1)">
+<div style="width:46px;height:46px;flex:none;border-radius:15px;background:{{ g.tile }};display:flex;align-items:center;justify-content:center;color:#fff;font-size:23px;box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 -3px 0 rgba(0,0,0,.18)"><i class="ph-fill {{ g.icon }}"></i></div>
+<div style="flex:1;min-width:0">
+<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span style="font-size:15px;font-weight:800">{{ g.title }}</span><sc-if value="{{ g.best }}" hint-placeholder-val="{{ false }}"><span style="padding:2px 7px;border-radius:7px;background:linear-gradient(135deg,#FFB547,#FF7A3D);color:#2A1500;font-size:10px;font-weight:800;letter-spacing:.03em;text-transform:uppercase">Best match</span></sc-if></div>
+<div style="font-size:12px;color:#9FB8B4;font-weight:600;margin-top:3px">{{ g.sub }}</div>
+</div>
+<div style="flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+<div style="font-size:14px;font-weight:800;font-variant-numeric:tabular-nums">{{ g.amount }}</div>
+<div style="padding:2px 7px;border-radius:7px;background:{{ g.fitBg }};color:{{ g.fitFg }};font-size:11px;font-weight:800;font-variant-numeric:tabular-nums">{{ g.fitLabel }}</div>
+</div>
+</button>
+</sc-for>
+</div>
+</sc-if>
+</div>
+<div style="display:flex;gap:10px">
+<sc-if value="{{ canBack }}" hint-placeholder-val="{{ false }}"><button onClick="{{ back }}" aria-label="Back" style="width:58px;height:58px;border-radius:20px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#fff;cursor:pointer;font-size:20px"><i class="ph-bold ph-arrow-left"></i></button></sc-if>
+<button onClick="{{ next }}" style="flex:1;height:58px;border-radius:20px;border:0;background:linear-gradient(135deg,#2EE59D 0%,#19C2B8 100%);color:#04211C;font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;opacity:{{ nextOp }};box-shadow:0 18px 36px -14px rgba(46,229,157,.75),inset 0 1px 0 rgba(255,255,255,.5);transition:opacity .25s" style-active="transform:scale(.98)">{{ nextLabel }}<i class="ph-bold ph-arrow-right"></i></button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isApp }}" hint-placeholder-val="{{ false }}">
+<div onScroll="{{ onScroll }}" style="position:absolute;inset:0;z-index:5;overflow-y:auto;scrollbar-width:none;pointer-events:none">
+
+<sc-if value="{{ isTrip }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="Trip builder">
+<div style="height:318px;position:relative;pointer-events:none">
+<div style="position:absolute;left:22px;right:22px;top:58px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+<div style="text-shadow:0 2px 18px rgba(0,0,0,.4);min-width:0">
+<div style="font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#FFD39A">{{ c.region }}</div>
+<div style="font-family:Unbounded,sans-serif;font-weight:600;font-size:23px;letter-spacing:-.02em;line-height:1.15;margin-top:6px">{{ c.from }} → {{ c.to }}</div>
+<div style="display:flex;gap:6px;margin-top:10px">
+<span style="padding:5px 10px;border-radius:10px;background:rgba(255,255,255,.16);backdrop-filter:blur(10px);font-size:12px;font-weight:700;display:flex;align-items:center;gap:5px"><i class="ph-fill {{ pillIcon }}"></i>{{ pillA }}</span>
+<span style="padding:5px 10px;border-radius:10px;background:rgba(255,255,255,.16);backdrop-filter:blur(10px);font-size:12px;font-weight:700;display:flex;align-items:center;gap:5px"><i class="ph-fill ph-clock"></i>{{ pillB }}</span>
+</div>
+<button onClick="{{ openSettings }}" style="pointer-events:auto;margin-top:8px;padding:0;border:0;background:none;color:#FFE6C4;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;text-align:left;min-height:28px"><i class="ph-fill ph-users-three"></i>{{ tripSummary }}<i class="ph-bold ph-pencil-simple" style="font-size:12px"></i></button>
+</div>
+<button onClick="{{ openSettings }}" aria-label="Edit trip" style="pointer-events:auto;flex:none;height:44px;padding:0 14px;border-radius:15px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.16);backdrop-filter:blur(12px);color:#fff;font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px"><i class="ph-fill ph-sliders-horizontal" style="font-size:17px"></i>Edit</button>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:4px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:4px 22px 8px;pointer-events:auto">
+<sc-for list="{{ corridorChips }}" as="c" hint-placeholder-count="3"><button onClick="{{ c.onClick }}" style="flex:none;height:40px;padding:0 15px;border-radius:14px;white-space:nowrap;border:1px solid {{ c.border }};background:{{ c.bg }};color:{{ c.fg }};backdrop-filter:blur(12px);font-size:13px;font-weight:800;cursor:pointer;box-shadow:{{ c.shadow }};transition:all .25s">{{ c.label }}</button></sc-for>
+</div>
+</div>
+
+<div style="padding:4px 16px 150px;display:flex;flex-direction:column;gap:14px;pointer-events:auto;background:#071A1C">
+<sc-if value="{{ gate.show }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:12px;padding:14px;border-radius:24px;background:{{ gate.bg }};border:1px solid {{ gate.border }}">
+<div style="width:42px;height:42px;flex:none;border-radius:14px;background:{{ gate.tile }};display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.4)"><i class="ph-fill {{ gate.icon }}"></i></div>
+<div><div style="font-size:15px;font-weight:800;line-height:1.3">{{ gate.title }}</div><div style="font-size:13px;color:#D6E3E0;margin-top:4px;line-height:1.45;font-weight:500">{{ gate.msg }}</div></div>
+</div>
+</sc-if>
+<sc-if value="{{ tip.show }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;gap:12px;padding:14px;border-radius:24px;background:{{ tip.bg }};border:1px solid {{ tip.border }}">
+<div style="width:42px;height:42px;flex:none;border-radius:14px;background:{{ tip.tile }};display:flex;align-items:center;justify-content:center;font-size:21px;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.4)"><i class="ph-fill {{ tip.icon }}"></i></div>
+<div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:800;line-height:1.3">{{ tip.title }}</div><div style="font-size:13px;color:#D6E3E0;margin-top:3px;line-height:1.4;font-weight:500">{{ tip.msg }}</div></div>
+<button onClick="{{ tip.apply }}" style="flex:none;height:44px;padding:0 14px;border-radius:14px;border:0;background:#fff;color:#04211C;font-size:13px;font-weight:800;cursor:pointer">{{ tip.cta }}</button>
+</div>
+</sc-if>
+<sc-if value="{{ hasAiAlert }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:12px;padding:14px;border-radius:24px;background:linear-gradient(135deg,rgba(155,123,255,.26),rgba(111,211,255,.1));border:1px solid rgba(155,123,255,.45);box-shadow:{{ alertShadow }};transition:box-shadow .4s">
+<div style="width:42px;height:42px;flex:none;border-radius:14px;background:linear-gradient(135deg,#9B7BFF,#6FD3FF);display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff"><i class="ph-fill ph-cloud-snow"></i></div>
+<div style="flex:1"><div style="font-size:15px;font-weight:800;line-height:1.3">{{ aiAlert.title }}</div><div style="font-size:13px;color:#D6E3E0;margin-top:4px;line-height:1.45;font-weight:500">{{ aiAlert.message }}</div></div>
+<button onClick="{{ dismissAlert }}" aria-label="Dismiss" style="width:44px;height:44px;margin:-10px -10px 0 0;border:0;background:none;color:#D6E3E0;font-size:18px;cursor:pointer"><i class="ph-bold ph-x"></i></button>
+</div>
+</sc-if>
+
+<div data-screen-label="Route plan" style="border-radius:30px;padding:20px 18px 8px;background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.1)">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+<div style="font-size:14px;font-weight:700;color:#9FB8B4">Route plan</div>
+<div style="padding:5px 10px;border-radius:11px;background:rgba(255,255,255,.08);font-size:12px;font-weight:800">{{ plan.summary }}</div>
+</div>
+<div style="font-size:12px;color:#9FB8B4;font-weight:600;margin-top:6px;line-height:1.45">{{ plan.via }}</div>
+<div style="display:flex;flex-direction:column;margin-top:16px">
+<sc-for list="{{ plan.days }}" as="d" hint-placeholder-count="5">
+<div style="display:flex;gap:12px">
+<div style="display:flex;flex-direction:column;align-items:center;flex:none;width:34px">
+<div style="width:34px;height:34px;border-radius:12px;background:{{ d.tile }};color:#fff;display:flex;align-items:center;justify-content:center;font-family:Unbounded,sans-serif;font-size:13px;font-weight:600;box-shadow:inset 0 1px 0 rgba(255,255,255,.4)">{{ d.num }}</div>
+<div style="flex:1;width:2px;min-height:12px;margin:4px 0;border-radius:1px;background:rgba(255,255,255,.12);opacity:{{ d.lineOp }}"></div>
+</div>
+<div style="flex:1;min-width:0;padding-bottom:16px">
+<div style="font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#9FB8B4">Day {{ d.num }} · {{ d.kindLabel }}</div>
+<div style="font-size:15px;font-weight:800;margin-top:3px;line-height:1.3">{{ d.title }}</div>
+<div style="font-size:12px;color:#BFD2CF;font-weight:600;margin-top:3px;line-height:1.45">{{ d.meta }}</div>
+<sc-if value="{{ d.hasNote }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px;color:#FFD39A;font-weight:600;margin-top:5px;line-height:1.45">{{ d.note }}</div></sc-if>
+<sc-if value="{{ d.hasStops }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:9px;margin-top:12px;padding:12px;border-radius:16px;background:rgba(0,0,0,.18)">
+<sc-for list="{{ d.stops }}" as="t" hint-placeholder-count="4">
+<div style="display:flex;gap:10px;align-items:flex-start">
+<div style="width:58px;flex:none;font-size:11px;font-weight:800;color:#9FB8B4;padding-top:2px;font-variant-numeric:tabular-nums;white-space:nowrap">{{ t.time }}</div>
+<i class="ph-fill {{ t.icon }}" style="font-size:16px;color:{{ t.color }};flex:none;margin-top:1px"></i>
+<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;line-height:1.3">{{ t.label }}</div><sc-if value="{{ t.hasNote }}" hint-placeholder-val="{{ true }}"><div style="font-size:12px;color:#9FB8B4;font-weight:500;line-height:1.4;margin-top:1px">{{ t.note }}</div></sc-if></div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{ d.hasStay }}" hint-placeholder-val="{{ true }}">
+<a href="{{ d.stay.href }}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;border-radius:16px;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.08);text-decoration:none;color:#F2F7F5">
+<i class="ph-fill ph-bed" style="font-size:20px;color:#2EE59D;flex:none"></i>
+<span style="flex:1;min-width:0;display:flex;flex-direction:column">
+<span style="font-size:11px;font-weight:700;color:#9FB8B4">Night in {{ d.stay.where }}</span>
+<span style="font-size:14px;font-weight:800;margin-top:2px">{{ d.stay.name }}</span>
+<span style="font-size:12px;color:#9FB8B4;font-weight:500;margin-top:1px">{{ d.stay.tier }} · {{ d.stay.note }}</span>
+</span>
+<i class="ph-bold ph-arrow-up-right" style="font-size:15px;color:#9FB8B4;flex:none"></i>
+</a>
+<sc-if value="{{ d.hasAlts }}" hint-placeholder-val="{{ false }}"><div style="font-size:11px;color:#8FA9A6;font-weight:600;margin-top:6px;line-height:1.4">{{ d.stay.alts }}</div></sc-if>
+</sc-if>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="border-radius:30px;padding:20px;background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.1);box-shadow:{{ budgetShadow }};transition:box-shadow .4s">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<div style="font-size:14px;font-weight:700;color:#9FB8B4">Projected budget</div>
+<div style="display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:11px;background:{{ health.bg }};color:{{ health.fg }};font-size:12px;font-weight:800"><span style="width:7px;height:7px;border-radius:50%;background:{{ health.fg }};box-shadow:0 0 10px {{ health.fg }}"></span>{{ health.label }}</div>
+</div>
+<div style="display:flex;align-items:baseline;gap:8px;margin-top:8px">
+<span style="font-size:15px;font-weight:800;color:#9FB8B4">PKR</span>
+<span style="font-family:Unbounded,sans-serif;font-weight:600;font-size:38px;letter-spacing:-.03em;font-variant-numeric:tabular-nums;background:linear-gradient(180deg,#FFFFFF,#BFEFE0);-webkit-background-clip:text;background-clip:text;color:transparent">{{ totalNum }}</span>
+</div>
+<div style="font-size:13px;color:#9FB8B4;font-weight:600;font-variant-numeric:tabular-nums">{{ perPersonStr }} per person · {{ capPct }}% of {{ capStr }} cap</div>
+
+<div style="height:8px;border-radius:4px;background:rgba(255,255,255,.1);margin:14px 0 18px;overflow:hidden"><div style="height:100%;width:{{ barPct }}%;border-radius:4px;background:{{ health.fg }};box-shadow:0 0 14px {{ health.fg }};transition:width .6s cubic-bezier(.2,.8,.2,1)"></div></div>
+<div style="display:flex;flex-direction:column;gap:12px;margin-top:4px">
+<sc-for list="{{ rows }}" as="r" hint-placeholder-count="5">
+<div style="display:flex;align-items:center;gap:12px">
+<div style="width:40px;height:40px;flex:none;border-radius:13px;background:{{ r.grad }};display:flex;align-items:center;justify-content:center;font-size:19px;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 8px 16px -8px {{ r.color }}"><i class="ph-fill {{ r.icon }}"></i></div>
+<div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:700">{{ r.label }}</div><div style="font-size:12px;color:#9FB8B4;font-weight:500;margin-top:1px;font-variant-numeric:tabular-nums">{{ r.detail }}</div></div>
+<div style="font-size:14px;font-weight:800;font-variant-numeric:tabular-nums">{{ r.amount }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<sc-if value="{{ showRatesCard }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Market rates" style="border-radius:30px;padding:20px;background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.1)">
+<sc-if value="{{ hasRates }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:14px;font-weight:700;color:#9FB8B4">Rates for your transport (tentative)</div>
+<div style="font-size:12px;color:#8FA9A6;font-weight:600;margin-top:4px;line-height:1.45">Typical prices. Confirm with the operator before you book.</div>
+<div style="display:flex;flex-direction:column;gap:14px;margin-top:16px">
+<sc-for list="{{ rates }}" as="r" hint-placeholder-count="5">
+<div style="display:flex;align-items:center;gap:12px">
+<div style="width:38px;height:38px;flex:none;border-radius:12px;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:19px;color:#6FD3FF"><i class="ph-fill {{ r.icon }}"></i></div>
+<div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:700">{{ r.label }}</div><div style="font-size:12px;color:#9FB8B4;font-weight:500;margin-top:1px;line-height:1.4">{{ r.sub }}</div></div>
+<div style="flex:none;font-size:13px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap">{{ r.amount }}</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{ hasJeeps }}" hint-placeholder-val="{{ true }}">
+<div style="font-size:14px;font-weight:700;color:#9FB8B4;margin-top:{{ jeepGap }}">Local jeeps & day trips</div>
+<div style="display:flex;flex-direction:column;gap:12px;margin-top:12px">
+<sc-for list="{{ jeeps }}" as="j" hint-placeholder-count="2">
+<div style="display:flex;align-items:center;gap:12px">
+<div style="width:38px;height:38px;flex:none;border-radius:12px;background:linear-gradient(135deg,#FFB547,#FF7A3D);display:flex;align-items:center;justify-content:center;font-size:19px;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.4)"><i class="ph-fill ph-jeep"></i></div>
+<div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:700">{{ j.label }}</div><div style="font-size:12px;color:#9FB8B4;font-weight:500;margin-top:1px;line-height:1.4">{{ j.sub }}</div></div>
+<button onClick="{{ j.toggle }}" style="flex:none;height:44px;padding:0 14px;border-radius:14px;border:{{ j.border }};background:{{ j.bg }};color:{{ j.fg }};font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap">{{ j.cta }}</button>
+</div>
+</sc-for>
+</div>
+</sc-if>
+</div>
+</sc-if>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isOffline }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Offline mode">
+<div style="height:250px;position:relative;pointer-events:none">
+<div style="position:absolute;left:22px;right:22px;top:58px;text-shadow:0 2px 18px rgba(0,0,0,.4)">
+<div style="font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#FFD39A">{{ c.from }} → {{ c.to }}</div>
+<div style="font-family:Unbounded,sans-serif;font-weight:600;font-size:26px;letter-spacing:-.02em;margin-top:6px">Offline survival</div>
+</div>
+</div>
+<div style="padding:4px 16px 150px;display:flex;flex-direction:column;gap:14px;pointer-events:auto;background:#071A1C">
+<div style="border-radius:30px;padding:22px;background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.1);display:flex;flex-direction:column;align-items:center;text-align:center">
+<div style="position:relative;width:148px;height:148px;border-radius:50%;background:{{ off.ring }};box-shadow:0 0 50px -10px {{ off.glow }};display:flex;align-items:center;justify-content:center">
+<div style="width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#16393B,#0A2022);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;box-shadow:inset 0 2px 0 rgba(255,255,255,.08)">
+<i class="ph-fill {{ off.icon }}" style="font-size:34px;color:{{ off.iconC }}"></i>
+<div style="font-family:Unbounded,sans-serif;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums">{{ off.pct }}</div>
+</div>
+</div>
+<div style="font-size:18px;font-weight:800;margin-top:16px">{{ off.title }}</div>
+<div style="font-size:13px;color:#9FB8B4;font-weight:500;margin-top:4px;line-height:1.45;max-width:270px">{{ off.sub }}</div>
+<button onClick="{{ toggleOffline }}" style="margin-top:18px;width:100%;height:54px;border-radius:18px;border:{{ off.btnBorder }};background:{{ off.btnBg }};color:{{ off.btnFg }};font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:{{ off.btnShadow }}"><i class="ph-bold {{ off.btnIcon }}"></i>{{ off.btnLabel }}</button>
+</div>
+
+<div style="font-size:14px;font-weight:700;color:#9FB8B4;margin:8px 4px 0">Emergency</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+<sc-for list="{{ helplines }}" as="h" hint-placeholder-count="4">
+<a href="{{ h.href }}" style="display:flex;align-items:center;gap:12px;padding:14px;border-radius:22px;background:linear-gradient(160deg,rgba(255,107,91,.18),rgba(255,107,91,.05));border:1px solid rgba(255,107,91,.3);text-decoration:none;color:#F2F7F5">
+<div style="width:38px;height:38px;flex:none;border-radius:13px;background:linear-gradient(135deg,#FF8A6B,#FF4F7B);display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff"><i class="ph-fill ph-phone-call"></i></div>
+<div style="min-width:0"><div style="font-family:Unbounded,sans-serif;font-size:17px;font-weight:600;font-variant-numeric:tabular-nums">{{ h.num }}</div><div style="font-size:12px;font-weight:600;color:#D6E3E0">{{ h.label }}</div></div>
+</a>
+</sc-for>
+</div>
+
+<div style="font-size:14px;font-weight:700;color:#9FB8B4;margin:8px 4px 0">Stays on this route</div>
+<sc-for list="{{ hotels }}" as="h" hint-placeholder-count="3">
+<div style="border-radius:26px;padding:16px;background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.1);display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;align-items:center;gap:12px">
+<div style="width:46px;height:46px;flex:none;border-radius:15px;background:{{ h.grad }};display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.4)"><i class="ph-fill ph-bed"></i></div>
+<div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:800">{{ h.name }}</div><div style="font-size:12px;color:#9FB8B4;font-weight:500;margin-top:2px">{{ h.note }}</div></div>
+<div style="flex:none;font-size:11px;font-weight:800;padding:4px 8px;border-radius:8px;background:rgba(255,255,255,.08);color:{{ h.tierC }}">{{ h.tier }}</div>
+</div>
+<a href="{{ h.href }}" target="_blank" rel="noopener" style="height:46px;border-radius:15px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:#F2F7F5;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none"><i class="ph-fill ph-map-pin" style="color:#2EE59D"></i>Read Reviews on Google Maps<i class="ph-bold ph-arrow-up-right"></i></a>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+</div>
+
+<div style="position:absolute;left:18px;right:18px;bottom:24px;z-index:12;display:flex;align-items:center;gap:12px">
+<div style="flex:1;height:64px;border-radius:24px;background:rgba(14,36,38,.72);backdrop-filter:blur(20px) saturate(1.4);border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;padding:6px;gap:6px;box-shadow:0 20px 40px -16px rgba(0,0,0,.7)">
+<sc-for list="{{ tabs }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="flex:1;height:52px;border-radius:19px;border:0;background:{{ t.bg }};color:{{ t.fg }};display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:800;cursor:pointer;transition:all .25s"><i class="ph-fill {{ t.icon }}" style="font-size:20px"></i>{{ t.label }}</button></sc-for>
+</div>
+<button onClick="{{ openDrawer }}" aria-label="Open co-pilot" style="position:relative;width:64px;height:64px;flex:none;border-radius:50%;border:0;padding:0;cursor:pointer;overflow:hidden;box-shadow:0 16px 36px -10px rgba(155,123,255,.7),0 0 0 1px rgba(255,255,255,.2) inset">
+{{ orb }}
+<div style="position:absolute;inset:4px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(30,60,64,.75),rgba(8,24,26,.9));display:flex;align-items:center;justify-content:center;color:#fff;font-size:26px"><i class="ph-fill ph-microphone"></i></div>
+</button>
+</div>
+
+<sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;left:18px;right:18px;top:56px;z-index:30;padding:12px 14px;border-radius:20px;background:rgba(14,36,38,.82);backdrop-filter:blur(20px);border:1px solid rgba(46,229,157,.35);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;gap:10px;box-shadow:0 20px 40px -16px rgba(0,0,0,.7)"><div style="width:30px;height:30px;border-radius:10px;background:linear-gradient(135deg,#2EE59D,#19C2B8);color:#04211C;display:flex;align-items:center;justify-content:center;font-size:16px"><i class="ph-fill ph-sparkle"></i></div>{{ toast }}</div>
+</sc-if>
+
+<div onClick="{{ closeSettings }}" style="position:absolute;inset:0;z-index:18;background:rgba(3,10,12,.55);opacity:{{ setOp }};pointer-events:{{ setPe }};transition:opacity .35s"></div>
+<div data-screen-label="Edit trip" style="position:absolute;left:0;right:0;bottom:0;height:660px;z-index:20;background:linear-gradient(180deg,rgba(18,44,47,.98),rgba(8,24,26,.99));backdrop-filter:blur(24px);border-radius:36px 36px 0 0;border-top:1px solid rgba(255,255,255,.12);box-shadow:0 -30px 60px -20px rgba(0,0,0,.6);transform:{{ setY }};transition:transform .5s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column">
+<div style="width:40px;height:5px;border-radius:3px;background:rgba(255,255,255,.2);margin:10px auto 0"></div>
+<div style="display:flex;align-items:center;gap:12px;padding:12px 16px 12px 20px">
+<div style="flex:1;min-width:0"><div style="font-family:Unbounded,sans-serif;font-size:17px;font-weight:600">Edit trip</div><div style="font-size:12px;font-weight:700;color:#9FB8B4;margin-top:3px;font-variant-numeric:tabular-nums">PKR {{ totalNum }} · {{ health.label }}</div></div>
+<button onClick="{{ closeSettings }}" style="height:44px;padding:0 18px;border-radius:15px;border:0;background:linear-gradient(135deg,#2EE59D,#19C2B8);color:#04211C;font-size:14px;font-weight:800;cursor:pointer">Done</button>
+</div>
+<div style="flex:1;overflow-y:auto;scrollbar-width:none;padding:4px 20px 30px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#9FB8B4">Transport</div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+<sc-for list="{{ vehChips }}" as="v" hint-placeholder-count="8"><button onClick="{{ v.onClick }}" title="{{ v.full }}" aria-label="{{ v.full }}" style="height:64px;border-radius:17px;border:1px solid {{ v.border }};background:{{ v.bg }};color:{{ v.fg }};cursor:pointer;box-shadow:{{ v.shadow }};opacity:{{ v.op }};transition:all .25s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:0 2px"><i class="ph-fill {{ v.icon }}" style="font-size:22px"></i><span style="font-size:11px;font-weight:800;white-space:nowrap">{{ v.label }}</span></button></sc-for>
+</div>
+<div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#9FB8B4;margin-top:4px">Stays</div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;border-radius:17px;background:rgba(0,0,0,.25)">
+<sc-for list="{{ tierChips }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.onClick }}" style="height:44px;border-radius:13px;border:0;background:{{ t.bg }};color:{{ t.fg }};font-size:13px;font-weight:800;cursor:pointer;transition:all .25s">{{ t.label }}</button></sc-for>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+<sc-for list="{{ roomOpts }}" as="r" hint-placeholder-count="2"><button onClick="{{ r.onClick }}" style="min-height:56px;padding:8px 12px;border-radius:16px;border:1px solid {{ r.border }};background:{{ r.bg }};color:{{ r.fg }};text-align:left;cursor:pointer;transition:all .25s"><div style="font-size:13px;font-weight:800">{{ r.label }}</div><div style="font-size:11px;font-weight:600;opacity:.75;margin-top:2px">{{ r.sub }}</div></button></sc-for>
+</div>
+<sc-if value="{{ hasFamilyNote }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px;color:#FFD39A;font-weight:600;line-height:1.45">{{ familyNote }}</div></sc-if>
+<div style="font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#9FB8B4;margin-top:4px">Travellers, days & budget</div>
+<sc-for list="{{ steppers }}" as="s" hint-placeholder-count="5">
+<div style="display:flex;align-items:center;justify-content:space-between">
+<div style="font-size:15px;font-weight:700">{{ s.label }}</div>
+<div style="display:flex;align-items:center;gap:10px">
+<button onClick="{{ s.dec }}" aria-label="Decrease" style="width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#fff;cursor:pointer;font-size:15px"><i class="ph-bold ph-minus"></i></button>
+<div style="min-width:52px;text-align:center;font-family:Unbounded,sans-serif;font-size:16px;font-weight:600;font-variant-numeric:tabular-nums">{{ s.value }}</div>
+<button onClick="{{ s.inc }}" aria-label="Increase" style="width:44px;height:44px;border-radius:50%;border:0;background:linear-gradient(135deg,#2EE59D,#19C2B8);color:#04211C;cursor:pointer;font-size:15px"><i class="ph-bold ph-plus"></i></button>
+</div>
+</div>
+</sc-for>
+</div>
+<button onClick="{{ restart }}" style="margin-top:22px;width:100%;height:50px;border-radius:16px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#D6E3E0;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px"><i class="ph-bold ph-arrow-counter-clockwise"></i>Start over from the questions</button>
+</div>
+</div>
+
+<div onClick="{{ closeDrawer }}" style="position:absolute;inset:0;z-index:18;background:rgba(3,10,12,.55);opacity:{{ backdropOp }};pointer-events:{{ backdropPe }};transition:opacity .35s"></div>
+<div data-screen-label="Co-pilot drawer" style="position:absolute;left:0;right:0;bottom:0;height:580px;z-index:20;background:linear-gradient(180deg,rgba(18,44,47,.96),rgba(8,24,26,.98));backdrop-filter:blur(24px);border-radius:36px 36px 0 0;border-top:1px solid rgba(255,255,255,.12);box-shadow:0 -30px 60px -20px rgba(0,0,0,.6);transform:{{ drawerY }};transition:transform .5s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column">
+<div style="width:40px;height:5px;border-radius:3px;background:rgba(255,255,255,.2);margin:10px auto 0"></div>
+<div style="display:flex;align-items:center;gap:12px;padding:12px 16px 10px 20px">
+<div style="position:relative;width:44px;height:44px;border-radius:50%;overflow:hidden;flex:none">{{ orb }}<div style="position:absolute;inset:3px;border-radius:50%;background:#0B2426;display:flex;align-items:center;justify-content:center;color:#2EE59D;font-size:19px"><i class="ph-fill ph-sparkle"></i></div></div>
+<div style="flex:1"><div style="font-family:Unbounded,sans-serif;font-size:17px;font-weight:600">Co-pilot</div><div style="font-size:12px;font-weight:600;color:#9FB8B4;margin-top:2px">{{ copilotStatus }}</div></div>
+<button onClick="{{ closeDrawer }}" aria-label="Close" style="width:44px;height:44px;border-radius:15px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff;font-size:17px;cursor:pointer"><i class="ph-bold ph-x"></i></button>
+</div>
+<div ref="{{ chatRef }}" style="flex:1;overflow-y:auto;scrollbar-width:none;padding:6px 20px 10px;display:flex;flex-direction:column;gap:12px">
+<sc-for list="{{ msgView }}" as="m" hint-placeholder-count="1">
+<sc-if value="{{ m.isUser }}" hint-placeholder-val="{{ false }}"><div style="align-self:flex-end;max-width:80%;padding:11px 15px;border-radius:20px 20px 6px 20px;background:linear-gradient(135deg,#2EE59D,#19C2B8);color:#04211C;font-size:14px;font-weight:700;line-height:1.4">{{ m.text }}</div></sc-if>
+<sc-if value="{{ m.isAi }}" hint-placeholder-val="{{ true }}">
+<div style="align-self:flex-start;max-width:90%;display:flex;flex-direction:column;gap:8px">
+<div style="padding:11px 15px;border-radius:20px 20px 20px 6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);font-size:14px;font-weight:500;line-height:1.5">{{ m.shown }}</div>
+<sc-for list="{{ m.calls }}" as="k" hint-placeholder-count="0">
+<div style="padding:11px 13px;border-radius:16px;background:rgba(0,0,0,.35);border:1px solid rgba(155,123,255,.3);font-family:'JetBrains Mono',ui-monospace,monospace;font-size:11px;line-height:1.55">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="color:#C4B2FF">ƒ {{ k.fn }}()</span><span style="padding:2px 7px;border-radius:6px;background:{{ k.bg }};color:{{ k.fg }}">{{ k.status }}</span></div>
+<div style="color:#8FA9A6;word-break:break-word;margin-top:4px">{{ k.args }}</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+</sc-for>
+<sc-if value="{{ busy }}" hint-placeholder-val="{{ false }}"><div style="align-self:flex-start;font-size:12px;font-weight:700;color:#9FB8B4;display:flex;align-items:center;gap:6px"><i class="ph-fill ph-waveform" style="color:#2EE59D;font-size:16px"></i>Working on your trip…</div></sc-if>
+</div>
+<div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:4px 20px 12px">
+<sc-for list="{{ suggestions }}" as="s" hint-placeholder-count="3"><button onClick="{{ s.onClick }}" style="flex:none;min-height:44px;padding:0 14px;border-radius:15px;border:1px solid rgba(46,229,157,.35);background:rgba(46,229,157,.08);color:#BFF5DF;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">{{ s.prompt }}</button></sc-for>
+</div>
+<div style="display:flex;gap:8px;padding:0 20px 28px">
+<input value="{{ input }}" onChange="{{ onInput }}" onKeyDown="{{ onKey }}" placeholder="Ask in English or Urdu…" style="flex:1;height:52px;border-radius:18px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);padding:0 16px;font-size:14px;font-weight:600;color:#fff;outline:none">
+<button onClick="{{ send }}" aria-label="Send" style="width:52px;height:52px;border-radius:18px;border:0;background:linear-gradient(135deg,#2EE59D,#19C2B8);color:#04211C;font-size:21px;cursor:pointer"><i class="ph-fill {{ sendIcon }}"></i></button>
+</div>
+</div>
+</sc-if>
+
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const PETROL = 387.40;
+const fmtN = n => Math.round(n).toLocaleString('en-US');
+const fmt = n => 'PKR ' + fmtN(n);
+const VEH = {
+  sedan: { short: 'Sedan', icon: 'ph-car-profile', label: 'Standard Sedan / Hatchback', sub: 'Corolla GLi, City, Alto', mileage: 13, mtn: 9, cap: 4 },
+  suv: { short: '4x4 SUV', icon: 'ph-jeep', label: '4x4 SUV', sub: 'Prado, Fortuner, Land Cruiser', mileage: 8, mtn: 5.5, cap: 6 },
+  bike: { short: 'Motorbike', icon: 'ph-motorcycle', label: 'Motorbike', sub: 'CG-125, YBR, heavy bikes', mileage: 45, mtn: 30, cap: 2 },
+  public: { short: 'Coach', icon: 'ph-bus', label: 'Public Transport', sub: 'Daewoo, NATCO, coasters', mileage: 0 },
+  air: { short: 'By air', icon: 'ph-airplane-tilt', label: 'By air', sub: 'PIA to Skardu / Gilgit' },
+  rentcar: { short: 'Hire car', icon: 'ph-steering-wheel', label: 'Rent a car + driver', sub: 'Corolla / City', mileage: 13, mtn: 9, cap: 4, rate: 12000, allow: 2000 },
+  rent4x4: { short: 'Hire 4x4', icon: 'ph-jeep', label: 'Rent a 4x4 + driver', sub: 'Prado / Land Cruiser', mileage: 8, mtn: 5.5, cap: 6, rate: 35000, allow: 2500 },
+  coaster: { short: 'Coaster', icon: 'ph-van', label: 'Rent a coaster + driver', sub: 'Toyota Coaster, 22 seats', mileage: 6, mtn: 4.2, cap: 22, rate: 35000, allow: 3000, diesel: true, tollX: 2.5 }
+};
+const TIERS = {
+  backpacker: { label: 'Backpacker', night: 3500, meal: 1200 },
+  standard: { label: 'Standard', night: 9000, meal: 2500 },
+  premium: { label: 'Premium', night: 28000, meal: 5500 }
+};
+const GRADS = [['#2EE59D', '#0FA678'], ['#FFB547', '#FF7A3D'], ['#FF8A6B', '#FF4F7B'], ['#9B7BFF', '#5B6CFF']];
+const MODES = [
+  { id: 'know', icon: 'ph-map-pin', label: 'I know my destination', sub: 'Choose from northern routes' },
+  { id: 'suggest', icon: 'ph-sparkle', label: 'Suggest a trip for me', sub: 'Matched to your days and budget' }];
+const CONFIGS = [
+  { id: 'coach', name: 'Backpacker', vehicle: 'public', tier: 'backpacker' },
+  { id: 'value', name: 'Budget drive', vehicle: 'sedan', tier: 'backpacker' },
+  { id: 'std', name: 'Standard', vehicle: 'sedan', tier: 'standard' },
+  { id: 'comfort', name: 'Comfort 4x4', vehicle: 'suv', tier: 'standard' },
+  { id: 'premium', name: 'Premium', vehicle: 'suv', tier: 'premium' },
+  { id: 'hire', name: 'Hired car', vehicle: 'rentcar', tier: 'standard' },
+  { id: 'fly', name: 'Fly in', vehicle: 'air', tier: 'standard' },
+  { id: 'group', name: 'Group coaster', vehicle: 'coaster', tier: 'standard' }];
+const TIER_G = { backpacker: 'linear-gradient(135deg,#FFB547,#FF7A3D)', standard: 'linear-gradient(135deg,#2EE59D,#0FA678)', premium: 'linear-gradient(135deg,#9B7BFF,#5B6CFF)' };
+const kShort = n => 'PKR ' + (n >= 1000 ? Math.round(n / 1000) + 'k' : Math.round(n));
+const STOP_HOTELS_BY_DEST = {};
+const CORR = {
+  hunza: { ft: 8000, lat: 36.32, lon: 74.66, attach: ['KRM', 0, 1, 1], open: null, kind: 'north', label: 'Hunza', from: 'Islamabad', to: 'Hunza', km: 615, hrs: '13–14 h', region: 'Gilgit-Baltistan', peakLabel: 'Karimabad · 8,000 ft', tiles: 212,
+    tolls: [['Hazara Motorway', 600]], terrain: { seed: 3.1, amp: 10, rise: 2.6, wig: 1 },
+    hotels: [['Eagle\'s Nest Hotel Duikar', 'Standard', 'Sunrise over Rakaposhi and Ultar'], ['Hunza Embassy Hotel', 'Backpacker', 'Walk to Baltit Fort'], ['Luxus Hunza', 'Premium', 'On Attabad Lake']] },
+  kalam: { ft: 6560, lat: 35.49, lon: 72.58, attach: ['KLM', 0, 1, 1], open: null, kind: 'north', label: 'Kalam', from: 'Lahore', to: 'Kalam', km: 520, hrs: '9–10 h', region: 'Swat, KP', peakLabel: 'Kalam · 6,560 ft', tiles: 96,
+    tolls: [['M-2', 1850], ['Swat Motorway', 470]], terrain: { seed: 7.4, amp: 6.5, rise: 2, wig: -1.2 },
+    hotels: [['Walnut Heights Kalam', 'Premium', 'Riverside cabins'], ['Kalam Hotel Swat', 'Standard', 'Main bazaar'], ['Ushu Forest Camp', 'Backpacker', 'Tents in the pines']] },
+  skardu: { ft: 7310, lat: 35.30, lon: 75.63, attach: ['SKD', 0, 1, 1], open: null, kind: 'north', label: 'Skardu', from: 'Rawalpindi', to: 'Skardu', km: 640, hrs: '15–16 h', region: 'Baltistan', peakLabel: 'Skardu · 7,310 ft', tiles: 240,
+    tolls: [['Hazara Motorway', 600]], terrain: { seed: 11.2, amp: 8.5, rise: 2.3, wig: .7 },
+    hotels: [['Shangrila Resort Skardu', 'Premium', 'Lower Kachura Lake'], ['Mashabrum Hotel Skardu', 'Standard', 'Airport road'], ['Indus Motel Skardu', 'Backpacker', 'Indus riverfront']] },
+  fairy: { ft: 10830, lat: 35.39, lon: 74.59, attach: ['RKT', 0, 1, 1], open: [5, 6, 7, 8, 9, 10], kind: 'north', jeep: { label: 'Raikot Bridge ⇄ Tato', park: 'Raikot Bridge', cost: 10000 }, label: 'Fairy Meadows', from: 'Islamabad', to: 'Fairy Meadows', km: 530, hrs: '11 h + 1.5 h jeep', region: 'Diamer, GB', peakLabel: 'Fairy Meadows · 10,830 ft', tiles: 168, hub: .66,
+    tolls: [['Hazara Motorway', 600]], terrain: { seed: 5.5, amp: 12, rise: 4.2, wig: 1.3 },
+    hotels: [['Raikot Sarai Fairy Meadows', 'Standard', 'Nanga Parbat view'], ['Fairy Meadows Cottages', 'Backpacker', 'Log huts, shared baths']] }
+};
+const M_ALL = null, MR = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => a + i);
+const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const hashStr = s => { let h = 7; for (const ch of s) h = (h * 31 + ch.charCodeAt(0)) % 9973; return h; };
+const genericHotels = n => [[`Budget guesthouses in ${n}`, 'Backpacker', 'Search and compare'], [`Hotels in ${n}`, 'Standard', 'Mid-range options'], [`Resorts in ${n}`, 'Premium', 'Top-rated stays']];
+const terrainFor = (key, ft) => { const h = hashStr(key); return { seed: 1.3 + h % 13, amp: Math.max(2.2, Math.min(12, 1.6 + ft / 1100)), rise: Math.max(.4, Math.min(4.4, ft / 3000)), wig: ((h % 7) - 3) / 2.5 }; };
+const NEW_DESTS = [
+  ['naran', 'Naran', 'Kaghan Valley, KP', 7900, 34.91, 73.65, ['NRN', 0, 1, 1], MR(4, 11), 'north'],
+  ['shogran', 'Shogran', 'Kaghan Valley, KP', 7750, 34.64, 73.47, ['MNS', 80, 30, 1], MR(4, 11), 'north'],
+  ['murree', 'Murree', 'Galyat, Punjab', 7500, 33.91, 73.39, ['ISB', 60, 35, 1], M_ALL, 'north'],
+  ['nathia', 'Nathia Gali', 'Galyat, KP', 8200, 34.07, 73.38, ['ISB', 85, 35, 1], M_ALL, 'north'],
+  ['swat', 'Swat (Mingora)', 'Swat, KP', 3200, 34.78, 72.36, ['MGR', 0, 1, 1], M_ALL, 'north'],
+  ['malamjabba', 'Malam Jabba', 'Swat, KP', 8700, 34.80, 72.57, ['MGR', 40, 30, 1], M_ALL, 'north'],
+  ['kumrat', 'Kumrat Valley', 'Upper Dir, KP', 7700, 35.53, 72.22, ['DIR', 90, 20, 1], MR(5, 10), 'north', { label: 'Thal ⇄ Kumrat', park: 'Thal', cost: 9000 }],
+  ['chitral', 'Chitral', 'Chitral, KP', 4900, 35.85, 71.79, ['CTR', 0, 1, 1], M_ALL, 'north'],
+  ['kalash', 'Kalash Valleys', 'Chitral, KP', 6900, 35.70, 71.67, ['CTR', 40, 20, 1], M_ALL, 'north'],
+  ['gilgit', 'Gilgit', 'Gilgit-Baltistan', 4900, 35.92, 74.31, ['GLT', 0, 1, 1], M_ALL, 'north'],
+  ['passu', 'Passu, Gojal', 'Upper Hunza, GB', 8200, 36.48, 74.89, ['KRM', 55, 45, 1], M_ALL, 'north'],
+  ['khunjerab', 'Khunjerab Pass', 'China border, GB', 15397, 36.85, 75.43, ['KRM', 150, 45, 1], MR(4, 11), 'north'],
+  ['khaplu', 'Khaplu', 'Ghanche, GB', 8300, 35.15, 76.33, ['SKD', 103, 40, 1], M_ALL, 'north'],
+  ['deosai', 'Deosai Plains', 'Baltistan, GB', 13500, 35.05, 75.45, ['SKD', 35, 20, 1], MR(6, 9), 'north', { label: 'Skardu ⇄ Deosai', park: 'Skardu', cost: 18000 }],
+  ['astore', 'Astore & Rama', 'Astore, GB', 8500, 35.37, 74.86, ['RKT', 70, 30, 1], MR(4, 11), 'north'],
+  ['keran', 'Keran, Neelum', 'Neelum Valley, AJK', 5000, 34.65, 73.96, ['MZD', 93, 30, 1], M_ALL, 'north'],
+  ['arangkel', 'Arang Kel', 'Neelum Valley, AJK', 8400, 34.80, 74.33, ['MZD', 140, 25, 1], MR(4, 11), 'north'],
+  ['rawalakot', 'Rawalakot & Banjosa', 'Poonch, AJK', 5400, 33.86, 73.76, ['ISB', 120, 40, 1], M_ALL, 'north'],
+  ['muzaffarabad', 'Muzaffarabad', 'Azad Kashmir', 2420, 34.37, 73.47, ['MZD', 0, 1, 1], M_ALL, 'north'],
+  ['ziarat', 'Ziarat', 'Balochistan', 8200, 30.38, 67.73, ['QTA', 125, 45, 1], M_ALL, 'desert'],
+  ['quetta', 'Quetta', 'Balochistan', 5500, 30.18, 67.00, ['QTA', 0, 1, 0], M_ALL, 'desert'],
+  ['gwadar', 'Gwadar', 'Makran coast, Balochistan', 30, 25.13, 62.32, ['GWD', 0, 1, 0], M_ALL, 'coast'],
+  ['hingol', 'Kund Malir & Hingol', 'Makran coast, Balochistan', 20, 25.40, 65.48, ['KHI', 240, 70, 0], M_ALL, 'coast'],
+  ['karachi', 'Karachi', 'Sindh', 30, 24.86, 67.01, ['KHI', 0, 1, 0], M_ALL, 'coast'],
+  ['mohenjo', 'Mohenjo-daro', 'Larkana, Sindh', 150, 27.33, 68.14, ['SKR', 90, 55, 0], M_ALL, 'plains'],
+  ['thar', 'Thar Desert (Mithi)', 'Tharparkar, Sindh', 80, 24.74, 69.80, ['HYD', 245, 60, 0], M_ALL, 'desert'],
+  ['derawar', 'Derawar Fort', 'Cholistan, Punjab', 400, 28.77, 71.33, ['MUL', 200, 55, 0], M_ALL, 'desert'],
+  ['lahore', 'Lahore', 'Punjab', 710, 31.55, 74.34, ['LHR', 0, 1, 0], M_ALL, 'plains'],
+  ['islamabad', 'Islamabad', 'Capital', 1770, 33.69, 73.05, ['ISB', 0, 1, 0], M_ALL, 'plains'],
+  ['peshawar', 'Peshawar', 'Khyber Pakhtunkhwa', 1100, 34.01, 71.58, ['PSH', 0, 1, 0], M_ALL, 'plains'],
+  ['taxila', 'Taxila', 'Punjab', 1800, 33.75, 72.80, ['ISB', 35, 50, 0], M_ALL, 'plains'],
+  ['multan', 'Multan', 'Punjab', 400, 30.20, 71.47, ['MUL', 0, 1, 0], M_ALL, 'plains']];
+NEW_DESTS.forEach(([k, name, region, ft, lat, lon, attach, open, kind, jeep]) => { CORR[k] = { label: name, to: name, region, ft, lat, lon, attach, open, kind, jeep, peakLabel: `${name} · ${fmtN(ft)} ft`, tiles: Math.round(60 + ft / 60), terrain: terrainFor(k, ft), hotels: STOP_HOTELS_BY_DEST[k] || genericHotels(name) }; });
+const POPULAR_DEST = ['hunza', 'skardu', 'naran', 'swat', 'kalam', 'fairy', 'murree', 'keran', 'kalash', 'gwadar'];
+const CITY_DEST = {};
+function D(key) {
+  if (CORR[key]) return CORR[key];
+  if (CITY_DEST[key]) return CITY_DEST[key];
+  const n = String(key).replace(/^city:/, ''), c = CITY[n] || CITY.Islamabad, p = c.p;
+  const kind = p === 'Gilgit-Baltistan' || p === 'Azad Kashmir' || (p === 'Khyber Pakhtunkhwa' && c.lat > 34.3) ? 'north' : /Karachi|Thatta|Gwadar|Pasni|Hub/.test(n) ? 'coast' : p === 'Balochistan' ? 'desert' : 'plains';
+  return (CITY_DEST[key] = { label: n, to: n, region: p, ft: 0, lat: c.lat, lon: c.lon, attach: null, open: null, kind, peakLabel: n, tiles: 60, terrain: terrainFor(n, kind === 'north' ? 5000 : 900), hotels: genericHotels(n), isCity: true });
+}
+const CITIES = [['Islamabad','Capital',33.69,73.05],['Lahore','Punjab',31.55,74.34],['Faisalabad','Punjab',31.42,73.08],['Rawalpindi','Punjab',33.60,73.04],['Gujranwala','Punjab',32.16,74.19],['Multan','Punjab',30.20,71.47],['Sialkot','Punjab',32.49,74.53],['Bahawalpur','Punjab',29.40,71.68],['Sargodha','Punjab',32.08,72.67],['Sheikhupura','Punjab',31.71,73.98],['Jhang','Punjab',31.27,72.32],['Gujrat','Punjab',32.57,74.08],['Sahiwal','Punjab',30.66,73.11],['Rahim Yar Khan','Punjab',28.42,70.30],['Kasur','Punjab',31.12,74.45],['Okara','Punjab',30.81,73.45],['Dera Ghazi Khan','Punjab',30.05,70.63],['Chiniot','Punjab',31.72,72.98],['Kamoke','Punjab',31.97,74.22],['Mandi Bahauddin','Punjab',32.58,73.49],['Jhelum','Punjab',32.94,73.73],['Sadiqabad','Punjab',28.31,70.13],['Khanewal','Punjab',30.30,71.93],['Hafizabad','Punjab',32.07,73.69],['Muzaffargarh','Punjab',30.07,71.19],['Khanpur','Punjab',28.65,70.66],['Gojra','Punjab',31.15,72.69],['Bahawalnagar','Punjab',29.99,73.25],['Vehari','Punjab',30.04,72.35],['Attock','Punjab',33.77,72.36],['Chakwal','Punjab',32.93,72.86],['Mianwali','Punjab',32.58,71.54],['Bhakkar','Punjab',31.63,71.06],['Layyah','Punjab',30.96,70.94],['Toba Tek Singh','Punjab',30.97,72.48],['Narowal','Punjab',32.10,74.87],['Pakpattan','Punjab',30.34,73.39],['Lodhran','Punjab',29.54,71.63],['Murree','Punjab',33.91,73.39],['Khushab','Punjab',32.30,72.35],['Rajanpur','Punjab',29.10,70.33],['Wazirabad','Punjab',32.44,74.12],['Taxila','Punjab',33.75,72.80],['Burewala','Punjab',30.17,72.65],['Daska','Punjab',32.32,74.35],['Kharian','Punjab',32.81,73.86],['Arifwala','Punjab',30.29,73.07],['Chishtian','Punjab',29.80,72.86],['Kot Addu','Punjab',30.47,70.97],['Jaranwala','Punjab',31.33,73.42],['Pattoki','Punjab',31.02,73.85],['Talagang','Punjab',32.93,72.42],['Karachi','Sindh',24.86,67.01],['Hyderabad','Sindh',25.40,68.37],['Sukkur','Sindh',27.70,68.86],['Larkana','Sindh',27.56,68.21],['Nawabshah','Sindh',26.24,68.41],['Mirpur Khas','Sindh',25.53,69.01],['Jacobabad','Sindh',28.28,68.44],['Shikarpur','Sindh',27.96,68.64],['Khairpur','Sindh',27.53,68.76],['Dadu','Sindh',26.73,67.78],['Thatta','Sindh',24.75,67.92],['Badin','Sindh',24.66,68.84],['Sanghar','Sindh',26.05,68.95],['Umerkot','Sindh',25.36,69.74],['Tando Adam','Sindh',25.77,68.66],['Tando Allahyar','Sindh',25.46,68.72],['Mithi','Sindh',24.74,69.80],['Ghotki','Sindh',28.01,69.32],['Kotri','Sindh',25.37,68.31],['Kandhkot','Sindh',28.24,69.18],['Moro','Sindh',26.66,68.00],['Sehwan','Sindh',26.42,67.86],['Peshawar','Khyber Pakhtunkhwa',34.01,71.58],['Mardan','Khyber Pakhtunkhwa',34.20,72.04],['Abbottabad','Khyber Pakhtunkhwa',34.15,73.21],['Mingora','Khyber Pakhtunkhwa',34.78,72.36],['Kohat','Khyber Pakhtunkhwa',33.58,71.44],['Dera Ismail Khan','Khyber Pakhtunkhwa',31.83,70.90],['Mansehra','Khyber Pakhtunkhwa',34.33,73.20],['Nowshera','Khyber Pakhtunkhwa',34.02,71.98],['Swabi','Khyber Pakhtunkhwa',34.12,72.47],['Charsadda','Khyber Pakhtunkhwa',34.15,71.73],['Bannu','Khyber Pakhtunkhwa',32.99,70.60],['Haripur','Khyber Pakhtunkhwa',33.99,72.93],['Chitral','Khyber Pakhtunkhwa',35.85,71.79],['Dir','Khyber Pakhtunkhwa',35.21,71.88],['Batkhela','Khyber Pakhtunkhwa',34.62,71.97],['Timergara','Khyber Pakhtunkhwa',34.83,71.84],['Karak','Khyber Pakhtunkhwa',33.12,71.09],['Hangu','Khyber Pakhtunkhwa',33.53,71.06],['Lakki Marwat','Khyber Pakhtunkhwa',32.61,70.91],['Tank','Khyber Pakhtunkhwa',32.22,70.38],['Besham','Khyber Pakhtunkhwa',34.92,72.87],['Naran','Khyber Pakhtunkhwa',34.91,73.65],['Parachinar','Khyber Pakhtunkhwa',33.90,70.10],['Battagram','Khyber Pakhtunkhwa',34.68,73.02],['Malakand','Khyber Pakhtunkhwa',34.57,71.93],['Quetta','Balochistan',30.18,67.00],['Gwadar','Balochistan',25.13,62.32],['Turbat','Balochistan',26.00,63.05],['Khuzdar','Balochistan',27.81,66.61],['Hub','Balochistan',25.05,66.89],['Chaman','Balochistan',30.92,66.45],['Sibi','Balochistan',29.54,67.88],['Zhob','Balochistan',31.34,69.45],['Loralai','Balochistan',30.37,68.60],['Panjgur','Balochistan',26.97,64.09],['Kharan','Balochistan',28.58,65.42],['Dera Murad Jamali','Balochistan',28.55,68.22],['Nushki','Balochistan',29.55,66.02],['Mastung','Balochistan',29.80,66.85],['Kalat','Balochistan',29.03,66.59],['Ziarat','Balochistan',30.38,67.73],['Pasni','Balochistan',25.26,63.47],['Usta Muhammad','Balochistan',28.18,68.04],['Gilgit','Gilgit-Baltistan',35.92,74.31],['Skardu','Gilgit-Baltistan',35.30,75.63],['Chilas','Gilgit-Baltistan',35.42,74.10],['Aliabad','Gilgit-Baltistan',36.31,74.62],['Karimabad','Gilgit-Baltistan',36.32,74.66],['Gahkuch','Gilgit-Baltistan',36.17,73.76],['Khaplu','Gilgit-Baltistan',35.15,76.33],['Astore','Gilgit-Baltistan',35.37,74.86],['Shigar','Gilgit-Baltistan',35.42,75.73],['Muzaffarabad','Azad Kashmir',34.37,73.47],['Mirpur','Azad Kashmir',33.15,73.75],['Rawalakot','Azad Kashmir',33.86,73.76],['Kotli','Azad Kashmir',33.52,73.90],['Bagh','Azad Kashmir',33.98,73.78],['Bhimber','Azad Kashmir',32.97,74.08],['Athmuqam','Azad Kashmir',34.58,73.90]].map(([n, p, lat, lon]) => ({ n, p, lat, lon }));
+const CITY = Object.fromEntries(CITIES.map(c => [c.n, c]));
+const POPULAR = ['Karachi', 'Lahore', 'Islamabad', 'Rawalpindi', 'Faisalabad', 'Multan', 'Peshawar', 'Quetta', 'Hyderabad', 'Gujranwala'];
+const hav = (a1, o1, a2, o2) => { const R = 6371, r = Math.PI / 180, dA = (a2 - a1) * r, dO = (o2 - o1) * r, x = Math.sin(dA / 2) ** 2 + Math.cos(a1 * r) * Math.cos(a2 * r) * Math.sin(dO / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(x)); };
+const NODES = { KHI: [24.86, 67.01], HYD: [25.40, 68.37], SKR: [27.70, 68.86], MUL: [30.20, 71.47], FSD: [31.42, 73.08], LHR: [31.55, 74.34], ISB: [33.69, 73.05], PSH: [34.01, 71.58],
+  MGR: [34.78, 72.36], KLM: [35.49, 72.58], MNS: [34.33, 73.20], NRN: [34.91, 73.65], CHL: [35.42, 74.10], BSM: [34.92, 72.87], RKT: [35.47, 74.60], GLT: [35.92, 74.31], KRM: [36.32, 74.66],
+  SKD: [35.30, 75.63], QTA: [30.18, 67.00], DGK: [30.05, 70.63], DIK: [31.83, 70.90], GWD: [25.13, 62.32], MZD: [34.37, 73.47], DIR: [35.21, 71.88], CTR: [35.85, 71.79] };
+const NODE_INFO = { KHI: ['Karachi', 30], HYD: ['Hyderabad', 80], SKR: ['Sukkur', 220], MUL: ['Multan', 400], FSD: ['Faisalabad', 600], LHR: ['Lahore', 710], ISB: ['Islamabad', 1770], PSH: ['Peshawar', 1100],
+  MGR: ['Mingora, Swat', 3200], KLM: ['Kalam', 6560], MNS: ['Mansehra', 3570], NRN: ['Naran', 7900], CHL: ['Chilas', 4100], BSM: ['Besham', 2000], RKT: ['Raikot Bridge', 3800], GLT: ['Gilgit', 4900],
+  KRM: ['Karimabad, Hunza', 8000], SKD: ['Skardu', 7310], QTA: ['Quetta', 5500], DGK: ['Dera Ghazi Khan', 400], DIK: ['Dera Ismail Khan', 570], GWD: ['Gwadar', 30], MZD: ['Muzaffarabad', 2420], DIR: ['Dir', 4700], CTR: ['Chitral', 4900] };
+const ROAD_NOTE = { 'Babusar Pass (Jun–Oct)': 'Crosses Babusar Top at 13,690 ft. Open roughly June to October.', 'Skardu Road': 'Narrow cliff road along the Indus. Drive in daylight.', 'KKH': 'Karakoram Highway along the Indus gorge.', 'N-95 Swat valley': 'Slow valley road above Bahrain.' };
+const STOP_HOTELS = {
+  NRN: [['Pine Park Hotel Naran', 'Standard', 'Riverside, Kunhar valley'], ['PTDC Motel Naran', 'Backpacker', 'Basic rooms, central bazaar'], ['Arcadian Riverside Naran', 'Premium', 'River-facing rooms']],
+  CHL: [['Shangrila Midway House Chilas', 'Standard', 'On the KKH, secure parking'], ['Chilas Inn', 'Backpacker', 'Budget rooms'], ['Panorama Hotel Chilas', 'Premium', 'Indus views']],
+  BSM: [['PTDC Motel Besham', 'Standard', 'Above the Indus'], ['Besham Continental Hotel', 'Backpacker', 'On the KKH']],
+  MNS: [['Hotel Mount View Mansehra', 'Standard', 'Town centre']],
+  ISB: [['Islamabad Serena Hotel', 'Premium', 'Blue Area'], ['Envoy Continental Islamabad', 'Standard', 'Blue Area'], ['Hotel One Islamabad', 'Backpacker', 'Near the motorway']],
+  MUL: [['Ramada by Wyndham Multan', 'Premium', 'Cantt'], ['Hotel One Multan', 'Standard', 'Near the M-4']],
+  SKR: [['Inter Pak Inn Sukkur', 'Standard', 'Near the barrage'], ['Hotel One Sukkur', 'Backpacker', 'City centre']],
+  FSD: [['Serena Hotel Faisalabad', 'Premium', 'Club Road'], ['Hotel One Faisalabad', 'Standard', 'Near the M-4']],
+  LHR: [['Pearl Continental Lahore', 'Premium', 'The Mall'], ['Hotel One Lahore', 'Standard', 'Gulberg']],
+  GLT: [['Gilgit Serena Hotel', 'Premium', 'Jutial, Rakaposhi view'], ['PTDC Gilgit', 'Standard', 'Chinar Bagh'], ['Madina Hotel Gilgit', 'Backpacker', 'Traveller favourite']],
+  MGR: [['Swat Serena Hotel', 'Premium', 'Saidu Sharif'], ['Hotel Rock City Swat', 'Standard', 'Fizagat']],
+  PSH: [['Pearl Continental Peshawar', 'Premium', 'Khyber Road']] };
+const PLACES_MORE = {
+  naran: [['Saif-ul-Malook Lake', '8 km · 45 min by jeep', 'Alpine lake under Malika Parbat', MR(5, 10)], ['Lulusar Lake', '48 km · 1 h', 'Source of the Kunhar river', MR(5, 10)], ['Babusar Top', '70 km · 1.5 h', 'Pass at 13,690 ft', MR(6, 10)], ['Naran bazaar & riverside', 'Walk', 'Trout and tea by the Kunhar']],
+  shogran: [['Siri Paye meadows', '45 min by jeep', 'High meadows above Shogran'], ['Shogran viewpoints', 'Walk', 'Makra and Malika Parbat views'], ['Kiwai waterfall', '10 km', 'Trout by the falls']],
+  murree: [['Mall Road', 'Walk', 'Cafés and shops'], ['Patriata chairlift', '15 km · 30 min', 'Cable car and chairlift'], ['Pindi Point', '2 km', 'Views over the hills']],
+  nathia: [['Mushkpuri Top', '2 h hike', '9,200 ft summit trail'], ['Pipeline Track', '1.5 h walk', 'Flat forest trail to Dunga Gali'], ['Ayubia chairlift', '10 km', 'Chairlift over the pines']],
+  swat: [['Swat Museum', 'Saidu Sharif', 'Gandhara relics'], ['Malam Jabba', '40 km · 1 h', 'Chairlift and ski slopes'], ['Butkara Stupa', '3 km', 'Buddhist ruins'], ['Fizagat Park', '5 km', 'Riverside park']],
+  malamjabba: [['Ski resort & chairlift', 'At the resort', 'Skiing Dec–Mar, zipline in summer'], ['Swat Museum', '40 km · 1 h', 'Gandhara relics']],
+  kumrat: [['Kumrat forest & Panjkora river', 'At camp', 'Deodar forest camping'], ['Kala Chashma', '15 km by jeep', 'Black spring'], ['Jahaz Banda', 'Jeep + 3 h hike', 'High meadow']],
+  chitral: [['Chitral Fort & Shahi Mosque', 'In town', 'Mehtar-era fort'], ['Garam Chashma', '45 km · 1.5 h', 'Hot springs'], ['Kalash valleys', '35 km · 1.5 h', 'Bumburet and Rumbur']],
+  kalash: [['Bumburet village', 'In the valley', 'Kalash homes and museum'], ['Rumbur valley', '1 h', 'Quieter Kalash valley'], ['Festivals', 'May, Aug, Dec', 'Chilam Joshi, Uchal, Chaumos']],
+  gilgit: [['Kargah Buddha', '10 km', '7th-century rock Buddha'], ['Naltar Valley', '40 km · 2 h by jeep', 'Lakes and pines'], ['Gilgit bazaar', 'Walk', 'Dry fruit and gems']],
+  passu: [['Passu Cones', 'At Passu', 'Cathedral peaks'], ['Hussaini Suspension Bridge', '10 km', 'Rope bridge over the Hunza river'], ['Borith Lake', '5 km', 'Quiet lake'], ['Batura Glacier view', 'Walk', 'One of the longest glaciers']],
+  khunjerab: [['Khunjerab Pass top', 'At the border', '15,397 ft. Carry your CNIC'], ['Khunjerab National Park', 'On the way', 'Ibex and marmots'], ['Sost', '80 km', 'Last town before China']],
+  khaplu: [['Khaplu Palace', 'In town', 'Restored royal palace'], ['Chaqchan Mosque', 'In town', '14th-century mosque'], ['Hushe Valley', '2 h by jeep', 'Masherbrum views']],
+  deosai: [['Sheosar Lake', 'In the park', 'Lake at 13,500 ft'], ['Bara Pani', 'In the park', 'River camp, brown bears'], ['Wildflower plains', 'By jeep', 'Best in July and August']],
+  astore: [['Rama Meadows', '11 km by jeep', 'Nanga Parbat east face'], ['Rama Lake', '1.5 h hike', 'Glacier lake'], ['Astore bazaar', 'In town', 'Local food']],
+  keran: [['Keran viewpoint', 'In town', 'Neelum river views'], ['Sharda', '45 km', 'Ancient Sharda ruins'], ['Kel & Arang Kel', '90 km + hike', 'Hilltop village by chairlift']],
+  arangkel: [['Arang Kel meadow', 'Chairlift + 45 min hike', 'Wooden village on the hill'], ['Kel riverside', 'Below the hill', 'River camps']],
+  rawalakot: [['Banjosa Lake', '20 km', 'Pine-ringed lake'], ['Toli Pir', '25 km', 'Hilltop meadows'], ['Rawalakot bazaar', 'In town', 'Local food']],
+  muzaffarabad: [['Red Fort', 'In town', '16th-century fort'], ['Pir Chinasi', '30 km', '9,500 ft viewpoint'], ['Domel', 'In town', 'Neelum and Jhelum meet']],
+  ziarat: [['Quaid-e-Azam Residency', 'In town', 'Founder’s last residence'], ['Juniper forests', 'Around town', 'Ancient juniper trees'], ['Prospect Point', '5 km', 'Valley views']],
+  quetta: [['Hanna Lake', '15 km', 'Lake in the hills'], ['Urak Valley', '20 km', 'Orchards']],
+  gwadar: [['Koh-e-Batil (Hammerhead)', '5 km', 'Clifftop over the sea'], ['West and East Bay beaches', 'In town', 'Sunset on the water'], ['Fish harbour', 'In town', 'Morning catch']],
+  hingol: [['Kund Malir beach', 'At the beach', 'Desert meets sea'], ['Princess of Hope', 'Hingol NP', 'Natural rock statue'], ['Hinglaj Mata temple', 'Hingol NP', 'Pilgrimage site']],
+  karachi: [['Clifton & Sea View', 'Beach', 'Camel rides and sunsets'], ['Mazar-e-Quaid', 'Centre', 'Founder’s mausoleum'], ['Burns Road', 'Old town', 'Food street']],
+  mohenjo: [['Mohenjo-daro ruins', 'At the site', 'Indus Valley city, 2500 BC'], ['Site museum', 'At the site', 'Seals and pottery'], ['Larkana', '28 km', 'Garhi Khuda Bakhsh mausoleum']],
+  thar: [['Mithi town', 'In town', 'Thar desert town'], ['Karoonjhar hills, Nagarparkar', '130 km · 3 h', 'Granite hills and Jain temples'], ['Desert villages', 'Around Mithi', 'Peacocks and village life']],
+  derawar: [['Derawar Fort', 'At the fort', 'Desert fort, Cholistan'], ['Noor Mahal, Bahawalpur', '100 km', 'Palace'], ['Cholistan dunes', 'Around the fort', 'Jeep rally in February']],
+  lahore: [['Badshahi Mosque & Lahore Fort', 'Old City', 'Mughal monuments'], ['Fort Road food street', 'Old City', 'Dinner with a view'], ['Wagah border ceremony', '30 km', 'Evening flag ceremony']],
+  islamabad: [['Faisal Mosque', 'In the city', 'Largest mosque in South Asia'], ['Daman-e-Koh', 'Margalla Hills', 'City viewpoint'], ['Pir Sohawa', '30 min', 'Hilltop dinner']],
+  peshawar: [['Qissa Khwani Bazaar', 'Old city', 'Storytellers’ bazaar'], ['Peshawar Museum', 'Saddar', 'Gandhara art'], ['Namak Mandi', 'Old city', 'Lamb karahi and tikka']],
+  taxila: [['Taxila Museum', 'At the site', 'Gandhara sculpture'], ['Jaulian & Sirkap', 'Near the museum', 'Buddhist ruins']],
+  multan: [['Shrine of Shah Rukn-e-Alam', 'Fort Qasim Bagh', '14th-century tomb'], ['Ghanta Ghar & bazaars', 'Old city', 'Blue pottery and sohan halwa']] };
+const EAT_MORE = { naran: 'Trout and pakoras by the Kunhar', shogran: 'Simple hotel meals, tea with a view', murree: 'Chai and roasted corn on Mall Road', nathia: 'Chai and pakoras at Nathia Gali bazaar', swat: 'Chapli kebab and river trout', malamjabba: 'Resort meals and Swati pulao',
+  kumrat: 'Camp meals by the river', chitral: 'Chitrali bread and apricots', kalash: 'Walnut bread and local cheese', gilgit: 'Chapshuro and dried apricots', passu: 'Apricot cake at Passu cafés', khunjerab: 'Carry snacks. Food at Sost', khaplu: 'Balti food and apricot soup', deosai: 'Carry food and water',
+  astore: 'Simple local meals', keran: 'River trout and Kashmiri tea', arangkel: 'Guesthouse meals', rawalakot: 'Kashmiri food', muzaffarabad: 'Kashmiri wazwan', ziarat: 'Sajji and kaak bread', quetta: 'Sajji, rosh and kaak bread', gwadar: 'Fresh seafood', hingol: 'Carry food and water',
+  karachi: 'Burns Road nihari, seafood at Do Darya', mohenjo: 'Sindhi biryani in Larkana', thar: 'Thari dal and bajra roti', derawar: 'Carry food. Bahawalpur for dinner', lahore: 'Nihari, paye and Fort Road food street', islamabad: 'Saidpur Village and Melody food street', peshawar: 'Namak Mandi lamb karahi', taxila: 'Food in Islamabad nearby', multan: 'Sohan halwa and saag' };
+const JEEPS_MORE = { naran: [['saif', 'Saif-ul-Malook jeep', 'Return, 45 min each way', 6000]], gilgit: [['naltar', 'Naltar Valley jeep', 'Full day', 12000]], passu: [['khunj2', 'Khunjerab Pass day trip', 'Full day', 15000]], chitral: [['garam', 'Garam Chashma day trip', 'Full day jeep', 12000]], kalash: [['rumbur', 'Rumbur valley jeep', 'Half day', 6000]], astore: [['rama', 'Rama Meadows jeep', 'Return', 6000]] };
+const placesFor = (key, month) => (PLACES[key] || PLACES_MORE[key] || [[`Explore ${D(key).label}`, 'Around town', 'Ask locals for the best spots']]).filter(p => !p[3] || p[3].includes(month));
+const eatFor = key => EAT[key] || EAT_MORE[key] || 'Ask locals for the best food street';
+const IDEAS = { hunza: 'Baltit and Altit forts, Attabad Lake, Passu Cones (1.5 h north)', skardu: 'Shangrila and Upper Kachura lakes, Sarfaranga cold desert, Deosai Plains (Jun–Sep)',
+  kalam: 'Mahodand Lake by jeep, Ushu Forest, Kalam bazaar', fairy: 'Nanga Parbat viewpoint, hike to Beyal Camp, Reflection Lake' };
+const EDGE_STOPS = {
+  'LHR-ISB': [[.48, 'food', 'Bhera service area', 'Breakfast, fuel and clean washrooms'], [.64, 'view', 'Kallar Kahar', 'Salt Range views, tea and pakoras']],
+  'FSD-ISB': [[.35, 'food', 'Pindi Bhattian service area', 'Fuel, food, washrooms'], [.7, 'view', 'Kallar Kahar', 'Salt Range views, tea']],
+  'MUL-FSD': [[.5, 'food', 'Abdul Hakeem service area', 'Fuel and lunch']], 'MUL-LHR': [[.5, 'food', 'M-3 service area', 'Fuel and food']], 'FSD-LHR': [[.5, 'tea', 'M-3 service area', 'Tea and fuel']],
+  'SKR-MUL': [[.35, 'food', 'M-5 service area, Zahir Pir', 'Fuel, food, washrooms'], [.75, 'tea', 'Uch Sharif turn-off', 'Shrines of Uch, 15 min detour']],
+  'KHI-HYD': [[.45, 'tea', 'Nooriabad service area', 'Tea, fuel, washrooms']], 'HYD-SKR': [[.4, 'food', 'Moro', 'Highway dhabas and fuel'], [.85, 'tea', 'Rohri', 'Tea before the Indus bridge']],
+  'ISB-PSH': [[.45, 'food', 'Chach service area', 'Fuel and food']], 'PSH-MGR': [[.7, 'food', 'Chakdara', 'Lunch and fuel before the valley']], 'ISB-MGR': [[.75, 'food', 'Chakdara', 'Lunch and fuel before the valley']],
+  'MGR-KLM': [[.3, 'tea', 'Madyan', 'Tea stop, walnut and honey sellers'], [.5, 'food', 'Bahrain', 'River trout lunch by the Swat river']],
+  'ISB-MNS': [[.5, 'tea', 'Havelian service area', 'Tea and fuel'], [.97, 'fuel', 'Mansehra', 'Last big fuel stop and ATMs']],
+  'MNS-NRN': [[.3, 'tea', 'Balakot', 'Tea and chapli kebab'], [.62, 'food', 'Kiwai waterfall', 'Trout and pakoras by the waterfall'], [.82, 'fuel', 'Kaghan town', 'Fuel top-up']],
+  'NRN-CHL': [[.35, 'view', 'Lulusar Lake', 'Photo stop at 11,000 ft'], [.55, 'tea', 'Babusar Top', 'Tea at 13,690 ft. Windy and cold, carry a jacket'], [.98, 'food', 'Chilas', 'Lunch and fuel on the KKH']],
+  'MNS-BSM': [[.5, 'tea', 'Thakot', 'Tea by the Indus bridge']], 'BSM-CHL': [[.4, 'food', 'Dasu', 'Lunch and fuel'], [.75, 'view', 'Shatial', 'Ancient rock carvings by the road']],
+  'CHL-RKT': [[.8, 'view', 'Nanga Parbat viewpoint', 'Clear-day views of the 26,660 ft peak']],
+  'RKT-GLT': [[.35, 'view', 'Junction of Three Mountains', 'Himalaya, Karakoram and Hindu Kush meet'], [.95, 'food', 'Gilgit', 'Lunch, fuel and ATMs']],
+  'GLT-KRM': [[.6, 'tea', 'Rakaposhi View Point, Ghulmet', 'Tea facing 25,550 ft Rakaposhi']],
+  'RKT-SKD': [[.15, 'view', 'Alam Bridge', 'Gilgit and Indus rivers meet'], [.55, 'tea', 'Roundu valley', 'Tea stalls along the Indus']],
+  'GLT-SKD': [[.12, 'view', 'Alam Bridge', 'Gilgit and Indus rivers meet'], [.55, 'tea', 'Roundu valley', 'Tea stalls along the Indus']],
+  'QTA-SKR': [[.4, 'food', 'Sibi', 'Lunch and fuel']], 'QTA-KHI': [[.5, 'food', 'Khuzdar', 'Lunch and fuel']], 'DIK-ISB': [[.5, 'tea', 'M-14 service area', 'Tea and fuel']] };
+const STOP_MIN = { food: 45, tea: 30, view: 20, fuel: 15 };
+const STOP_KIND = { drive: ['ph-steering-wheel', '#6E8F8B', 0], food: ['ph-fork-knife', '#FF8A6B', .75], tea: ['ph-coffee', '#FFB547', .5], view: ['ph-binoculars', '#6FD3FF', .33], fuel: ['ph-gas-pump', '#C4B2FF', .25], go: ['ph-flag', '#2EE59D', 0], bed: ['ph-bed', '#2EE59D', 0], pin: ['ph-map-pin', '#9B7BFF', 0], plane: ['ph-airplane-tilt', '#6FD3FF', 0] };
+const PLACES = {
+  hunza: [['Baltit Fort', 'Karimabad · 10 min walk', '700-year-old fort above the town'], ['Eagle’s Nest, Duikar', '20 min drive', 'Sunrise over Rakaposhi and Ultar'], ['Altit Fort & Royal Garden', '3 km', 'Oldest fort in the valley'], ['Attabad Lake', '25 km · 40 min', 'Turquoise lake, boating'], ['Passu Cones & Hussaini Bridge', '50 km · 1.25 h', 'Cathedral peaks and a rope bridge'], ['Khunjerab Pass', '150 km · 3 h', 'China border at 15,397 ft. Carry your CNIC', MR(4, 11)], ['Hopper Glacier, Nagar', '1 h', 'Short walk to the glacier view']],
+  skardu: [['Upper Kachura Lake', '30 km · 45 min', 'Clear lake, short walk down'], ['Shangrila, Lower Kachura', '25 km', 'Heart-shaped lake and resort'], ['Sarfaranga Cold Desert', '20 km · 30 min', 'Sand dunes at 7,500 ft'], ['Shigar Fort', '32 km · 45 min', 'Restored 17th-century palace'], ['Manthokha Waterfall', '75 km · 2 h', 'Tall falls in Kharmang'], ['Deosai Plains', 'By jeep · 13,500 ft', 'High plateau, open June to September', MR(6, 9)], ['Satpara Lake', '8 km', 'Lake above the town']],
+  kalam: [['Ushu Forest', '8 km · 20 min', 'Pine forest by the river'], ['Mahodand Lake', '35 km · 2 h by jeep', 'Lake of fish at 9,400 ft'], ['Kalam bazaar & riverside', 'Walk', 'Trout, dry fruit and shawls'], ['Matiltan & Falak Sar view', '12 km', 'Glacier peaks above Kalam']],
+  fairy: [['Nanga Parbat at sunrise', 'At camp', 'The mountain fills the skyline'], ['Reflection Lake', '30 min walk', 'Nanga Parbat mirrored in the water'], ['Beyal Camp', '2 h hike', 'Pine meadows and wooden huts'], ['Nanga Parbat Base Camp', '5–6 h return from Beyal', 'Glacier views. Start early']] };
+const EAT = { hunza: 'Chapshuro and walnut cake at Karimabad cafés', skardu: 'Balti food, apricot dishes, trout at Kachura', kalam: 'River trout and Swati pulao', fairy: 'Simple camp meals. Carry snacks' };
+const SLOTS = ['Morning', 'Midday', 'Afternoon', 'Evening'];
+const clock = h => { const t = Math.round(h * 60), hh = Math.floor(t / 60) % 24, mm = t % 60; return `${hh % 12 || 12}:${String(mm).padStart(2, '0')} ${hh < 12 ? 'am' : 'pm'}`; };
+const durTxt = h => { const m = Math.max(5, Math.round(h * 60 / 5) * 5), hh = Math.floor(m / 60), mm = m % 60; return hh ? `${hh} h${mm ? ` ${mm} min` : ''}` : `${mm} min`; };
+function dayStops(ls, fromName, toName, leave) {
+  const out = []; let t = leave, sh = 0, sk = 0, roads = [];
+  out.push({ time: clock(t), kind: 'go', label: `Leave ${fromName}`, note: '' });
+  const flush = () => { if (sh > 0.04) out.push({ time: '', kind: 'drive', label: `Drive ${durTxt(sh)}`, note: `${fmtN(Math.round(sk / 5) * 5)} km · ${[...new Set(roads)].join(', ')}` }); sh = 0; sk = 0; roads = []; };
+  ls.forEach(l => { const key = `${l.a}-${l.b}`, rkey = `${l.b}-${l.a}`; let st = EDGE_STOPS[key] ? EDGE_STOPS[key].map(x => [...x]) : EDGE_STOPS[rkey] ? EDGE_STOPS[rkey].map(x => [1 - x[0], x[1], x[2], x[3]]) : [];
+    if (!st.length && l.h > 2.5) st = [[.5, 'tea', 'Highway service stop', 'Tea, fuel and washrooms']];
+    st.sort((a, b) => a[0] - b[0]); let done = 0;
+    st.forEach(([fr, kind, label, note]) => { const df = fr - done; sh += df * l.h; sk += df * l.km; t += df * l.h; roads.push(l.road); done = fr; flush();
+      const m = STOP_MIN[kind] || 15; out.push({ time: clock(t), kind, label, note: `${m} min stop · ${note}` }); t += m / 60; });
+    sh += (1 - done) * l.h; sk += (1 - done) * l.km; t += (1 - done) * l.h; roads.push(l.road); });
+  flush(); out.push({ time: clock(t), kind: 'bed', label: `Arrive ${toName}`, note: '' });
+  return { stops: out, end: t };
+}
+function runDay(ls, fromName, toName, leave) {
+  const auto = leave == null, dur = dayStops(ls, fromName, toName, 0).end, start = auto ? Math.max(4, Math.min(8, Math.round((18.5 - dur) * 2) / 2)) : leave;
+  const r = dayStops(ls, fromName, toName, start), mtn = ls.some(l => l.mtn);
+  if (auto) r.stops[0].note = `Suggested start · ${durTxt(dur)} on the road including stops`;
+  else r.stops[0].note = `${durTxt(dur)} on the road including stops`;
+  if (r.end > 19 && mtn) r.stops[r.stops.length - 1].note = 'After dark on mountain roads. Leave earlier if you can.';
+  return r;
+}
+const MTN_NODES = new Set(['MGR', 'KLM', 'MNS', 'NRN', 'CHL', 'BSM', 'RKT', 'GLT', 'KRM', 'SKD', 'MZD', 'DIR', 'CTR']);
+// [a, b, road km, avg km/h, car toll one-way PKR, mountain?, road name]
+const EDGES = [
+  ['KHI', 'HYD', 165, 95, 700, 0, 'M-9'], ['HYD', 'SKR', 330, 65, 400, 0, 'N-5'], ['SKR', 'MUL', 392, 100, 1900, 0, 'M-5'], ['MUL', 'FSD', 240, 100, 1150, 0, 'M-4'],
+  ['FSD', 'ISB', 300, 100, 1300, 0, 'M-4 / M-2'], ['MUL', 'LHR', 335, 95, 1500, 0, 'M-3 / M-4'], ['LHR', 'ISB', 375, 100, 1850, 0, 'M-2'], ['FSD', 'LHR', 180, 80, 500, 0, 'M-3'],
+  ['ISB', 'PSH', 180, 100, 650, 0, 'M-1'], ['PSH', 'MGR', 160, 70, 470, 0, 'Swat Motorway'], ['ISB', 'MGR', 250, 75, 900, 0, 'M-1 + Swat Motorway'], ['MGR', 'KLM', 95, 30, 0, 1, 'N-95 Swat valley'],
+  ['ISB', 'MNS', 145, 75, 600, 0, 'Hazara Motorway'], ['MNS', 'NRN', 120, 40, 0, 1, 'N-15 Kaghan', [4, 5, 6, 7, 8, 9, 10, 11]], ['NRN', 'CHL', 115, 32, 0, 1, 'Babusar Pass (Jun–Oct)', [6, 7, 8, 9, 10]], ['MNS', 'BSM', 120, 40, 0, 1, 'KKH'],
+  ['BSM', 'CHL', 210, 40, 0, 1, 'KKH'], ['CHL', 'RKT', 50, 45, 0, 1, 'KKH'], ['RKT', 'GLT', 85, 45, 0, 1, 'KKH'], ['GLT', 'KRM', 100, 45, 0, 1, 'KKH'],
+  ['RKT', 'SKD', 205, 35, 0, 1, 'Skardu Road'], ['GLT', 'SKD', 210, 35, 0, 1, 'Skardu Road'], ['QTA', 'SKR', 390, 60, 300, 0, 'N-65'], ['QTA', 'KHI', 690, 65, 400, 0, 'N-25'],
+  ['MUL', 'DGK', 95, 60, 0, 0, 'N-70'], ['QTA', 'DGK', 430, 45, 0, 0, 'N-70'], ['DIK', 'ISB', 330, 85, 1000, 0, 'M-14'], ['DIK', 'DGK', 230, 60, 0, 0, 'N-55'],
+  ['GWD', 'KHI', 630, 65, 0, 0, 'N-10 Coastal Hwy'], ['MZD', 'MNS', 60, 40, 0, 1, 'N-15'], ['MGR', 'DIR', 125, 40, 0, 1, 'N-45 via Chakdara'], ['DIR', 'CTR', 120, 35, 0, 1, 'Lowari Tunnel']];
+const ADJ = {}; EDGES.forEach(e => { (ADJ[e[0]] = ADJ[e[0]] || []).push([e[1], e]); (ADJ[e[1]] = ADJ[e[1]] || []).push([e[0], e]); });
+let CUR_MONTH = 10;
+const monthOf = d => { const m = +(String(d || '').slice(5, 7)); return m >= 1 && m <= 12 ? m : 10; };
+const SPT = {};
+function shortest(dest, month = CUR_MONTH) {
+  const ck = dest + '|' + month; if (SPT[ck]) return SPT[ck];
+  const dist = { [dest]: 0 }, next = {}, done = new Set();
+  while (true) { let u = null; for (const k in dist) if (!done.has(k) && (u === null || dist[k] < dist[u])) u = k; if (u === null) break; done.add(u);
+    (ADJ[u] || []).forEach(([v, e]) => { if (e[7] && !e[7].includes(month)) return; const d = dist[u] + e[2]; if (dist[v] === undefined || d < dist[v]) { dist[v] = d; next[v] = [u, e]; } }); }
+  return (SPT[ck] = { dist, next });
+}
+const MAX_DRIVE_H = 10;
+const capOf = () => MAX_DRIVE_H;
+const DIESEL = 395, LOCAL_CAR = 15000;
+const AIRPORTS = { ISB: ['Islamabad', 33.56, 72.85], LHR: ['Lahore', 31.52, 74.40], KHI: ['Karachi', 24.90, 67.17] };
+const ARR_APTS = { GIL: ['Gilgit', 35.92, 74.33], KDU: ['Skardu', 35.34, 75.54], CJL: ['Chitral', 35.89, 71.80], UET: ['Quetta', 30.25, 66.94], GWD: ['Gwadar', 25.23, 62.33], KHI: ['Karachi', 24.90, 67.17], LHR: ['Lahore', 31.52, 74.40], ISB: ['Islamabad', 33.56, 72.85],
+  PEW: ['Peshawar', 33.99, 71.51], MUX: ['Multan', 30.20, 71.42], LYP: ['Faisalabad', 31.36, 72.99], SKT: ['Sialkot', 32.54, 74.36], SKZ: ['Sukkur', 27.72, 68.79], BHV: ['Bahawalpur', 29.35, 71.72], TUK: ['Turbat', 25.99, 63.03] };
+const AIR_DEST = { hunza: 'GIL', fairy: 'GIL', gilgit: 'GIL', passu: 'GIL', khunjerab: 'GIL', astore: 'GIL', skardu: 'KDU', khaplu: 'KDU', deosai: 'KDU', chitral: 'CJL', kalash: 'CJL', quetta: 'UET', ziarat: 'UET', gwadar: 'GWD', karachi: 'KHI', lahore: 'LHR', islamabad: 'ISB', peshawar: 'PEW', multan: 'MUX', mohenjo: 'SKZ', derawar: 'BHV' };
+const FARES = { GIL: { ISB: 20000, LHR: 32000, KHI: 42000 }, KDU: { ISB: 22000, LHR: 30000, KHI: 38000 }, CJL: { ISB: 15000, LHR: 28000, KHI: 38000 } };
+const AIR_TRANSFER = { hunza: 'Gilgit → Karimabad by car, 100 km, 2.5 h', fairy: 'Gilgit → Raikot Bridge by car, 85 km, 2 h, then jeep and hike' };
+function airFor(key, origin) {
+  const d = D(key); let code = AIR_DEST[key];
+  if (!code && d.isCity) { const n = Object.entries(ARR_APTS).map(([k, a]) => ({ k, km: hav(d.lat, d.lon, a[1], a[2]) })).sort((a, b) => a.km - b.km)[0]; if (n.km < 60) code = n.k; }
+  if (!code) return null;
+  const [arr, al, ao] = ARR_APTS[code], o = CITY[origin] || CITY.Islamabad, north = !!FARES[code];
+  const opts = Object.entries(AIRPORTS).filter(([k]) => k !== code).map(([k, [dep, la, lo]]) => { const fk = hav(la, lo, al, ao), km = hav(o.lat, o.lon, la, lo) * 1.3, pp = km < 40 ? 0 : Math.round(km * 6.5 / 100) * 100 * 2;
+    const fare = north ? FARES[code][k] : Math.max(12000, Math.round((8000 + fk * 12) / 100) * 100); return { dep, arr, fare, fk, km, pp, score: fare * 2 + pp }; }).filter(x => north || x.fk > 250).sort((a, b) => a.score - b.score);
+  if (!opts.length) return null;
+  const a = opts[0], tk = hav(al, ao, d.lat, d.lon) * 1.3;
+  return { ...a, dur: a.fk > 700 ? 'About 1 h 45 min flight' : 'About 1 h flight', transfer: AIR_TRANSFER[key] || (tk < 20 ? 'Airport → hotel, 20–30 min' : `${arr} airport → ${d.label} by car, ${fmtN(Math.round(tk / 5) * 5)} km`) };
+}
+const JEEPS = {
+  hunza: [['khunjerab', 'Khunjerab Pass day trip', 'Up to 15,397 ft · full day', 18000], ['hopper', 'Hopper Glacier, Nagar', 'Half day, return', 7000]],
+  skardu: [['deosai', 'Deosai Plains', '13,500 ft · full day · Jun–Sep', 18000], ['shigar', 'Shigar Fort & cold desert', 'Half day', 7000], ['basho', 'Basho Valley', 'Half day', 9000]],
+  kalam: [['mahodand', 'Mahodand Lake', '2 h each way, return', 8000], ['ushu', 'Ushu Forest & Matiltan', 'Half day', 5000]],
+  fairy: [], ...JEEPS_MORE };
+const jeepsFor = P => Math.max(1, Math.ceil(P / 5));
+const nearestCity = (lat, lon) => { let best = CITIES[0], bd = 1e9; CITIES.forEach(c => { const d = hav(lat, lon, c.lat, c.lon); if (d < bd) { bd = d; best = c; } }); return { city: best, d: bd }; };
+function trip(key, origin, cap = MAX_DRIVE_H, month = CUR_MONTH) {
+  const c = D(key), o = CITY[origin] || CITY.Islamabad;
+  let att = c.attach;
+  if (!att) { const nn = Object.keys(NODES).map(n => ({ n, air: hav(c.lat, c.lon, NODES[n][0], NODES[n][1]) })).sort((a, b) => a.air - b.air)[0], m = MTN_NODES.has(nn.n);
+    att = [nn.n, nn.air < 8 ? 0 : nn.air * 1.3, m ? 35 : 55, m ? 1 : 0]; }
+  const [dest, akm, aspd, amtn] = att, { dist, next } = shortest(dest, month);
+  const cand = Object.keys(NODES).filter(n => dist[n] !== undefined).map(n => ({ n, air: hav(o.lat, o.lon, NODES[n][0], NODES[n][1]) })).sort((a, b) => a.air - b.air).filter((x, i, arr) => x.air <= arr[0].air * 1.5 + 20)
+    .map(x => ({ ...x, local: x.air < 8 ? 0 : x.air * 1.3, total: (x.air < 8 ? 0 : x.air * 1.3) + dist[x.n] })).sort((a, b) => a.total - b.total);
+  const start = cand[0], mtnLocal = MTN_NODES.has(start.n);
+  let flat = mtnLocal ? 0 : start.local, mtn = mtnLocal ? start.local : 0, hours = start.local / (mtnLocal ? 35 : 55);
+  const tolls = [], via = [], legs = []; let n = start.n;
+  if (start.local > 0) legs.push({ a: 'HOME', b: start.n, km: start.local, h: start.local / (mtnLocal ? 35 : 55), road: 'Local roads', mtn: mtnLocal });
+  while (n !== dest) { const [m, e] = next[n]; if (e[5]) mtn += e[2]; else flat += e[2]; hours += e[2] / e[3]; legs.push({ a: n, b: m, km: e[2], h: e[2] / e[3], road: e[6], mtn: !!e[5] });
+    if (e[4]) tolls.push([e[6], e[4]]); if (!via.includes(e[6])) via.push(e[6]); n = m; }
+  if (akm > 0) { if (amtn) mtn += akm; else flat += akm; hours += akm / aspd; legs.push({ a: dest, b: 'DEST', km: akm, h: akm / aspd, road: `Road to ${c.label}`, mtn: !!amtn }); if (!via.includes(`Road to ${c.label}`)) via.push(`Road to ${c.label}`); }
+  const km = Math.max(25, Math.round((flat + mtn) / 5) * 5), legDays = Math.max(1, Math.ceil(hours / cap - 0.05)), minDays = legDays * 2 + 1;
+  const closed = !!(c.open && !c.open.includes(month));
+  return { ...c, from: o.n, km, kmStr: fmtN(km), flatKm: flat, mtnKm: mtn, hours, hrs: `${Math.round(hours)} h drive${c.jeep ? ' + jeep' : ''}`, tolls, legs, destNode: dest, cap, closed, month,
+    babusarShut: c.kind === 'north' && ![6, 7, 8, 9, 10].includes(month), via: via.length ? via.slice(0, 4).join(' · ') : 'Local roads', legDays, minDays };
+}
+const SCRIPTS = {
+  fairy: { prompt: 'Switch to Fairy Meadows, we\'re in a Corolla',
+    reply: 'Fairy Meadows needs a 4x4 for the last 12 km from Raikot Bridge. I\'ve routed you to the parking hub there and added a local jeep to the budget.',
+    calls: [['update_map_route', { origin: 'Islamabad', destination: 'Fairy Meadows', parking_hub_needed: true }]],
+    apply: { corridor: 'fairy', vehicle: 'sedan' }, flash: 'route', toast: 'Route updated · parking hub at Raikot Bridge' },
+  friends: { prompt: 'We\'re 5 friends now, keep it backpacker',
+    reply: 'Updated for 5 travellers on the backpacker tier: three rooms, dhaba meals, and the total split five ways.',
+    calls: [['recalculate_budget', { petrol_rate: 387.40, group_size: 5, tier: 'backpacker' }]],
+    apply: { groupSize: 5, adults: 5, kids: 0, elders: 0, tier: 'backpacker' }, flash: 'budget', toast: 'Budget recalculated for 5' },
+  weather: { prompt: 'Is Babusar Pass open this weekend?',
+    reply: 'Snow is forecast on Babusar Top after 3 PM on Saturday. Cross before noon, or take the KKH via Besham.',
+    calls: [['show_alert_banner', { title: 'Babusar Top: snow after 3 PM', message: 'Cross before noon or reroute via KKH (Besham), about 2 h longer.', severity: 'warning' }]],
+    apply: { aiAlert: { title: 'Babusar Top: snow after 3 PM', message: 'Cross before noon or reroute via KKH (Besham), about 2 h longer.' } }, flash: 'alert', toast: 'Alert pinned to your trip' }
+};
+const CAT = { Fuel: '#FFB547', Transport: '#6FD3FF', Tolls: '#9B7BFF', Stay: '#2EE59D', Meals: '#FF6B5B', 'Local jeep': '#6FD3FF', Flights: '#6FD3FF', Rental: '#9B7BFF', 'To the airport': '#6FD3FF', 'Car + driver there': '#9B7BFF', 'Jeep trips': '#FFB547' };
+const CAT2 = { Fuel: '#FF7A3D', Transport: '#3B8DFF', Tolls: '#5B6CFF', Stay: '#0FA678', Meals: '#FF4F7B', 'Local jeep': '#3B8DFF', Flights: '#3B8DFF', Rental: '#5B6CFF', 'To the airport': '#3B8DFF', 'Car + driver there': '#5B6CFF', 'Jeep trips': '#FF7A3D' };
+
+// terrain
+const hash = (x, y, s) => { const h = Math.sin(x * 127.1 + y * 311.7 + s * 74.7) * 43758.5453; return h - Math.floor(h); };
+const vnoise = (x, y, s) => { const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi, u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
+  const a = hash(xi, yi, s), b = hash(xi + 1, yi, s), c = hash(xi, yi + 1, s), d = hash(xi + 1, yi + 1, s); return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v; };
+const ridged = (x, y, s) => { let t = 0, a = .55, f = 1; for (let i = 0; i < 5; i++) { const n = 1 - Math.abs(vnoise(x * f, y * f, s + i * 7) * 2 - 1); t += a * n * n; f *= 2.05; a *= .5; } return t; };
+const fbm = (x, y, s) => { let t = 0, a = .5, f = 1; for (let i = 0; i < 4; i++) { t += a * vnoise(x * f, y * f, s + i * 13); f *= 2.1; a *= .5; } return t; };
+const sstep = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+const routeXZ = (p, t) => { const x = -6 + 9 * t + p.wig * Math.sin(t * Math.PI * 1.7 + p.seed) * 3 * (1 - .6 * t * t); return [Math.max(-7, Math.min(3.5, x)), 15 - 20 * t]; };
+const STOPS = [[0, [15, 90, 68]], [1.2, [24, 128, 86]], [2.6, [62, 186, 112]], [4.2, [196, 168, 110]], [6.2, [150, 128, 112]], [8.2, [214, 222, 236]], [10, [255, 255, 255]]];
+function colorAt(h, out, i) { let k = 0; while (k < STOPS.length - 2 && h > STOPS[k + 1][0]) k++; const [h0, c0] = STOPS[k], [h1, c1] = STOPS[k + 1]; const t = Math.max(0, Math.min(1, (h - h0) / (h1 - h0)));
+  out[i] = (c0[0] + (c1[0] - c0[0]) * t) / 255; out[i + 1] = (c0[1] + (c1[1] - c0[1]) * t) / 255; out[i + 2] = (c0[2] + (c1[2] - c0[2]) * t) / 255; }
+function buildTerrain(p, pos) {
+  const samples = []; for (let i = 0; i < 90; i++) samples.push(routeXZ(p, i / 89));
+  const hAt = (x, z) => { let best = 1e9, bi = 0; for (let i = 0; i < samples.length; i++) { const dx = x - samples[i][0], dz = z - samples[i][1], d = dx * dx + dz * dz; if (d < best) { best = d; bi = i; } }
+    const d = Math.sqrt(best), t = bi / 89, floor = .35 + t * p.rise, back = sstep(15, -16, z);
+    const m = Math.pow(ridged(x * .075 + p.seed * 3, z * .075, p.seed), 1.7) * p.amp * (.35 + .95 * back) + fbm(x * .22, z * .22, p.seed) * .9;
+    return floor + m * sstep(1.3, 6, d); };
+  const out = new Float32Array(pos.count); for (let i = 0; i < pos.count; i++) out[i] = hAt(pos.getX(i), pos.getZ(i));
+  const pts = []; for (let i = 0; i <= 48; i++) { const t = i / 48, [x, z] = routeXZ(p, t); pts.push([x, hAt(x, z) + .32, z]); }
+  return { heights: out, pts };
+}
+
+const hotelFor = (list, tier) => list.find(h => h[1].toLowerCase() === tier) || list.find(h => h[1] === 'Standard') || list[0];
+const mapsHref = q => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q).replace(/%20/g, '+')}`;
+function stayAt(node, key, tier, isDest) {
+  const d = D(key), [town, ft] = isDest ? [d.label, d.ft] : NODE_INFO[node];
+  const list = isDest ? d.hotels : STOP_HOTELS[node], where = `${town}${ft ? ` · ${fmtN(ft)} ft` : ''}`;
+  if (!list) return { town, where, name: `Hotels in ${town}`, note: 'Search stays near the highway', tier: 'Search', alts: '', href: mapsHref('hotels in ' + town) };
+  const h = hotelFor(list, tier), alts = list.filter(x => x !== h).map(x => x[0]).join(' · ');
+  return { town, where, name: h[0], note: h[2], tier: h[1], alts: alts ? 'Also: ' + alts : '', href: mapsHref(h[0]) };
+}
+function buildPlan(s) {
+  const key = s.corridor, cap = capOf(s), c = trip(key, s.origin, cap), L = c.legDays, legs = c.legs, cum = [];
+  legs.reduce((a, l, i) => (cum[i] = a + l.h), 0);
+  const stops = []; let prev = -1;
+  for (let k = 1; k < L; k++) { const target = k * c.hours / L; let best = -1, bd = 1e9;
+    for (const strict of [true, false]) { for (let i = prev + 1; i < legs.length - 1; i++) { if (legs[i].b === 'RKT' || legs[i].b === 'DEST') continue; const day = cum[i] - (prev < 0 ? 0 : cum[prev]); if (strict && day > cap + 1.5) continue; const d = Math.abs(cum[i] - target); if (d < bd) { bd = d; best = i; } } if (best >= 0) break; }
+    if (best < 0) break; stops.push(best); prev = best; }
+  const bounds = [-1, ...stops, legs.length - 1];
+  const seg = (a, b) => { const ls = legs.slice(a + 1, b + 1); return { km: ls.reduce((x, l) => x + l.km, 0), h: ls.reduce((x, l) => x + l.h, 0), roads: [...new Set(ls.map(l => l.road))], ls }; };
+  const destName = D(key).label, startName = c.from, nm = n => n === 'DEST' ? destName : n === 'HOME' ? startName : NODE_INFO[n][0], month = c.month;
+  const notes = roads => roads.map(r => ROAD_NOTE[r]).filter(Boolean).join(' ');
+  const days = []; let d = 1;
+  const elderNote = (roads, last) => s.elders && (roads.some(r => /Babusar/.test(r)) || (last && D(key).ft > 9000)) ? 'Elders: high altitude. Go slow, keep water and any BP or heart medicine handy.' : '';
+  if (s.vehicle === 'air') { const a = airFor(key, s.origin);
+    if (a) { days.push({ kind: 'fly', num: d++, stops: [{ time: '6:00 am', kind: 'go', label: `${a.dep} airport`, note: 'Check in early. Flights leave in the morning' }, { time: '7:00 am', kind: 'plane', label: `Fly to ${a.arr}`, note: a.dur }, { time: '8:30 am', kind: 'bed', label: 'Transfer to your stay', note: a.transfer }], title: `${a.dep} → ${a.arr} by air`, meta: `${a.dur} · ${a.transfer}`, note: [a.pp ? `${c.from} → ${a.dep} airport by coach first.` : '', 'Northern flights are weather-dependent. Keep a buffer day.'].filter(Boolean).join(' '), stay: stayAt(c.destNode, key, s.tier, true) });
+      const fr = Math.max(0, s.days - 2), pl = placesFor(key, month), per = fr ? Math.ceil(pl.length / fr) : 0, dn = destName;
+      for (let i = 0; i < fr; i++) { const list = pl.slice(i * per, i * per + per); const ls = list.length ? list : [pl[i % pl.length]];
+        const stops = ls.map((p, j) => ({ time: SLOTS[Math.min(j, 3)], kind: 'pin', label: p[0], note: `${p[1]} · ${p[2]}` })); stops.push({ time: 'Food', kind: 'food', label: 'Eat local', note: eatFor(key) });
+        days.push({ kind: 'explore', num: d++, title: `Explore ${dn}`, meta: 'Car and driver on call', note: '', stops, stay: stayAt(c.destNode, key, s.tier, true) }); }
+      days.push({ kind: 'fly', num: d++, stops: [{ time: '6:00 am', kind: 'go', label: `Leave for ${a.arr} airport`, note: 'Morning flights are the most reliable' }, { time: '9:00 am', kind: 'plane', label: `Fly to ${a.dep}`, note: 'If cancelled, the next flight or the road is the fallback' }], title: `${a.arr} → ${a.dep} by air`, meta: 'Morning flight', note: 'Home.', stay: null });
+      return { days, total: d - 1, nightStops: [], air: a }; } }
+  for (let i = 0; i < bounds.length - 1; i++) { const sg = seg(bounds[i], bounds[i + 1]), from = i === 0 ? startName : nm(legs[bounds[i]].b), last = i === bounds.length - 2, toNode = legs[bounds[i + 1]].b;
+    const outStops = runDay(sg.ls, from, last ? destName : nm(toNode), s.leave).stops;
+    days.push({ kind: 'drive', num: d++, stops: outStops, title: `${from} → ${last ? destName : nm(toNode)}`, meta: `${fmtN(Math.round(sg.km / 5) * 5)} km · ${Math.round(sg.h)} h · ${sg.roads.join(', ')}`,
+      note: [notes(sg.roads), last && key === 'fairy' ? 'Park at Raikot Bridge, jeep to Tato (1.5 h), then a 2–3 h hike.' : last && D(key).jeep ? `Park at ${D(key).jeep.park}, then a local jeep.` : '', elderNote(sg.roads, last)].filter(Boolean).join(' '), stay: stayAt(last ? c.destNode : toNode, key, s.tier, last) }); }
+  const free = Math.max(0, s.days - 2 * (bounds.length - 1)), pl = placesFor(key, month);
+  if (!free && days.length) { const ld = days[days.length - 1]; ld.stops.push({ time: 'Evening', kind: 'pin', label: pl[0][0], note: `${pl[0][1]} · ${pl[0][2]}` }); }
+  const per = free ? Math.ceil(pl.length / free) : 0;
+  for (let i = 0; i < free; i++) { const chunk = pl.slice(i * per, i * per + per), list = chunk.length ? chunk : [pl[i % pl.length]];
+    const stops = list.map((p, j) => ({ time: SLOTS[Math.min(j, 3)], kind: 'pin', label: p[0], note: `${p[1]} · ${p[2]}` }));
+    stops.push({ time: 'Food', kind: 'food', label: 'Eat local', note: eatFor(key) });
+    days.push({ kind: 'explore', num: d++, title: `Explore ${destName}`, meta: `${list.length} place${list.length > 1 ? 's' : ''} · local car or jeep`, note: '', stops, stay: stayAt(c.destNode, key, s.tier, true) }); }
+  for (let i = bounds.length - 2; i >= 0; i--) { const sg = seg(bounds[i], bounds[i + 1]), to = i === 0 ? startName : nm(legs[bounds[i]].b), from = i === bounds.length - 2 ? destName : nm(legs[bounds[i + 1]].b);
+    const backLs = sg.ls.slice().reverse().map(l => ({ ...l, a: l.b, b: l.a }));
+    days.push({ kind: 'return', num: d++, stops: runDay(backLs, from, to, s.leave).stops, title: `${from} → ${to}`, meta: `${fmtN(Math.round(sg.km / 5) * 5)} km · ${Math.round(sg.h)} h · ${[...sg.roads].reverse().join(', ')}`, note: i === 0 ? 'Home.' : '', stay: i === 0 ? null : stayAt(legs[bounds[i]].b, key, s.tier, false) }); }
+  return { days, total: d - 1, nightStops: stops.map(i => nm(legs[i].b)) };
+}
+
+function costFor(o) {
+  CUR_MONTH = monthOf(o.startDate);
+  const A = o.adults ?? o.groupSize ?? 2, K = o.kids || 0, E = o.elders || 0, P = A + K + E, AD = A + E;
+  const c = trip(o.corridor, o.origin, capOf(o)), v = VEH[o.vehicle], t = TIERS[o.tier], rt = c.km * 2, rows = [], nights = Math.max(1, o.days - 1);
+  let ok = o.days >= c.minDays, minDays = c.minDays, why = '';
+  const kidTxt = (pct) => K ? ` + ${K} kid${K > 1 ? 's' : ''} at ${pct}` : '';
+  if (o.vehicle === 'air') {
+    const a = airFor(o.corridor, o.origin);
+    if (!a) { ok = false; why = 'No airport'; minDays = 0; rows.push({ icon: 'ph-airplane-tilt', label: 'Flights', detail: `No scheduled flights to ${c.label}`, val: 0 }); }
+    else { minDays = 3; ok = o.days >= 3;
+      rows.push({ icon: 'ph-airplane-tilt', label: 'Flights', detail: `${a.dep} ⇄ ${a.arr} · ${fmt(a.fare)} one way × ${AD} adult${AD > 1 ? 's' : ''}${kidTxt('75%')}`, val: a.fare * 2 * (AD + K * 0.75) });
+      if (a.pp) rows.push({ icon: 'ph-bus', label: 'To the airport', detail: `${c.from} ⇄ ${a.dep} by coach · ${fmt(a.pp)} return per person`, val: a.pp * P });
+      const cars = Math.ceil(P / 4); rows.push({ icon: 'ph-steering-wheel', label: 'Car + driver there', detail: `${cars} car${cars > 1 ? 's' : ''} × ${o.days} days × ${fmt(LOCAL_CAR)}, fuel included`, val: cars * o.days * LOCAL_CAR }); }
+  } else if (o.vehicle === 'public') {
+    const fare = Math.round((c.flatKm * 6.5 + c.mtnKm * 9) / 100) * 100;
+    rows.push({ icon: 'ph-bus', label: 'Transport', detail: `Coach ${fmt(fare)} each way × ${AD} adult${AD > 1 ? 's' : ''}${kidTxt('half fare')}`, val: fare * 2 * (AD + K * 0.5) });
+  } else {
+    const units = Math.max(1, Math.ceil(P / v.cap)), per = 2 * (c.flatKm / v.mileage + c.mtnKm / v.mtn), price = v.diesel ? DIESEL : PETROL, noun = o.vehicle === 'bike' ? 'bikes' : 'vehicles';
+    if (v.rate) rows.push({ icon: v.icon, label: 'Rental', detail: `${units} × ${v.short} · (${fmt(v.rate)} + ${fmtN(v.allow)} driver) × ${o.days} days`, val: units * (v.rate + v.allow) * o.days });
+    rows.push({ icon: 'ph-gas-pump', label: 'Fuel', detail: `${fmtN(rt)} km · ${units > 1 ? `${units} ${noun} × ` : ''}${fmtN(per)} L ${v.diesel ? 'diesel' : 'petrol'} at ${v.mileage} / ${v.mtn} km/L`, val: per * units * price });
+    const tollSum = c.tolls.reduce((a, b) => a + b[1], 0) * 2 * units * (v.tollX || 1);
+    if (o.vehicle === 'bike') rows.push({ icon: 'ph-road-horizon', label: 'Tolls', detail: 'Motorways closed to bikes · GT Road / N-5', val: 0 });
+    else rows.push({ icon: 'ph-road-horizon', label: 'Tolls', detail: (c.tolls.length ? c.tolls.map(x => x[0]).join(' + ') : 'No tolled roads') + ` · return${units > 1 ? ` × ${units}` : ''}${v.tollX ? ' · coaster rate' : ''}`, val: tollSum });
+  }
+  const mo = c.month, sm = c.kind === 'north' ? ([6, 7, 8].includes(mo) ? 1.25 : [11, 12, 1, 2, 3].includes(mo) ? 0.8 : 1) : (c.kind === 'coast' || c.kind === 'desert') ? ([11, 12, 1, 2].includes(mo) ? 1.15 : [5, 6, 7, 8].includes(mo) ? 0.85 : 1) : 1;
+  const smTxt = sm > 1 ? ` · peak +${Math.round((sm - 1) * 100)}%` : sm < 1 ? ` · off-season −${Math.round((1 - sm) * 100)}%` : '';
+  if (o.rooms === 'shared') { const r = Math.ceil(P / 4);
+    rows.push({ icon: 'ph-bed', label: 'Stay', detail: `${r} family room${r > 1 ? 's' : ''} (up to 4) × ${nights} night${nights > 1 ? 's' : ''} · ${t.label}${smTxt}`, val: r * t.night * 1.5 * nights * sm }); }
+  else { const r = Math.max(1, Math.ceil(AD / 2)), extra = Math.max(0, K - r);
+    rows.push({ icon: 'ph-bed', label: 'Stay', detail: `${r} double${r > 1 ? 's' : ''}${extra ? ` + ${extra} extra bed${extra > 1 ? 's' : ''}` : ''} × ${nights} night${nights > 1 ? 's' : ''} · ${t.label}${smTxt}`, val: (r * t.night + extra * t.night * 0.2) * nights * sm }); }
+  rows.push({ icon: 'ph-fork-knife', label: 'Meals', detail: `${AD} adult${AD > 1 ? 's' : ''}${kidTxt('60%')} × ${o.days} days`, val: t.meal * o.days * (AD + K * 0.6) });
+  if (c.jeep && o.vehicle !== 'suv' && o.vehicle !== 'rent4x4') { const j = jeepsFor(P); rows.push({ icon: 'ph-jeep', label: 'Local jeep', detail: `${c.jeep.label} · ${j} jeep${j > 1 ? 's' : ''} × ${fmt(c.jeep.cost)}`, val: j * c.jeep.cost }); }
+  const add = (JEEPS[o.corridor] || []).filter(x => (o.addons || []).includes(x[0]));
+  if (add.length) { const j = jeepsFor(P); rows.push({ icon: 'ph-jeep', label: 'Jeep trips', detail: `${add.map(x => x[1]).join(', ')} · ${j} jeep${j > 1 ? 's' : ''}`, val: add.reduce((a, x) => a + x[3], 0) * j }); }
+  if (c.closed) { ok = false; why = `Closed in ${MON[c.month - 1]}`; }
+  return { rows, total: rows.reduce((a, r) => a + r.val, 0), ok, minDays, why };
+}
+
+class Component extends DCLogic {
+  state = { screen: 'onboard', step: 0, origin: null, oq: '', loc: 'idle', locNote: '', mode: null, dest: 'hunza', pickId: null, vehicle: 'sedan', tier: 'standard', groupSize: 2, adults: 2, kids: 0, elders: 0, rooms: 'separate', addons: [], days: 4, cap: 120000,
+    corridor: 'hunza', tab: 'trip', drawer: false, settings: false, input: '', busy: false, aiAlert: null, flash: null, toast: null, offline: 'off', progress: 0,
+    msgs: [{ role: 'ai', text: 'Assalam-o-Alaikum. Ask me to change your route, budget or alerts and I\'ll update the screen directly.', typed: 999, calls: [] }] };
+  timers = [];
+  chatRef = React.createRef(); sceneRef = React.createRef(); destRef = React.createRef(); hubRef = React.createRef();
+  S = { az: 0, dragAz: 0, drag: null };
+  spinner = React.createElement('i', { className: 'ph-bold ph-circle-notch', style: { display: 'inline-block', animation: 'spin .8s linear infinite' } });
+  orb = React.createElement('div', { style: { position: 'absolute', inset: '-20%', background: 'conic-gradient(from 0deg,#2EE59D,#19C2B8,#6FD3FF,#9B7BFF,#FF4F7B,#FFB547,#2EE59D)', animation: 'spin 4s linear infinite' } });
+  later(ms, fn) { const t = setTimeout(fn, ms); this.timers.push(t); return t; }
+  componentDidMount() { this.initScene().catch(e => console.warn('SafarCo scene: ' + (e && e.message))); }
+  componentWillUnmount() { this.dead = true; cancelAnimationFrame(this.raf); this.timers.forEach(clearTimeout); clearInterval(this.typer); clearInterval(this.dl); if (this.renderer) this.renderer.dispose(); if (this.ro) this.ro.disconnect(); }
+  componentDidUpdate(pp, ps) {
+    const el = this.chatRef.current; if (el) el.scrollTop = el.scrollHeight;
+    if (this.state.screen === 'onboard' && this.state.step === 4) { const sel = this.suggestions().sel; if (sel && sel.corridor !== this.state.corridor) { this.setState({ corridor: sel.corridor }); return; } }
+    if (ps.corridor !== this.state.corridor && this.setCorridor) this.setCorridor(this.state.corridor);
+    if (ps.screen !== this.state.screen || ps.tab !== this.state.tab) { const s = this.sceneRef.current; if (s) { s.style.transform = ''; s.style.opacity = ''; } }
+  }
+
+  async initScene() {
+    const el = this.sceneRef.current; if (!el) return;
+    let T; try { T = await import('https://unpkg.com/three@0.160.0/build/three.module.js'); } catch (e) { console.warn('SafarCo scene: three.js failed to load'); return; }
+    if (this.dead) return;
+    let W = el.clientWidth || 380, H = el.clientHeight || 440;
+    const r = new T.WebGLRenderer({ antialias: true, alpha: true });
+    r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2)); r.setSize(W, H);
+    r.toneMapping = T.ACESFilmicToneMapping; r.toneMappingExposure = 1.08;
+    r.domElement.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;z-index:1';
+    el.insertBefore(r.domElement, el.children[1]); this.renderer = r;
+    const scene = new T.Scene(); scene.fog = new T.Fog(0xEBA27F, 24, 56);
+    const cam = new T.PerspectiveCamera(38, W / H, .1, 200);
+    if (window.ResizeObserver) { this.ro = new ResizeObserver(() => { const w = el.clientWidth, h = el.clientHeight; if (!w || !h || (w === W && h === H)) return; W = w; H = h; r.setSize(W, H); cam.aspect = W / H; cam.updateProjectionMatrix(); }); this.ro.observe(el); }
+    scene.add(new T.HemisphereLight(0xCFE3FF, 0x1D3A2C, 1));
+    const sun = new T.DirectionalLight(0xFFC48A, 2.8); sun.position.set(-14, 11, -18); scene.add(sun);
+    const fill = new T.DirectionalLight(0x9DBEFF, .7); fill.position.set(12, 9, 14); scene.add(fill);
+    const geo = new T.PlaneGeometry(46, 46, 150, 150); geo.rotateX(-Math.PI / 2);
+    const pos = geo.attributes.position, cols = new Float32Array(pos.count * 3);
+    geo.setAttribute('color', new T.BufferAttribute(cols, 3));
+    scene.add(new T.Mesh(geo, new T.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: .9, metalness: 0 })));
+    const water = new T.Mesh(new T.PlaneGeometry(46, 46), new T.MeshStandardMaterial({ color: 0x22D3C5, roughness: .1, metalness: .25, transparent: true, opacity: .85, emissive: 0x0E6B66, emissiveIntensity: .45 }));
+    water.rotation.x = -Math.PI / 2; water.position.y = .62; scene.add(water);
+    const routeMat = new T.MeshBasicMaterial({ color: 0xFFC060 });
+    const glowMat = new T.MeshBasicMaterial({ color: 0xFF9A3D, transparent: true, opacity: .28, depthWrite: false, blending: T.AdditiveBlending });
+    const pin = (color) => { const g = new T.Group();
+      const stick = new T.Mesh(new T.CylinderGeometry(.05, .05, 2, 8), new T.MeshBasicMaterial({ color: 0xffffff })); stick.position.set(0, 1, 0); g.add(stick);
+      const head = new T.Mesh(new T.SphereGeometry(.42, 24, 16), new T.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: .9, roughness: .3 })); head.position.y = 2.1; g.add(head);
+      const ring = new T.Mesh(new T.RingGeometry(.4, .75, 32), new T.MeshBasicMaterial({ color, transparent: true, opacity: .55, side: T.DoubleSide, depthWrite: false })); ring.rotation.x = -Math.PI / 2; ring.position.y = .06; g.add(ring);
+      scene.add(g); return g; };
+    const startPin = pin(0x2EE59D), destPin = pin(0xFF5A72), hubPin = pin(0xFFB547);
+    const traveler = new T.Mesh(new T.SphereGeometry(.22, 16, 12), new T.MeshBasicMaterial({ color: 0xffffff }));
+    const halo = new T.Mesh(new T.SphereGeometry(.55, 16, 12), new T.MeshBasicMaterial({ color: 0xFFD08A, transparent: true, opacity: .35, depthWrite: false, blending: T.AdditiveBlending }));
+    scene.add(traveler); scene.add(halo);
+    const S = this.S; let tube = null, glow = null, curve = null, cnt = 0;
+    const colorize = () => { for (let i = 0; i < pos.count; i++) colorAt(pos.getY(i), cols, i * 3); geo.attributes.color.needsUpdate = true; };
+    this.setCorridor = (key) => {
+      const c = D(key), built = buildTerrain(c.terrain, pos), e = built.pts[built.pts.length - 1];
+      S.goalT = new T.Vector3(e[0] * .6, e[1] + 1.8, e[2]); if (!S.tgt) S.tgt = S.goalT.clone();
+      S.from = Float32Array.from({ length: pos.count }, (_, i) => pos.getY(i)); S.to = built.heights; S.morph = S.first ? 0 : 1;
+      if (!S.first) { for (let i = 0; i < pos.count; i++) pos.setY(i, built.heights[i]); pos.needsUpdate = true; colorize(); S.first = true; }
+      curve = new T.CatmullRomCurve3(built.pts.map(p => new T.Vector3(p[0], p[1], p[2])));
+      if (tube) { scene.remove(tube); scene.remove(glow); tube.geometry.dispose(); glow.geometry.dispose(); }
+      tube = new T.Mesh(new T.TubeGeometry(curve, 260, .13, 8), routeMat); glow = new T.Mesh(new T.TubeGeometry(curve, 260, .36, 8), glowMat);
+      scene.add(tube); scene.add(glow); cnt = tube.geometry.index.count; S.draw = 0;
+      startPin.position.copy(curve.getPointAt(0)).y -= .3; destPin.position.copy(curve.getPointAt(1)).y -= .3;
+      hubPin.visible = c.hub !== undefined; if (hubPin.visible) hubPin.position.copy(curve.getPointAt(.72)).y -= .3;
+      S.hub = c.hub;
+    };
+    this.setCorridor(this.state.corridor);
+    const v = new T.Vector3();
+    const place = (ref, obj, show, lift) => { const n = ref.current; if (!n) return; if (!show) { n.style.opacity = 0; return; }
+      v.copy(obj.position); v.y += lift; v.project(cam);
+      const px = Math.max(90, Math.min(W - 90, (v.x + 1) / 2 * W)), py = Math.max(60, Math.min(H - 40, (1 - v.y) / 2 * H));
+      n.style.transform = `translate(${px}px,${py}px) translate(-50%,-100%)`; n.style.opacity = 1; };
+    const tick = () => {
+      if (this.dead) return; this.raf = requestAnimationFrame(tick);
+      try {
+      const now = performance.now();
+      if (S.morph < 1) { S.morph = Math.min(1, S.morph + .022); const e = 1 - Math.pow(1 - S.morph, 3);
+        for (let i = 0; i < pos.count; i++) pos.setY(i, S.from[i] + (S.to[i] - S.from[i]) * e); pos.needsUpdate = true; colorize(); }
+      if (S.draw < 1) { S.draw = Math.min(1, S.draw + .014); const n = Math.floor(cnt * S.draw / 6) * 6; tube.geometry.setDrawRange(0, n); glow.geometry.setDrawRange(0, n); }
+      const tt = ((now / 8000) % 1) * S.draw; traveler.position.copy(curve.getPointAt(tt)); halo.position.copy(traveler.position);
+      halo.scale.setScalar(1 + .25 * Math.sin(now / 220));
+      const goal = S.dragAz + Math.sin(now / 6500) * .32; S.az += (goal - S.az) * .05;
+      S.tgt.lerp(S.goalT, .04); cam.position.set(S.tgt.x + Math.sin(S.az) * 28, S.tgt.y + 7.4, S.tgt.z + Math.cos(S.az) * 28); cam.lookAt(S.tgt);
+      r.render(scene, cam);
+      place(this.destRef, destPin, S.draw > .95, 2.9);
+      place(this.hubRef, hubPin, S.hub !== undefined && S.draw > .7, 2.6);
+      } catch (e) { if (!this.warned) { this.warned = true; console.warn('SafarCo scene tick: ' + e.message); } }
+    };
+    tick();
+  }
+
+  locate() {
+    this.setState({ loc: 'locating' });
+    let finished = false;
+    const done = (lat, lon, note) => { if (finished) return; finished = true; const { city, d } = nearestCity(lat, lon);
+      this.setState({ loc: 'done', origin: city.n, oq: '', pickId: null, locNote: note || `Detected from GPS · ${Math.max(1, Math.round(d))} km from city centre` }); };
+    const demo = 'Demo location · GPS unavailable in this preview';
+    this.later(3500, () => done(31.52, 74.36, demo));
+    try { navigator.geolocation.getCurrentPosition(p => { const { latitude: a, longitude: o } = p.coords, inPk = a > 23.5 && a < 37.2 && o > 60.8 && o < 77.9;
+      inPk ? done(a, o) : done(31.52, 74.36, 'Outside Pakistan · showing a demo city'); }, () => done(31.52, 74.36, demo), { timeout: 3000 }); } catch (e) { done(31.52, 74.36, demo); }
+  }
+  setPeople(k, d) { const s = this.state, min = k === 'adults' ? 1 : 0, n = { adults: s.adults, kids: s.kids, elders: s.elders }; n[k] = Math.max(min, Math.min(20, n[k] + d)); this.setState({ ...n, groupSize: n.adults + n.kids + n.elders, pickId: null }); }
+  run(key, custom) {
+    if (this.state.busy) return;
+    const S = SCRIPTS[key], prompt = custom || (S ? S.prompt : '');
+    this.setState(s => ({ busy: true, input: '', msgs: [...s.msgs, { role: 'user', text: prompt }] }));
+    const reply = S ? S.reply : 'I can reroute you (try “Fairy Meadows”), recalculate the budget for a new group or tier, or check a pass for weather alerts.';
+    this.later(550, () => {
+      this.setState(s => ({ msgs: [...s.msgs, { role: 'ai', text: reply, typed: 0, calls: [] }] }));
+      clearInterval(this.typer);
+      this.typer = setInterval(() => { const msgs = this.state.msgs.slice(), m = { ...msgs[msgs.length - 1] }; m.typed += 4; msgs[msgs.length - 1] = m; this.setState({ msgs });
+        if (m.typed >= m.text.length) { clearInterval(this.typer); this.afterReply(S); } }, 22);
+    });
+  }
+  afterReply(S) {
+    if (!S) { this.setState({ busy: false }); return; }
+    const setCalls = status => this.setState(s => { const msgs = s.msgs.slice(), m = { ...msgs[msgs.length - 1] }; m.calls = S.calls.map(([fn, a]) => ({ fn, args: JSON.stringify(a), status })); msgs[msgs.length - 1] = m; return { msgs }; });
+    this.later(250, () => setCalls('running'));
+    this.later(900, () => { setCalls('executed'); this.setState({ ...S.apply, tab: 'trip', flash: S.flash }); });
+    this.later(1700, () => this.setState({ drawer: false, toast: S.toast, busy: false }));
+    this.later(4800, () => this.setState({ toast: null, flash: null }));
+  }
+  startDownload() {
+    clearInterval(this.dl); this.setState({ offline: 'downloading', progress: 0 });
+    this.dl = setInterval(() => { const p = Math.min(100, this.state.progress + 3); this.setState({ progress: p }); if (p >= 100) { clearInterval(this.dl); this.setState({ offline: 'ready' }); } }, 70);
+  }
+  calc() { return costFor(this.state); }
+  suggestions() {
+    const s = this.state, cost = (corridor, cf) => { const r = costFor({ ...s, corridor, addons: [], vehicle: cf.vehicle, tier: cf.tier }); return { ...cf, corridor, key: corridor + ':' + cf.id, total: r.total, ok: r.ok, minDays: r.minDays, why: r.why }; };
+    const cfgs = CONFIGS.filter(cf => cf.id !== 'group' || s.groupSize >= 8);
+    const priced = k => cfgs.map(cf => cost(k, cf)).filter(x => !x.why).sort((a, b) => a.total - b.total);
+    const fits = x => x.ok && x.total <= s.cap;
+    let list;
+    if (s.mode === 'know') {
+      const all = priced(s.dest), fit = all.filter(fits), best = fit.length ? fit[fit.length - 1] : null;
+      list = all.slice().reverse(); list.forEach(x => { x.best = x === best; });
+    } else {
+      list = Object.keys(CORR).map(k => { const all = priced(k), fit = all.filter(fits); return fit.length ? fit[fit.length - 1] : all[0]; });
+      list.sort((a, b) => (fits(b) - fits(a)) || (b.ok - a.ok) || (fits(a) ? b.total - a.total : a.total - b.total));
+      list.forEach((x, i) => { x.best = i === 0 && fits(x); });
+    }
+    const okDesc = list.filter(x => x.ok), cheapestOk = s.mode === 'know' ? okDesc[okDesc.length - 1] : okDesc.slice().sort((a, b) => a.total - b.total)[0];
+    const sel = list.find(x => x.key === s.pickId) || list.find(x => x.best) || cheapestOk || list[0];
+    return { list, sel };
+  }
+  renderVals() {
+    const s = this.state, c = trip(s.corridor, s.origin, capOf(s)), nights = Math.max(1, s.days - 1), sug = this.suggestions();
+    const cc = this.calc(), { rows, total } = cc, pct = total / s.cap, air = airFor(s.corridor, s.origin), P = s.groupSize;
+    const health = pct < 0.85 ? { label: 'Healthy', bg: 'rgba(46,229,157,.14)', fg: '#2EE59D' } : pct <= 1 ? { label: 'Near cap', bg: 'rgba(255,181,71,.16)', fg: '#FFB547' } : { label: 'Over cap', bg: 'rgba(255,107,91,.16)', fg: '#FF6B5B' };
+    let acc = 0; const segs = rows.filter(r => r.val > 0).map(r => { const a = acc, b = acc + r.val / total * 100; acc = b; return `${CAT[r.label]} ${a.toFixed(2)}% ${(b - .6).toFixed(2)}%, transparent ${(b - .6).toFixed(2)}% ${b.toFixed(2)}%`; });
+    const hasHub = c.hub !== undefined;
+    let gate = { show: false };
+    if (hasHub && s.vehicle !== 'suv') gate = { show: true, icon: 'ph-warning-octagon', bg: 'linear-gradient(135deg,rgba(255,107,91,.24),rgba(255,79,123,.08))', border: 'rgba(255,107,91,.45)', tile: 'linear-gradient(135deg,#FF8A6B,#FF4F7B)',
+      title: s.vehicle === 'sedan' ? 'Sedan Undercarriage Risk: Final track requires 4x4.' : 'Final track requires 4x4.', msg: 'Park at Raikot Bridge. Local jeep for the last 12 km: PKR 8,000 – 10,000.' };
+    else if (hasHub) gate = { show: true, icon: 'ph-check-circle', bg: 'linear-gradient(135deg,rgba(46,229,157,.2),rgba(25,194,184,.06))', border: 'rgba(46,229,157,.4)', tile: 'linear-gradient(135deg,#2EE59D,#0FA678)', title: '4x4 cleared for the Raikot–Tato track', msg: 'Expect about 1.5 h at walking pace. Low range recommended.' };
+    const ring = k => s.flash === k ? '0 0 0 2px #2EE59D, 0 0 40px -6px rgba(46,229,157,.7)' : '0 30px 60px -30px rgba(0,0,0,.6)';
+    const ringConic = (p, a, b) => `conic-gradient(${a} 0%, ${b} ${p}%, rgba(255,255,255,.08) ${p}% 100%)`;
+    const off = s.offline === 'ready'
+      ? { ring: ringConic(100, '#2EE59D', '#19C2B8'), glow: 'rgba(46,229,157,.6)', icon: 'ph-shield-check', iconC: '#2EE59D', pct: 'Ready', title: 'Survival Mode on', sub: `${c.region} tiles · ${c.tiles} MB · works with no signal`, btnBg: 'rgba(255,255,255,.06)', btnFg: '#fff', btnBorder: '1px solid rgba(255,255,255,.14)', btnShadow: 'none', btnIcon: 'ph-trash', btnLabel: 'Clear cache' }
+      : s.offline === 'downloading'
+      ? { ring: ringConic(s.progress, '#6FD3FF', '#9B7BFF'), glow: 'rgba(155,123,255,.55)', icon: 'ph-cloud-arrow-down', iconC: '#6FD3FF', pct: s.progress + '%', title: 'Caching for offline…', sub: `${Math.round(c.tiles * s.progress / 100)} of ${c.tiles} MB · tiles, bookings, SOS points`, btnBg: 'rgba(255,255,255,.06)', btnFg: '#9FB8B4', btnBorder: '1px solid rgba(255,255,255,.1)', btnShadow: 'none', btnIcon: 'ph-hourglass', btnLabel: 'Downloading' }
+      : { ring: ringConic(0, '#6FD3FF', '#9B7BFF'), glow: 'rgba(111,211,255,.15)', icon: 'ph-wifi-slash', iconC: '#FFB547', pct: `${c.tiles} MB`, title: 'No signal past Chilas?', sub: `Save ${c.region} map tiles, bookings and emergency points for the dead zones.`, btnBg: 'linear-gradient(135deg,#2EE59D,#19C2B8)', btnFg: '#04211C', btnBorder: '0', btnShadow: '0 18px 36px -14px rgba(46,229,157,.75)', btnIcon: 'ph-download-simple', btnLabel: 'Download for offline' };
+    const tierC = { Premium: '#C4B2FF', Standard: '#2EE59D', Backpacker: '#FFB547' };
+    const tierG = { Premium: 'linear-gradient(135deg,#9B7BFF,#5B6CFF)', Standard: 'linear-gradient(135deg,#2EE59D,#0FA678)', Backpacker: 'linear-gradient(135deg,#FFB547,#FF7A3D)' };
+    const fitsS = x => x.ok !== false && x.total <= s.cap;
+    const opts = CONFIGS.map(cf => { const r = costFor({ ...s, vehicle: cf.vehicle, tier: cf.tier }); return { ...cf, total: r.total, ok: r.ok, why: r.why }; }).filter(o => !o.why && o.ok).sort((a, b) => a.total - b.total);
+    const applyCfg = o => () => { this.setState({ vehicle: o.vehicle, tier: o.tier, flash: 'budget' }); this.later(2200, () => this.setState({ flash: null })); };
+    const warn = { bg: 'linear-gradient(135deg,rgba(255,181,71,.22),rgba(255,122,61,.06))', border: 'rgba(255,181,71,.45)', tile: 'linear-gradient(135deg,#FFB547,#FF7A3D)', icon: 'ph-trend-down' };
+    const good = { bg: 'linear-gradient(135deg,rgba(155,123,255,.22),rgba(111,211,255,.06))', border: 'rgba(155,123,255,.45)', tile: 'linear-gradient(135deg,#9B7BFF,#6FD3FF)', icon: 'ph-arrow-fat-lines-up' };
+    let tip = { show: false };
+    if (cc.why === 'No airport') tip = { show: true, ...warn, icon: 'ph-airplane-tilt', title: 'No flights to Kalam', msg: 'Kalam has no airport. Drive, or hire a car with a driver.', cta: 'Hire car', apply: () => this.setState({ vehicle: 'rentcar' }) };
+    else if (!cc.ok && s.vehicle === 'air') tip = { show: true, ...warn, icon: 'ph-calendar-x', title: `${s.days} days is too short to fly in`, msg: 'Northern flights are often delayed by weather. Plan at least 3 days.', cta: 'Set 3 days', apply: () => this.setState({ days: 3 }) };
+    else if (!cc.ok) tip = { show: true, ...warn, icon: 'ph-calendar-x', title: `${s.days} days isn’t enough for this route`, msg: `${c.kmStr} km by road, about ${Math.round(c.hours)} h each way. That’s ${c.legDays} driving day${c.legDays > 1 ? 's' : ''} each way at ${capOf(s)} h a day, plus 1 day there.`, cta: `Set ${c.minDays} days`, apply: () => this.setState({ days: c.minDays }) };
+    else if (total > s.cap) {
+      const fit = opts.filter(fitsS);
+      if (fit.length) { const o = fit[fit.length - 1]; tip = { show: true, ...warn, title: `${fmt(total - s.cap)} over your cap`, msg: `${o.name} (${VEH[o.vehicle].short}, ${TIERS[o.tier].label.toLowerCase()} stays) comes to ${fmt(o.total)}.`, cta: 'Switch', apply: applyCfg(o) }; }
+      else { const minD = cc.minDays || 2, cheapest = Math.min(total, ...CONFIGS.map(cf => costFor({ ...s, vehicle: cf.vehicle, tier: cf.tier })).filter(r => r.ok && !r.why).map(r => r.total)), need = Math.ceil(cheapest / 5000) * 5000;
+        tip = s.days - 1 >= minD
+          ? { show: true, ...warn, title: `${fmt(total - s.cap)} over your cap`, msg: 'Even the cheapest option is over. Drop a day or raise the cap.', cta: '−1 day', apply: () => this.setState({ days: s.days - 1 }) }
+          : { show: true, ...warn, title: `${fmt(total - s.cap)} over your cap`, msg: `This route needs at least ${minD} days, so cutting days won’t work. The cheapest option comes to ${fmt(cheapest)}.`, cta: `Cap ${kShort(need)}`, apply: () => this.setState({ cap: need }) }; }
+    } else {
+      const up = opts.filter(o => fitsS(o) && o.total > total + 1000);
+      if (up.length && s.cap - total > s.cap * .15) { const o = up[up.length - 1]; tip = { show: true, ...good, title: `${fmt(s.cap - total)} to spare`, msg: `Upgrade to ${o.name} (${VEH[o.vehicle].short}, ${TIERS[o.tier].label.toLowerCase()} stays) for ${fmt(o.total)}.`, cta: 'Upgrade', apply: applyCfg(o) }; }
+    }
+    const canNext = s.step === 0 ? !!s.origin : s.step === 1 ? !!s.mode : true;
+    const chip = on => ({ bg: on ? 'linear-gradient(135deg,#2EE59D,#19C2B8)' : 'rgba(255,255,255,.05)', fg: on ? '#04211C' : '#D6E3E0', border: on ? 'transparent' : 'rgba(255,255,255,.12)' });
+    const fitCount = s.mode === 'know' ? 0 : sug.list.filter(fitsS).length;
+    const obTitles = [
+      { title: 'Which city do you live in?', sub: 'Your trip starts here. Distance, fuel, tolls and travel time are calculated from it.' },
+      { title: 'Where do you want to go?', sub: `From ${s.origin || 'Islamabad'}. Pick a destination, or let SafarCo suggest one that fits your budget.` },
+      { title: 'How many days?', sub: 'Including travel days. Nights and driving legs are planned around it.' },
+      { title: 'What’s your budget?', sub: 'Total for the whole group: fuel, tolls, stays and food.' },
+      s.mode === 'know' ? { title: `Your ${D(s.dest).label} options`, sub: 'Move the budget and the options re-rank instantly.' } : { title: 'Trips that fit your budget', sub: 'Move the budget and the suggestions update instantly.' }];
+    return {
+      sceneRef: this.sceneRef, destRef: this.destRef, hubRef: this.hubRef, chatRef: this.chatRef, orb: this.orb,
+      onPD: e => { this.S.drag = { x: e.clientX, az: this.S.dragAz }; },
+      onPM: e => { const d = this.S.drag; if (d) this.S.dragAz = Math.max(-1.1, Math.min(1.1, d.az - (e.clientX - d.x) * .008)); },
+      onPU: () => { this.S.drag = null; },
+      onScroll: e => { const st = e.currentTarget.scrollTop, n = this.sceneRef.current; if (n) { n.style.transform = `translateY(${-st * .45}px)`; n.style.opacity = Math.max(0, 1 - st / 520); } },
+      isOnboard: s.screen === 'onboard', isApp: s.screen === 'app', isTrip: s.tab === 'trip', isOffline: s.tab === 'offline',
+      stepLabel: `${s.step + 1} / 5`,
+      stepBars: [0, 1, 2, 3, 4].map(i => ({ bg: i <= s.step ? 'linear-gradient(90deg,#2EE59D,#FFB547)' : 'rgba(255,255,255,.22)', glow: i <= s.step ? '0 0 12px rgba(46,229,157,.6)' : 'none' })),
+      ob: obTitles[s.step], c, gate, tip,
+      isOrigin: s.step === 0, isWhere: s.step === 1, isDays: s.step === 2, isBudget: s.step === 3, isSuggest: s.step === 4,
+      cityCount: CITIES.length, oq: s.oq, hasOq: !!s.oq,
+      onOq: e => this.setState({ oq: e.target.value }), clearOq: () => this.setState({ oq: '' }),
+      listLabel: s.oq ? 'Matching cities' : 'Popular cities',
+      cityRows: (() => { const q = s.oq.trim().toLowerCase();
+        let list = q ? CITIES.filter(c => c.n.toLowerCase().includes(q) || c.p.toLowerCase().includes(q)).sort((a, b) => (b.n.toLowerCase().startsWith(q) - a.n.toLowerCase().startsWith(q)) || a.n.localeCompare(b.n)).slice(0, 40) : POPULAR.map(n => CITY[n]);
+        if (s.origin && !q && !POPULAR.includes(s.origin)) list = [CITY[s.origin], ...list];
+        return list.map(c => { const on = s.origin === c.n; return { name: c.n, prov: c.p, onClick: () => this.setState({ origin: c.n, pickId: null, loc: s.loc === 'done' ? 'idle' : s.loc }),
+          bg: on ? 'rgba(46,229,157,.12)' : 'transparent', border: on ? 'rgba(46,229,157,.45)' : 'transparent', pinC: on ? '#2EE59D' : '#9FB8B4', checkOp: on ? 1 : 0 }; }); })(),
+      noCity: !!s.oq.trim() && !CITIES.some(c => c.n.toLowerCase().includes(s.oq.trim().toLowerCase()) || c.p.toLowerCase().includes(s.oq.trim().toLowerCase())),
+      spinner: this.spinner, isLocating: s.loc === 'locating', notLocating: s.loc !== 'locating', showPerm: s.loc === 'ask',
+      askLoc: () => s.loc !== 'locating' && this.setState({ loc: 'ask' }),
+      allowLoc: () => this.locate(), denyLoc: () => this.setState({ loc: 'denied' }),
+      locBtn: s.loc === 'done' && s.origin ? { title: `${s.origin}, ${CITY[s.origin].p}`, sub: s.locNote, icon: 'ph-navigation-arrow', tile: 'linear-gradient(135deg,#2EE59D,#0FA678)', border: 'rgba(46,229,157,.45)' }
+        : s.loc === 'locating' ? { title: 'Finding your location…', sub: 'Waiting for GPS', icon: 'ph-crosshair', tile: 'linear-gradient(135deg,#6FD3FF,#3B8DFF)', border: 'rgba(111,211,255,.45)' }
+        : s.loc === 'denied' ? { title: 'Location is off', sub: 'Tap to try again, or search below', icon: 'ph-map-pin-simple-slash', tile: 'linear-gradient(135deg,#FF8A6B,#FF4F7B)', border: 'rgba(255,107,91,.4)' }
+        : { title: 'Use my current location', sub: 'Finds your city automatically', icon: 'ph-crosshair', tile: 'linear-gradient(135deg,#6FD3FF,#3B8DFF)', border: 'rgba(255,255,255,.12)' },
+      modeOpts: MODES.map((o, i) => { const on = s.mode === o.id, g = GRADS[i === 0 ? 2 : 3]; return { ...o, onClick: () => this.setState({ mode: o.id, pickId: null, ...(o.id === 'know' ? { corridor: s.dest } : {}) }),
+        tile: `linear-gradient(135deg,${g[0]},${g[1]})`, glow: g[0],
+        bg: on ? `linear-gradient(#103033,#103033) padding-box, linear-gradient(135deg,${g[0]},${g[1]}) border-box` : 'linear-gradient(rgba(255,255,255,.05),rgba(255,255,255,.05)) padding-box, linear-gradient(rgba(255,255,255,.1),rgba(255,255,255,.1)) border-box',
+        transform: on ? 'translateZ(22px) rotateX(5deg)' : 'translateZ(0)', shadow: on ? `0 22px 40px -18px ${g[0]}` : 'none',
+        ringC: on ? g[0] : 'rgba(255,255,255,.22)', dotBg: on ? g[0] : 'transparent', checkOp: on ? 1 : 0 }; }),
+      showDest: s.mode === 'know',
+      destChips: Object.entries(CORR).map(([k, v]) => { const on = s.dest === k; return { name: v.label, meta: `${trip(k, s.origin, capOf(s)).kmStr} km road · ${Math.round(trip(k, s.origin, capOf(s)).hours)} h`, onClick: () => this.setState({ dest: k, corridor: k, pickId: null }),
+        bg: on ? 'linear-gradient(135deg,#FFB547,#FF7A3D)' : 'rgba(255,255,255,.05)', fg: on ? '#2A1500' : '#F2F7F5', border: on ? 'transparent' : 'rgba(255,255,255,.12)', shadow: on ? '0 12px 24px -10px rgba(255,150,60,.8)' : 'none' }; }),
+      dayHint: (() => { const o = s.origin || 'Islamabad';
+        if (s.mode === 'know') { const t = trip(s.dest, o, capOf(s)), bad = s.days < t.minDays;
+          return { text: `${o} → ${D(s.dest).label}: ${t.kmStr} km by road, about ${Math.round(t.hours)} h each way. ${bad ? `You need at least ${t.minDays} days.` : `Plan: ${t.legDays} driving day${t.legDays > 1 ? 's' : ''} each way.`}`, icon: bad ? 'ph-calendar-x' : 'ph-path', tile: bad ? 'linear-gradient(135deg,#FF8A6B,#FF4F7B)' : 'linear-gradient(135deg,#2EE59D,#0FA678)', bg: bad ? 'rgba(255,107,91,.12)' : 'rgba(46,229,157,.1)', border: bad ? 'rgba(255,107,91,.4)' : 'rgba(46,229,157,.3)' }; }
+        const ok = Object.keys(CORR).filter(k => s.days >= trip(k, o, capOf(s)).minDays).length;
+        return { text: `${ok} of 4 northern destinations are reachable from ${o} in ${s.days} days, driving up to ${capOf(s)} h a day.`, icon: 'ph-path', tile: ok ? 'linear-gradient(135deg,#2EE59D,#0FA678)' : 'linear-gradient(135deg,#FF8A6B,#FF4F7B)', bg: ok ? 'rgba(46,229,157,.1)' : 'rgba(255,107,91,.12)', border: ok ? 'rgba(46,229,157,.3)' : 'rgba(255,107,91,.4)' }; })(),
+      daysVal: s.days, nightsLabel: `days · ${nights} night${nights > 1 ? 's' : ''}`,
+      decDays: () => this.setState({ days: Math.max(2, s.days - 1) }), incDays: () => this.setState({ days: Math.min(14, s.days + 1) }),
+      dayPresets: [3, 5, 7, 10].map(d => ({ label: `${d} days`, onClick: () => this.setState({ days: d }), ...chip(s.days === d) })),
+      groupVal: s.groupSize, decGroup: () => this.setState({ groupSize: Math.max(1, s.groupSize - 1) }), incGroup: () => this.setState({ groupSize: Math.min(12, s.groupSize + 1) }),
+      cap: s.cap, capBig: fmtN(s.cap), capPer: `${fmt(s.cap / s.groupSize)} per person · ${s.days} days`,
+      tripMeta: `${s.groupSize} traveller${s.groupSize > 1 ? 's' : ''} · ${s.days} days`,
+      sliderPct: (s.cap - 20000) / 480000 * 100,
+      onCap: e => this.setState({ cap: +e.target.value, pickId: null }),
+      capPresets: [50000, 100000, 200000, 350000].map(v => ({ label: `${v / 1000}k`, onClick: () => this.setState({ cap: v, pickId: null }), ...chip(s.cap === v) })),
+      budgetHint: s.mode === 'know'
+        ? (sug.list.find(x => x.best) ? `Best fit for ${D(s.dest).label}: ${sug.list.find(x => x.best).name}, ${fmt(sug.list.find(x => x.best).total)}.` : `${D(s.dest).label} starts at ${fmt(sug.list[sug.list.length - 1].total)} for this group.`)
+        : (fitCount ? `${fitCount} of ${sug.list.length} destinations fit this budget.` : 'Nothing fits yet. Raise the budget or shorten the trip.'),
+      sugg: sug.list.map(g => { const on = g.key === sug.sel.key, fits = fitsS(g);
+        return { title: s.mode === 'know' ? g.name : D(g.corridor).label, sub: s.mode === 'know' ? `${VEH[g.vehicle].short} · ${TIERS[g.tier].label} stays` : `${g.name} · ${VEH[g.vehicle].short}${g.name === TIERS[g.tier].label ? '' : ` · ${TIERS[g.tier].label} stays`}`,
+          icon: VEH[g.vehicle].icon, tile: TIER_G[g.tier], amount: fmt(g.total), best: g.best,
+          fitLabel: !g.ok ? (g.why || `Needs ${g.minDays}+ days`) : fits ? `${kShort(s.cap - g.total)} left` : `+${kShort(g.total - s.cap)}`, fitFg: fits ? '#2EE59D' : '#FF8A6B', fitBg: fits ? 'rgba(46,229,157,.14)' : 'rgba(255,107,91,.16)',
+          bg: on ? 'linear-gradient(#103033,#103033) padding-box, linear-gradient(135deg,#2EE59D,#FFB547) border-box' : 'linear-gradient(rgba(255,255,255,.05),rgba(255,255,255,.05)) padding-box, linear-gradient(rgba(255,255,255,.1),rgba(255,255,255,.1)) border-box',
+          transform: on ? 'translateZ(18px) rotateX(4deg)' : 'translateZ(0)', shadow: on ? '0 22px 40px -18px rgba(46,229,157,.7)' : 'none', op: fits || on ? 1 : .62,
+          onClick: () => this.setState({ pickId: g.key, corridor: g.corridor }) }; }),
+      canBack: s.step > 0, nextOp: canNext ? 1 : .45,
+      back: () => this.setState({ step: s.step - 1 }),
+      next: () => { if (!canNext) return; if (s.step < 4) this.setState({ step: s.step + 1, pickId: null }); else { const g = sug.sel; this.setState({ screen: 'app', tab: 'trip', corridor: g.corridor, vehicle: g.vehicle, tier: g.tier }); } },
+      nextLabel: s.step < 4 ? 'Continue' : 'Build this trip',
+      restart: () => this.setState({ screen: 'onboard', step: 0, drawer: false, settings: false }),
+      corridorChips: Object.entries(CORR).filter(([k, v]) => v.hub === undefined || s.corridor === k).map(([k, v]) => { const on = s.corridor === k;
+        return { label: v.label, onClick: () => this.setState({ corridor: k }), bg: on ? 'linear-gradient(135deg,#2EE59D,#19C2B8)' : 'rgba(10,30,34,.45)', fg: on ? '#04211C' : '#fff', border: on ? 'transparent' : 'rgba(255,255,255,.2)', shadow: on ? '0 10px 24px -10px rgba(46,229,157,.8)' : 'none' }; }),
+      budgetShadow: ring('budget'), alertShadow: s.flash === 'alert' ? '0 0 0 2px #9B7BFF, 0 0 40px -6px rgba(155,123,255,.7)' : 'none',
+      hasAiAlert: !!s.aiAlert, aiAlert: s.aiAlert || {}, dismissAlert: () => this.setState({ aiAlert: null }),
+      health, capPct: Math.round(pct * 100), totalNum: fmtN(total), perPersonStr: fmt(total / s.groupSize), capStr: fmt(s.cap),
+      barPct: Math.min(pct, 1) * 100,
+      plan: (() => { const p = buildPlan(s), K = { drive: ['linear-gradient(135deg,#2EE59D,#0FA678)', 'Drive'], explore: ['linear-gradient(135deg,#9B7BFF,#5B6CFF)', 'Explore'], return: ['linear-gradient(135deg,#FFB547,#FF7A3D)', 'Return'], fly: ['linear-gradient(135deg,#6FD3FF,#3B8DFF)', 'Fly'] };
+        return { summary: `${p.total} days · ${p.total - 1} nights`, via: p.air ? `Flights ${p.air.dep} ⇄ ${p.air.arr} · car and driver at the destination` : `${c.kmStr} km each way by road · ${c.via}${capOf(s) < MAX_DRIVE_H ? ` · max ${capOf(s)} h driving a day` : ''}`,
+          days: p.days.map((d, i) => ({ ...d, stops: (d.stops || []).map(t => ({ ...t, icon: STOP_KIND[t.kind][0], color: STOP_KIND[t.kind][1], hasNote: !!t.note })), hasStops: !!(d.stops && d.stops.length), tile: K[d.kind][0], kindLabel: K[d.kind][1], hasNote: !!d.note, hasStay: !!d.stay, stay: d.stay || {}, hasAlts: !!(d.stay && d.stay.alts), lineOp: i === p.days.length - 1 ? 0 : 1 })) }; })(),
+      rows: rows.map(r => ({ ...r, amount: fmtN(r.val), color: CAT[r.label] || '#6FD3FF', grad: `linear-gradient(135deg,${CAT[r.label] || '#6FD3FF'},${CAT2[r.label] || '#3B8DFF'})` })),
+      vehChips: Object.entries(VEH).map(([k, v]) => { const on = s.vehicle === k, off = k === 'air' && !air; return { icon: v.icon, label: v.short, full: v.label, onClick: () => !off && this.setState({ vehicle: k }), op: off ? .35 : 1,
+        bg: on ? 'linear-gradient(135deg,#FFB547,#FF7A3D)' : 'rgba(255,255,255,.05)', fg: on ? '#2A1500' : '#D6E3E0', border: on ? 'transparent' : 'rgba(255,255,255,.1)', shadow: on ? '0 12px 24px -10px rgba(255,150,60,.8)' : 'none' }; }),
+      people: [['adults', 'Adults', '13–59 years', 'ph-user', '#2EE59D'], ['kids', 'Kids', 'Under 12 · lower fares and meals', 'ph-baby', '#FFB547'], ['elders', 'Elders', '60+ · altitude care on high passes', 'ph-person-simple-walk', '#FF8A6B']]
+        .map(([k, label, sub, icon, color]) => ({ label, sub, icon, color, value: `${s[k]}`, dec: () => this.setPeople(k, -1), inc: () => this.setPeople(k, 1) })),
+      roomOpts: [['separate', 'Separate rooms', 'Doubles · kids share'], ['shared', 'Family rooms', 'Up to 4 · 1.5× rate']].map(([k, label, sub]) => { const on = s.rooms === k; return { label, sub, onClick: () => this.setState({ rooms: k, pickId: null }),
+        bg: on ? 'linear-gradient(135deg,#2EE59D,#19C2B8)' : 'rgba(255,255,255,.05)', fg: on ? '#04211C' : '#F2F7F5', border: on ? 'transparent' : 'rgba(255,255,255,.12)' }; }),
+      hasFamilyNote: s.vehicle === 'bike' && !!(s.kids || s.elders),
+      familyNote: 'A motorbike isn’t advised with kids or elders.',
+      rates: [
+        ...(s.vehicle === 'rentcar' ? [['ph-steering-wheel', 'Rent a car + driver', 'Corolla / City · 4 seats · + PKR 2,000 driver · fuel extra', 'PKR 12,000/day']] : []),
+        ...(s.vehicle === 'rent4x4' ? [['ph-jeep', 'Rent a 4x4 + driver', 'Prado / Land Cruiser · 6 seats · + PKR 2,500 driver · fuel extra', 'PKR 35,000/day']] : []),
+        ...(s.vehicle === 'coaster' ? [['ph-van', 'Rent a coaster + driver', '22 seats · + PKR 3,000 driver · diesel extra', 'PKR 35,000/day']] : []),
+        ...(s.vehicle === 'public' ? [['ph-bus', `Coach ${c.from} → ${c.to}`, 'One way per adult · kids half fare', fmt(Math.round((c.flatKm * 6.5 + c.mtnKm * 9) / 100) * 100)]] : []),
+        ...(s.vehicle === 'air' && air ? [['ph-airplane-tilt', `Flight ${air.dep} → ${air.arr}`, 'One way per adult · kids 75% · weather-dependent', fmt(air.fare)], ['ph-steering-wheel', 'Car + driver at destination', 'Fuel included', 'PKR 15,000/day']] : []),
+        ...(c.hub !== undefined && s.vehicle !== 'suv' && s.vehicle !== 'rent4x4' ? [['ph-jeep', 'Jeep Raikot Bridge ⇄ Tato', 'Return, per jeep, 5 seats', 'PKR 8–10k']] : [])
+      ].map(([icon, label, sub, amount]) => ({ icon, label, sub, amount })),
+      hasJeeps: (JEEPS[s.corridor] || []).length > 0,
+      ...(() => { const hr = s.vehicle === 'rentcar' || s.vehicle === 'rent4x4' || s.vehicle === 'coaster' || s.vehicle === 'public' || (s.vehicle === 'air' && !!air) || (c.hub !== undefined && s.vehicle !== 'suv' && s.vehicle !== 'rent4x4'); return { jeepGap: hr ? '24px' : '0px', showRatesCard: hr || (JEEPS[s.corridor] || []).length > 0 }; })(),
+      hasRates: s.vehicle === 'rentcar' || s.vehicle === 'rent4x4' || s.vehicle === 'coaster' || s.vehicle === 'public' || (s.vehicle === 'air' && !!air) || (c.hub !== undefined && s.vehicle !== 'suv' && s.vehicle !== 'rent4x4'),
+
+      jeeps: (JEEPS[s.corridor] || []).map(([id, label, sub, rate]) => { const on = (s.addons || []).includes(id), n = jeepsFor(P);
+        return { label, sub: `${sub} · ${fmt(rate)} per jeep${n > 1 ? ` × ${n}` : ''}`, cta: on ? 'Added' : '+ Add', toggle: () => this.setState({ addons: on ? s.addons.filter(x => x !== id) : [...(s.addons || []), id] }),
+          bg: on ? 'linear-gradient(135deg,#2EE59D,#19C2B8)' : 'rgba(255,255,255,.06)', fg: on ? '#04211C' : '#F2F7F5', border: on ? '0' : '1px solid rgba(255,255,255,.14)' }; }),
+      tierChips: Object.entries(TIERS).map(([k, t]) => { const on = s.tier === k; return { label: t.label, onClick: () => this.setState({ tier: k }), bg: on ? 'rgba(255,255,255,.14)' : 'transparent', fg: on ? '#fff' : '#9FB8B4' }; }),
+      steppers: [
+        { label: 'Adults', value: `${s.adults}`, dec: () => this.setPeople('adults', -1), inc: () => this.setPeople('adults', 1) },
+        { label: 'Kids (under 12)', value: `${s.kids}`, dec: () => this.setPeople('kids', -1), inc: () => this.setPeople('kids', 1) },
+        { label: 'Elders (60+)', value: `${s.elders}`, dec: () => this.setPeople('elders', -1), inc: () => this.setPeople('elders', 1) },
+        { label: 'Days', value: `${s.days}`, dec: () => this.setState({ days: Math.max(2, s.days - 1) }), inc: () => this.setState({ days: Math.min(14, s.days + 1) }) },
+        { label: 'Budget cap', value: `${Math.round(s.cap / 1000)}k`, dec: () => this.setState({ cap: Math.max(40000, s.cap - 10000) }), inc: () => this.setState({ cap: s.cap + 10000 }) }
+      ],
+      off,
+      toggleOffline: () => s.offline === 'ready' ? this.setState({ offline: 'off', progress: 0 }) : s.offline === 'off' ? this.startDownload() : null,
+      helplines: [['1122', 'Rescue'], ['15', 'Police'], ['130', 'Motorway Police'], ['115', 'Edhi Ambulance']].map(([num, label]) => ({ num, label, href: `tel:${num}` })),
+      hotels: c.hotels.map(([name, tier, note]) => ({ name, tier, note, tierC: tierC[tier], grad: tierG[tier], href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name).replace(/%20/g, '+')}` })),
+      tabs: [['trip', 'ph-mountains', 'Trip'], ['offline', 'ph-cloud-slash', 'Offline']].map(([k, icon, label]) => { const on = s.tab === k;
+        return { icon, label, bg: on ? 'linear-gradient(135deg,rgba(46,229,157,.22),rgba(25,194,184,.12))' : 'transparent', fg: on ? '#2EE59D' : '#9FB8B4', onClick: () => this.setState({ tab: k }) }; }),
+      hasToast: !!s.toast, toast: s.toast,
+      pillA: s.vehicle === 'air' && air ? `${air.dep} ⇄ ${air.arr} by air` : `${c.kmStr} km by road`,
+      pillB: s.vehicle === 'air' && air ? `~1 h flight${air.pp ? ' + coach to airport' : ''}` : c.hrs,
+      pillIcon: s.vehicle === 'air' && air ? 'ph-airplane-tilt' : 'ph-path',
+      openSettings: () => this.setState({ settings: true, drawer: false }), closeSettings: () => this.setState({ settings: false }),
+      setY: s.settings ? 'translateY(0)' : 'translateY(105%)', setOp: s.settings ? 1 : 0, setPe: s.settings ? 'auto' : 'none',
+      tripSummary: [`${s.adults} adult${s.adults > 1 ? 's' : ''}`, s.kids ? `${s.kids} kid${s.kids > 1 ? 's' : ''}` : '', s.elders ? `${s.elders} elder${s.elders > 1 ? 's' : ''}` : '', VEH[s.vehicle].short, TIERS[s.tier].label, `${s.days} days`].filter(Boolean).join(' · '),
+      openDrawer: () => this.setState({ drawer: true, settings: false }), closeDrawer: () => this.setState({ drawer: false }),
+      drawerY: s.drawer ? 'translateY(0)' : 'translateY(105%)', backdropOp: s.drawer ? 1 : 0, backdropPe: s.drawer ? 'auto' : 'none',
+      copilotStatus: s.busy ? 'Acting on your trip…' : 'Controls route, budget and alerts', busy: s.busy,
+      msgView: s.msgs.map(m => ({ ...m, isUser: m.role === 'user', isAi: m.role === 'ai', shown: m.role === 'ai' ? m.text.slice(0, m.typed) : m.text,
+        calls: (m.calls || []).map(k => ({ ...k, bg: k.status === 'running' ? 'rgba(255,181,71,.18)' : 'rgba(46,229,157,.18)', fg: k.status === 'running' ? '#FFB547' : '#2EE59D' })) })),
+      suggestions: Object.entries(SCRIPTS).map(([k, v]) => ({ prompt: v.prompt, onClick: () => this.run(k) })),
+      input: s.input, sendIcon: s.input ? 'ph-paper-plane-right' : 'ph-microphone',
+      onInput: e => this.setState({ input: e.target.value }),
+      onKey: e => { if (e.key === 'Enter') this.sendText(); },
+      send: () => this.sendText()
+    };
+  }
+  sendText() {
+    const t = this.state.input.trim().toLowerCase();
+    if (!t) { this.run('fairy'); return; }
+    const key = /fairy|jeep|meadow|raikot/.test(t) ? 'fairy' : /friend|group|backpack|people|log/.test(t) ? 'friends' : /weather|babusar|snow|pass|mausam/.test(t) ? 'weather' : null;
+    this.run(key, this.state.input.trim());
+  }
+}
+</script>
+</body>
+</html>

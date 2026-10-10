@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<style>body{margin:0;background:radial-gradient(120% 90% at 50% 0%,#14363A 0%,#071214 70%);font-family:'Plus Jakarta Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh}a{color:#2EE59D}a:hover{color:#7DF5C4}button,input{font-family:inherit}*::-webkit-scrollbar{width:0;height:0}@keyframes spin{to{transform:rotate(360deg)}}</style>
+</helmet>
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px;box-sizing:border-box">
+<div style="width:404px;height:864px;flex:none;border-radius:60px;padding:12px;box-sizing:border-box;background:linear-gradient(145deg,#3A4A4E,#0D1314 45%,#2A3538);box-shadow:0 60px 120px -40px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.08) inset,0 0 80px -20px rgba(46,229,157,.25)">
+<div data-screen-label="SafarCo phone" style="position:relative;width:380px;height:840px;border-radius:48px;overflow:hidden;background:#071A1C;color:#F2F7F5">
+
+<div ref="{{ sceneRef }}" onPointerDown="{{ onPD }}" onPointerMove="{{ onPM }}" onPointerUp="{{ onPU }}" onPointerLeave="{{ onPU }}" style="position:absolute;left:0;top:0;width:380px;height:440px;z-index:0;touch-action:none;cursor:grab;background:linear-gradient(180deg,#0B1E3A 0%,#24427A 34%,#B76E8A 62%,#F2A473 80%,#FFD39A 100%);will-change:transform,opacity">
+<div style="position:absolute;right:46px;top:250px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(255,236,190,.95) 0%,rgba(255,196,130,.55) 30%,rgba(255,170,110,0) 70%)"></div>
+<div ref="{{ destRef }}" style="position:absolute;left:0;top:0;z-index:3;opacity:0;pointer-events:none;transition:opacity .4s">
+<div style="display:flex;align-items:center;gap:6px;padding:7px 11px 7px 8px;border-radius:14px;background:rgba(10,24,30,.62);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.18);font-size:12px;font-weight:700;white-space:nowrap;box-shadow:0 10px 24px -8px rgba(0,0,0,.5)"><span style="width:18px;height:18px;border-radius:6px;background:linear-gradient(135deg,#FF8A6B,#FF4F7B);display:flex;align-items:center;justify-content:center;font-size:11px"><i class="ph-fill ph-flag-banner"></i></span>{{ c.peakLabel }}</div>
+</div>
+<div ref="{{ hubRef }}" style="position:absolute;left:0;top:0;z-index:3;opacity:0;pointer-events:none;transition:opacity .4s">
+<div style="display:flex;align-items:center;gap:6px;padding:7px 11px 7px 8px;border-radius:14px;background:linear-gradient(135deg,#FFB547,#FF8A3D);color:#2A1500;font-size:12px;font-weight:800;white-space:nowrap;box-shadow:0 10px 24px -6px rgba(255,150,60,.7)"><i class="ph-fill ph-local-parking" style="font-size:15px"></i>Raikot Bridge · park here</div>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:0;height:200px;background:linear-gradient(180deg,rgba(7,26,28,0) 0%,rgba(7,26,28,.75) 55%,#071A1C 100%);pointer-events:none;z-index:2"></div>
+</div>
+
+<div style="position:absolute;top:0;left:0;right:0;height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 30px;z-index:40;font-size:15px;font-weight:700;color:#fff;pointer-events:none">
+<span>9:41</span>
+<div style="position:absolute;left:50%;top:11px;width:118px;height:32px;margin-left:-59px;border-radius:20px;background:#000"></div>
+<div style="display:flex;gap:5px;font-size:16px"><i class="ph-fill ph-cell-signal-high"></i><i class="ph-fill ph-wifi-high"></i><i class="ph-fill ph-battery-full"></i></div>
+</div>
+
+<sc-if value="{{ isOnboard }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="Onboarding quiz" style="position:absolute;inset:0;z-index:5;pointer-events:none">
+<div style="position:absolute;left:24px;right:24px;top:58px;display:flex;align-items:center;justify-content:space-between">
+<div style="font-family:Unbounded,sans-serif;font-weight:700;font-size:22px;letter-spacing:-.02em;text-shadow:0 2px 16px rgba(0,0,0,.35)">Safar<span style="background:linear-gradient(90deg,#FFB547,#FF6B5B);-webkit-background-clip:text;background-clip:text;color:transparent">Co</span></div>
+<div style="padding:6px 11px;border-radius:12px;background:rgba(255,255,255,.14);backdrop-filter:blur(10px);font-size:12px;font-weight:700">{{ stepLabel }}</div>
+</div>
+<div style="position:absolute;left:24px;right:24px;top:100px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
+<sc-for list="{{ stepBars }}" as="b" hint-placeholder-count="4"><div style="height:4px;border-radius:2px;background:{{ b.bg }};box-shadow:{{ b.glow }};transition:all .4s"></div></sc-for>
+</div>
+<div style="position:absolute;left:0;right:0;top:262px;bottom:0;padding:26px 22px 30px;display:flex;flex-direction:column;pointer-events:auto;background:linear-gradient(180deg,rgba(7,26,28,0) 0,#071A1C 44px)">
+<div style="font-family:Unbounded,sans-serif;font-weight:600;font-size:24px;line-height:1.2;letter-spacing:-.02em;text-wrap:pretty">{{ q.q }}</div>
+<div style="font-size:14px;color:#9FB8B4;margin-top:8px;font-weight:500;line-height:1.4">{{ q.effect }}</div>
+<div style="display:flex;flex-direction:column;gap:10px;margin-top:18px;perspective:900px">
+<sc-for list="{{ opts }}" as="o" hint-placeholder-count="4">
+<button onClick="{{ o.onClick }}" style="display:flex;align-items:center;gap:14px;min-height:64px;padding:10px 14px;border-radius:22px;border:1.5px solid transparent;background:{{ o.bg }};text-align:left;cursor:pointer;color:#F2F7F5;transform:{{ o.transform }};box-shadow:{{ o.shadow }};transition:all .4s cubic-bezier(.2,.8,.2,1)">
+<div style="width:44px;height:44px;flex:none;border-radius:15px;display:flex;align-items:center;justify-content:center;background:{{ o.tile }};color:#fff;font-size:23px;box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 -3px 0 rgba(0,0,0,.18),0 8px 18px -8px {{ o.glow }}"><i class="ph-fill {{ o.icon }}"></i></div>
+<div style="flex:1;min-width:0"><div style="font-size:16px;font-weight:700">{{ o.label }}</div><div style="font-size:13px;color:#9FB8B4;margin-top:2px;font-weight:500">{{ o.sub }}</div></div>
+<div style="width:24px;height:24px;flex:none;border-radius:50%;border:2px solid {{ o.ringC }};display:flex;align-items:center;justify-content:center;background:{{ o.dotBg }};color:#04211C;font-size:13px;transition:all .3s"><i class="ph-bold ph-check" style="opacity:{{ o.checkOp }}"></i></div>
+</button>
+</sc-for>
+</div>
+<div style="flex:1"></div>
+<div style="display:flex;gap:10px">
+<sc-if value="{{ canBack }}" hint-placeholder-val="{{ false }}"><button onClick="{{ back }}" aria-label="Back" style="width:58px;height:58px;border-radius:20px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#fff;font-size:20px;cursor:pointer"><i class="ph-bold ph-arrow-left"></i></button></sc-if>
+<button onClick="{{ next }}" style="flex:1;height:58px;border-radius:20px;border:0;background:linear-gradient(135deg,#2EE59D 0%,#19C2B8 100%);color:#04211C;font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 18px 36px -14px rgba(46,229,157,.75),inset 0 1px 0 rgba(255,255,255,.5)" style-active="transform:scale(.98)">{{ nextLabel }}<i class="ph-bold ph-arrow-right"></i></button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isApp }}" hint-placeholder-val="{{ false }}">
+<div onScroll="{{ onScroll }}" style="position:absolute;inset:0;z-index:5;overflow-y:auto;scrollbar-width:none;pointer-events:none">
+
+<sc-if value="{{ isTrip }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="Trip builder">
+<div style="height:318px;position:relative;pointer-events:none">
+<div style="position:absolute;left:22px;right:22px;top:58px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+<div style="text-shadow:0 2px 18px rgba(0,0,0,.4);min-width:0">
+<div style="font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#FFD39A">{{ c.region }}</div>
+<div style="font-family:Unbounded,sans-serif;font-weight:600;font-size:23px;letter-spacing:-.02em;line-height:1.15;margin-top:6px">{{ c.from }} → {{ c.to }}</div>
+<div style="display:flex;gap:6px;margin-top:10px">
+<span style="padding:5px 10px;border-radius:10px;background:rgba(255,255,255,.16);backdrop-filter:blur(10px);font-size:12px;font-weight:700;display:flex;align-items:center;gap:5px"><i class="ph-fill ph-path"></i>{{ c.km }} km</span>
+<span style="padding:5px 10px;border-radius:10px;background:rgba(255,255,255,.16);backdrop-filter:blur(10px);font-size:12px;font-weight:700;display:flex;align-items:center;gap:5px"><i class="ph-fill ph-clock"></i>{{ c.hrs }}</span>
+</div>
+</div>
+<button onClick="{{ restart }}" aria-label="Retake quiz" style="pointer-events:auto;flex:none;width:44px;height:44px;border-radius:15px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.14);backdrop-filter:blur(12px);color:#fff;font-size:19px;cursor:pointer"><i class="ph-fill ph-sliders-horizontal"></i></button>
+</div>
+<div style="position:absolute;left:0;right:0;bottom:4px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:4px 22px 8px;pointer-events:auto">
+<sc-for list="{{ corridorChips }}" as="c" hint-placeholder-count="3"><button onClick="{{ c.onClick }}" style="flex:none;height:40px;padding:0 15px;border-radius:14px;border:1px solid {{ c.border }};background:{{ c.bg }};color:{{ c.fg }};backdrop-filter:blur(12px);font-size:13px;font-weight:800;cursor:pointer;box-shadow:{{ c.shadow }};transition:all .25s">{{ c.label }}</button></sc-for>
+</div>
+</div>
+
+<div style="padding:4px 16px 150px;display:flex;flex-direction:column;gap:14px;pointer-events:auto;background:#071A1C">
+<sc-if value="{{ gate.show }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:12px;padding:14px;border-radius:24px;background:{{ gate.bg }};border:1px solid {{ gate.border }}">
+<div style="width:42px;height:42px;flex:none;border-radius:14px;background:{{ gate.tile }};display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.4)"><i class="ph-fill {{ gate.icon }}"></i></div>
+<div><div style="font-size:15px;font-weight:800;line-height:1.3">{{ gate.title }}</div><div style="font-size:13px;color:#D6E3E0;margin-top:4px;line-height:1.45;font-weight:500">{{ gate.msg }}</div></div>
+</div>
+</sc-if>
+<sc-if value="{{ hasAiAlert }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:12px;padding:14px;border-radius:24px;background:linear-gradient(135deg,rgba(155,123,255,.26),rgba(111,211,255,.1));border:1px solid rgba(155,123,255,.45);box-shadow:{{ alertShadow }};transition:box-shadow .4s">
+<div style="width:42px;height:42px;flex:none;border-radius:14px;background:linear-gradient(135deg,#9B7BFF,#6FD3FF);display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff"><i class="ph-fill ph-cloud-snow"></i></div>
+<div style="flex:1"><div style="font-size:15px;font-weight:800;line-height:1.3">{{ aiAlert.title }}</div><div style="font-size:13px;color:#D6E3E0;margin-top:4px;line-height:1.45;font-weight:500">{{ aiAlert.message }}</div></div>
+<button onClick="{{ dismissAlert }}" aria-label="Dismiss" style="width:44px;height:44px;margin:-10px -10px 0 0;border:0;background:none;color:#D6E3E0;font-size:18px;cursor:pointer"><i class="ph-bold ph-x"></i></button>
+</div>
+</sc-if>
+
+<div style="border-radius:30px;padding:20px;background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.1);box-shadow:{{ budgetShadow }};transition:box-shadow .4s">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<div style="font-size:14px;font-weight:700;color:#9FB8B4">Projected budget</div>
+<div style="display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:11px;background:{{ health.bg }};color:{{ health.fg }};font-size:12px;font-weight:800"><span style="width:7px;height:7px;border-radius:50%;background:{{ health.fg }};box-shadow:0 0 10px {{ health.fg }}"></span>{{ health.label }}</div>
+</div>
+<div style="display:flex;align-items:baseline;gap:8px;margin-top:8px">
+<span style="font-size:15px;font-weight:800;color:#9FB8B4">PKR</span>
+<span style="font-family:Unbounded,sans-serif;font-weight:600;font-size:38px;letter-spacing:-.03em;font-variant-numeric:tabular-nums;background:linear-gradient(180deg,#FFFFFF,#BFEFE0);-webkit-background-clip:text;background-clip:text;color:transparent">{{ totalNum }}</span>
+</div>
+<div style="font-size:13px;color:#9FB8B4;font-weight:600;font-variant-numeric:tabular-nums">{{ perPersonStr }} per person · {{ capPct }}% of {{ capStr }} cap</div>
+
+<div style="position:relative;height:190px;margin:6px 0 6px;perspective:620px;display:flex;justify-content:center;align-items:center">
+<div style="position:absolute;top:50%;margin-top:-110px;width:220px;height:220px;transform-style:preserve-3d;transform:rotateX(62deg) rotateZ(-28deg)">
+<sc-for list="{{ ringLayers }}" as="l" hint-placeholder-count="10"><div style="position:absolute;inset:0;border-radius:50%;background:{{ ringBg }};-webkit-mask:radial-gradient(circle,transparent 0 55%,#000 56%);mask:radial-gradient(circle,transparent 0 55%,#000 56%);transform:translateZ({{ l.z }}px);filter:{{ l.f }}"></div></sc-for>
+<div style="position:absolute;inset:-14px;border-radius:50%;background:radial-gradient(circle,rgba(46,229,157,.18),transparent 65%);transform:translateZ(-20px)"></div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:12px;margin-top:4px">
+<sc-for list="{{ rows }}" as="r" hint-placeholder-count="5">
+<div style="display:flex;align-items:center;gap:12px">
+<div style="width:40px;height:40px;flex:none;border-radius:13px;background:{{ r.grad }};display:flex;align-items:center;justify-content:center;font-size:19px;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 8px 16px -8px {{ r.color }}"><i class="ph-fill {{ r.icon }}"></i></div>
+<div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:700">{{ r.label }}</div><div style="font-size:12px;color:#9FB8B4;font-weight:500;margin-top:1px;font-variant-numeric:tabular-nums">{{ r.detail }}</div></div>
+<div style="font-size:14px;font-weight:800;font-variant-numeric:tabular-nums">{{ r.amount }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="border-radius:30px;padding:20px;background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.1);display:flex;flex-direction:column;gap:16px">
+<div style="font-size:14px;font-weight:700;color:#9FB8B4">Trip settings</div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+<sc-for list="{{ vehChips }}" as="v" hint-placeholder-count="4"><button onClick="{{ v.onClick }}" title="{{ v.label }}" aria-label="{{ v.label }}" style="height:54px;border-radius:17px;border:1px solid {{ v.border }};background:{{ v.bg }};color:{{ v.fg }};font-size:24px;cursor:pointer;box-shadow:{{ v.shadow }};transition:all .25s"><i class="ph-fill {{ v.icon }}"></i></button></sc-for>
+</div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;border-radius:17px;background:rgba(0,0,0,.25)">
+<sc-for list="{{ tierChips }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.onClick }}" style="height:44px;border-radius:13px;border:0;background:{{ t.bg }};color:{{ t.fg }};font-size:13px;font-weight:800;cursor:pointer;transition:all .25s">{{ t.label }}</button></sc-for>
+</div>
+<sc-for list="{{ steppers }}" as="s" hint-placeholder-count="3">
+<div style="display:flex;align-items:center;justify-content:space-between">
+<div style="font-size:15px;font-weight:700">{{ s.label }}</div>
+<div style="display:flex;align-items:center;gap:10px">
+<button onClick="{{ s.dec }}" aria-label="Decrease" style="width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#fff;cursor:pointer;font-size:15px"><i class="ph-bold ph-minus"></i></button>
+<div style="min-width:52px;text-align:center;font-family:Unbounded,sans-serif;font-size:16px;font-weight:600;font-variant-numeric:tabular-nums">{{ s.value }}</div>
+<button onClick="{{ s.inc }}" aria-label="Increase" style="width:44px;height:44px;border-radius:50%;border:0;background:linear-gradient(135deg,#2EE59D,#19C2B8);color:#04211C;cursor:pointer;font-size:15px"><i class="ph-bold ph-plus"></i></button>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isOffline }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Offline mode">
+<div style="height:250px;position:relative;pointer-events:none">
+<div style="position:absolute;left:22px;right:22px;top:58px;text-shadow:0 2px 18px rgba(0,0,0,.4)">
+<div style="font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#FFD39A">{{ c.from }} → {{ c.to }}</div>
+<div style="font-family:Unbounded,sans-serif;font-weight:600;font-size:26px;letter-spacing:-.02em;margin-top:6px">Offline survival</div>
+</div>
+</div>
+<div style="padding:4px 16px 150px;display:flex;flex-direction:column;gap:14px;pointer-events:auto;background:#071A1C">
+<div style="border-radius:30px;padding:22px;background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.1);display:flex;flex-direction:column;align-items:center;text-align:center">
+<div style="position:relative;width:148px;height:148px;border-radius:50%;background:{{ off.ring }};box-shadow:0 0 50px -10px {{ off.glow }};display:flex;align-items:center;justify-content:center">
+<div style="width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#16393B,#0A2022);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;box-shadow:inset 0 2px 0 rgba(255,255,255,.08)">
+<i class="ph-fill {{ off.icon }}" style="font-size:34px;color:{{ off.iconC }}"></i>
+<div style="font-family:Unbounded,sans-serif;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums">{{ off.pct }}</div>
+</div>
+</div>
+<div style="font-size:18px;font-weight:800;margin-top:16px">{{ off.title }}</div>
+<div style="font-size:13px;color:#9FB8B4;font-weight:500;margin-top:4px;line-height:1.45;max-width:270px">{{ off.sub }}</div>
+<button onClick="{{ toggleOffline }}" style="margin-top:18px;width:100%;height:54px;border-radius:18px;border:{{ off.btnBorder }};background:{{ off.btnBg }};color:{{ off.btnFg }};font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:{{ off.btnShadow }}"><i class="ph-bold {{ off.btnIcon }}"></i>{{ off.btnLabel }}</button>
+</div>
+
+<div style="font-size:14px;font-weight:700;color:#9FB8B4;margin:8px 4px 0">Emergency</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+<sc-for list="{{ helplines }}" as="h" hint-placeholder-count="4">
+<a href="{{ h.href }}" style="display:flex;align-items:center;gap:12px;padding:14px;border-radius:22px;background:linear-gradient(160deg,rgba(255,107,91,.18),rgba(255,107,91,.05));border:1px solid rgba(255,107,91,.3);text-decoration:none;color:#F2F7F5">
+<div style="width:38px;height:38px;flex:none;border-radius:13px;background:linear-gradient(135deg,#FF8A6B,#FF4F7B);display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff"><i class="ph-fill ph-phone-call"></i></div>
+<div style="min-width:0"><div style="font-family:Unbounded,sans-serif;font-size:17px;font-weight:600;font-variant-numeric:tabular-nums">{{ h.num }}</div><div style="font-size:12px;font-weight:600;color:#D6E3E0">{{ h.label }}</div></div>
+</a>
+</sc-for>
+</div>
+
+<div style="font-size:14px;font-weight:700;color:#9FB8B4;margin:8px 4px 0">Stays on this route</div>
+<sc-for list="{{ hotels }}" as="h" hint-placeholder-count="3">
+<div style="border-radius:26px;padding:16px;background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.1);display:flex;flex-direction:column;gap:12px">
+<div style="display:flex;align-items:center;gap:12px">
+<div style="width:46px;height:46px;flex:none;border-radius:15px;background:{{ h.grad }};display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.4)"><i class="ph-fill ph-bed"></i></div>
+<div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:800">{{ h.name }}</div><div style="font-size:12px;color:#9FB8B4;font-weight:500;margin-top:2px">{{ h.note }}</div></div>
+<div style="flex:none;font-size:11px;font-weight:800;padding:4px 8px;border-radius:8px;background:rgba(255,255,255,.08);color:{{ h.tierC }}">{{ h.tier }}</div>
+</div>
+<a href="{{ h.href }}" target="_blank" rel="noopener" style="height:46px;border-radius:15px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:#F2F7F5;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none"><i class="ph-fill ph-map-pin" style="color:#2EE59D"></i>Read Reviews on Google Maps<i class="ph-bold ph-arrow-up-right"></i></a>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+</div>
+
+<div style="position:absolute;left:18px;right:18px;bottom:24px;z-index:12;display:flex;align-items:center;gap:12px">
+<div style="flex:1;height:64px;border-radius:24px;background:rgba(14,36,38,.72);backdrop-filter:blur(20px) saturate(1.4);border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;padding:6px;gap:6px;box-shadow:0 20px 40px -16px rgba(0,0,0,.7)">
+<sc-for list="{{ tabs }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.onClick }}" style="flex:1;height:52px;border-radius:19px;border:0;background:{{ t.bg }};color:{{ t.fg }};display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:800;cursor:pointer;transition:all .25s"><i class="ph-fill {{ t.icon }}" style="font-size:20px"></i>{{ t.label }}</button></sc-for>
+</div>
+<button onClick="{{ openDrawer }}" aria-label="Open co-pilot" style="position:relative;width:64px;height:64px;flex:none;border-radius:50%;border:0;padding:0;cursor:pointer;overflow:hidden;box-shadow:0 16px 36px -10px rgba(155,123,255,.7),0 0 0 1px rgba(255,255,255,.2) inset">
+{{ orb }}
+<div style="position:absolute;inset:4px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(30,60,64,.75),rgba(8,24,26,.9));display:flex;align-items:center;justify-content:center;color:#fff;font-size:26px"><i class="ph-fill ph-microphone"></i></div>
+</button>
+</div>
+
+<sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;left:18px;right:18px;top:56px;z-index:30;padding:12px 14px;border-radius:20px;background:rgba(14,36,38,.82);backdrop-filter:blur(20px);border:1px solid rgba(46,229,157,.35);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;gap:10px;box-shadow:0 20px 40px -16px rgba(0,0,0,.7)"><div style="width:30px;height:30px;border-radius:10px;background:linear-gradient(135deg,#2EE59D,#19C2B8);color:#04211C;display:flex;align-items:center;justify-content:center;font-size:16px"><i class="ph-fill ph-sparkle"></i></div>{{ toast }}</div>
+</sc-if>
+
+<div onClick="{{ closeDrawer }}" style="position:absolute;inset:0;z-index:18;background:rgba(3,10,12,.55);opacity:{{ backdropOp }};pointer-events:{{ backdropPe }};transition:opacity .35s"></div>
+<div data-screen-label="Co-pilot drawer" style="position:absolute;left:0;right:0;bottom:0;height:580px;z-index:20;background:linear-gradient(180deg,rgba(18,44,47,.96),rgba(8,24,26,.98));backdrop-filter:blur(24px);border-radius:36px 36px 0 0;border-top:1px solid rgba(255,255,255,.12);box-shadow:0 -30px 60px -20px rgba(0,0,0,.6);transform:{{ drawerY }};transition:transform .5s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column">
+<div style="width:40px;height:5px;border-radius:3px;background:rgba(255,255,255,.2);margin:10px auto 0"></div>
+<div style="display:flex;align-items:center;gap:12px;padding:12px 16px 10px 20px">
+<div style="position:relative;width:44px;height:44px;border-radius:50%;overflow:hidden;flex:none">{{ orb }}<div style="position:absolute;inset:3px;border-radius:50%;background:#0B2426;display:flex;align-items:center;justify-content:center;color:#2EE59D;font-size:19px"><i class="ph-fill ph-sparkle"></i></div></div>
+<div style="flex:1"><div style="font-family:Unbounded,sans-serif;font-size:17px;font-weight:600">Co-pilot</div><div style="font-size:12px;font-weight:600;color:#9FB8B4;margin-top:2px">{{ copilotStatus }}</div></div>
+<button onClick="{{ closeDrawer }}" aria-label="Close" style="width:44px;height:44px;border-radius:15px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff;font-size:17px;cursor:pointer"><i class="ph-bold ph-x"></i></button>
+</div>
+<div ref="{{ chatRef }}" style="flex:1;overflow-y:auto;scrollbar-width:none;padding:6px 20px 10px;display:flex;flex-direction:column;gap:12px">
+<sc-for list="{{ msgView }}" as="m" hint-placeholder-count="1">
+<sc-if value="{{ m.isUser }}" hint-placeholder-val="{{ false }}"><div style="align-self:flex-end;max-width:80%;padding:11px 15px;border-radius:20px 20px 6px 20px;background:linear-gradient(135deg,#2EE59D,#19C2B8);color:#04211C;font-size:14px;font-weight:700;line-height:1.4">{{ m.text }}</div></sc-if>
+<sc-if value="{{ m.isAi }}" hint-placeholder-val="{{ true }}">
+<div style="align-self:flex-start;max-width:90%;display:flex;flex-direction:column;gap:8px">
+<div style="padding:11px 15px;border-radius:20px 20px 20px 6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);font-size:14px;font-weight:500;line-height:1.5">{{ m.shown }}</div>
+<sc-for list="{{ m.calls }}" as="k" hint-placeholder-count="0">
+<div style="padding:11px 13px;border-radius:16px;background:rgba(0,0,0,.35);border:1px solid rgba(155,123,255,.3);font-family:'JetBrains Mono',ui-monospace,monospace;font-size:11px;line-height:1.55">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="color:#C4B2FF">ƒ {{ k.fn }}()</span><span style="padding:2px 7px;border-radius:6px;background:{{ k.bg }};color:{{ k.fg }}">{{ k.status }}</span></div>
+<div style="color:#8FA9A6;word-break:break-word;margin-top:4px">{{ k.args }}</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+</sc-for>
+<sc-if value="{{ busy }}" hint-placeholder-val="{{ false }}"><div style="align-self:flex-start;font-size:12px;font-weight:700;color:#9FB8B4;display:flex;align-items:center;gap:6px"><i class="ph-fill ph-waveform" style="color:#2EE59D;font-size:16px"></i>Working on your trip…</div></sc-if>
+</div>
+<div style="display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:4px 20px 12px">
+<sc-for list="{{ suggestions }}" as="s" hint-placeholder-count="3"><button onClick="{{ s.onClick }}" style="flex:none;min-height:44px;padding:0 14px;border-radius:15px;border:1px solid rgba(46,229,157,.35);background:rgba(46,229,157,.08);color:#BFF5DF;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">{{ s.prompt }}</button></sc-for>
+</div>
+<div style="display:flex;gap:8px;padding:0 20px 28px">
+<input value="{{ input }}" onChange="{{ onInput }}" onKeyDown="{{ onKey }}" placeholder="Ask in English or Urdu…" style="flex:1;height:52px;border-radius:18px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);padding:0 16px;font-size:14px;font-weight:600;color:#fff;outline:none">
+<button onClick="{{ send }}" aria-label="Send" style="width:52px;height:52px;border-radius:18px;border:0;background:linear-gradient(135deg,#2EE59D,#19C2B8);color:#04211C;font-size:21px;cursor:pointer"><i class="ph-fill {{ sendIcon }}"></i></button>
+</div>
+</div>
+</sc-if>
+
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const PETROL = 387.40;
+const fmtN = n => Math.round(n).toLocaleString('en-US');
+const fmt = n => 'PKR ' + fmtN(n);
+const VEH = {
+  sedan: { icon: 'ph-car-profile', label: 'Standard Sedan / Hatchback', sub: 'Corolla GLi, City, Alto', mileage: 13 },
+  suv: { icon: 'ph-jeep', label: '4x4 SUV', sub: 'Prado, Fortuner, Land Cruiser', mileage: 8 },
+  bike: { icon: 'ph-motorcycle', label: 'Motorbike', sub: 'CG-125, YBR, heavy bikes', mileage: 35 },
+  public: { icon: 'ph-bus', label: 'Public Transport', sub: 'Daewoo, NATCO, coasters', mileage: 0 }
+};
+const TIERS = {
+  backpacker: { label: 'Backpacker', night: 3500, meal: 1200 },
+  standard: { label: 'Standard', night: 9000, meal: 2500 },
+  premium: { label: 'Premium', night: 28000, meal: 5500 }
+};
+const GRADS = [['#2EE59D', '#0FA678'], ['#FFB547', '#FF7A3D'], ['#FF8A6B', '#FF4F7B'], ['#9B7BFF', '#5B6CFF']];
+const QUIZ = [
+  { key: 'vehicle', q: 'What will you be traveling in?', effect: 'Sets the terrain rules your route is checked against.',
+    opts: Object.entries(VEH).map(([id, v]) => ({ id, icon: v.icon, label: v.label, sub: v.sub })) },
+  { key: 'group', q: 'Who are you traveling with?', effect: 'Toggles family-friendly pitstops and caps driving hours per leg.',
+    opts: [{ id: 'solo', icon: 'ph-user', label: 'Solo / Couple', sub: '1–2 travellers', size: 2 },
+      { id: 'family', icon: 'ph-baby', label: 'Family with Kids', sub: 'Max 5 h driving per leg', size: 4 },
+      { id: 'friends', icon: 'ph-users-three', label: 'Friends Group', sub: 'Costs split per person', size: 4 }] },
+  { key: 'vibe', q: 'What is your ideal trip vibe?', effect: 'Filters points of interest toward hikes or easy viewpoints.',
+    opts: [{ id: 'rugged', icon: 'ph-mountains', label: 'Rugged & Off-Grid', sub: 'Meadows, treks, jeep tracks' },
+      { id: 'scenic', icon: 'ph-binoculars', label: 'Relaxed & Scenic', sub: 'Accessible viewpoints' },
+      { id: 'heritage', icon: 'ph-mosque', label: 'Heritage & Culture', sub: 'Forts, bazaars, shrines' }] },
+  { key: 'tier', q: 'How do you prefer to manage expenses?', effect: 'Sets per-meal and per-night baselines for the budget.',
+    opts: [{ id: 'backpacker', icon: 'ph-bowl-food', label: 'Backpacker', sub: 'Dhabas · PKR 3,500 / night' },
+      { id: 'standard', icon: 'ph-house-line', label: 'Standard', sub: 'Guesthouses · PKR 9,000 / night' },
+      { id: 'premium', icon: 'ph-sparkle', label: 'Premium', sub: 'Resorts · PKR 28,000 / night' }] }
+];
+const CORR = {
+  hunza: { label: 'Hunza', from: 'Islamabad', to: 'Hunza', km: 615, hrs: '13–14 h', region: 'Gilgit-Baltistan', peakLabel: 'Karimabad · 2,438 m', tiles: 212,
+    tolls: [['Hazara Motorway', 600]], terrain: { seed: 3.1, amp: 10, rise: 2.6, wig: 1 },
+    hotels: [['Eagle\'s Nest Hotel Duikar', 'Standard', 'Sunrise over Rakaposhi and Ultar'], ['Hunza Embassy Hotel', 'Backpacker', 'Walk to Baltit Fort'], ['Luxus Hunza', 'Premium', 'On Attabad Lake']] },
+  kalam: { label: 'Kalam', from: 'Lahore', to: 'Kalam', km: 520, hrs: '9–10 h', region: 'Swat, KP', peakLabel: 'Kalam · 2,000 m', tiles: 96,
+    tolls: [['M-2', 1850], ['Swat Motorway', 470]], terrain: { seed: 7.4, amp: 6.5, rise: 2, wig: -1.2 },
+    hotels: [['Walnut Heights Kalam', 'Premium', 'Riverside cabins'], ['Kalam Hotel Swat', 'Standard', 'Main bazaar'], ['Ushu Forest Camp', 'Backpacker', 'Tents in the pines']] },
+  skardu: { label: 'Skardu', from: 'Rawalpindi', to: 'Skardu', km: 640, hrs: '15–16 h', region: 'Baltistan', peakLabel: 'Skardu · 2,228 m', tiles: 240,
+    tolls: [['Hazara Motorway', 600]], terrain: { seed: 11.2, amp: 8.5, rise: 2.3, wig: .7 },
+    hotels: [['Shangrila Resort Skardu', 'Premium', 'Lower Kachura Lake'], ['Mashabrum Hotel Skardu', 'Standard', 'Airport road'], ['Indus Motel Skardu', 'Backpacker', 'Indus riverfront']] },
+  fairy: { label: 'Fairy Meadows', from: 'Islamabad', to: 'Fairy Meadows', km: 530, hrs: '11 h + 1.5 h jeep', region: 'Diamer, GB', peakLabel: 'Fairy Meadows · 3,300 m', tiles: 168, hub: .66,
+    tolls: [['Hazara Motorway', 600]], terrain: { seed: 5.5, amp: 12, rise: 4.2, wig: 1.3 },
+    hotels: [['Raikot Sarai Fairy Meadows', 'Standard', 'Nanga Parbat view'], ['Fairy Meadows Cottages', 'Backpacker', 'Log huts, shared baths']] }
+};
+const SCRIPTS = {
+  fairy: { prompt: 'Switch to Fairy Meadows, we\'re in a Corolla',
+    reply: 'Fairy Meadows needs a 4x4 for the last 12 km from Raikot Bridge. I\'ve routed you to the parking hub there and added a local jeep to the budget.',
+    calls: [['update_map_route', { origin: 'Islamabad', destination: 'Fairy Meadows', parking_hub_needed: true }]],
+    apply: { corridor: 'fairy', vehicle: 'sedan' }, flash: 'route', toast: 'Route updated · parking hub at Raikot Bridge' },
+  friends: { prompt: 'We\'re 5 friends now, keep it backpacker',
+    reply: 'Updated for 5 travellers on the backpacker tier: three rooms, dhaba meals, and the total split five ways.',
+    calls: [['recalculate_budget', { petrol_rate: 387.40, group_size: 5, tier: 'backpacker' }]],
+    apply: { groupSize: 5, tier: 'backpacker', group: 'friends' }, flash: 'budget', toast: 'Budget recalculated for 5' },
+  weather: { prompt: 'Is Babusar Pass open this weekend?',
+    reply: 'Snow is forecast on Babusar Top after 3 PM on Saturday. Cross before noon, or take the KKH via Besham.',
+    calls: [['show_alert_banner', { title: 'Babusar Top: snow after 3 PM', message: 'Cross before noon or reroute via KKH (Besham), about 2 h longer.', severity: 'warning' }]],
+    apply: { aiAlert: { title: 'Babusar Top: snow after 3 PM', message: 'Cross before noon or reroute via KKH (Besham), about 2 h longer.' } }, flash: 'alert', toast: 'Alert pinned to your trip' }
+};
+const CAT = { Fuel: '#FFB547', Transport: '#6FD3FF', Tolls: '#9B7BFF', Stay: '#2EE59D', Meals: '#FF6B5B', 'Local jeep': '#6FD3FF' };
+const CAT2 = { Fuel: '#FF7A3D', Transport: '#3B8DFF', Tolls: '#5B6CFF', Stay: '#0FA678', Meals: '#FF4F7B', 'Local jeep': '#3B8DFF' };
+
+// terrain
+const hash = (x, y, s) => { const h = Math.sin(x * 127.1 + y * 311.7 + s * 74.7) * 43758.5453; return h - Math.floor(h); };
+const vnoise = (x, y, s) => { const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi, u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
+  const a = hash(xi, yi, s), b = hash(xi + 1, yi, s), c = hash(xi, yi + 1, s), d = hash(xi + 1, yi + 1, s); return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v; };
+const ridged = (x, y, s) => { let t = 0, a = .55, f = 1; for (let i = 0; i < 5; i++) { const n = 1 - Math.abs(vnoise(x * f, y * f, s + i * 7) * 2 - 1); t += a * n * n; f *= 2.05; a *= .5; } return t; };
+const fbm = (x, y, s) => { let t = 0, a = .5, f = 1; for (let i = 0; i < 4; i++) { t += a * vnoise(x * f, y * f, s + i * 13); f *= 2.1; a *= .5; } return t; };
+const sstep = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+const routeXZ = (p, t) => { const x = -6 + 9 * t + p.wig * Math.sin(t * Math.PI * 1.7 + p.seed) * 3 * (1 - .6 * t * t); return [Math.max(-7, Math.min(3.5, x)), 15 - 20 * t]; };
+const STOPS = [[0, [15, 90, 68]], [1.2, [24, 128, 86]], [2.6, [62, 186, 112]], [4.2, [196, 168, 110]], [6.2, [150, 128, 112]], [8.2, [214, 222, 236]], [10, [255, 255, 255]]];
+function colorAt(h, out, i) { let k = 0; while (k < STOPS.length - 2 && h > STOPS[k + 1][0]) k++; const [h0, c0] = STOPS[k], [h1, c1] = STOPS[k + 1]; const t = Math.max(0, Math.min(1, (h - h0) / (h1 - h0)));
+  out[i] = (c0[0] + (c1[0] - c0[0]) * t) / 255; out[i + 1] = (c0[1] + (c1[1] - c0[1]) * t) / 255; out[i + 2] = (c0[2] + (c1[2] - c0[2]) * t) / 255; }
+function buildTerrain(p, pos) {
+  const samples = []; for (let i = 0; i < 90; i++) samples.push(routeXZ(p, i / 89));
+  const hAt = (x, z) => { let best = 1e9, bi = 0; for (let i = 0; i < samples.length; i++) { const dx = x - samples[i][0], dz = z - samples[i][1], d = dx * dx + dz * dz; if (d < best) { best = d; bi = i; } }
+    const d = Math.sqrt(best), t = bi / 89, floor = .35 + t * p.rise, back = sstep(15, -16, z);
+    const m = Math.pow(ridged(x * .075 + p.seed * 3, z * .075, p.seed), 1.7) * p.amp * (.35 + .95 * back) + fbm(x * .22, z * .22, p.seed) * .9;
+    return floor + m * sstep(1.3, 6, d); };
+  const out = new Float32Array(pos.count); for (let i = 0; i < pos.count; i++) out[i] = hAt(pos.getX(i), pos.getZ(i));
+  const pts = []; for (let i = 0; i <= 48; i++) { const t = i / 48, [x, z] = routeXZ(p, t); pts.push([x, hAt(x, z) + .32, z]); }
+  return { heights: out, pts };
+}
+
+class Component extends DCLogic {
+  state = { screen: 'onboard', step: 0, vehicle: 'sedan', group: 'family', vibe: 'scenic', tier: 'standard', groupSize: 4, nights: 3, cap: 160000,
+    corridor: 'hunza', tab: 'trip', drawer: false, input: '', busy: false, aiAlert: null, flash: null, toast: null, offline: 'off', progress: 0,
+    msgs: [{ role: 'ai', text: 'Assalam-o-Alaikum. Ask me to change your route, budget or alerts and I\'ll update the screen directly.', typed: 999, calls: [] }] };
+  timers = [];
+  chatRef = React.createRef(); sceneRef = React.createRef(); destRef = React.createRef(); hubRef = React.createRef();
+  S = { az: 0, dragAz: 0, drag: null };
+  orb = React.createElement('div', { style: { position: 'absolute', inset: '-20%', background: 'conic-gradient(from 0deg,#2EE59D,#19C2B8,#6FD3FF,#9B7BFF,#FF4F7B,#FFB547,#2EE59D)', animation: 'spin 4s linear infinite' } });
+  later(ms, fn) { const t = setTimeout(fn, ms); this.timers.push(t); return t; }
+  componentDidMount() { this.initScene().catch(e => console.warn('SafarCo scene: ' + (e && e.message))); }
+  componentWillUnmount() { this.dead = true; cancelAnimationFrame(this.raf); this.timers.forEach(clearTimeout); clearInterval(this.typer); clearInterval(this.dl); if (this.renderer) this.renderer.dispose(); if (this.ro) this.ro.disconnect(); }
+  componentDidUpdate(pp, ps) {
+    const el = this.chatRef.current; if (el) el.scrollTop = el.scrollHeight;
+    if (ps.corridor !== this.state.corridor && this.setCorridor) this.setCorridor(this.state.corridor);
+    if (ps.screen !== this.state.screen || ps.tab !== this.state.tab) { const s = this.sceneRef.current; if (s) { s.style.transform = ''; s.style.opacity = ''; } }
+  }
+
+  async initScene() {
+    const el = this.sceneRef.current; if (!el) return;
+    let T; try { T = await import('https://unpkg.com/three@0.160.0/build/three.module.js'); } catch (e) { console.warn('SafarCo scene: three.js failed to load'); return; }
+    if (this.dead) return;
+    let W = el.clientWidth || 380, H = el.clientHeight || 440;
+    const r = new T.WebGLRenderer({ antialias: true, alpha: true });
+    r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2)); r.setSize(W, H);
+    r.toneMapping = T.ACESFilmicToneMapping; r.toneMappingExposure = 1.08;
+    r.domElement.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;z-index:1';
+    el.insertBefore(r.domElement, el.children[1]); this.renderer = r;
+    const scene = new T.Scene(); scene.fog = new T.Fog(0xEBA27F, 24, 56);
+    const cam = new T.PerspectiveCamera(38, W / H, .1, 200);
+    if (window.ResizeObserver) { this.ro = new ResizeObserver(() => { const w = el.clientWidth, h = el.clientHeight; if (!w || !h || (w === W && h === H)) return; W = w; H = h; r.setSize(W, H); cam.aspect = W / H; cam.updateProjectionMatrix(); }); this.ro.observe(el); }
+    scene.add(new T.HemisphereLight(0xCFE3FF, 0x1D3A2C, 1));
+    const sun = new T.DirectionalLight(0xFFC48A, 2.8); sun.position.set(-14, 11, -18); scene.add(sun);
+    const fill = new T.DirectionalLight(0x9DBEFF, .7); fill.position.set(12, 9, 14); scene.add(fill);
+    const geo = new T.PlaneGeometry(46, 46, 150, 150); geo.rotateX(-Math.PI / 2);
+    const pos = geo.attributes.position, cols = new Float32Array(pos.count * 3);
+    geo.setAttribute('color', new T.BufferAttribute(cols, 3));
+    scene.add(new T.Mesh(geo, new T.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: .9, metalness: 0 })));
+    const water = new T.Mesh(new T.PlaneGeometry(46, 46), new T.MeshStandardMaterial({ color: 0x22D3C5, roughness: .1, metalness: .25, transparent: true, opacity: .85, emissive: 0x0E6B66, emissiveIntensity: .45 }));
+    water.rotation.x = -Math.PI / 2; water.position.y = .62; scene.add(water);
+    const routeMat = new T.MeshBasicMaterial({ color: 0xFFC060 });
+    const glowMat = new T.MeshBasicMaterial({ color: 0xFF9A3D, transparent: true, opacity: .28, depthWrite: false, blending: T.AdditiveBlending });
+    const pin = (color) => { const g = new T.Group();
+      const stick = new T.Mesh(new T.CylinderGeometry(.05, .05, 2, 8), new T.MeshBasicMaterial({ color: 0xffffff })); stick.position.set(0, 1, 0); g.add(stick);
+      const head = new T.Mesh(new T.SphereGeometry(.42, 24, 16), new T.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: .9, roughness: .3 })); head.position.y = 2.1; g.add(head);
+      const ring = new T.Mesh(new T.RingGeometry(.4, .75, 32), new T.MeshBasicMaterial({ color, transparent: true, opacity: .55, side: T.DoubleSide, depthWrite: false })); ring.rotation.x = -Math.PI / 2; ring.position.y = .06; g.add(ring);
+      scene.add(g); return g; };
+    const startPin = pin(0x2EE59D), destPin = pin(0xFF5A72), hubPin = pin(0xFFB547);
+    const traveler = new T.Mesh(new T.SphereGeometry(.22, 16, 12), new T.MeshBasicMaterial({ color: 0xffffff }));
+    const halo = new T.Mesh(new T.SphereGeometry(.55, 16, 12), new T.MeshBasicMaterial({ color: 0xFFD08A, transparent: true, opacity: .35, depthWrite: false, blending: T.AdditiveBlending }));
+    scene.add(traveler); scene.add(halo);
+    const S = this.S; let tube = null, glow = null, curve = null, cnt = 0;
+    const colorize = () => { for (let i = 0; i < pos.count; i++) colorAt(pos.getY(i), cols, i * 3); geo.attributes.color.needsUpdate = true; };
+    this.setCorridor = (key) => {
+      const c = CORR[key], built = buildTerrain(c.terrain, pos), e = built.pts[built.pts.length - 1];
+      S.goalT = new T.Vector3(e[0] * .6, e[1] + 1.8, e[2]); if (!S.tgt) S.tgt = S.goalT.clone();
+      S.from = Float32Array.from({ length: pos.count }, (_, i) => pos.getY(i)); S.to = built.heights; S.morph = S.first ? 0 : 1;
+      if (!S.first) { for (let i = 0; i < pos.count; i++) pos.setY(i, built.heights[i]); pos.needsUpdate = true; colorize(); S.first = true; }
+      curve = new T.CatmullRomCurve3(built.pts.map(p => new T.Vector3(p[0], p[1], p[2])));
+      if (tube) { scene.remove(tube); scene.remove(glow); tube.geometry.dispose(); glow.geometry.dispose(); }
+      tube = new T.Mesh(new T.TubeGeometry(curve, 260, .13, 8), routeMat); glow = new T.Mesh(new T.TubeGeometry(curve, 260, .36, 8), glowMat);
+      scene.add(tube); scene.add(glow); cnt = tube.geometry.index.count; S.draw = 0;
+      startPin.position.copy(curve.getPointAt(0)).y -= .3; destPin.position.copy(curve.getPointAt(1)).y -= .3;
+      hubPin.visible = c.hub !== undefined; if (hubPin.visible) hubPin.position.copy(curve.getPointAt(.72)).y -= .3;
+      S.hub = c.hub;
+    };
+    this.setCorridor(this.state.corridor);
+    const v = new T.Vector3();
+    const place = (ref, obj, show, lift) => { const n = ref.current; if (!n) return; if (!show) { n.style.opacity = 0; return; }
+      v.copy(obj.position); v.y += lift; v.project(cam);
+      const px = Math.max(90, Math.min(W - 90, (v.x + 1) / 2 * W)), py = Math.max(60, Math.min(H - 40, (1 - v.y) / 2 * H));
+      n.style.transform = `translate(${px}px,${py}px) translate(-50%,-100%)`; n.style.opacity = 1; };
+    const tick = () => {
+      if (this.dead) return; this.raf = requestAnimationFrame(tick);
+      try {
+      const now = performance.now();
+      if (S.morph < 1) { S.morph = Math.min(1, S.morph + .022); const e = 1 - Math.pow(1 - S.morph, 3);
+        for (let i = 0; i < pos.count; i++) pos.setY(i, S.from[i] + (S.to[i] - S.from[i]) * e); pos.needsUpdate = true; colorize(); }
+      if (S.draw < 1) { S.draw = Math.min(1, S.draw + .014); const n = Math.floor(cnt * S.draw / 6) * 6; tube.geometry.setDrawRange(0, n); glow.geometry.setDrawRange(0, n); }
+      const tt = ((now / 8000) % 1) * S.draw; traveler.position.copy(curve.getPointAt(tt)); halo.position.copy(traveler.position);
+      halo.scale.setScalar(1 + .25 * Math.sin(now / 220));
+      const goal = S.dragAz + Math.sin(now / 6500) * .32; S.az += (goal - S.az) * .05;
+      S.tgt.lerp(S.goalT, .04); cam.position.set(S.tgt.x + Math.sin(S.az) * 28, S.tgt.y + 7.4, S.tgt.z + Math.cos(S.az) * 28); cam.lookAt(S.tgt);
+      r.render(scene, cam);
+      place(this.destRef, destPin, S.draw > .95, 2.9);
+      place(this.hubRef, hubPin, S.hub !== undefined && S.draw > .7, 2.6);
+      } catch (e) { if (!this.warned) { this.warned = true; console.warn('SafarCo scene tick: ' + e.message); } }
+    };
+    tick();
+  }
+
+  pick(key, id) { const patch = { [key]: id }; if (key === 'group') patch.groupSize = QUIZ[1].opts.find(o => o.id === id).size; this.setState(patch); }
+  run(key, custom) {
+    if (this.state.busy) return;
+    const S = SCRIPTS[key], prompt = custom || (S ? S.prompt : '');
+    this.setState(s => ({ busy: true, input: '', msgs: [...s.msgs, { role: 'user', text: prompt }] }));
+    const reply = S ? S.reply : 'I can reroute you (try “Fairy Meadows”), recalculate the budget for a new group or tier, or check a pass for weather alerts.';
+    this.later(550, () => {
+      this.setState(s => ({ msgs: [...s.msgs, { role: 'ai', text: reply, typed: 0, calls: [] }] }));
+      clearInterval(this.typer);
+      this.typer = setInterval(() => { const msgs = this.state.msgs.slice(), m = { ...msgs[msgs.length - 1] }; m.typed += 4; msgs[msgs.length - 1] = m; this.setState({ msgs });
+        if (m.typed >= m.text.length) { clearInterval(this.typer); this.afterReply(S); } }, 22);
+    });
+  }
+  afterReply(S) {
+    if (!S) { this.setState({ busy: false }); return; }
+    const setCalls = status => this.setState(s => { const msgs = s.msgs.slice(), m = { ...msgs[msgs.length - 1] }; m.calls = S.calls.map(([fn, a]) => ({ fn, args: JSON.stringify(a), status })); msgs[msgs.length - 1] = m; return { msgs }; });
+    this.later(250, () => setCalls('running'));
+    this.later(900, () => { setCalls('executed'); this.setState({ ...S.apply, tab: 'trip', flash: S.flash }); });
+    this.later(1700, () => this.setState({ drawer: false, toast: S.toast, busy: false }));
+    this.later(4800, () => this.setState({ toast: null, flash: null }));
+  }
+  startDownload() {
+    clearInterval(this.dl); this.setState({ offline: 'downloading', progress: 0 });
+    this.dl = setInterval(() => { const p = Math.min(100, this.state.progress + 3); this.setState({ progress: p }); if (p >= 100) { clearInterval(this.dl); this.setState({ offline: 'ready' }); } }, 70);
+  }
+  calc() {
+    const s = this.state, c = CORR[s.corridor], v = VEH[s.vehicle], t = TIERS[s.tier], rt = c.km * 2, rows = [];
+    if (s.vehicle === 'public') rows.push({ icon: 'ph-bus', label: 'Transport', detail: `Coach fare PKR 4,200 × ${s.groupSize}, return`, val: 4200 * s.groupSize });
+    else { const units = s.vehicle === 'bike' ? Math.ceil(s.groupSize / 2) : 1;
+      rows.push({ icon: 'ph-gas-pump', label: 'Fuel', detail: `${rt} km ÷ ${v.mileage} km/L × ${PETROL.toFixed(2)}${units > 1 ? ` × ${units} bikes` : ''}`, val: rt / v.mileage * PETROL * units }); }
+    const tollSum = c.tolls.reduce((a, b) => a + b[1], 0) * 2;
+    if (s.vehicle === 'bike') rows.push({ icon: 'ph-road-horizon', label: 'Tolls', detail: 'Motorways closed to bikes · N-5 / N-35', val: 0 });
+    else if (s.vehicle !== 'public') rows.push({ icon: 'ph-road-horizon', label: 'Tolls', detail: c.tolls.map(x => x[0]).join(' + ') + ' · return', val: tollSum });
+    const rooms = Math.ceil(s.groupSize / 2);
+    rows.push({ icon: 'ph-bed', label: 'Stay', detail: `${rooms} room${rooms > 1 ? 's' : ''} × ${s.nights} nights · ${t.label}`, val: t.night * rooms * s.nights });
+    rows.push({ icon: 'ph-fork-knife', label: 'Meals', detail: `${s.groupSize} people × ${s.nights + 1} days`, val: t.meal * s.groupSize * (s.nights + 1) });
+    if (c.hub !== undefined && s.vehicle !== 'suv') rows.push({ icon: 'ph-jeep', label: 'Local jeep', detail: 'Raikot Bridge → Tato, return', val: 10000 });
+    return { rows, total: rows.reduce((a, r) => a + r.val, 0) };
+  }
+
+  renderVals() {
+    const s = this.state, c = CORR[s.corridor], step = QUIZ[s.step];
+    const { rows, total } = this.calc(), pct = total / s.cap;
+    const health = pct < 0.85 ? { label: 'Healthy', bg: 'rgba(46,229,157,.14)', fg: '#2EE59D' } : pct <= 1 ? { label: 'Near cap', bg: 'rgba(255,181,71,.16)', fg: '#FFB547' } : { label: 'Over cap', bg: 'rgba(255,107,91,.16)', fg: '#FF6B5B' };
+    let acc = 0; const segs = rows.filter(r => r.val > 0).map(r => { const a = acc, b = acc + r.val / total * 100; acc = b; return `${CAT[r.label]} ${a.toFixed(2)}% ${(b - .6).toFixed(2)}%, transparent ${(b - .6).toFixed(2)}% ${b.toFixed(2)}%`; });
+    const hasHub = c.hub !== undefined;
+    let gate = { show: false };
+    if (hasHub && s.vehicle !== 'suv') gate = { show: true, icon: 'ph-warning-octagon', bg: 'linear-gradient(135deg,rgba(255,107,91,.24),rgba(255,79,123,.08))', border: 'rgba(255,107,91,.45)', tile: 'linear-gradient(135deg,#FF8A6B,#FF4F7B)',
+      title: s.vehicle === 'sedan' ? 'Sedan Undercarriage Risk: Final track requires 4x4.' : 'Final track requires 4x4.', msg: 'Park at Raikot Bridge. Local jeep for the last 12 km: PKR 8,000 – 10,000.' };
+    else if (hasHub) gate = { show: true, icon: 'ph-check-circle', bg: 'linear-gradient(135deg,rgba(46,229,157,.2),rgba(25,194,184,.06))', border: 'rgba(46,229,157,.4)', tile: 'linear-gradient(135deg,#2EE59D,#0FA678)', title: '4x4 cleared for the Raikot–Tato track', msg: 'Expect about 1.5 h at walking pace. Low range recommended.' };
+    const ring = k => s.flash === k ? '0 0 0 2px #2EE59D, 0 0 40px -6px rgba(46,229,157,.7)' : '0 30px 60px -30px rgba(0,0,0,.6)';
+    const val = s[step.key];
+    const ringConic = (p, a, b) => `conic-gradient(${a} 0%, ${b} ${p}%, rgba(255,255,255,.08) ${p}% 100%)`;
+    const off = s.offline === 'ready'
+      ? { ring: ringConic(100, '#2EE59D', '#19C2B8'), glow: 'rgba(46,229,157,.6)', icon: 'ph-shield-check', iconC: '#2EE59D', pct: 'Ready', title: 'Survival Mode on', sub: `${c.region} tiles · ${c.tiles} MB · works with no signal`, btnBg: 'rgba(255,255,255,.06)', btnFg: '#fff', btnBorder: '1px solid rgba(255,255,255,.14)', btnShadow: 'none', btnIcon: 'ph-trash', btnLabel: 'Clear cache' }
+      : s.offline === 'downloading'
+      ? { ring: ringConic(s.progress, '#6FD3FF', '#9B7BFF'), glow: 'rgba(155,123,255,.55)', icon: 'ph-cloud-arrow-down', iconC: '#6FD3FF', pct: s.progress + '%', title: 'Caching for offline…', sub: `${Math.round(c.tiles * s.progress / 100)} of ${c.tiles} MB · tiles, bookings, SOS points`, btnBg: 'rgba(255,255,255,.06)', btnFg: '#9FB8B4', btnBorder: '1px solid rgba(255,255,255,.1)', btnShadow: 'none', btnIcon: 'ph-hourglass', btnLabel: 'Downloading' }
+      : { ring: ringConic(0, '#6FD3FF', '#9B7BFF'), glow: 'rgba(111,211,255,.15)', icon: 'ph-wifi-slash', iconC: '#FFB547', pct: `${c.tiles} MB`, title: 'No signal past Chilas?', sub: `Save ${c.region} map tiles, bookings and emergency points for the dead zones.`, btnBg: 'linear-gradient(135deg,#2EE59D,#19C2B8)', btnFg: '#04211C', btnBorder: '0', btnShadow: '0 18px 36px -14px rgba(46,229,157,.75)', btnIcon: 'ph-download-simple', btnLabel: 'Download for offline' };
+    const tierC = { Premium: '#C4B2FF', Standard: '#2EE59D', Backpacker: '#FFB547' };
+    const tierG = { Premium: 'linear-gradient(135deg,#9B7BFF,#5B6CFF)', Standard: 'linear-gradient(135deg,#2EE59D,#0FA678)', Backpacker: 'linear-gradient(135deg,#FFB547,#FF7A3D)' };
+    return {
+      sceneRef: this.sceneRef, destRef: this.destRef, hubRef: this.hubRef, chatRef: this.chatRef, orb: this.orb,
+      onPD: e => { this.S.drag = { x: e.clientX, az: this.S.dragAz }; },
+      onPM: e => { const d = this.S.drag; if (d) this.S.dragAz = Math.max(-1.1, Math.min(1.1, d.az - (e.clientX - d.x) * .008)); },
+      onPU: () => { this.S.drag = null; },
+      onScroll: e => { const st = e.currentTarget.scrollTop, n = this.sceneRef.current; if (n) { n.style.transform = `translateY(${-st * .45}px)`; n.style.opacity = Math.max(0, 1 - st / 520); } },
+      isOnboard: s.screen === 'onboard', isApp: s.screen === 'app', isTrip: s.tab === 'trip', isOffline: s.tab === 'offline',
+      stepLabel: `${s.step + 1} / ${QUIZ.length}`,
+      stepBars: QUIZ.map((_, i) => ({ bg: i <= s.step ? 'linear-gradient(90deg,#2EE59D,#FFB547)' : 'rgba(255,255,255,.22)', glow: i <= s.step ? '0 0 12px rgba(46,229,157,.6)' : 'none' })),
+      q: step, c, gate,
+      opts: step.opts.map((o, i) => { const on = o.id === val, g = GRADS[i % 4]; return { ...o, onClick: () => this.pick(step.key, o.id),
+        tile: `linear-gradient(135deg,${g[0]},${g[1]})`, glow: g[0],
+        bg: on ? `linear-gradient(#103033,#103033) padding-box, linear-gradient(135deg,${g[0]},${g[1]}) border-box` : 'linear-gradient(rgba(255,255,255,.05),rgba(255,255,255,.05)) padding-box, linear-gradient(rgba(255,255,255,.1),rgba(255,255,255,.1)) border-box',
+        transform: on ? 'translateZ(24px) rotateX(5deg)' : 'translateZ(0)', shadow: on ? `0 22px 40px -18px ${g[0]}` : 'none',
+        ringC: on ? g[0] : 'rgba(255,255,255,.22)', dotBg: on ? g[0] : 'transparent', checkOp: on ? 1 : 0 }; }),
+      canBack: s.step > 0,
+      back: () => this.setState({ step: s.step - 1 }),
+      next: () => s.step < QUIZ.length - 1 ? this.setState({ step: s.step + 1 }) : this.setState({ screen: 'app', tab: 'trip' }),
+      nextLabel: s.step < QUIZ.length - 1 ? 'Continue' : 'Build my trip',
+      restart: () => this.setState({ screen: 'onboard', step: 0, drawer: false }),
+      corridorChips: Object.entries(CORR).filter(([k, v]) => v.hub === undefined || s.corridor === k).map(([k, v]) => { const on = s.corridor === k;
+        return { label: v.label, onClick: () => this.setState({ corridor: k }), bg: on ? 'linear-gradient(135deg,#2EE59D,#19C2B8)' : 'rgba(10,30,34,.45)', fg: on ? '#04211C' : '#fff', border: on ? 'transparent' : 'rgba(255,255,255,.2)', shadow: on ? '0 10px 24px -10px rgba(46,229,157,.8)' : 'none' }; }),
+      budgetShadow: ring('budget'), alertShadow: s.flash === 'alert' ? '0 0 0 2px #9B7BFF, 0 0 40px -6px rgba(155,123,255,.7)' : 'none',
+      hasAiAlert: !!s.aiAlert, aiAlert: s.aiAlert || {}, dismissAlert: () => this.setState({ aiAlert: null }),
+      health, capPct: Math.round(pct * 100), totalNum: fmtN(total), perPersonStr: fmt(total / s.groupSize), capStr: fmt(s.cap),
+      ringBg: `conic-gradient(from -90deg, ${segs.join(', ')})`,
+      ringLayers: Array.from({ length: 12 }, (_, i) => ({ z: (i - 11) * 1.4, f: i === 11 ? 'saturate(1.15)' : `brightness(${.38 + i * .03})` })),
+      rows: rows.map(r => ({ ...r, amount: fmtN(r.val), color: CAT[r.label], grad: `linear-gradient(135deg,${CAT[r.label]},${CAT2[r.label]})` })),
+      vehChips: Object.entries(VEH).map(([k, v]) => { const on = s.vehicle === k; return { icon: v.icon, label: v.label, onClick: () => this.setState({ vehicle: k }),
+        bg: on ? 'linear-gradient(135deg,#FFB547,#FF7A3D)' : 'rgba(255,255,255,.05)', fg: on ? '#2A1500' : '#D6E3E0', border: on ? 'transparent' : 'rgba(255,255,255,.1)', shadow: on ? '0 12px 24px -10px rgba(255,150,60,.8)' : 'none' }; }),
+      tierChips: Object.entries(TIERS).map(([k, t]) => { const on = s.tier === k; return { label: t.label, onClick: () => this.setState({ tier: k }), bg: on ? 'rgba(255,255,255,.14)' : 'transparent', fg: on ? '#fff' : '#9FB8B4' }; }),
+      steppers: [
+        { label: 'Travellers', value: `${s.groupSize}`, dec: () => this.setState({ groupSize: Math.max(1, s.groupSize - 1) }), inc: () => this.setState({ groupSize: Math.min(12, s.groupSize + 1) }) },
+        { label: 'Nights', value: `${s.nights}`, dec: () => this.setState({ nights: Math.max(1, s.nights - 1) }), inc: () => this.setState({ nights: Math.min(14, s.nights + 1) }) },
+        { label: 'Budget cap', value: `${Math.round(s.cap / 1000)}k`, dec: () => this.setState({ cap: Math.max(40000, s.cap - 10000) }), inc: () => this.setState({ cap: s.cap + 10000 }) }
+      ],
+      off,
+      toggleOffline: () => s.offline === 'ready' ? this.setState({ offline: 'off', progress: 0 }) : s.offline === 'off' ? this.startDownload() : null,
+      helplines: [['1122', 'Rescue'], ['15', 'Police'], ['130', 'Motorway Police'], ['115', 'Edhi Ambulance']].map(([num, label]) => ({ num, label, href: `tel:${num}` })),
+      hotels: c.hotels.map(([name, tier, note]) => ({ name, tier, note, tierC: tierC[tier], grad: tierG[tier], href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name).replace(/%20/g, '+')}` })),
+      tabs: [['trip', 'ph-mountains', 'Trip'], ['offline', 'ph-cloud-slash', 'Offline']].map(([k, icon, label]) => { const on = s.tab === k;
+        return { icon, label, bg: on ? 'linear-gradient(135deg,rgba(46,229,157,.22),rgba(25,194,184,.12))' : 'transparent', fg: on ? '#2EE59D' : '#9FB8B4', onClick: () => this.setState({ tab: k }) }; }),
+      hasToast: !!s.toast, toast: s.toast,
+      openDrawer: () => this.setState({ drawer: true }), closeDrawer: () => this.setState({ drawer: false }),
+      drawerY: s.drawer ? 'translateY(0)' : 'translateY(105%)', backdropOp: s.drawer ? 1 : 0, backdropPe: s.drawer ? 'auto' : 'none',
+      copilotStatus: s.busy ? 'Acting on your trip…' : 'Controls route, budget and alerts', busy: s.busy,
+      msgView: s.msgs.map(m => ({ ...m, isUser: m.role === 'user', isAi: m.role === 'ai', shown: m.role === 'ai' ? m.text.slice(0, m.typed) : m.text,
+        calls: (m.calls || []).map(k => ({ ...k, bg: k.status === 'running' ? 'rgba(255,181,71,.18)' : 'rgba(46,229,157,.18)', fg: k.status === 'running' ? '#FFB547' : '#2EE59D' })) })),
+      suggestions: Object.entries(SCRIPTS).map(([k, v]) => ({ prompt: v.prompt, onClick: () => this.run(k) })),
+      input: s.input, sendIcon: s.input ? 'ph-paper-plane-right' : 'ph-microphone',
+      onInput: e => this.setState({ input: e.target.value }),
+      onKey: e => { if (e.key === 'Enter') this.sendText(); },
+      send: () => this.sendText()
+    };
+  }
+  sendText() {
+    const t = this.state.input.trim().toLowerCase();
+    if (!t) { this.run('fairy'); return; }
+    const key = /fairy|jeep|meadow|raikot/.test(t) ? 'fairy' : /friend|group|backpack|people|log/.test(t) ? 'friends' : /weather|babusar|snow|pass|mausam/.test(t) ? 'weather' : null;
+    this.run(key, this.state.input.trim());
+  }
+}
+</script>
+</body>
+</html>
