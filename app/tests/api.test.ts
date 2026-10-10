@@ -17,7 +17,7 @@ describe('/api/route', () => {
     const r = await get(route, '/api/route?from=74.34,31.55&to=75.63,35.30');
     expect(r.status).toBe(200);
     expect(await r.json()).toEqual({ km: 1010, h: 20, coords: [[74.34, 31.55], [75.63123, 35.3]] });
-    expect(calls[0].url).toContain('openrouteservice.org');
+    expect(calls[0].url).toContain('api.heigit.org/openrouteservice/v2/directions');
     expect((calls[0].init?.headers as Record<string, string>).Authorization).toBe('ors-key');
     expect(r.headers.get('Cache-Control')).toContain('s-maxage');
   });

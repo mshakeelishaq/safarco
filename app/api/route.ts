@@ -16,7 +16,7 @@ export async function GET(request: Request) {
   if (!key) return fail(503, 'Routing is not configured');
   const u = new URL(request.url), from = point(u.searchParams.get('from')), to = point(u.searchParams.get('to'));
   if (!from || !to) return fail(400, 'from and to must be lon,lat inside Pakistan');
-  const r = await fetch('https://api.openrouteservice.org/v2/directions/driving-car/geojson', {
+  const r = await fetch('https://api.heigit.org/openrouteservice/v2/directions/driving-car/geojson', {
     method: 'POST',
     headers: { Authorization: key, 'Content-Type': 'application/json', Accept: 'application/geo+json' },
     body: JSON.stringify({ coordinates: [from, to], radiuses: [5000, 5000] })
