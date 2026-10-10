@@ -74,6 +74,8 @@ export function createScene(el: HTMLElement, th: [number, number, number], S0: D
   };
   const tick = () => {
     if (dead) return; raf = requestAnimationFrame(tick);
+    // Save battery: don't draw while the tab is hidden or the scene has scrolled away.
+    if (document.hidden || el.style.opacity === '0') return;
     try {
       if (!curve || !tube || !glow || !S.tgt) return;
       const now = performance.now();

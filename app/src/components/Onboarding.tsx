@@ -42,14 +42,17 @@ export function Onboarding({ v, api }: { v: View; api: Api }) {
           </div>
         </div>
       )}
-      <div style={css('position:absolute;left:24px;right:24px;top:58px;display:flex;align-items:center;justify-content:space-between')}>
+      <div className="sc-col" style={css('position:absolute;left:24px;right:24px;top:58px;display:flex;align-items:center;justify-content:space-between')}>
         <div style={css('font-family:var(--fontH);font-weight:700;font-size:22px;letter-spacing:-.02em;text-shadow:var(--tsh)')}>Safar<span style={css('background:var(--wm);-webkit-background-clip:text;background-clip:text;color:transparent')}>Co</span></div>
-        <div style={css('padding:6px 11px;border-radius:12px;background:var(--fill2);backdrop-filter:blur(10px);font-size:12px;font-weight:700')}>{v.stepLabel}</div>
+        <div style={css('display:flex;align-items:center;gap:8px;pointer-events:auto')}>
+          <button onClick={() => set({ sheet: 'trips' })} style={css('height:32px;padding:0 11px;border-radius:12px;border:0;background:var(--fill2);backdrop-filter:blur(10px);color:var(--ink);font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:5px')}><i className="ph-fill ph-bookmarks-simple" />My trips</button>
+          <div style={css('padding:6px 11px;border-radius:12px;background:var(--fill2);backdrop-filter:blur(10px);font-size:12px;font-weight:700')}>{v.stepLabel}</div>
+        </div>
       </div>
-      <div style={css('position:absolute;left:24px;right:24px;top:100px;display:grid;grid-template-columns:repeat(6,1fr);gap:6px')}>
+      <div className="sc-col" style={css('position:absolute;left:24px;right:24px;top:100px;display:grid;grid-template-columns:repeat(6,1fr);gap:6px')}>
         {v.stepBars.map((b, i) => <div key={i} style={css(`height:4px;border-radius:2px;background:${b.bg};box-shadow:${b.glow};transition:all .4s`)} />)}
       </div>
-      <div style={css('position:absolute;left:0;right:0;top:var(--ob-top,262px);bottom:0;padding:26px 22px calc(30px + env(safe-area-inset-bottom));display:flex;flex-direction:column;pointer-events:auto;background:linear-gradient(180deg,var(--bg0) 0,var(--bg) 44px)')}>
+      <div className="sc-colp" style={css('position:absolute;left:0;right:0;top:var(--ob-top,262px);bottom:0;padding:26px 22px calc(30px + env(safe-area-inset-bottom));display:flex;flex-direction:column;pointer-events:auto;background:linear-gradient(180deg,var(--bg0) 0,var(--bg) 44px)')}>
         <h1 style={css('margin:0;font-family:var(--fontH);font-weight:600;font-size:24px;line-height:1.2;letter-spacing:-.02em;text-wrap:pretty')}>{v.ob.title}</h1>
         <div style={css('font-size:14px;color:var(--mute);margin-top:8px;font-weight:500;line-height:1.4')}>{v.ob.sub}</div>
         <div style={css('flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;margin:16px -22px 12px;padding:2px 22px 8px;perspective:900px')}>

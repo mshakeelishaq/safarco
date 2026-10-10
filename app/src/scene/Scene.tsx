@@ -4,7 +4,7 @@ import type { Theme } from '../state';
 
 interface Props {
   elRef: RefObject<HTMLDivElement | null>;
-  corridor: string; theme: Theme; showLabels: boolean; peakLabel: string;
+  corridor: string; theme: Theme; lite: boolean; showLabels: boolean; peakLabel: string;
 }
 
 interface SceneHandle { setCorridor(key: string): void; dispose(): void }
@@ -15,7 +15,7 @@ const TH3: Record<Theme, [number, number, number]> = {
 };
 
 /** The tilted 3D mountain scene behind the top of every screen. Drag to orbit. */
-export function Scene({ elRef, corridor, theme, showLabels, peakLabel }: Props) {
+export function Scene({ elRef, corridor, theme, lite, showLabels, peakLabel }: Props) {
   const destRef = useRef<HTMLDivElement>(null), hubRef = useRef<HTMLDivElement>(null);
   const handle = useRef<SceneHandle | null>(null);
   const live = useRef({ showLabels, corridor });
@@ -24,6 +24,7 @@ export function Scene({ elRef, corridor, theme, showLabels, peakLabel }: Props) 
 
   useEffect(() => {
     let dead = false;
+    if (lite) return;
     import('./three-scene').then(({ createScene }) => {
       const el = elRef.current; if (dead || !el) return;
       handle.current = createScene(el, TH3[theme], drag.current, { dest: destRef, hub: hubRef }, () => live.current.showLabels);
@@ -31,7 +32,7 @@ export function Scene({ elRef, corridor, theme, showLabels, peakLabel }: Props) 
     }).catch(e => console.warn('SafarCo scene: ' + (e && e.message)));
     return () => { dead = true; handle.current?.dispose(); handle.current = null; };
     // The scene is rebuilt only when the theme's lighting changes.
-  }, [theme, elRef]);
+  }, [theme, lite, elRef]);
 
   useEffect(() => { live.current.corridor = corridor; handle.current?.setCorridor(corridor); }, [corridor]);
 
@@ -49,7 +50,7 @@ export function Scene({ elRef, corridor, theme, showLabels, peakLabel }: Props) 
       </div>
       <div ref={hubRef} style={css('position:absolute;left:0;top:0;z-index:3;opacity:0;pointer-events:none;transition:opacity .4s')}>
         <div style={css('display:flex;align-items:center;gap:6px;padding:7px 11px 7px 8px;border-radius:14px;background:linear-gradient(135deg,#FFB547,#FF8A3D);color:#2A1500;font-size:12px;font-weight:800;white-space:nowrap;box-shadow:0 10px 24px -6px rgba(255,150,60,.7)')}>
-          <i className="ph-fill ph-local-parking" style={css('font-size:15px')} />Raikot Bridge · park here
+          <i className="ph-fill ph-letter-circle-p" style={css('font-size:15px')} />Raikot Bridge · park here
         </div>
       </div>
       <div style={css('position:absolute;left:0;right:0;bottom:0;height:200px;background:linear-gradient(180deg,var(--bg0) 0%,var(--bg75) 55%,var(--bg) 100%);pointer-events:none;z-index:2')} />

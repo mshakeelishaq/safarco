@@ -1,7 +1,7 @@
 // Trip engine: road routing, day-by-day plan, costs, season notes and suggestions.
 // Ported from the SafarCo App v7 design; all figures are estimates.
 import {
-  AIRPORTS, CONFIGS, DIESEL, EDGES, EDGE_STOPS, FARES, LOCAL_CAR, MONTH_FULL, MTN_NODES, NODES, NODE_INFO, PETROL, ROAD_NOTE, SLOTS, STOP_DUR, STOP_HOTELS,
+  AIRPORTS, CONFIGS, EDGES, EDGE_STOPS, FARES, MONTH_FULL, MTN_NODES, NODES, NODE_INFO, P as PR, ROAD_NOTE, SLOTS, STOP_DUR, STOP_HOTELS,
   SUGGEST_POOL, SUNRISE, SUNSET, TIERS, VEH, type Edge, type EdgeStop, type Hotel, type Jeep, type Mode, type Place, type StopKind, type TierId, type TripConfig, type VehicleId
 } from './data';
 import { clock, dayLabel, dur, fmt, fmtN, hav, inM, mapsQ, mon } from './format';
@@ -81,7 +81,7 @@ export interface AirOption { dep: string; arr: string; fare: number; km: number;
 export function airFor(key: string, origin: string | null): AirOption | null {
   const D = DST(key), fares = D.air && FARES[D.air]; if (!fares) return null; const o = cityOr(origin);
   const opts = Object.entries(AIRPORTS).filter(([k, v]) => fares[k] && v[0] !== D.air).map(([k, [dep, la, lo]]) => {
-    const km = hav(o.lat, o.lon, la, lo) * 1.3, pp = km < 40 ? 0 : Math.round(km * 6.5 / 100) * 100 * 2;
+    const km = hav(o.lat, o.lon, la, lo) * 1.3, pp = km < 40 ? 0 : Math.round(km * PR.airportCoach / 100) * 100 * 2;
     return { dep, arr: D.air as string, fare: fares[k], km, pp, score: fares[k] * 2 + pp };
   });
   return opts.length ? opts.sort((a, b) => a.score - b.score)[0] : null;
@@ -116,7 +116,9 @@ export interface Trip extends Dest {
   legs: Leg[]; cuts: number[]; via: string; legDays: number; minDays: number; live: { km: number; ratio: number; ignored?: boolean } | null; tiles: number;
 }
 const TRIP_CACHE: Record<string, Trip> = {};
-LIVE.routeHooks.add(() => { for (const k in TRIP_CACHE) delete TRIP_CACHE[k]; });
+/** Forget computed trips, e.g. after a live route arrives or prices change. */
+export const resetTripCache = () => { for (const k in TRIP_CACHE) delete TRIP_CACHE[k]; };
+LIVE.routeHooks.add(resetTripCache);
 
 /** Road trip from `origin` to destination `key` in `month`, using the road table, corrected by the live OSRM distance when close. */
 export function trip(key: string, origin: string | null, month = 7): Trip {
@@ -245,7 +247,7 @@ export function buildPlan(s: TripState): Plan {
 
 export interface CostRow { icon: string; label: string; detail: string; val: number }
 export interface Cost { rows: CostRow[]; total: number; ok: boolean; minDays: number; why: string }
-export const coachFare = (c: Trip) => Math.round((c.flatKm * 6.5 + c.mtnKm * 9) / 100) * 100;
+export const coachFare = (c: Trip) => Math.round((c.flatKm * PR.coachFlat + c.mtnKm * PR.coachMtn) / 100) * 100;
 
 export function costFor(o: TripState): Cost {
   const A = o.adults ?? o.groupSize ?? 2, K = o.kids || 0, E = o.elders || 0, P = A + K + E, AD = A + E;
@@ -260,13 +262,13 @@ export function costFor(o: TripState): Cost {
       minDays = 3; ok = o.days >= 3;
       rows.push({ icon: 'ph-airplane-tilt', label: 'Flights', detail: `${a.dep} ⇄ ${a.arr} · ${fmt(a.fare)} one way × ${AD} adult${AD > 1 ? 's' : ''}${kidTxt('75%')}`, val: a.fare * 2 * (AD + K * 0.75) });
       if (a.pp) rows.push({ icon: 'ph-bus', label: 'To the airport', detail: `${c.from} ⇄ ${a.dep} by coach · ${fmt(a.pp)} return per person`, val: a.pp * P });
-      const cars = Math.ceil(P / 4); rows.push({ icon: 'ph-steering-wheel', label: 'Car + driver there', detail: `${cars} car${cars > 1 ? 's' : ''} × ${o.days} days × ${fmt(LOCAL_CAR)}, fuel included`, val: cars * o.days * LOCAL_CAR });
+      const cars = Math.ceil(P / 4); rows.push({ icon: 'ph-steering-wheel', label: 'Car + driver there', detail: `${cars} car${cars > 1 ? 's' : ''} × ${o.days} days × ${fmt(PR.localCar)}, fuel included`, val: cars * o.days * PR.localCar });
     }
   } else if (o.vehicle === 'public') {
     const fare = coachFare(c);
     rows.push({ icon: 'ph-bus', label: 'Transport', detail: `Coach ${fmt(fare)} each way × ${AD} adult${AD > 1 ? 's' : ''}${kidTxt('half fare')}`, val: fare * 2 * (AD + K * 0.5) });
   } else {
-    const units = Math.max(1, Math.ceil(P / (v.cap || 4))), per = 2 * (c.flatKm / (v.mileage || 1) + c.mtnKm / (v.mtn || 1)), price = v.diesel ? DIESEL : PETROL, noun = o.vehicle === 'bike' ? 'bikes' : 'vehicles';
+    const units = Math.max(1, Math.ceil(P / (v.cap || 4))), per = 2 * (c.flatKm / (v.mileage || 1) + c.mtnKm / (v.mtn || 1)), price = v.diesel ? PR.diesel : PR.petrol, noun = o.vehicle === 'bike' ? 'bikes' : 'vehicles';
     if (v.rate) rows.push({ icon: v.icon, label: 'Rental', detail: `${units} × ${v.short} · (${fmt(v.rate)} + ${fmtN(v.allow || 0)} driver) × ${o.days} days`, val: units * (v.rate + (v.allow || 0)) * o.days });
     rows.push({ icon: 'ph-gas-pump', label: 'Fuel', detail: `${fmtN(rt)} km · ${units > 1 ? `${units} ${noun} × ` : ''}${fmtN(per)} L ${v.diesel ? 'diesel' : 'petrol'} at ${v.mileage} / ${v.mtn} km/L`, val: per * units * price });
     const tollSum = c.tolls.reduce((a, b) => a + b[1], 0) * 2 * units * (v.tollX || 1);
@@ -281,7 +283,7 @@ export function costFor(o: TripState): Cost {
     rows.push({ icon: 'ph-bed', label: 'Stay', detail: `${r} double${r > 1 ? 's' : ''}${extra ? ` + ${extra} extra bed${extra > 1 ? 's' : ''}` : ''} × ${nights} night${nights > 1 ? 's' : ''} · ${t.label}${sfTxt}`, val: (r * t.night + extra * t.night * 0.2) * nights * sf });
   }
   rows.push({ icon: 'ph-fork-knife', label: 'Meals', detail: `${AD} adult${AD > 1 ? 's' : ''}${kidTxt('60%')} × ${o.days} days`, val: t.meal * o.days * (AD + K * 0.6) });
-  if (c.hub !== undefined && o.vehicle !== 'suv' && o.vehicle !== 'rent4x4') { const j = jeepsFor(P); rows.push({ icon: 'ph-jeep', label: 'Local jeep', detail: `Raikot Bridge ⇄ Tato · ${j} jeep${j > 1 ? 's' : ''} × PKR 10,000`, val: j * 10000 }); }
+  if (c.hub !== undefined && o.vehicle !== 'suv' && o.vehicle !== 'rent4x4') { const j = jeepsFor(P); rows.push({ icon: 'ph-jeep', label: 'Local jeep', detail: `Raikot Bridge ⇄ Tato · ${j} jeep${j > 1 ? 's' : ''} × ${fmt(PR.raikotJeep)}`, val: j * PR.raikotJeep }); }
   const add = plannedJeeps(o, c, M);
   if (add.length) { const j = jeepsFor(P); rows.push({ icon: 'ph-jeep', label: 'Jeep trips', detail: `${add.map(x => x[1]).join(', ')} · ${j} jeep${j > 1 ? 's' : ''}`, val: add.reduce((a, x) => a + x[3], 0) * j }); }
   return { rows, total: rows.reduce((a, r) => a + r.val, 0), ok, minDays, why };

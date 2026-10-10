@@ -16,7 +16,7 @@ npm test               # trip engine, parity with the design, server functions
 npm run build          # type-check and build to dist/
 ```
 
-Themes: Paper (default), Daylight, Peach and Dark, under **Edit trip → Theme**, or open with `?theme=dark`.
+Themes: Paper (default), Daylight, Peach and Dark, under **Edit trip → Theme**, or open with `?theme=dark`. Add `?frame` to see the app inside the design's phone mock-up.
 
 ## Free services
 
@@ -28,7 +28,9 @@ Themes: Paper (default), Daylight, Peach and Dark, under **Edit trip → Theme**
 | Weather | Open-Meteo (free for non-commercial use) | none | browser |
 | Destination guide | Wikivoyage, falling back to Wikipedia | none | browser |
 | US dollar rate | open.er-api.com (daily) | none | browser |
-| Hotel prices | none available for free: estimated ranges + Booking.com "Check prices" links | none | browser |
+| Hotel prices | none available for free: ranges from the admin price list + Booking.com "Check prices" links (affiliate id optional) | `VITE_BOOKING_AID` | browser |
+| Accounts, saved trips, price list, feedback | Supabase + Google sign-in (row-level security in `supabase/schema.sql`) | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (public by design) | browser |
+| Visitor counts, crash reports | Vercel Web Analytics, `api/log.ts` → Vercel Logs | none | browser + server |
 
 Keys live only in Vercel's environment variables (or your local `.env`) and are read by the functions in `api/`.
 Those responses are cached at Vercel's edge for a week, so many users share one request to each provider.
@@ -42,10 +44,16 @@ Without keys the app still works: it uses its built-in road table, hand-written 
 | Screens | `src/components/` |
 | What the screens show, derived from state | `src/view.ts` |
 | Prices in PKR/USD, hotel ranges, Check prices links | `src/money.ts` |
+| Admin price list (fuel, tolls, stays, hire, fares, jeeps, road alerts) with "checked on" dates | `src/prices.ts`, `src/pages/Admin.tsx` (at /admin) |
+| Saved trips on the device, share links, account sync | `src/trips.ts`, `src/cloud.ts`, `src/components/Panels.tsx` |
+| Privacy and terms pages | `src/pages/Legal.tsx` (at /privacy, /terms) |
+| Icon font cut to the icons in use (rerun after adding one) | `scripts/subset-icons.py` → `src/icons/` |
 | 3D hero terrain (three.js) | `src/scene/` |
 | Offline download, service worker | `src/offline.ts`, `public/sw.js` |
 | Server functions (Vercel) | `api/` |
 
-## Still estimates
+## What is live, checked or modelled
 
-As in the design, road km and speeds, tolls, fuel economy, fares, hire and jeep rates, hotel price ranges, sunset times and season months are estimates. Hand-picked hotel names in the 21 built-in guides may not all be open; where Geoapify returns real places to stay, those are shown instead.
+- **Live:** road distance and route, weather, places and hotels, destination guides, dollar rate.
+- **Checked by the admin, with dates shown to users:** fuel, tolls, hotel and meal ranges, hire, coach and flight fares, jeep rates, road alerts. Until a section is checked, the app labels it "not checked yet".
+- **Modelled:** drive times on mountain roads, fuel economy per vehicle, sunset times and pass seasons. Hand-picked hotel names in the 21 built-in guides appear only where Geoapify has no live list.

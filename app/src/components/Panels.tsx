@@ -1,0 +1,129 @@
+// Bottom sheets for saving and sharing trips, signing in, and sending feedback.
+import { useEffect, useState } from 'react';
+import type { User } from '../cloud';
+import { cloudEnabled } from '../cloud';
+import { DST } from '../engine/places';
+import { dayLabel } from '../engine/format';
+import { css } from '../lib/css';
+import type { SavedTrip } from '../trips';
+import { Grip, scrim, sheet } from './Sheets';
+
+const btn = (primary: boolean) => css(`height:50px;padding:0 18px;border-radius:16px;border:${primary ? '0' : '1px solid var(--line2)'};background:${primary ? 'var(--cta)' : 'var(--fill)'};color:${primary ? 'var(--onCta)' : 'var(--ink)'};font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;width:100%`);
+const input = css('width:100%;box-sizing:border-box;height:50px;border-radius:16px;border:1px solid var(--line2);background:var(--fill);padding:0 14px;font-size:15px;font-weight:600;color:var(--ink);outline:none');
+
+function Panel({ open, onClose, title, sub, height, children }: { open: boolean; onClose: () => void; title: string; sub?: string; height: number; children: React.ReactNode }) {
+  return <>
+    <div onClick={onClose} style={scrim(open)} />
+    <div role="dialog" aria-modal="true" aria-label={title} aria-hidden={!open} inert={!open} className="sc-sheet" style={sheet(height, open)}>
+      <Grip />
+      <div style={css('display:flex;align-items:center;gap:12px;padding:12px 16px 8px 20px')}>
+        <div style={css('flex:1;min-width:0')}><h2 style={css('margin:0;font-family:var(--fontH);font-size:17px;font-weight:600')}>{title}</h2>{sub && <div style={css('font-size:12px;font-weight:600;color:var(--mute);margin-top:3px;line-height:1.4')}>{sub}</div>}</div>
+        <button onClick={onClose} aria-label="Close" style={css('width:44px;height:44px;flex:none;border-radius:15px;border:1px solid var(--line);background:var(--fill);color:var(--ink);font-size:17px;cursor:pointer')}><i className="ph-bold ph-x" /></button>
+      </div>
+      <div style={css('flex:1;overflow-y:auto;scrollbar-width:none;padding:8px 20px calc(28px + env(safe-area-inset-bottom))')}>{children}</div>
+    </div>
+  </>;
+}
+
+const GoogleButton = ({ onClick, busy }: { onClick: () => void; busy?: boolean }) => (
+  <button onClick={onClick} disabled={busy} style={css('height:52px;width:100%;border-radius:16px;border:1px solid var(--line2);background:#FFFFFF;color:#1F1F1F;font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px')}>
+    <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z" /><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" /><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z" /><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z" /></svg>
+    {busy ? 'Opening Google…' : 'Continue with Google'}
+  </button>
+);
+
+export function SaveSheet({ open, defaultName, isSaved, onSave, onClose }: { open: boolean; defaultName: string; isSaved: boolean; onSave: (name: string, asNew: boolean) => void; onClose: () => void }) {
+  const [name, setName] = useState(defaultName);
+  useEffect(() => { if (open) setName(defaultName); }, [open, defaultName]);
+  return (
+    <Panel open={open} onClose={onClose} height={330} title={isSaved ? 'Saved trip' : 'Save this trip'} sub={isSaved ? 'Changes you make are saved automatically.' : 'Keep it to open again later, even offline.'}>
+      <label style={css('display:block;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin:6px 4px 8px')} htmlFor="trip-name">Trip name</label>
+      <input id="trip-name" value={name} onChange={e => setName(e.target.value)} maxLength={120} style={input} className="focus-g" />
+      <div style={css('display:flex;flex-direction:column;gap:10px;margin-top:16px')}>
+        <button onClick={() => onSave(name.trim() || defaultName, false)} style={btn(true)}><i className="ph-fill ph-bookmark-simple" />{isSaved ? 'Rename' : 'Save trip'}</button>
+        {isSaved && <button onClick={() => onSave(name.trim() || defaultName, true)} style={btn(false)}><i className="ph-bold ph-copy" />Save as a new trip</button>}
+      </div>
+    </Panel>
+  );
+}
+
+export function SignInSheet({ open, onGoogle, onClose }: { open: boolean; onGoogle: () => void; onClose: () => void }) {
+  const [busy, setBusy] = useState(false);
+  useEffect(() => { if (!open) setBusy(false); }, [open]);
+  return (
+    <Panel open={open} onClose={onClose} height={430} title="Keep your trips safe" sub="Your trip is saved on this phone.">
+      <div style={css('display:flex;flex-direction:column;gap:12px;margin-top:6px')}>
+        {[['ph-devices', 'Open your trips on any phone or computer'], ['ph-shield-check', 'Don’t lose them if you clear your browser or change phone'], ['ph-lock-simple', 'Only you can see them']].map(([icon, text]) => (
+          <div key={icon} style={css('display:flex;gap:12px;align-items:center')}><i className={`ph-fill ${icon}`} style={css('font-size:22px;color:var(--g);flex:none')} /><div style={css('font-size:14px;font-weight:600;line-height:1.4;color:var(--ink2)')}>{text}</div></div>
+        ))}
+      </div>
+      <div style={css('display:flex;flex-direction:column;gap:10px;margin-top:20px')}>
+        <GoogleButton busy={busy} onClick={() => { setBusy(true); onGoogle(); }} />
+        <button onClick={onClose} style={btn(false)}>Not now</button>
+      </div>
+      <div style={css('font-size:11px;font-weight:600;color:var(--mute);margin-top:12px;line-height:1.5;text-align:center')}>By signing in you agree to the <a href="/terms">Terms</a> and <a href="/privacy">Privacy policy</a>.</div>
+    </Panel>
+  );
+}
+
+export function TripsSheet({ open, trips, user, currentId, onOpen, onDelete, onShare, onNew, onSignIn, onSignOut, onFeedback, onClose }: {
+  open: boolean; trips: SavedTrip[]; user: User | null; currentId: string | null;
+  onOpen: (t: SavedTrip) => void; onDelete: (t: SavedTrip) => void; onShare: (t: SavedTrip) => void; onNew: () => void; onSignIn: () => void; onSignOut: () => void; onFeedback: () => void; onClose: () => void;
+}) {
+  const [confirm, setConfirm] = useState<string | null>(null);
+  return (
+    <Panel open={open} onClose={() => { setConfirm(null); onClose(); }} height={640} title="My trips" sub={user ? `Signed in as ${user.email} · saved to your account` : 'Saved on this device'}>
+      <button onClick={onNew} style={btn(true)}><i className="ph-bold ph-plus" />Plan a new trip</button>
+      {!trips.length && <div style={css('padding:24px 6px;font-size:14px;font-weight:600;color:var(--mute);line-height:1.5;text-align:center')}>No saved trips yet. Tap <b>Save</b> on a trip to keep it here.</div>}
+      <div style={css('display:flex;flex-direction:column;gap:10px;margin-top:14px')}>
+        {trips.map(t => (
+          <div key={t.id} style={css(`border-radius:20px;padding:12px 14px;background:var(--fill);border:1px solid ${t.id === currentId ? 'rgba(46,229,157,.5)' : 'var(--line)'}`)}>
+            <button onClick={() => onOpen(t)} style={css('display:block;width:100%;padding:0;border:0;background:none;color:var(--ink);text-align:left;cursor:pointer')}>
+              <div style={css('font-size:15px;font-weight:800;line-height:1.3')}>{t.name}</div>
+              <div style={css('font-size:12px;font-weight:600;color:var(--mute);margin-top:3px')}>{dayLabel(t.data.startDate, 0)} · {t.data.days} days · {t.data.groupSize} traveller{t.data.groupSize > 1 ? 's' : ''} · {DST(t.data.corridor).region}</div>
+              <div style={css('font-size:11px;font-weight:700;color:var(--mute);margin-top:4px;display:flex;align-items:center;gap:5px')}><i className={`ph-fill ${t.cloudId ? 'ph-cloud-check' : 'ph-device-mobile'}`} />{t.cloudId ? 'In your account' : 'On this device'}{t.id === currentId ? ' · open now' : ''}</div>
+            </button>
+            <div style={css('display:flex;gap:8px;margin-top:10px')}>
+              <button onClick={() => onOpen(t)} style={css('flex:1;height:40px;border-radius:13px;border:0;background:var(--cta);color:var(--onCta);font-size:13px;font-weight:800;cursor:pointer')}>Open</button>
+              <button onClick={() => onShare(t)} aria-label={`Share ${t.name}`} style={css('width:44px;height:40px;border-radius:13px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);font-size:16px;cursor:pointer')}><i className="ph-bold ph-share-network" /></button>
+              {confirm === t.id
+                ? <button onClick={() => { setConfirm(null); onDelete(t); }} style={css('height:40px;padding:0 12px;border-radius:13px;border:0;background:var(--cor);color:#fff;font-size:13px;font-weight:800;cursor:pointer')}>Delete?</button>
+                : <button onClick={() => setConfirm(t.id)} aria-label={`Delete ${t.name}`} style={css('width:44px;height:40px;border-radius:13px;border:1px solid var(--line2);background:var(--fill);color:var(--ink2);font-size:16px;cursor:pointer')}><i className="ph-bold ph-trash" /></button>}
+            </div>
+          </div>
+        ))}
+      </div>
+      {cloudEnabled && (
+        <div style={css('margin-top:18px;padding-top:16px;border-top:1px solid var(--line)')}>
+          {user
+            ? <button onClick={onSignOut} style={btn(false)}><i className="ph-bold ph-sign-out" />Sign out</button>
+            : <><div style={css('font-size:13px;font-weight:600;color:var(--ink2);margin:0 4px 10px;line-height:1.45')}>Sign in to keep trips on all your devices.</div><GoogleButton onClick={onSignIn} /></>}
+        </div>
+      )}
+      <div style={css('display:flex;justify-content:center;gap:16px;margin-top:18px;font-size:12px;font-weight:700')}>
+        <button onClick={onFeedback} style={css('padding:8px;border:0;background:none;color:var(--g);font-size:12px;font-weight:700;cursor:pointer')}>Send feedback</button>
+        <a href="/privacy" style={css('padding:8px;text-decoration:none')}>Privacy</a>
+        <a href="/terms" style={css('padding:8px;text-decoration:none')}>Terms</a>
+      </div>
+    </Panel>
+  );
+}
+
+export function FeedbackSheet({ open, onSend, onClose }: { open: boolean; onSend: (message: string, contact: string) => Promise<void>; onClose: () => void }) {
+  const [msg, setMsg] = useState(''), [contact, setContact] = useState(''), [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+  useEffect(() => { if (open) setState('idle'); }, [open]);
+  return (
+    <Panel open={open} onClose={onClose} height={520} title="Send feedback" sub="Found a wrong road, price or place? Tell us and we’ll fix it.">
+      {state === 'sent' ? (
+        <div style={css('padding:30px 6px;text-align:center')}><i className="ph-fill ph-check-circle" style={css('font-size:44px;color:var(--g)')} /><div style={css('font-size:16px;font-weight:800;margin-top:10px')}>Thank you!</div><div style={css('font-size:13px;color:var(--mute);font-weight:600;margin-top:4px')}>We read every message.</div><div style={css('margin-top:18px')}><button onClick={onClose} style={btn(true)}>Done</button></div></div>
+      ) : <>
+        <label htmlFor="fb-msg" style={css('display:block;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin:6px 4px 8px')}>Your message</label>
+        <textarea id="fb-msg" value={msg} onChange={e => setMsg(e.target.value)} maxLength={2000} rows={5} placeholder="e.g. The road to Kumrat is closed after Thal this month" style={css('width:100%;box-sizing:border-box;border-radius:16px;border:1px solid var(--line2);background:var(--fill);padding:12px 14px;font:600 15px/1.45 var(--font);color:var(--ink);outline:none;resize:vertical')} className="focus-g" />
+        <label htmlFor="fb-contact" style={css('display:block;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin:14px 4px 8px')}>Email or WhatsApp (optional)</label>
+        <input id="fb-contact" value={contact} onChange={e => setContact(e.target.value)} maxLength={200} placeholder="So we can reply" style={input} className="focus-g" />
+        {state === 'error' && <div role="alert" style={css('font-size:13px;font-weight:700;color:var(--cor);margin-top:10px')}>Couldn’t send. Check your connection and try again.</div>}
+        <div style={css('margin-top:16px')}><button disabled={!msg.trim() || state === 'sending'} onClick={() => { setState('sending'); onSend(msg.trim(), contact.trim()).then(() => { setState('sent'); setMsg(''); setContact(''); }, () => setState('error')); }} style={{ ...btn(true), opacity: msg.trim() ? 1 : .5 }}><i className="ph-fill ph-paper-plane-right" />{state === 'sending' ? 'Sending…' : 'Send'}</button></div>
+      </>}
+    </Panel>
+  );
+}

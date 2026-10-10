@@ -12,8 +12,12 @@ export function nightRange(tier: TierId, season: number) {
   return { lo, hi, text: `PKR ${fmtN(lo)}–${fmtN(hi)}`, usd: `${usd(lo)}–${usd(hi)}` };
 }
 
-/** Booking.com search for a town (or a hotel in it) on the trip's dates. */
+/** Booking.com affiliate id, once Booking.com approves SafarCo (set VITE_BOOKING_AID on Vercel). */
+const AID = (import.meta.env.VITE_BOOKING_AID as string | undefined)?.trim();
+
+/** Booking.com search for a town (or a hotel in it) on the trip's dates, showing live prices. */
 export function checkPricesUrl(q: string, checkin: string, nights: number, adults: number, kids: number, rooms: number) {
   const p = new URLSearchParams({ ss: `${q}, Pakistan`, checkin, checkout: isoOff(checkin, Math.max(1, nights)), group_adults: String(adults), group_children: String(kids), no_rooms: String(Math.max(1, rooms)) });
+  if (AID && /^\d+$/.test(AID)) p.set('aid', AID);
   return `https://www.booking.com/searchresults.html?${p}`;
 }

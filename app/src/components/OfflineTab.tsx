@@ -6,12 +6,12 @@ export function OfflineTab({ v, api }: { v: View; api: Api }) {
   return (
     <div data-screen-label="Offline mode">
       <div style={css('height:250px;position:relative;pointer-events:none')}>
-        <div style={css('position:absolute;left:22px;right:22px;top:58px;text-shadow:var(--tsh)')}>
+        <div className="sc-col" style={css('position:absolute;left:22px;right:22px;top:58px;text-shadow:var(--tsh)')}>
           <div style={css('font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--amb2)')}>{c.from} → {c.to}</div>
           <h1 style={css('margin:6px 0 0;font-family:var(--fontH);font-weight:600;font-size:26px;letter-spacing:-.02em')}>Offline survival</h1>
         </div>
       </div>
-      <div style={css('padding:4px 16px 150px;display:flex;flex-direction:column;gap:14px;pointer-events:auto;background:var(--bg)')}>
+      <div className="sc-flow" style={css('padding:4px 16px 150px;display:flex;flex-direction:column;gap:14px;pointer-events:auto;background:var(--bg)')}>
         <section style={css('border-radius:30px;padding:22px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;text-align:center')}>
           <div role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={v.s.offline === 'ready' ? 100 : v.s.progress} style={css(`position:relative;width:148px;height:148px;border-radius:50%;background:${off.ring};box-shadow:0 0 50px -10px ${off.glow};display:flex;align-items:center;justify-content:center`)}>
             <div style={css('width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--sheet),var(--sheet));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;box-shadow:inset 0 2px 0 var(--fill)')}>

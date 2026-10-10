@@ -101,13 +101,13 @@ export function MapTab({ v, api }: { v: View; api: Api }) {
   return (
     <div data-screen-label="Route map">
       <div style={css('height:250px;position:relative;pointer-events:none')}>
-        <div style={css('position:absolute;left:22px;right:22px;top:58px;text-shadow:var(--tsh)')}>
+        <div className="sc-col" style={css('position:absolute;left:22px;right:22px;top:58px;text-shadow:var(--tsh)')}>
           <div style={css('font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--amb2)')}>{c.from} → {c.to}</div>
           <h1 style={css('margin:6px 0 0;font-family:var(--fontH);font-weight:600;font-size:26px;letter-spacing:-.02em')}>Route map</h1>
           <div style={css('font-size:13px;font-weight:700;color:var(--ink2);margin-top:8px;line-height:1.45')}>{rm.stat}</div>
         </div>
       </div>
-      <div style={css('padding:4px 16px 150px;display:flex;flex-direction:column;gap:14px;pointer-events:auto;background:var(--bg)')}>
+      <div className="sc-flow" style={css('padding:4px 16px 150px;display:flex;flex-direction:column;gap:14px;pointer-events:auto;background:var(--bg)')}>
         <div style={css('border-radius:30px;padding:16px 12px 22px;background:var(--sheet);border:1px solid var(--line);overflow:hidden')}>
           {s.mapFail ? <DrawnMap v={v} /> : <>
             <LiveMap v={v} onFail={() => api.set({ mapFail: true })} />

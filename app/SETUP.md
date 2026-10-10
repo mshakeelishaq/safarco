@@ -2,9 +2,9 @@
 
 This guide takes you from nothing to a live SafarCo website that anyone can open on their phone. You don't need to write or change any code.
 
-**Time:** about 45 minutes. **Cost:** free. (The optional Google Play listing in step 8 costs a one-time US$25.)
+**Time:** about 90 minutes in total (steps 1–6 get the site online; 7–11 add accounts, prices and visitor counts). **Cost:** free. (The optional Google Play listing in step 8 costs a one-time US$25.)
 
-You will create four free accounts:
+You will create five free accounts, plus a Google sign-in setup:
 
 | Account | What it's for |
 |---|---|
@@ -12,6 +12,8 @@ You will create four free accounts:
 | Vercel | Runs the website |
 | OpenRouteService | Road routes and distances |
 | Geoapify | Place search, sights and places to stay |
+| Supabase | Saves trips to people's accounts, your price list and feedback |
+| Google Cloud | Lets people sign in with Google (free, no card needed) |
 
 Website screens change from time to time. If a button has a slightly different name, look for the closest match.
 
@@ -79,7 +81,80 @@ Open your new address on your phone and go through the questions, choosing **Lah
 
 If you change a key later: in Vercel open **Settings → Environment Variables**, edit it, then go to **Deployments**, click the **⋯** on the latest one and choose **Redeploy**. Keys only take effect after a redeploy.
 
-## Step 7: Install it on a phone
+## Step 7: Set up Supabase (saved trips, price list, feedback)
+
+Without this step the app still works: trips save on each phone only, and prices use the built-in list.
+
+1. Go to **supabase.com**, click **Start your project** and sign in with GitHub.
+2. Click **New project**. Name it `safarco`, create a strong database password (save it in your note), and choose the region **closest to Pakistan** (for example Mumbai or Singapore). Click **Create new project** and wait about 2 minutes.
+3. In the left menu open **SQL Editor → New query**. Open the file `app/supabase/schema.sql` from your GitHub repository, copy all of it, paste it in, and click **Run**. It should say "Success".
+4. Make yourself the admin. In a new query, paste this with **your Google email**, then click **Run**:
+   `insert into public.admins (email) values ('your.name@gmail.com');`
+5. Open **Project Settings → API** (sometimes called **Data API**). Copy the **Project URL** and the **anon public** key into your note.
+
+The anon key is meant to be public: it's built into the website. The database rules from step 3 make sure people can only see their own trips, and only you can change prices.
+
+## Step 8: Turn on "Sign in with Google"
+
+**Part A: Google Cloud**
+1. Go to **console.cloud.google.com** and sign in. Create a project named `SafarCo` (top bar → project picker → **New project**).
+2. Open **APIs & Services → OAuth consent screen** (it may be called **Google Auth Platform → Branding**). Choose **External**, set:
+   - **App name:** SafarCo
+   - **Support email:** your email
+   - **Authorised domain:** `vercel.app` (or your own domain later)
+   - **Privacy policy link:** `https://<your-site>/privacy`
+   - **Terms link:** `https://<your-site>/terms`
+3. Under **Audience**, click **Publish app**. *Important: if it stays in "Testing", only the test users you list can sign in.*
+4. Open **Credentials → Create credentials → OAuth client ID**. Choose **Web application**.
+5. In **Supabase → Authentication → Sign In / Providers → Google**, copy the **Callback URL** it shows.
+6. Back in Google, paste that address under **Authorised redirect URIs** and click **Create**. Copy the **Client ID** and **Client secret**.
+
+**Part B: Supabase**
+1. In **Authentication → Sign In / Providers → Google**, switch it on and paste the Client ID and Client secret. Click **Save**.
+2. In **Authentication → URL Configuration**:
+   - Set **Site URL** to your Vercel address, for example `https://safarco-xxxx.vercel.app`.
+   - Under **Redirect URLs**, add `https://safarco-xxxx.vercel.app/**`.
+
+**Part C: Vercel**
+1. In **Settings → Environment Variables**, add:
+   - `VITE_SUPABASE_URL` = the Project URL
+   - `VITE_SUPABASE_ANON_KEY` = the anon public key
+   - `VITE_CONTACT_EMAIL` = an email people can contact (shown on the Privacy page)
+2. Redeploy (**Deployments → ⋯ → Redeploy**).
+
+**Check it:**
+1. Plan a trip and tap the **bookmark** (Save) button. The app should offer **Continue with Google**.
+2. Sign in. Your trip should then show **In your account** under **My trips**.
+
+## Step 9: Check and enter real prices (the admin page)
+
+1. Open `https://<your-site>/admin` and sign in with the Google email you made admin in step 7.
+2. For each section, check the current prices from the source shown, type them in, and set **Checked on**. Fuel and tolls take 5 minutes:
+   - **Fuel:** ogra.org.pk publishes petrol and diesel prices on the 1st and 16th of each month.
+   - **Tolls:** nha.gov.pk publishes the motorway toll list.
+   - **Hotels, hire, coaches, flights and jeeps:** check a few typical prices on Booking.com, PIA or Airblue, and with local operators (a WhatsApp message to a rent-a-car office or jeep stand in Skardu or Hunza works well).
+3. Click **Save price list**. Every visitor then sees your prices with the date you checked them. Sections you haven't checked say **not checked yet**, so the app is always honest about it.
+4. **Road alerts:** add one when a pass or road closes (for example "Babusar Pass closed: snow"). It shows on every trip until the date you choose.
+5. **Feedback** from users appears at the bottom of the same page.
+
+Good habit: update fuel twice a month, and everything else at the start of each season (March, June, September, December).
+
+## Step 10: Turn on visitor counts
+
+In Vercel, open your project → **Analytics** → **Enable**. You'll see how many people visit, from which countries and on which devices. It uses no cookies and is free on the Hobby plan up to a monthly limit.
+
+Crash reports appear automatically under **Logs** (search for `safarco client error`).
+
+## Step 11 (optional): Booking.com affiliate
+
+**Check prices** buttons already open Booking.com with real, live prices for your dates. Joining Booking.com's free affiliate programme means you earn a small commission when someone books, at no cost to them.
+
+1. Apply at **booking.com/affiliate-program**. Approval is up to Booking.com and can take a few weeks; a live site with real visitors helps.
+2. Once approved, copy your affiliate ID (**aid**, a number) and add it in Vercel as `VITE_BOOKING_AID`. Then redeploy.
+
+Showing Booking.com prices *inside* SafarCo needs their separate Demand API, which they give only to larger partners. Ask about it once you have regular traffic.
+
+## Step 12: Install it on a phone
 
 - **iPhone:** open the site in **Safari**, tap the **Share** button, then **Add to Home Screen**.
 - **Android:** open the site in **Chrome**, tap the **⋮** menu, then **Install app** (or **Add to Home screen**).
@@ -88,7 +163,7 @@ It then opens full screen like a normal app. On the **Offline** tab, **Download 
 
 Share the link anywhere: WhatsApp, Facebook, a QR code. People can use it straight away in their browser.
 
-## Step 8 (optional): List it on Google Play
+## Step 13 (optional): List it on Google Play
 
 A web app like SafarCo can be wrapped as an Android app without new code. Google charges a **one-time US$25** to open a developer account.
 
@@ -97,7 +172,7 @@ A web app like SafarCo can be wrapped as an Android app without new code. Google
 3. The package contains a file called `assetlinks.json`. **Send it to me** and I'll add it to the app, so Android trusts that the store app and your website belong together.
 4. In Play Console, create the app, upload the `.aab` file from the package, and fill in the store listing (screenshots, description, privacy policy). PWABuilder's download includes step-by-step notes.
 
-**Apple's App Store** needs a US$99 a year developer account and is stricter about web-based apps. Adding to the home screen (step 7) is the free way for iPhone users.
+**Apple's App Store** needs a US$99 a year developer account and is stricter about web-based apps. Adding to the home screen (step 12) is the free way for iPhone users.
 
 ## Keeping it free
 
@@ -107,6 +182,7 @@ A web app like SafarCo can be wrapped as an Android app without new code. Google
 | Open-Meteo weather: free for non-commercial use | Same condition as above. |
 | OpenRouteService: ~2,000 routes a day | New routes fall back to SafarCo's built-in road table for the rest of the day. |
 | Geoapify: 3,000 credits a day | Searches fall back to the built-in city list; hotels fall back to sample picks. |
+| Supabase free plan: 500 MB database, 50,000 monthly users | Plenty for years of trips. Free projects pause after a week with no visitors; open the site or Supabase dashboard to wake it. |
 
 To see usage: the **Usage** tab on Vercel, the **Dashboard** on OpenRouteService, and the project page on Geoapify.
 
@@ -125,3 +201,7 @@ Every time new code reaches the `main` branch on GitHub, Vercel rebuilds and pub
 | No real hotels, or city search finds only big cities | Check `GEOAPIFY_API_KEY` the same way. |
 | The phone still shows an old version | Close the app completely and open it again. It updates on the next launch. |
 | Weather says "unavailable" | Open-Meteo is briefly down; it comes back by itself. |
+| "Continue with Google" shows an error | Check step 8: the Google redirect URI must be exactly Supabase's Callback URL, the app must be **published**, and Supabase's Site URL must be your Vercel address. |
+| Signed in, but trips don't appear on another phone | Make sure both phones use the same Google account, then open **My trips**. Trips sync when you sign in or save. |
+| /admin says you aren't an admin | Run the `insert into public.admins` line from step 7 with exactly the email you sign in with. |
+| Changed a `VITE_` setting but nothing changed | `VITE_` settings are built into the site; redeploy after changing them. |

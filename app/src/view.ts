@@ -5,6 +5,7 @@ import { MAX_DRIVE_H, airFor, babusarClosed, buildPlan, coachFare, costFor, free
 import { clock, dayLabel, dur, fmt, fmtN, isoAdd, isoOf, isoOff, kShort, mapsQ, mon } from './engine/format';
 import { LIVE, WMO, fxRate, placesKey, routeKey, wxPlan, type Spot } from './engine/live';
 import { checkPricesUrl, nightRange, usd } from './money';
+import { SECTIONS, activeAlerts, checkedText, type Section } from './prices';
 import { CITIES, CITY, CITY_DUP, DST, cityOr, placesFor, seasonFactor } from './engine/places';
 import type { AppState, Patch } from './state';
 import { THEMES } from './state';
@@ -16,6 +17,8 @@ export interface Api {
   locate: () => void;
   setPeople: (k: 'adults' | 'kids' | 'elders', d: number) => void;
   toggleOffline: () => void;
+  share: () => void;
+  newTrip: () => void;
 }
 
 
@@ -127,8 +130,15 @@ export function buildView(s: AppState, api: Api) {
   const nearby = { loading: destSights.loading, list: destSights.list.filter(x => !planned.has(x.name.toLowerCase())).slice(0, 8).map(x => ({ key: x.name, name: x.name, note: `${x.type}${x.km ? ` · ${x.km} km` : ''}`, href: mapsQ(`${x.name}, ${D.town}`) })) };
   const fx = fxRate(), wikiE = LIVE.wiki[D.id];
 
+  // Where each price comes from and when it was last checked, for the prices this trip uses.
+  const own = ['sedan', 'suv', 'bike', 'rentcar', 'rent4x4', 'coaster'].includes(s.vehicle);
+  const used: Section[] = [...(own ? ['fuel', 'tolls'] as Section[] : []), 'stays', ...(['rentcar', 'rent4x4', 'coaster'].includes(s.vehicle) || isAir ? ['hire'] as Section[] : []),
+    ...(s.vehicle === 'public' ? ['coach'] as Section[] : []), ...(isAir ? ['fares'] as Section[] : []), ...(rows.some(r => /jeep/i.test(r.label)) ? ['jeeps'] as Section[] : [])];
+  const priceNotes = used.map(k => ({ key: k, label: SECTIONS[k].label, source: SECTIONS[k].source, checked: checkedText(k), ok: checkedText(k) !== 'not checked yet' }));
+  const alertNotes = activeAlerts().map(a => ({ icon: 'ph-megaphone', color: 'var(--cor)', text: `${a.title}${a.message ? `: ${a.message}` : ''}${a.date ? ` (posted ${dayLabel(a.date, 0)})` : ''}` }));
+
   return {
-    s, c, gate, tip, health, off, isAir, selCorridor: sug.sel?.corridor, stays, nearby,
+    s, c, gate, tip, health, off, isAir, selCorridor: sug.sel?.corridor, stays, nearby, priceNotes, ratesChecked: checkedText(s.vehicle === 'public' ? 'coach' : isAir ? 'fares' : 'hire'),
     fxNote: fx.live ? `US$ at 1 USD = PKR ${fx.pkrPerUsd.toFixed(2)}${fx.updated ? ` (${fx.updated})` : ''}` : `US$ at about PKR ${fx.pkrPerUsd} (live rate unavailable)`,
     wiki: { loading: !wikiE || wikiE.status === 'loading', info: wikiE && wikiE.status === 'ok' ? wikiE.data : null },
     stepLabel: `${s.step + 1} / 6`,
@@ -150,8 +160,8 @@ export function buildView(s: AppState, api: Api) {
     noCity: !!oqT && geoOf(oqT)?.status !== 'loading' && !((geoOf(oqT) as { data?: string[] } | undefined)?.data || []).length && !CITIES.some(c => c.n.toLowerCase().includes(oqT) || c.p.toLowerCase().includes(oqT)),
     locBtn: s.loc === 'done' && s.origin ? { title: `${s.origin}, ${cityOr(s.origin).p}`, sub: s.locNote, icon: 'ph-navigation-arrow', tile: 'linear-gradient(135deg,#2EE59D,#0FA678)', border: 'rgba(46,229,157,.45)' }
       : s.loc === 'locating' ? { title: 'Finding your location…', sub: 'Waiting for GPS', icon: 'ph-crosshair', tile: 'linear-gradient(135deg,#6FD3FF,#3B8DFF)', border: 'rgba(111,211,255,.45)' }
-        : s.loc === 'denied' ? { title: 'Location is off', sub: 'Tap to try again, or search below', icon: 'ph-map-pin-simple-slash', tile: 'linear-gradient(135deg,#FF8A6B,#FF4F7B)', border: 'rgba(255,107,91,.4)' }
-          : s.loc === 'failed' ? { title: 'Couldn’t find your location', sub: s.locNote || 'Tap to try again, or search below', icon: 'ph-map-pin-simple-slash', tile: 'linear-gradient(135deg,#FF8A6B,#FF4F7B)', border: 'rgba(255,107,91,.4)' }
+        : s.loc === 'denied' ? { title: 'Location is off', sub: 'Tap to try again, or search below', icon: 'ph-gps-slash', tile: 'linear-gradient(135deg,#FF8A6B,#FF4F7B)', border: 'rgba(255,107,91,.4)' }
+          : s.loc === 'failed' ? { title: 'Couldn’t find your location', sub: s.locNote || 'Tap to try again, or search below', icon: 'ph-gps-slash', tile: 'linear-gradient(135deg,#FF8A6B,#FF4F7B)', border: 'rgba(255,107,91,.4)' }
             : { title: 'Use my current location', sub: 'Finds your city automatically', icon: 'ph-crosshair', tile: 'linear-gradient(135deg,#6FD3FF,#3B8DFF)', border: 'var(--line2)' },
     modeOpts: MODES.map((o, i) => {
       const on = s.mode === o.id, g = GRADS[i === 0 ? 2 : 3];
@@ -208,7 +218,7 @@ export function buildView(s: AppState, api: Api) {
       if (lv && !lv.ignored) return [{ icon: 'ph-check-circle', color: 'var(--g)', text: `Distance checked with OpenRouteService: ${fmtN(r.data.km)} km. Drive times use mountain and town speeds, so they are longer than map apps show.` }];
       return [{ icon: 'ph-warning', color: 'var(--cor)', text: `OpenRouteService’s fastest road is ${fmtN(r.data.km)} km; this plan is ${c.kmStr} km. It may use a road closed in ${MON[M - 1]}. Check before you leave.` }];
     })(),
-    seasonNotes: seasonInfo(s, s.corridor),
+    seasonNotes: [...alertNotes, ...seasonInfo(s, s.corridor)],
     dayHint: (() => {
       const o = s.origin || 'Islamabad', okS = { tile: 'linear-gradient(135deg,#2EE59D,#0FA678)', bg: 'rgba(46,229,157,.1)', border: 'rgba(46,229,157,.3)' }, badS = { tile: 'linear-gradient(135deg,#FF8A6B,#FF4F7B)', bg: 'rgba(255,107,91,.12)', border: 'rgba(255,107,91,.4)' };
       if (s.mode === 'know') {
@@ -245,7 +255,7 @@ export function buildView(s: AppState, api: Api) {
       else { const g = sug.sel; if (g) set({ screen: 'app', tab: 'trip', corridor: g.corridor, dest: g.corridor, vehicle: g.vehicle, tier: g.tier }); }
     },
     nextLabel: s.step < 5 ? 'Continue' : 'Build this trip',
-    restart: () => set({ screen: 'onboard', step: 0, settings: false }),
+    restart: () => api.newTrip(),
     corridorChips: [s.corridor, ...POP_DEST.filter(k => k !== s.corridor && DST(k).name !== s.origin)].slice(0, 6).map(k => {
       const on = s.corridor === k, v = DST(k);
       return { key: k, label: v.name, onClick: () => set({ corridor: k, dest: k }), bg: on ? 'var(--cta)' : 'var(--fill2)', fg: on ? 'var(--onCta)' : 'var(--ink)', border: on ? 'transparent' : 'var(--line2)', shadow: on ? '0 10px 24px -10px rgba(46,229,157,.8)' : 'none' };

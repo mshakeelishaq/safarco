@@ -143,6 +143,8 @@ export const EDGES: Edge[] = [
   ['QTA', 'ZHB', 330, 50, 0, 0, 'N-50'], ['ZHB', 'DIK', 210, 50, 0, 0, 'N-50'], ['SKR', 'DGK', 390, 60, 0, 0, 'N-55 Indus Highway'], ['DIK', 'PSH', 300, 65, 300, 0, 'N-55 via Kohat'],
   ['HYD', 'MTH', 230, 60, 0, 0, 'Hyderabad–Mithi Road'], ['MUL', 'BWP', 100, 80, 0, 0, 'N-5'], ['GWD', 'TBT', 170, 70, 0, 0, 'M-8']];
 export const DIESEL = 395, LOCAL_CAR = 15000;
+/** Prices the engine reads at run time. The admin price list (src/prices.ts) overwrites these. */
+export const P = { petrol: PETROL, diesel: DIESEL, localCar: LOCAL_CAR, coachFlat: 6.5, coachMtn: 9, airportCoach: 6.5, raikotJeep: 10000 };
 export const AIRPORTS: Record<string, [string, number, number]> = { ISB: ['Islamabad', 33.56, 72.85], LHR: ['Lahore', 31.52, 74.40], KHI: ['Karachi', 24.90, 67.17] };
 export const FARES: Record<string, Record<string, number>> = { Skardu: { ISB: 22000, LHR: 30000, KHI: 38000 }, Gilgit: { ISB: 20000, LHR: 32000, KHI: 42000 }, Chitral: { ISB: 18000 }, Gwadar: { KHI: 18000, ISB: 32000, LHR: 32000 },
   Karachi: { ISB: 24000, LHR: 22000 }, Lahore: { KHI: 22000 }, Islamabad: { KHI: 24000 }, Quetta: { KHI: 20000, ISB: 26000, LHR: 26000 }, Peshawar: { KHI: 26000 }, Multan: { KHI: 20000 } };

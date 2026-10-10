@@ -19,24 +19,28 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
   return (
     <div data-screen-label="Trip builder">
       <div style={css('height:318px;position:relative;pointer-events:none')}>
-        <div style={css('position:absolute;left:22px;right:22px;top:58px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px')}>
-          <div style={css('text-shadow:var(--tsh);min-width:0')}>
-            <div style={css('font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--amb2)')}>{c.region}</div>
-            <h1 style={css('margin:6px 0 0;font-family:var(--fontH);font-weight:600;font-size:23px;letter-spacing:-.02em;line-height:1.15')}>{c.from} → {c.to}</h1>
-            <div style={css('display:flex;gap:6px;margin-top:10px')}>
-              <span style={css('padding:5px 10px;border-radius:10px;background:var(--fill2);backdrop-filter:blur(10px);font-size:12px;font-weight:700;display:flex;align-items:center;gap:5px')}><i className={`ph-fill ${v.pillIcon}`} />{v.pillA}</span>
-              <span style={css('padding:5px 10px;border-radius:10px;background:var(--fill2);backdrop-filter:blur(10px);font-size:12px;font-weight:700;display:flex;align-items:center;gap:5px')}><i className="ph-fill ph-clock" />{v.pillB}</span>
+        <div className="sc-col" style={css('position:absolute;left:22px;right:22px;top:52px;text-shadow:var(--tsh)')}>
+          <div style={css('display:flex;align-items:center;justify-content:space-between;gap:10px')}>
+            <div style={css('min-width:0;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--amb2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis')}>{c.region}</div>
+            <div style={css('flex:none;display:flex;gap:6px;pointer-events:auto;text-shadow:none')}>
+              <button onClick={() => set({ sheet: 'save', settings: false })} aria-label={s.savedId ? 'Saved trip' : 'Save trip'} title={s.savedId ? 'Saved' : 'Save'} style={css(`width:44px;height:44px;border-radius:15px;border:1px solid ${s.savedId ? 'transparent' : 'var(--line2)'};background:${s.savedId ? 'var(--cta)' : 'var(--fill2)'};backdrop-filter:blur(12px);color:${s.savedId ? 'var(--onCta)' : 'var(--ink)'};font-size:18px;cursor:pointer`)}><i className={`${s.savedId ? 'ph-fill' : 'ph-bold'} ph-bookmark-simple`} /></button>
+              <button onClick={api.share} aria-label="Share trip" title="Share" style={css('width:44px;height:44px;border-radius:15px;border:1px solid var(--line2);background:var(--fill2);backdrop-filter:blur(12px);color:var(--ink);font-size:18px;cursor:pointer')}><i className="ph-bold ph-share-network" /></button>
+              <button onClick={openSettings} aria-label="Edit trip" style={css('height:44px;padding:0 12px;border-radius:15px;border:1px solid var(--line2);background:var(--fill2);backdrop-filter:blur(12px);color:var(--ink);font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px')}><i className="ph-fill ph-sliders-horizontal" style={css('font-size:17px')} />Edit</button>
             </div>
-            <button onClick={openSettings} style={css('pointer-events:auto;margin-top:8px;padding:0;border:0;background:none;color:var(--ink2);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;text-align:left;min-height:28px')}><i className="ph-fill ph-users-three" />{v.tripSummary}<i className="ph-bold ph-pencil-simple" style={css('font-size:12px')} /></button>
           </div>
-          <button onClick={openSettings} aria-label="Edit trip" style={css('pointer-events:auto;flex:none;height:44px;padding:0 14px;border-radius:15px;border:1px solid var(--line2);background:var(--fill2);backdrop-filter:blur(12px);color:var(--ink);font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px')}><i className="ph-fill ph-sliders-horizontal" style={css('font-size:17px')} />Edit</button>
+          <h1 style={css('margin:8px 0 0;font-family:var(--fontH);font-weight:600;font-size:23px;letter-spacing:-.02em;line-height:1.15')}>{c.from} → {c.to}</h1>
+          <div style={css('display:flex;flex-wrap:wrap;gap:6px;margin-top:10px')}>
+            <span style={css('padding:5px 10px;border-radius:10px;background:var(--fill2);backdrop-filter:blur(10px);font-size:12px;font-weight:700;display:flex;align-items:center;gap:5px')}><i className={`ph-fill ${v.pillIcon}`} />{v.pillA}</span>
+            <span style={css('padding:5px 10px;border-radius:10px;background:var(--fill2);backdrop-filter:blur(10px);font-size:12px;font-weight:700;display:flex;align-items:center;gap:5px')}><i className="ph-fill ph-clock" />{v.pillB}</span>
+          </div>
+          <button onClick={openSettings} style={css('pointer-events:auto;margin-top:8px;padding:0;border:0;background:none;color:var(--ink2);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;text-align:left;min-height:28px')}><i className="ph-fill ph-users-three" />{v.tripSummary}<i className="ph-bold ph-pencil-simple" style={css('font-size:12px')} /></button>
         </div>
-        <div style={css('position:absolute;left:0;right:0;bottom:4px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:4px 22px 8px;pointer-events:auto')}>
+        <div className="sc-colp" style={css('position:absolute;left:0;right:0;bottom:4px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:4px 22px 8px;pointer-events:auto')}>
           {v.corridorChips.map(ch => <button key={ch.key} onClick={ch.onClick} aria-pressed={ch.key === s.corridor} style={css(`flex:none;height:40px;padding:0 15px;border-radius:14px;white-space:nowrap;border:1px solid ${ch.border};background:${ch.bg};color:${ch.fg};backdrop-filter:blur(12px);font-size:13px;font-weight:800;cursor:pointer;box-shadow:${ch.shadow};transition:all .25s`)}>{ch.label}</button>)}
         </div>
       </div>
 
-      <div style={css('padding:4px 16px 150px;display:flex;flex-direction:column;gap:14px;pointer-events:auto;background:var(--bg)')}>
+      <div className="sc-flow" style={css('padding:4px 16px 150px;display:flex;flex-direction:column;gap:14px;pointer-events:auto;background:var(--bg)')}>
         {v.gate.show && <BannerCard b={v.gate} />}
         {v.tip.show && <BannerCard b={v.tip} center><button onClick={v.tip.apply} style={css('flex:none;height:44px;padding:0 14px;border-radius:14px;border:0;background:var(--ink);color:var(--bg);font-size:13px;font-weight:800;cursor:pointer')}>{v.tip.cta}</button></BannerCard>}
         {(v.wiki.info || v.wiki.loading) && (
@@ -218,8 +222,8 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
         {(v.rates.length > 0 || v.hasJeeps) && (
           <section data-screen-label="Market rates" style={css('border-radius:30px;padding:20px;background:var(--card);border:1px solid var(--line)')}>
             {v.rates.length > 0 && <>
-              <h2 style={css('margin:0;font-size:14px;font-weight:700;color:var(--mute)')}>Rates for your transport (tentative)</h2>
-              <div style={css('font-size:12px;color:var(--mute);font-weight:600;margin-top:4px;line-height:1.45')}>Typical prices. Confirm with the operator before you book.</div>
+              <h2 style={css('margin:0;font-size:14px;font-weight:700;color:var(--mute)')}>Rates for your transport</h2>
+              <div style={css('font-size:12px;color:var(--mute);font-weight:600;margin-top:4px;line-height:1.45')}>Prices {v.ratesChecked}. Confirm with the operator before you book.</div>
               <div style={css('display:flex;flex-direction:column;gap:14px;margin-top:16px')}>
                 {v.rates.map(r => (
                   <div key={r.label} style={css('display:flex;align-items:center;gap:12px')}>
@@ -244,6 +248,20 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
             </>}
           </section>
         )}
+
+        <section aria-label="About these numbers" style={css('border-radius:30px;padding:18px;background:var(--card);border:1px solid var(--line)')}>
+          <h2 style={css('margin:0;font-size:14px;font-weight:700;color:var(--mute)')}>About these numbers</h2>
+          <div style={css('font-size:12px;font-weight:600;color:var(--ink2);margin-top:6px;line-height:1.5')}>Live: road distance and route (OpenRouteService), weather (Open-Meteo), places and hotels (OpenStreetMap), dollar rate. Prices that change by operator come from SafarCo’s price list:</div>
+          <div style={css('display:flex;flex-direction:column;gap:8px;margin-top:12px')}>
+            {v.priceNotes.map(n => (
+              <div key={n.key} style={css('display:flex;gap:10px;align-items:flex-start')}>
+                <i className={`ph-fill ${n.ok ? 'ph-seal-check' : 'ph-clock-countdown'}`} style={css(`font-size:17px;color:${n.ok ? 'var(--g)' : 'var(--amb)'};flex:none;margin-top:1px`)} />
+                <div style={css('font-size:12px;font-weight:600;line-height:1.45;color:var(--ink2)')}><b>{n.label}</b> · {n.checked} · {n.source}</div>
+              </div>
+            ))}
+          </div>
+          <div style={css('font-size:12px;font-weight:600;color:var(--mute);margin-top:12px;line-height:1.5')}>Mountain roads, passes and prices change quickly. Check road status with local police or NHA before you leave. <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a></div>
+        </section>
       </div>
     </div>
   );

@@ -169,17 +169,27 @@ button, input { font-family: inherit; }
 .press:active { transform: scale(.98); }
 button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--sky); outline-offset: 2px; }
 
-/* Phone shell: a framed device on wide screens, edge to edge on a real phone. */
-.sc-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px 20px; box-sizing: border-box; background: var(--page); font-family: var(--font); }
-.sc-frame { width: 404px; height: 864px; flex: none; border-radius: 60px; padding: 12px; box-sizing: border-box; background: var(--frame);
+/* Layout. On phones the app fills the screen. On tablets and computers the 3D banner
+   spans the window and the content sits in a centred column. ?frame shows the design's
+   phone mock-up instead. */
+.sc-page { min-height: 100vh; background: var(--bg); font-family: var(--font); }
+.sc-frame { width: 100%; height: 100vh; height: 100dvh; }
+.sc-phone { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--bg); color: var(--ink); --ob-top: clamp(140px, calc(100dvh - 560px), 262px); }
+.sc-statusbar { display: none !important; }
+
+.sc-framed { display: flex; align-items: center; justify-content: center; padding: 40px 20px; box-sizing: border-box; background: var(--page); }
+.sc-framed .sc-frame { width: 404px; height: 864px; flex: none; border-radius: 60px; padding: 12px; box-sizing: border-box; background: var(--frame);
   box-shadow: 0 60px 120px -40px var(--shadow), 0 0 0 1px var(--fill2) inset, 0 2px 0 var(--fill2) inset; }
-.sc-phone { position: relative; width: 380px; height: 840px; border-radius: 48px; overflow: hidden; background: var(--bg); color: var(--ink); }
-@media (max-width: 480px), (max-height: 760px) and (pointer: coarse) {
-  .sc-page { padding: 0; display: block; }
-  .sc-frame { width: 100%; height: 100vh; height: 100dvh; border-radius: 0; padding: 0; box-shadow: none; background: var(--bg); }
-  .sc-phone { width: 100%; height: 100%; border-radius: 0; }
-  .sc-statusbar { display: none !important; }
-  /* Short phone screens: start the question panel higher so lists have room. */
-  .sc-phone { --ob-top: clamp(140px, calc(100dvh - 560px), 262px); }
+.sc-framed .sc-phone { width: 380px; height: 840px; border-radius: 48px; --ob-top: 262px; }
+.sc-framed .sc-statusbar { display: flex !important; }
+
+@media (min-width: 760px) {
+  .sc-page:not(.sc-framed) .sc-col { left: max(24px, calc(50% - 320px)) !important; right: max(24px, calc(50% - 320px)) !important; }
+  .sc-page:not(.sc-framed) .sc-colp { left: max(0px, calc(50% - 342px)) !important; right: max(0px, calc(50% - 342px)) !important; }
+  .sc-page:not(.sc-framed) .sc-flow { max-width: 684px; margin: 0 auto; box-sizing: border-box; border-radius: 30px 30px 0 0; }
+  .sc-page:not(.sc-framed) .sc-nav { left: calc(50% - 240px) !important; right: calc(50% - 240px) !important; }
+  .sc-page:not(.sc-framed) .sc-sheet { left: calc(50% - 300px) !important; right: calc(50% - 300px) !important; }
+  .sc-page:not(.sc-framed) .sc-toast { left: calc(50% - 240px) !important; right: calc(50% - 240px) !important; }
+  .sc-page:not(.sc-framed) .sc-phone { --ob-top: clamp(200px, calc(100dvh - 600px), 320px); }
 }
 .sc-sheet { max-height: calc(100% - 40px); }

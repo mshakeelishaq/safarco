@@ -5,9 +5,9 @@ import { DateInput, RoomOpts } from './Onboarding';
 const Label = ({ children, style = '' }: { children: React.ReactNode; style?: string }) =>
   <div style={css('font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);' + style)}>{children}</div>;
 
-const sheet = (h: number, open: boolean) => css(`position:absolute;left:0;right:0;bottom:0;height:${h}px;z-index:20;background:linear-gradient(180deg,var(--sheet),var(--sheet));backdrop-filter:blur(24px);border-radius:36px 36px 0 0;border-top:1px solid var(--line);box-shadow:0 -30px 60px -20px rgba(0,0,0,.6);transform:${open ? 'translateY(0)' : 'translateY(105%)'};transition:transform .5s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column`);
-const scrim = (open: boolean) => css(`position:absolute;inset:0;z-index:18;background:var(--scrim);opacity:${open ? 1 : 0};pointer-events:${open ? 'auto' : 'none'};transition:opacity .35s`);
-const Grip = () => <div style={css('width:40px;height:5px;border-radius:3px;background:var(--fill2);margin:10px auto 0')} />;
+export const sheet = (h: number, open: boolean) => css(`position:absolute;left:0;right:0;bottom:0;height:${h}px;z-index:20;background:linear-gradient(180deg,var(--sheet),var(--sheet));backdrop-filter:blur(24px);border-radius:36px 36px 0 0;border-top:1px solid var(--line);box-shadow:0 -30px 60px -20px rgba(0,0,0,.6);transform:${open ? 'translateY(0)' : 'translateY(105%)'};transition:transform .5s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column`);
+export const scrim = (open: boolean) => css(`position:absolute;inset:0;z-index:18;background:var(--scrim);opacity:${open ? 1 : 0};pointer-events:${open ? 'auto' : 'none'};transition:opacity .35s`);
+export const Grip = () => <div style={css('width:40px;height:5px;border-radius:3px;background:var(--fill2);margin:10px auto 0')} />;
 
 
 export function EditSheet({ v, api }: { v: View; api: Api }) {
@@ -44,12 +44,21 @@ export function EditSheet({ v, api }: { v: View; api: Api }) {
               </div>
             </div>
           ))}
+          <button onClick={() => api.set({ lite: !v.s.lite })} role="switch" aria-checked={v.s.lite} style={css('display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 12px;border-radius:16px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);text-align:left;cursor:pointer')}>
+            <i className="ph-fill ph-lightning" style={css('font-size:20px;color:var(--amb);flex:none')} />
+            <span style={css('flex:1;min-width:0')}><span style={css('display:block;font-size:14px;font-weight:800')}>Data saver</span><span style={css('display:block;font-size:12px;font-weight:600;color:var(--mute);margin-top:1px')}>Turns off the 3D mountains. Faster on slow phones and networks.</span></span>
+            <span aria-hidden="true" style={css(`flex:none;width:46px;height:28px;border-radius:14px;background:${v.s.lite ? 'var(--g)' : 'var(--line2)'};position:relative;transition:background .2s`)}><span style={css(`position:absolute;top:3px;left:${v.s.lite ? 21 : 3}px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:left .2s`)} /></span>
+          </button>
           <Label style="margin-top:4px">Theme</Label>
           <div style={css('display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:4px;border-radius:17px;background:var(--deep)')}>
             {v.themeChips.map(t => <button key={t.key} onClick={t.onClick} aria-pressed={v.s.theme === t.key} style={css(`height:44px;border-radius:13px;border:0;background:${t.bg};color:${t.fg};font-size:13px;font-weight:800;cursor:pointer;transition:all .25s`)}>{t.label}</button>)}
           </div>
         </div>
-        <button onClick={v.restart} style={css('margin-top:22px;width:100%;height:50px;border-radius:16px;border:1px solid var(--line2);background:var(--fill);color:var(--ink2);font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px')}><i className="ph-bold ph-arrow-counter-clockwise" />Start over from the questions</button>
+        <div style={css('display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:22px')}>
+          <button onClick={() => api.set({ settings: false, sheet: 'trips' })} style={css('height:50px;border-radius:16px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px')}><i className="ph-fill ph-bookmarks-simple" />My trips</button>
+          <button onClick={() => api.set({ settings: false, sheet: 'feedback' })} style={css('height:50px;border-radius:16px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px')}><i className="ph-fill ph-chat-circle-text" />Feedback</button>
+        </div>
+        <button onClick={v.restart} style={css('margin-top:10px;width:100%;height:50px;border-radius:16px;border:1px solid var(--line2);background:var(--fill);color:var(--ink2);font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px')}><i className="ph-bold ph-plus" />Plan a new trip</button>
       </div>
     </div>
   </>;

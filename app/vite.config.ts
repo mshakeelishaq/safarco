@@ -15,7 +15,8 @@ function vercelApi(): Plugin {
     try {
       const mod = await load(`/api/${m[1]}.ts`), fn = mod[req.method || 'GET'] as ((r: Request) => Promise<Response>) | undefined;
       if (!fn) { res.statusCode = 405; return res.end(); }
-      const out = await fn(new Request(url, { method: req.method }));
+      const chunks: Buffer[] = []; if (req.method !== 'GET' && req.method !== 'HEAD') for await (const c of req) chunks.push(c as Buffer);
+      const out = await fn(new Request(url, { method: req.method, headers: req.headers as Record<string, string>, body: chunks.length ? Buffer.concat(chunks) : undefined }));
       res.statusCode = out.status; out.headers.forEach((v, k) => res.setHeader(k, v)); res.end(Buffer.from(await out.arrayBuffer()));
     } catch (e) { res.statusCode = 404; res.end(String(e)); }
   };
