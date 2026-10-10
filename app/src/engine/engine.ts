@@ -149,13 +149,14 @@ export function trip(key: string, origin: string | null, month = 7): Trip {
 }
 
 const hotelFor = (list: Hotel[], tier: string) => list.find(h => h[1].toLowerCase() === tier) || list.find(h => h[1] === 'Standard') || list[0];
-export interface Stay { town: string; place: string; name: string; note: string; tier: string; alts: string; href: string }
+export interface Stay { town: string; place: string; name: string; note: string; tier: string; alts: string; href: string; lat: number; lon: number; curated: boolean }
 function stayAt(node: string | null, key: string, tier: TierId, isDest: boolean): Stay {
   const D = DST(key), town = isDest || !node ? D.town : NODE_INFO[node][0], ft = isDest || !node ? D.ft : NODE_INFO[node][1];
   const list = isDest ? D.hotels : node ? STOP_HOTELS[node] : null, place = `${town}${ft != null ? ` · ${fmtN(ft)} ft` : ''}`;
-  if (!list) return { town, place, name: `Hotels in ${town}`, note: 'Opens a Google Maps search', tier: 'Search', alts: '', href: mapsQ('hotels in ' + town) };
+  const [lat, lon] = isDest || !node ? [D.lat, D.lon] : NODES[node];
+  if (!list) return { town, place, name: `Hotels in ${town}`, note: 'Opens a Google Maps search', tier: 'Search', alts: '', href: mapsQ('hotels in ' + town), lat, lon, curated: false };
   const h = hotelFor(list, tier), alts = list.filter(x => x !== h).map(x => x[0]).join(' · ');
-  return { town, place, name: h[0], note: h[2], tier: h[1], alts: alts ? 'Also: ' + alts : '', href: mapsQ(h[0]) };
+  return { town, place, name: h[0], note: h[2], tier: h[1], alts: alts ? 'Also: ' + alts : '', href: mapsQ(h[0]), lat, lon, curated: true };
 }
 
 export type DayKind = 'drive' | 'explore' | 'return' | 'fly';

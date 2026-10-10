@@ -179,5 +179,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
   .sc-frame { width: 100%; height: 100vh; height: 100dvh; border-radius: 0; padding: 0; box-shadow: none; background: var(--bg); }
   .sc-phone { width: 100%; height: 100%; border-radius: 0; }
   .sc-statusbar { display: none !important; }
+  /* Short phone screens: start the question panel higher so lists have room. */
+  .sc-phone { --ob-top: clamp(140px, calc(100dvh - 560px), 262px); }
 }
 .sc-sheet { max-height: calc(100% - 40px); }

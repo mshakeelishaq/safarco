@@ -1,20 +1,22 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
-import { CopilotDrawer, EditSheet, Orb } from './components/Sheets';
+import { EditSheet } from './components/Sheets';
 import { MapTab } from './components/MapTab';
 import { OfflineTab } from './components/OfflineTab';
 import { Onboarding } from './components/Onboarding';
 import { TripTab } from './components/TripTab';
-import { askClaude, claudeEnabled } from './copilot/claude';
-import { parseRequest, passAnswer, runTool, summary } from './copilot/tools';
-import { costFor } from './engine/engine';
-import { fmt } from './engine/format';
-import { LIVE, geoSearch, reverseGeo, routeFetch, routeKey, wxFetch, wxPlan } from './engine/live';
+import { LIVE, fxFetch, geoSearch, placesFetch, placesKey, placesUrl, reverseGeo, routeFetch, routeKey, routeUrl, wikiFetch, wxFetch, wxPlan } from './engine/live';
+import { mapsQ, mon } from './engine/format';
+import { trip } from './engine/engine';
+import { NODES } from './engine/data';
 import { DST, cityOr, nearestCity } from './engine/places';
 import { css } from './lib/css';
 import { clearOffline, downloadOffline, savedOffline } from './offline';
 import { Scene } from './scene/Scene';
-import { initialState, type AppState, type ChatMsg, type Patch, type ToolCall } from './state';
+import { initialState, type AppState, type Patch } from './state';
 import { buildView, type Api } from './view';
+
+/** Road-network nodes where the trip stops overnight. */
+const view0NightNodes = (s: AppState) => s.vehicle === 'air' ? [] : trip(s.corridor, s.origin, mon(s)).cuts.map(i => trip(s.corridor, s.origin, mon(s)).legs[i].b).filter(n => NODES[n]);
 
 export function App() {
   const [s, setS] = useState<AppState>(() => { const st = initialState(), saved = savedOffline(); return saved ? { ...st, offline: 'ready', offlineMB: saved.mb } : st; });
@@ -25,10 +27,9 @@ export function App() {
   const later = useCallback((ms: number, fn: () => void) => { timers.current.push(window.setTimeout(fn, ms)); }, []);
   const sceneRef = useRef<HTMLDivElement>(null), scrollRef = useRef<HTMLDivElement>(null);
   const dlAbort = useRef<AbortController | null>(null);
-  const [claude, setClaude] = useState(false);
 
   // Live data: re-render when a fetch lands.
-  useEffect(() => { LIVE.subs.add(bump); claudeEnabled().then(setClaude); return () => { LIVE.subs.delete(bump); timers.current.forEach(clearTimeout); dlAbort.current?.abort(); }; }, []);
+  useEffect(() => { LIVE.subs.add(bump); return () => { LIVE.subs.delete(bump); timers.current.forEach(clearTimeout); dlAbort.current?.abort(); }; }, []);
 
   // Fetch the road route and weather for the current trip.
   useEffect(() => {
@@ -37,6 +38,32 @@ export function App() {
     if (s.vehicle !== 'air' || s.tab === 'map') routeFetch(o, D);
     wxFetch(D, s.startDate, s.days);
   }, [s.screen, s.origin, s.corridor, s.vehicle, s.tab, s.startDate, s.days]);
+
+  // Destination guide, sights and places to stay (destination and each night stop).
+  const nightNodes = view0NightNodes(s);
+  useEffect(() => {
+    if (s.screen !== 'app') return;
+    const D = DST(s.corridor);
+    wikiFetch(D);
+    placesFetch('sights', D.lat, D.lon);
+    placesFetch('hotels', D.lat, D.lon);
+    nightNodes.forEach(n => placesFetch('hotels', NODES[n][0], NODES[n][1]));
+  }, [s.screen, s.corridor, nightNodes.join()]);
+
+  // Cities without a hand-written guide get their day plans from live sights.
+  const sights = LIVE.places[placesKey('sights', DST(s.corridor).lat, DST(s.corridor).lon)];
+  useEffect(() => {
+    const D = DST(s.corridor);
+    if (!D.generic || D.livePlaces || !sights || sights.status !== 'ok' || !sights.data.length) return;
+    D.places = sights.data.slice(0, 8).map(x => [x.name, x.km ? `${x.km} km` : 'In town', x.type, null, mapsQ(`${x.name}, ${D.town}`)]);
+    D.livePlaces = true; bump();
+  }, [s.corridor, sights]);
+
+  // US dollar rate, refreshed once a day.
+  useEffect(() => {
+    try { const c = JSON.parse(localStorage.getItem('safarco-fx') || 'null'); if (c && Date.now() - c.at < 864e5) { LIVE.fx.USD = { status: 'ok', data: c.data }; bump(); return; } } catch { /* storage blocked */ }
+    fxFetch().then(e => { if (e.status === 'ok') try { localStorage.setItem('safarco-fx', JSON.stringify({ at: Date.now(), data: e.data })); } catch { /* storage blocked */ } });
+  }, []);
 
   // Search OpenStreetMap once typing pauses.
   const q = s.screen === 'onboard' ? (s.step === 0 ? s.oq : s.step === 1 ? s.dq : '') : '';
@@ -79,7 +106,8 @@ export function App() {
     if (st.offline === 'downloading') return;
     const o = cityOr(st.origin), D = DST(st.corridor), r = LIVE.route[routeKey(o.n, D.id)];
     const coords: [number, number][] = r && r.status === 'ok' ? r.data.coords : view.routeMap.dots.map(d => [+d.p[1], +d.p[0]]);
-    const extra = [`https://router.project-osrm.org/route/v1/driving/${o.lon},${o.lat};${D.lon},${D.lat}?overview=full&geometries=geojson`, wxPlan(D, st.startDate, st.days).url];
+    const abs = (u: string) => new URL(u, location.origin).href;
+    const extra = [abs(routeUrl(o, D)), wxPlan(D, st.startDate, st.days).url, abs(placesUrl('hotels', D.lat, D.lon)), abs(placesUrl('sights', D.lat, D.lon))];
     const ac = new AbortController(); dlAbort.current = ac;
     set({ offline: 'downloading', progress: 0, offlineMB: 0, offlineErr: '' });
     downloadOffline(coords, extra, p => set({ progress: Math.round(p.done / Math.max(1, p.total) * 100), offlineMB: p.bytes / 1e6 }), ac.signal)
@@ -88,63 +116,7 @@ export function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [set]);
 
-  // ---- Co-pilot ----------------------------------------------------------
-  const pushMsg = (m: ChatMsg) => setS(p => ({ ...p, msgs: [...p.msgs, m] }));
-  const editLast = (f: (m: ChatMsg) => ChatMsg) => setS(p => { const msgs = p.msgs.slice(); msgs[msgs.length - 1] = f(msgs[msgs.length - 1]); return { ...p, msgs }; });
-  const typeOut = (text: string, then: () => void) => {
-    editLast(m => ({ ...m, text, typed: 0 }));
-    let n = 0;
-    const id = window.setInterval(() => { n += 5; editLast(m => ({ ...m, typed: n })); if (n >= text.length) { clearInterval(id); then(); } }, 20);
-    timers.current.push(id);
-  };
-  const finish = (acted: boolean) => {
-    set({ busy: false });
-    if (acted) { later(900, () => set({ drawer: false, tab: 'trip', toast: 'Trip updated', flash: 'budget' })); later(4000, () => set({ toast: null, flash: null })); }
-  };
-
-  /** Free mode: parse the request on the device, then visibly run each tool call. */
-  const askLocal = (text: string) => {
-    const st = { ...stRef.current }, intent = parseRequest(text, st), calls: ToolCall[] = [];
-    // Tools run against a copy here; the screen updates after the calls are shown.
-    const ctx = { st, apply: () => {} };
-    let reply: string;
-    let alert: [string, string] | null = null;
-    if (!intent.calls.length && !intent.passQuestion) {
-      reply = 'I can change your destination, home city, dates, travellers, transport, stay level, rooms, budget and departure time. Try “Make it 6 days, 2 kids, family rooms”.';
-    } else {
-      intent.calls.forEach(([fn, args]) => { runTool(fn, args, ctx); calls.push({ fn, args: JSON.stringify(args), status: 'running' }); });
-      const r = costFor(st), parts: string[] = [];
-      if (intent.calls.length) parts.push(`Done. New total ${fmt(r.total)}, ${r.total <= st.cap ? 'within' : `${fmt(r.total - st.cap)} over`} your ${fmt(st.cap)} cap.`);
-      if (!r.ok && r.minDays) parts.push(`This route needs at least ${r.minDays} days.`);
-      if (intent.passQuestion) { const pa = passAnswer(st, view.wx.hasSummary ? view.wx.summary : ''); parts.unshift(pa.reply); alert = pa.alert; if (alert) calls.push({ fn: 'show_alert', args: JSON.stringify({ title: alert[0] }), status: 'running' }); }
-      reply = parts.join(' ');
-    }
-    const patch: Patch = { origin: st.origin, dest: st.dest, corridor: st.corridor, mode: st.mode, startDate: st.startDate, days: st.days, adults: st.adults, kids: st.kids, elders: st.elders, groupSize: st.groupSize, vehicle: st.vehicle, tier: st.tier, rooms: st.rooms, cap: st.cap, depart: st.depart, ...(alert ? { aiAlert: { title: alert[0], message: alert[1] } } : {}) };
-    later(450, () => {
-      pushMsg({ role: 'ai', text: '', typed: 0, calls: [] });
-      typeOut(reply, () => {
-        if (!calls.length) { set({ busy: false }); return; }
-        later(250, () => editLast(m => ({ ...m, calls })));
-        later(900, () => { editLast(m => ({ ...m, calls: calls.map(c => ({ ...c, status: 'executed' })) })); set({ ...patch, pickId: null, tab: 'trip', flash: alert && !intent.calls.length ? 'alert' : 'budget' }); });
-        later(1700, () => set({ drawer: false, busy: false, toast: alert && !intent.calls.length ? 'Alert pinned to your trip' : 'Trip updated' }));
-        later(4800, () => set({ toast: null, flash: null }));
-      });
-    });
-  };
-  const ctxApply = useRef<(p: Patch) => void>(() => {}); ctxApply.current = p => set({ ...p, pickId: null });
-
-  const ask = (text: string) => {
-    text = text.trim(); if (stRef.current.busy || !text) return;
-    setS(p => ({ ...p, busy: true, input: '', msgs: [...p.msgs, { role: 'user', text }] }));
-    if (!claude) { askLocal(text); return; }
-    pushMsg({ role: 'ai', text: 'Working on it…', typed: 999, calls: [] });
-    const st = { ...stRef.current }, calls: ToolCall[] = [];
-    askClaude(text, () => summary(st), { st, apply: p => ctxApply.current(p) }, (fn, args) => { calls.push({ fn, args: JSON.stringify(args), status: 'executed' }); editLast(m => ({ ...m, calls: calls.slice() })); })
-      .then(({ reply, acted }) => typeOut(reply, () => finish(acted)))
-      .catch(() => { setS(p => ({ ...p, msgs: p.msgs.slice(0, -1) })); askLocal(text); });
-  };
-
-  const api: Api = { set, later, locate, setPeople, toggleOffline, ask };
+  const api: Api = { set, later, locate, setPeople, toggleOffline };
   const view = buildView(s, api);
 
   // On the suggestions step, keep the scene on the selected option.
@@ -177,20 +149,13 @@ export function App() {
               {s.tab === 'offline' && <OfflineTab v={view} api={api} />}
             </div>
 
-            <nav aria-label="Sections" style={css('position:absolute;left:18px;right:18px;bottom:24px;z-index:12;display:flex;align-items:center;gap:12px')}>
+            <nav aria-label="Sections" style={css('position:absolute;left:18px;right:18px;bottom:calc(24px + env(safe-area-inset-bottom));z-index:12;display:flex;align-items:center;gap:12px')}>
               <div style={css('flex:1;height:64px;border-radius:24px;background:var(--sheet);backdrop-filter:blur(20px) saturate(1.4);border:1px solid var(--line);display:flex;align-items:center;padding:6px;gap:6px;box-shadow:0 20px 40px -16px rgba(0,0,0,.7)')}>
                 {view.tabs.map(t => <button key={t.key} onClick={t.onClick} aria-current={s.tab === t.key ? 'page' : undefined} style={css(`flex:1;height:52px;border-radius:19px;border:0;background:${t.bg};color:${t.fg};display:flex;align-items:center;justify-content:center;gap:5px;font-size:13px;font-weight:800;cursor:pointer;transition:all .25s`)}><i className={`ph-fill ${t.icon}`} style={css('font-size:19px')} />{t.label}</button>)}
               </div>
-              <button onClick={() => set({ drawer: true, settings: false })} aria-label="Open co-pilot" style={css('position:relative;width:64px;height:64px;flex:none;border-radius:50%;border:0;padding:0;cursor:pointer;overflow:hidden;box-shadow:0 16px 36px -10px rgba(155,123,255,.7),0 0 0 1px var(--fill2) inset')}>
-                <Orb />
-                <div style={css('position:absolute;inset:4px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--sheet),var(--sheet));display:flex;align-items:center;justify-content:center;color:var(--g);font-size:26px')}><i className="ph-fill ph-sparkle" /></div>
-              </button>
             </nav>
 
-            {s.toast && <div role="status" style={css('position:absolute;left:18px;right:18px;top:56px;z-index:30;padding:12px 14px;border-radius:20px;background:var(--sheet);backdrop-filter:blur(20px);border:1px solid rgba(46,229,157,.35);color:var(--ink);font-size:13px;font-weight:700;display:flex;align-items:center;gap:10px;box-shadow:0 20px 40px -16px rgba(0,0,0,.7)')}><div style={css('width:30px;height:30px;border-radius:10px;background:var(--cta);color:var(--onCta);display:flex;align-items:center;justify-content:center;font-size:16px')}><i className="ph-fill ph-sparkle" /></div>{s.toast}</div>}
-
             <EditSheet v={view} api={api} />
-            <CopilotDrawer v={view} api={api} status={claude ? 'Claude · controls route, budget and alerts' : 'Controls route, budget and alerts'} send={() => ask(s.input)} />
           </>}
         </main>
       </div>

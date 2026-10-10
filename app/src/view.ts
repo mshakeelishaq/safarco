@@ -2,9 +2,10 @@
 // design's renderVals(); the screens in components/ read from this.
 import { CONFIGS, EDGES, MODES, MON, MONTH_FULL, NODES, NODE_INFO, POPULAR, POP_DEST, SUGGEST_POOL, SUNRISE, SUNSET, TIERS, TIER_G, VEH, CAT, CAT2, GRADS, DESTS, STOP_KIND, type VehicleId } from './engine/data';
 import { MAX_DRIVE_H, airFor, babusarClosed, buildPlan, coachFare, costFor, freeDays, jeepMatch, jeepsFor, scheduledPlaces, seasonInfo, suggestions, trip, type Suggestion } from './engine/engine';
-import { clock, dayLabel, dur, fmt, fmtN, isoAdd, isoOf, kShort, mon } from './engine/format';
-import { LIVE, WMO, routeKey, wxPlan } from './engine/live';
-import { CITIES, CITY, CITY_DUP, DST, cityOr } from './engine/places';
+import { clock, dayLabel, dur, fmt, fmtN, isoAdd, isoOf, isoOff, kShort, mapsQ, mon } from './engine/format';
+import { LIVE, WMO, fxRate, placesKey, routeKey, wxPlan, type Spot } from './engine/live';
+import { checkPricesUrl, nightRange, usd } from './money';
+import { CITIES, CITY, CITY_DUP, DST, cityOr, placesFor, seasonFactor } from './engine/places';
 import type { AppState, Patch } from './state';
 import { THEMES } from './state';
 import { tilesAlong } from './offline';
@@ -15,10 +16,8 @@ export interface Api {
   locate: () => void;
   setPeople: (k: 'adults' | 'kids' | 'elders', d: number) => void;
   toggleOffline: () => void;
-  ask: (text: string) => void;
 }
 
-export const COPILOT_PROMPTS = ['Switch to Fairy Meadows, we\'re in a Corolla', 'We\'re 5 friends now, keep it backpacker', 'Make it December, leave at 6 am', 'Take my parents too, family rooms', 'Is Babusar Pass open on my dates?'];
 
 export function buildView(s: AppState, api: Api) {
   const { set } = api;
@@ -107,13 +106,36 @@ export function buildView(s: AppState, api: Api) {
   const oqT = s.oq.trim().toLowerCase();
   const plan = buildPlan(s);
 
+  // Places to stay and see, from OpenStreetMap via Geoapify, plus honest price ranges.
+  const D = DST(s.corridor), sf = seasonFactor(D, M), AD = s.adults + s.elders;
+  const rooms = s.rooms === 'shared' ? Math.ceil(s.groupSize / 4) : Math.max(1, Math.ceil(AD / 2));
+  const spotsAt = (kind: 'sights' | 'hotels', lat: number, lon: number) => { const e = LIVE.places[placesKey(kind, lat, lon)]; return { loading: !e || e.status === 'loading', list: e && e.status === 'ok' ? e.data : [] as Spot[] }; };
+  const check = (q: string, checkin: string, n: number) => checkPricesUrl(q, checkin, n, AD, s.kids, rooms);
+  const tierRanges = (['backpacker', 'standard', 'premium'] as const).map(t => ({ key: t, label: TIERS[t].label, on: s.tier === t, ...nightRange(t, sf) }));
+  const destHotels = spotsAt('hotels', D.lat, D.lon), destSights = spotsAt('sights', D.lat, D.lon);
+  const nightsAtDest = plan.days.filter(d => d.stay && d.stay.town === D.town).length || 1;
+  const stays = {
+    town: D.town, month: MONTH_FULL[M - 1], ranges: tierRanges, loading: destHotels.loading && !(D.hotels || []).length,
+    source: destHotels.list.length ? 'OpenStreetMap' : (D.hotels || []).length ? 'SafarCo’s picks (check they’re open)' : '',
+    searchUrl: check(D.town, s.startDate, s.days - 1),
+    list: (destHotels.list.length
+      ? destHotels.list.slice(0, 8).map(h => ({ name: h.name, note: `${h.type}${h.km ? ` · ${h.km} km from centre` : ''}`, tier: h.type, lat: h.lat, lon: h.lon }))
+      : (D.hotels || []).map(([name, tier, note]) => ({ name, note, tier, lat: D.lat, lon: D.lon })))
+      .map(h => ({ ...h, key: h.name, checkUrl: check(`${h.name}, ${D.town}`, s.startDate, nightsAtDest), mapUrl: mapsQ(`${h.name}, ${D.town}`) }))
+  };
+  const planned = new Set(placesFor(D, M).map(p => p[0].toLowerCase()));
+  const nearby = { loading: destSights.loading, list: destSights.list.filter(x => !planned.has(x.name.toLowerCase())).slice(0, 8).map(x => ({ key: x.name, name: x.name, note: `${x.type}${x.km ? ` · ${x.km} km` : ''}`, href: mapsQ(`${x.name}, ${D.town}`) })) };
+  const fx = fxRate(), wikiE = LIVE.wiki[D.id];
+
   return {
-    s, c, gate, tip, health, off, isAir, selCorridor: sug.sel?.corridor,
+    s, c, gate, tip, health, off, isAir, selCorridor: sug.sel?.corridor, stays, nearby,
+    fxNote: fx.live ? `US$ at 1 USD = PKR ${fx.pkrPerUsd.toFixed(2)}${fx.updated ? ` (${fx.updated})` : ''}` : `US$ at about PKR ${fx.pkrPerUsd} (live rate unavailable)`,
+    wiki: { loading: !wikiE || wikiE.status === 'loading', info: wikiE && wikiE.status === 'ok' ? wikiE.data : null },
     stepLabel: `${s.step + 1} / 6`,
     stepBars: [0, 1, 2, 3, 4, 5].map(i => ({ bg: i <= s.step ? 'var(--bar)' : 'var(--line2)', glow: i <= s.step ? 'var(--barGlow)' : 'none' })),
     ob: obTitles[s.step],
     cityCount: CITIES.length,
-    listLabel: s.oq ? (geoOf(s.oq)?.status === 'loading' ? 'Matching places · searching OpenStreetMap…' : 'Matching places') : 'Popular cities',
+    listLabel: s.oq ? (geoOf(s.oq)?.status === 'loading' ? 'Matching places · searching all of Pakistan…' : 'Matching places') : 'Popular cities',
     cityRows: (() => {
       const q = oqT;
       let list = q ? CITIES.filter(c => c.n.toLowerCase().includes(q) || c.p.toLowerCase().includes(q)).sort((a, b) => (+b.n.toLowerCase().startsWith(q) - +a.n.toLowerCase().startsWith(q)) || a.n.localeCompare(b.n)).slice(0, 40) : POPULAR.map(n => CITY[n]);
@@ -139,7 +161,7 @@ export function buildView(s: AppState, api: Api) {
         transform: on ? 'translateZ(22px) rotateX(5deg)' : 'translateZ(0)', shadow: on ? `0 22px 40px -18px ${g[0]}` : 'none',
         ringC: on ? g[0] : 'var(--line2)', dotBg: on ? g[0] : 'transparent', checkOp: on ? 1 : 0 };
     }),
-    destListLabel: s.dq ? (geoOf(s.dq)?.status === 'loading' ? 'Matching places · searching OpenStreetMap…' : 'Matching places') : 'Popular destinations',
+    destListLabel: s.dq ? (geoOf(s.dq)?.status === 'loading' ? 'Matching places · searching all of Pakistan…' : 'Matching places') : 'Popular destinations',
     destRows, noDest: !!s.dq.trim() && !destRows.length && geoOf(s.dq)?.status !== 'loading',
     todayIso: isoAdd(0),
     dateRange: `${dayLabel(s.startDate, 0)} → ${dayLabel(s.startDate, s.days - 1)}`,
@@ -159,7 +181,7 @@ export function buildView(s: AppState, api: Api) {
     })(),
     mapRouteLabel: (() => {
       const r = LIVE.route[routeKey(cityOr(s.origin).n, s.corridor)];
-      return isAir ? 'Flight path' : r && r.status === 'ok' ? `Road from OpenStreetMap · ${fmtN(r.data.km)} km` : r && r.status === 'loading' ? 'Loading road from OpenStreetMap…' : 'Route from SafarCo road table';
+      return isAir ? 'Flight path' : r && r.status === 'ok' ? `Road from OpenRouteService · ${fmtN(r.data.km)} km` : r && r.status === 'loading' ? 'Loading road from OpenRouteService…' : 'Route from SafarCo road table';
     })(),
     wx: (() => {
       const D = DST(s.corridor), p = wxPlan(D, s.startDate, s.days), r = LIVE.wx[p.key];
@@ -180,11 +202,11 @@ export function buildView(s: AppState, api: Api) {
       if (s.screen !== 'app' || isAir) return [];
       const o = cityOr(s.origin), r = LIVE.route[routeKey(o.n, s.corridor)];
       if (!r) return [];
-      if (r.status === 'loading') return [{ icon: 'ph-globe-hemisphere-east', color: 'var(--mute)', text: 'Checking the road on OpenStreetMap…' }];
+      if (r.status === 'loading') return [{ icon: 'ph-globe-hemisphere-east', color: 'var(--mute)', text: 'Checking the road with OpenRouteService…' }];
       if (r.status === 'error') return [{ icon: 'ph-wifi-slash', color: 'var(--mute)', text: 'Live road check unavailable. Using SafarCo’s road table.' }];
       const lv = c.live;
-      if (lv && !lv.ignored) return [{ icon: 'ph-check-circle', color: 'var(--g)', text: `Distance checked on OpenStreetMap: ${fmtN(r.data.km)} km. Drive times use mountain and town speeds, so they are longer than map apps show.` }];
-      return [{ icon: 'ph-warning', color: 'var(--cor)', text: `OpenStreetMap’s fastest road is ${fmtN(r.data.km)} km; this plan is ${c.kmStr} km. It may use a road closed in ${MON[M - 1]}. Check before you leave.` }];
+      if (lv && !lv.ignored) return [{ icon: 'ph-check-circle', color: 'var(--g)', text: `Distance checked with OpenRouteService: ${fmtN(r.data.km)} km. Drive times use mountain and town speeds, so they are longer than map apps show.` }];
+      return [{ icon: 'ph-warning', color: 'var(--cor)', text: `OpenRouteService’s fastest road is ${fmtN(r.data.km)} km; this plan is ${c.kmStr} km. It may use a road closed in ${MON[M - 1]}. Check before you leave.` }];
     })(),
     seasonNotes: seasonInfo(s, s.corridor),
     dayHint: (() => {
@@ -199,7 +221,7 @@ export function buildView(s: AppState, api: Api) {
     nightsLabel: `days · ${nights} night${nights > 1 ? 's' : ''}`,
     decDays: () => set({ days: Math.max(2, s.days - 1) }), incDays: () => set({ days: Math.min(14, s.days + 1) }),
     dayPresets: [3, 5, 7, 10].map(d => ({ key: d, label: `${d} days`, onClick: () => set({ days: d }), ...chip(s.days === d) })),
-    capBig: fmtN(s.cap), capPer: `${fmt(s.cap / s.groupSize)} per person · ${s.days} days`,
+    capBig: fmtN(s.cap), capUsd: `≈ ${usd(s.cap)}`, capPer: `${fmt(s.cap / s.groupSize)} (${usd(s.cap / s.groupSize)}) per person · ${s.days} days`,
     tripMeta: `${s.groupSize} traveller${s.groupSize > 1 ? 's' : ''} · ${s.days} days`,
     sliderPct: (s.cap - 20000) / 480000 * 100,
     capPresets: [50000, 100000, 200000, 350000].map(v => ({ key: v, label: `${v / 1000}k`, onClick: () => set({ cap: v, pickId: null }), ...chip(s.cap === v) })),
@@ -209,7 +231,7 @@ export function buildView(s: AppState, api: Api) {
     sugg: sug.list.map((g: Suggestion) => {
       const on = g.key === sug.sel?.key, fits = fitsS(g);
       return { key: g.key, title: s.mode === 'know' ? g.name : DST(g.corridor).label, sub: s.mode === 'know' ? `${VEH[g.vehicle].short} · ${TIERS[g.tier].label} stays` : `${g.name} · ${VEH[g.vehicle].short}${g.name === TIERS[g.tier].label ? '' : ` · ${TIERS[g.tier].label} stays`}`,
-        icon: VEH[g.vehicle].icon, tile: TIER_G[g.tier], amount: fmt(g.total), best: !!g.best,
+        icon: VEH[g.vehicle].icon, tile: TIER_G[g.tier], amount: fmt(g.total), amountUsd: usd(g.total), best: !!g.best,
         fitLabel: !g.ok ? (g.why || `Needs ${g.minDays}+ days`) : fits ? `${kShort(s.cap - g.total)} left` : `+${kShort(g.total - s.cap)}`, fitFg: fits ? 'var(--g)' : 'var(--cor)', fitBg: fits ? 'rgba(46,229,157,.14)' : 'rgba(255,107,91,.16)',
         bg: on ? 'linear-gradient(var(--fill),var(--fill)) padding-box, linear-gradient(135deg,#2EE59D,#FFB547) border-box' : 'linear-gradient(rgba(255,255,255,.05),rgba(255,255,255,.05)) padding-box, linear-gradient(rgba(255,255,255,.1),rgba(255,255,255,.1)) border-box',
         transform: on ? 'translateZ(18px) rotateX(4deg)' : 'translateZ(0)', shadow: on ? '0 22px 40px -18px rgba(46,229,157,.7)' : 'none', op: fits || on ? 1 : .62,
@@ -223,22 +245,24 @@ export function buildView(s: AppState, api: Api) {
       else { const g = sug.sel; if (g) set({ screen: 'app', tab: 'trip', corridor: g.corridor, dest: g.corridor, vehicle: g.vehicle, tier: g.tier }); }
     },
     nextLabel: s.step < 5 ? 'Continue' : 'Build this trip',
-    restart: () => set({ screen: 'onboard', step: 0, drawer: false, settings: false }),
+    restart: () => set({ screen: 'onboard', step: 0, settings: false }),
     corridorChips: [s.corridor, ...POP_DEST.filter(k => k !== s.corridor && DST(k).name !== s.origin)].slice(0, 6).map(k => {
       const on = s.corridor === k, v = DST(k);
       return { key: k, label: v.name, onClick: () => set({ corridor: k, dest: k }), bg: on ? 'var(--cta)' : 'var(--fill2)', fg: on ? 'var(--onCta)' : 'var(--ink)', border: on ? 'transparent' : 'var(--line2)', shadow: on ? '0 10px 24px -10px rgba(46,229,157,.8)' : 'none' };
     }),
-    budgetShadow: ring('budget'), alertShadow: s.flash === 'alert' ? '0 0 0 2px #9B7BFF, 0 0 40px -6px rgba(155,123,255,.7)' : 'none',
-    capPct: Math.round(pct * 100), totalNum: fmtN(total), perPersonStr: fmt(total / s.groupSize), capStr: fmt(s.cap), barPct: Math.min(pct, 1) * 100,
+    budgetShadow: ring('budget'),     capPct: Math.round(pct * 100), totalNum: fmtN(total), totalUsd: usd(total), perPersonStr: `${fmt(total / s.groupSize)} (${usd(total / s.groupSize)})`, capStr: fmt(s.cap), barPct: Math.min(pct, 1) * 100,
     plan: (() => {
       const p = plan, K: Record<string, [string, string]> = { drive: ['linear-gradient(135deg,#2EE59D,#0FA678)', 'Drive'], explore: ['linear-gradient(135deg,#9B7BFF,#5B6CFF)', 'Explore'], return: ['linear-gradient(135deg,#FFB547,#FF7A3D)', 'Return'], fly: ['linear-gradient(135deg,#6FD3FF,#3B8DFF)', 'Fly'] };
       const depChips = [null, 4.5, 5.5, 6.5, 7.5, 8.5].map(v => { const on = (s.depart ?? null) === v; return { key: String(v), label: v === null ? `Auto · ${clock(p.rec)}` : clock(v), onClick: () => set({ depart: v }), ...chip(on) }; });
       return { summary: `${p.total} days · ${p.total - 1} nights`, via: p.air ? `Flights ${p.air.dep} ⇄ ${p.air.arr} · car and driver at the destination` : `${c.kmStr} km each way by road · ${c.via}`,
         hasDep: !p.air && p.hasDrive, depChips, depNoteC: p.late ? 'var(--amb)' : 'var(--mute)',
         depNote: p.late ? `Some driving days end after sunset (about ${clock(p.sunset)}). ${p.dep > p.rec ? `Leave by ${clock(p.rec)}.` : 'Consider an extra night stop.'}` : s.depart == null ? `Recommended ${clock(p.rec)}, so every driving day ends before sunset (about ${clock(p.sunset)}).` : `Every driving day ends before sunset (about ${clock(p.sunset)}).`,
-        days: p.days.map((d, i) => ({ ...d, stops: (d.stops || []).map(t => ({ ...t, icon: STOP_KIND[t.kind][0], color: STOP_KIND[t.kind][1] })), tile: K[d.kind][0], kindLabel: K[d.kind][1], lineOp: i === p.days.length - 1 ? 0 : 1 })) };
+        days: p.days.map((d, i) => ({ ...d, stay: d.stay && (() => {
+          const st = d.stay!, nr = nightRange(s.tier, sf), near = spotsAt('hotels', st.lat, st.lon).list.filter(h => h.name !== st.name).slice(0, 3).map(h => h.name);
+          return { ...st, range: `${TIERS[s.tier].label} · ${nr.text} (${nr.usd}) a night`, href: check(st.curated ? `${st.name}, ${st.town}` : st.town, isoOff(s.startDate, i), 1), nearby: near.length ? `Nearby on OpenStreetMap: ${near.join(' · ')}` : st.alts };
+        })(), stops: (d.stops || []).map(t => ({ ...t, icon: STOP_KIND[t.kind][0], color: STOP_KIND[t.kind][1] })), tile: K[d.kind][0], kindLabel: K[d.kind][1], lineOp: i === p.days.length - 1 ? 0 : 1 })) };
     })(),
-    rows: rows.map(r => ({ ...r, amount: fmtN(r.val), color: CAT[r.label] || 'var(--sky)', grad: `linear-gradient(135deg,${CAT[r.label] || 'var(--sky)'},${CAT2[r.label] || '#3B8DFF'})` })),
+    rows: rows.map(r => ({ ...r, amount: fmtN(r.val), amountUsd: usd(r.val), color: CAT[r.label] || 'var(--sky)', grad: `linear-gradient(135deg,${CAT[r.label] || 'var(--sky)'},${CAT2[r.label] || '#3B8DFF'})` })),
     vehChips: (Object.entries(VEH) as [VehicleId, typeof VEH[VehicleId]][]).map(([k, v]) => {
       const on = s.vehicle === k, off = k === 'air' && !air;
       return { key: k, icon: v.icon, label: v.short, full: v.label, onClick: () => { if (!off) set({ vehicle: k }); }, op: off ? .35 : 1,
@@ -304,17 +328,14 @@ export function buildView(s: AppState, api: Api) {
       { key: 'b', label: 'Budget cap', value: `${Math.round(s.cap / 1000)}k`, dec: () => set({ cap: Math.max(40000, s.cap - 10000) }), inc: () => set({ cap: s.cap + 10000 }) }
     ],
     helplines: [['1122', 'Rescue'], ['15', 'Police'], ['130', 'Motorway Police'], ['115', 'Edhi Ambulance']].map(([num, label]) => ({ num, label, href: `tel:${num}` })),
-    hotels: (c.hotels || [['Hotels in ' + c.town, 'Search', 'Opens Google Maps'] as [string, string, string]]).map(([name, tier, note]) => ({ name, tier, note, tierC: tierC[tier], grad: tierG[tier], href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(tier === 'Search' ? 'hotels in ' + c.town : name).replace(/%20/g, '+')}` })),
+    hotels: stays.list.map(h => ({ ...h, tierC: tierC[h.tier] || 'var(--sky)', grad: tierG[h.tier] || 'linear-gradient(135deg,#6FD3FF,#3B8DFF)' })),
     tabs: ([['trip', 'ph-mountains', 'Trip'], ['map', 'ph-map-trifold', 'Map'], ['offline', 'ph-cloud-slash', 'Offline']] as const).map(([k, icon, label]) => {
       const on = s.tab === k; return { key: k, icon, label, bg: on ? 'linear-gradient(135deg,rgba(46,229,157,.22),rgba(25,194,184,.12))' : 'transparent', fg: on ? 'var(--g)' : 'var(--mute)', onClick: () => set({ tab: k }) };
     }),
     pillA: isAir ? `${air!.dep} ⇄ ${air!.arr} by air` : `${c.kmStr} km by road`,
     pillB: isAir ? `~1 h flight${air!.pp ? ' + coach to airport' : ''}` : c.hrs,
     pillIcon: isAir ? 'ph-airplane-tilt' : 'ph-path',
-    tripSummary: [dayLabel(s.startDate, 0), `${s.adults} adult${s.adults > 1 ? 's' : ''}`, s.kids ? `${s.kids} kid${s.kids > 1 ? 's' : ''}` : '', s.elders ? `${s.elders} elder${s.elders > 1 ? 's' : ''}` : '', VEH[s.vehicle].short, TIERS[s.tier].label, `${s.days} days`].filter(Boolean).join(' · '),
-    msgView: s.msgs.map((m, i) => ({ key: i, ...m, isUser: m.role === 'user', shown: m.role === 'ai' ? m.text.slice(0, m.typed ?? 999) : m.text,
-      calls: (m.calls || []).map(k => ({ ...k, bg: k.status === 'running' ? 'rgba(255,181,71,.18)' : 'rgba(46,229,157,.18)', fg: k.status === 'running' ? 'var(--amb)' : 'var(--g)' })) })),
-    suggestions: COPILOT_PROMPTS.map(prompt => ({ prompt, onClick: () => api.ask(prompt) }))
+    tripSummary: [dayLabel(s.startDate, 0), `${s.adults} adult${s.adults > 1 ? 's' : ''}`, s.kids ? `${s.kids} kid${s.kids > 1 ? 's' : ''}` : '', s.elders ? `${s.elders} elder${s.elders > 1 ? 's' : ''}` : '', VEH[s.vehicle].short, TIERS[s.tier].label, `${s.days} days`].filter(Boolean).join(' · ')
   };
 }
 export type View = ReturnType<typeof buildView>;

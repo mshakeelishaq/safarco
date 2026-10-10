@@ -29,7 +29,7 @@ export interface DestInput {
   id: string; name: string; town?: string; region: string; lat: number; lon: number; ft?: number | null; ftEst?: number;
   node?: string | null; air?: string | null; airNote?: string; hub?: number; icon?: string; generic?: boolean;
   best?: number[] | null; warn?: [number[], string] | null; terrain?: Terrain;
-  hotels?: Hotel[] | null; places?: Place[]; eat?: string; jeeps?: Jeep[];
+  hotels?: Hotel[] | null; places?: Place[]; eat?: string; jeeps?: Jeep[]; livePlaces?: boolean;
 }
 
 /** Months a to b inclusive, wrapping past December. */

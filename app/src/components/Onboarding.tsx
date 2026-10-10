@@ -49,7 +49,7 @@ export function Onboarding({ v, api }: { v: View; api: Api }) {
       <div style={css('position:absolute;left:24px;right:24px;top:100px;display:grid;grid-template-columns:repeat(6,1fr);gap:6px')}>
         {v.stepBars.map((b, i) => <div key={i} style={css(`height:4px;border-radius:2px;background:${b.bg};box-shadow:${b.glow};transition:all .4s`)} />)}
       </div>
-      <div style={css('position:absolute;left:0;right:0;top:262px;bottom:0;padding:26px 22px 30px;display:flex;flex-direction:column;pointer-events:auto;background:linear-gradient(180deg,var(--bg0) 0,var(--bg) 44px)')}>
+      <div style={css('position:absolute;left:0;right:0;top:var(--ob-top,262px);bottom:0;padding:26px 22px calc(30px + env(safe-area-inset-bottom));display:flex;flex-direction:column;pointer-events:auto;background:linear-gradient(180deg,var(--bg0) 0,var(--bg) 44px)')}>
         <h1 style={css('margin:0;font-family:var(--fontH);font-weight:600;font-size:24px;line-height:1.2;letter-spacing:-.02em;text-wrap:pretty')}>{v.ob.title}</h1>
         <div style={css('font-size:14px;color:var(--mute);margin-top:8px;font-weight:500;line-height:1.4')}>{v.ob.sub}</div>
         <div style={css('flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;margin:16px -22px 12px;padding:2px 22px 8px;perspective:900px')}>
@@ -147,7 +147,7 @@ export function Onboarding({ v, api }: { v: View; api: Api }) {
           </>}
 
           {s.step === 4 && <>
-            <div style={css('display:flex;align-items:baseline;gap:8px')}><span style={css('font-size:15px;font-weight:800;color:var(--mute)')}>PKR</span><span style={css('font-family:var(--fontH);font-weight:600;font-size:42px;letter-spacing:-.03em;font-variant-numeric:tabular-nums;background:var(--ng2);-webkit-background-clip:text;background-clip:text;color:transparent')}>{v.capBig}</span></div>
+            <div style={css('display:flex;align-items:baseline;gap:8px')}><span style={css('font-size:15px;font-weight:800;color:var(--mute)')}>PKR</span><span style={css('font-family:var(--fontH);font-weight:600;font-size:42px;letter-spacing:-.03em;font-variant-numeric:tabular-nums;background:var(--ng2);-webkit-background-clip:text;background-clip:text;color:transparent')}>{v.capBig}</span><span style={css('font-size:15px;font-weight:800;color:var(--mute);font-variant-numeric:tabular-nums')}>{v.capUsd}</span></div>
             <div style={css('font-size:13px;color:var(--mute);font-weight:600')}>{v.capPer}</div>
             <Slider v={v} set={set} />
             <div style={css('display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px')}>
@@ -160,7 +160,7 @@ export function Onboarding({ v, api }: { v: View; api: Api }) {
           </>}
 
           {s.step === 5 && <>
-            <div style={css('display:flex;align-items:baseline;justify-content:space-between;gap:8px')}><div style={css('display:flex;align-items:baseline;gap:6px')}><span style={css('font-size:13px;font-weight:800;color:var(--mute)')}>PKR</span><span style={css('font-family:var(--fontH);font-weight:600;font-size:26px;letter-spacing:-.02em;font-variant-numeric:tabular-nums')}>{v.capBig}</span></div><span style={css('font-size:12px;font-weight:700;color:var(--mute)')}>{v.tripMeta}</span></div>
+            <div style={css('display:flex;align-items:baseline;justify-content:space-between;gap:8px')}><div style={css('display:flex;align-items:baseline;gap:6px')}><span style={css('font-size:13px;font-weight:800;color:var(--mute)')}>PKR</span><span style={css('font-family:var(--fontH);font-weight:600;font-size:26px;letter-spacing:-.02em;font-variant-numeric:tabular-nums')}>{v.capBig}</span><span style={css('font-size:12px;font-weight:700;color:var(--mute)')}>{v.capUsd}</span></div><span style={css('font-size:12px;font-weight:700;color:var(--mute)')}>{v.tripMeta}</span></div>
             <Slider v={v} set={set} />
             <div style={css('display:flex;flex-direction:column;gap:10px;margin-top:8px')}>
               {v.sugg.map(g => (
@@ -171,7 +171,7 @@ export function Onboarding({ v, api }: { v: View; api: Api }) {
                     <div style={css('font-size:12px;color:var(--mute);font-weight:600;margin-top:3px')}>{g.sub}</div>
                   </div>
                   <div style={css('flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:4px')}>
-                    <div style={css('font-size:14px;font-weight:800;font-variant-numeric:tabular-nums')}>{g.amount}</div>
+                    <div style={css('font-size:14px;font-weight:800;font-variant-numeric:tabular-nums;text-align:right')}>{g.amount}<div style={css('font-size:11px;font-weight:600;color:var(--mute)')}>{g.amountUsd}</div></div>
                     <div style={css(`padding:2px 7px;border-radius:7px;background:${g.fitBg};color:${g.fitFg};font-size:11px;font-weight:800;font-variant-numeric:tabular-nums`)}>{g.fitLabel}</div>
                   </div>
                 </button>
