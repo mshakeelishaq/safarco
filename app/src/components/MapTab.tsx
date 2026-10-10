@@ -1,0 +1,145 @@
+import { useEffect, useRef } from 'react';
+import { LIVE, routeKey } from '../engine/live';
+import { cityOr } from '../engine/places';
+import { css } from '../lib/css';
+import { DEM_TILES, MAP_STYLE } from '../mapConfig';
+import type { Api, View } from '../view';
+
+type ML = typeof import('maplibre-gl');
+const escH = (s: string) => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+
+/** Real 3D map (MapLibre + OpenFreeMap + Terrarium elevation) with the trip route and pins. */
+function LiveMap({ v, onFail }: { v: View; onFail: () => void }) {
+  const el = useRef<HTMLDivElement>(null);
+  const st = useRef<{ ml?: ML; map?: import('maplibre-gl').Map; ok?: boolean; key?: string; markers: import('maplibre-gl').Marker[] }>({ markers: [] });
+  const { s } = v, rm = v.routeMap, o = cityOr(s.origin), r = LIVE.route[routeKey(o.n, s.corridor)];
+
+  useEffect(() => {
+    let dead = false;
+    const fail = setTimeout(() => { if (!st.current.ok) onFail(); }, 12000);
+    Promise.all([import('maplibre-gl'), import('maplibre-gl/dist/maplibre-gl-worker.mjs?url'), import('maplibre-gl/dist/maplibre-gl.css')]).then(([ML, worker]) => {
+      if (dead || !el.current) return;
+      const mod = (ML as unknown as { default?: ML }).default ?? ML;
+      mod.setWorkerUrl(worker.default);
+      st.current.ml = mod;
+      const m = new mod.Map({ container: el.current, style: MAP_STYLE, center: [73.4, 34.2], zoom: 5.4, pitch: 55, bearing: -12, maxPitch: 75, attributionControl: { compact: true } });
+      st.current.map = m;
+      m.addControl(new mod.NavigationControl({ visualizePitch: true }), 'top-right');
+      // If the map style itself can't load (no connection), show the drawn map instead.
+      m.on('error', () => { if (!dead && !st.current.ok && !m.isStyleLoaded()) onFail(); });
+      m.on('load', () => {
+        if (dead) return; st.current.ok = true;
+        const dem = { type: 'raster-dem' as const, tiles: [DEM_TILES], encoding: 'terrarium' as const, tileSize: 256, maxzoom: 13, attribution: 'Terrain: Mapzen / AWS' };
+        m.addSource('dem', dem); m.addSource('demh', { ...dem });
+        const firstSym = (m.getStyle().layers.find(l => l.type === 'symbol') || {}).id;
+        m.addLayer({ id: 'hills', type: 'hillshade', source: 'demh', paint: { 'hillshade-exaggeration': 0.45, 'hillshade-shadow-color': '#4A4542' } }, firstSym);
+        m.setTerrain({ source: 'dem', exaggeration: 1.5 });
+        const acc = getComputedStyle(el.current!).getPropertyValue('--sky').trim() || '#0088B0';
+        m.addSource('route', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+        m.addLayer({ id: 'route-case', type: 'line', source: 'route', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#FFFFFF', 'line-width': 8 } });
+        m.addLayer({ id: 'route-line', type: 'line', source: 'route', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': acc, 'line-width': 4.5 } });
+        st.current.key = undefined; update();
+      });
+    }).catch(() => onFail());
+    return () => { dead = true; clearTimeout(fail); st.current.map?.remove(); st.current = { markers: [] }; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const update = () => {
+    const { map: m, ml, ok } = st.current; if (!m || !ml || !ok || !m.getSource('route')) return;
+    const key = `${o.n}|${s.corridor}|${s.startDate}|${s.days}|${s.vehicle}|${r ? r.status : ''}`; if (key === st.current.key) return; st.current.key = key;
+    const coords: [number, number][] = !rm.isAir && r && r.status === 'ok' ? r.data.coords : rm.dots.map(d => [+d.p[1], +d.p[0]]);
+    (m.getSource('route') as import('maplibre-gl').GeoJSONSource).setData({ type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: coords } });
+    m.setPaintProperty('route-line', 'line-dasharray', rm.isAir ? [2, 1.5] : undefined);
+    st.current.markers.forEach(x => x.remove());
+    st.current.markers = rm.dots.map(d => {
+      const n = document.createElement('div'); n.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:none';
+      n.innerHTML = `<div style="padding:3px 7px;border-radius:7px;background:var(--sheet);border:1px solid var(--line2);font:700 11px/1.2 var(--font);color:var(--ink);white-space:nowrap;box-shadow:0 4px 10px rgba(0,0,0,.12)">${escH(d.label)}</div><div style="width:12px;height:12px;border-radius:50%;background:${d.color};border:2px solid #FFFFFF;box-shadow:0 0 0 3px ${d.ring}"></div>`;
+      return new ml.Marker({ element: n, anchor: 'bottom' }).setLngLat([+d.p[1], +d.p[0]]).addTo(m);
+    });
+    const b = coords.reduce((bb, c) => bb.extend(c), new ml.LngLatBounds(coords[0], coords[0]));
+    m.fitBounds(b, { padding: { top: 70, bottom: 40, left: 40, right: 50 }, duration: 900, maxZoom: 11 });
+  };
+  useEffect(update);
+
+  return <div ref={el} role="application" aria-label="Route map" style={css('position:relative;height:440px;border-radius:20px;overflow:hidden;background:var(--fill)')} />;
+}
+
+/** Hand-drawn tilted map, used when the live map can't load. */
+function DrawnMap({ v }: { v: View }) {
+  const rm = v.routeMap;
+  return <>
+    <div style={css('perspective:900px;perspective-origin:50% 0%')}>
+      <div style={css('position:relative;width:100%;padding-bottom:88%;transform:rotateX(32deg) scale(.95);transform-origin:50% 35%;transform-style:preserve-3d')}>
+        <div style={css('position:absolute;inset:0;border-radius:18px;background-color:rgba(46,229,157,.05);background-image:linear-gradient(var(--fill) 1px,transparent 1px),linear-gradient(90deg,var(--fill) 1px,transparent 1px);background-size:10% 10%;box-shadow:0 40px 50px -24px rgba(0,0,0,.7),inset 0 0 0 1px var(--fill)')} />
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={css('position:absolute;inset:0;width:100%;height:100%;border-radius:18px')} aria-hidden="true">
+          <path d={rm.net} fill="none" stroke="var(--fill2)" strokeWidth="1.2" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+          <path d={rm.closed} fill="none" stroke="#FF6B5B" strokeWidth="2" strokeDasharray="5 5" vectorEffect="non-scaling-stroke" />
+          <path d={rm.route} fill="none" stroke="#FF9A3D" strokeWidth="10" strokeOpacity=".25" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+          <path d={rm.route} fill="none" stroke="#FFC060" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+        </svg>
+        {rm.dots.map((p, i) => (
+          <div key={i} style={css(`position:absolute;left:${p.x}%;top:${p.y}%;width:0;height:0;transform-style:preserve-3d`)}>
+            <div style={css(`position:absolute;left:-7px;top:-7px;width:14px;height:14px;border-radius:50%;background:${p.color};box-shadow:0 0 0 5px ${p.ring},0 0 18px ${p.color}`)} />
+            <div style={css(`position:absolute;left:0;bottom:0;transform:translate(-50%,${p.lift}) rotateX(-32deg);transform-origin:50% 100%;pointer-events:none`)}>
+              <div style={css('padding:4px 8px;border-radius:9px;background:var(--sheet);border:1px solid var(--line2);font-size:10px;font-weight:800;white-space:nowrap;color:var(--ink)')}>{p.label}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+    <div style={css('display:flex;gap:14px;flex-wrap:wrap;margin:14px 6px 0;font-size:11px;font-weight:700;color:var(--mute)')}>
+      <span style={css('display:flex;align-items:center;gap:6px')}><span style={css('width:16px;height:3px;border-radius:2px;background:#FFC060')} />Your route</span>
+      <span style={css('display:flex;align-items:center;gap:6px')}><span style={css('width:16px;height:2px;background:var(--fill2)')} />Other roads</span>
+      <span style={css('display:flex;align-items:center;gap:6px')}><span style={css('width:16px;height:0;border-top:2px dashed #FF6B5B')} />Closed this month</span>
+    </div>
+  </>;
+}
+
+export function MapTab({ v, api }: { v: View; api: Api }) {
+  const { s, c } = v, rm = v.routeMap;
+  return (
+    <div data-screen-label="Route map">
+      <div style={css('height:250px;position:relative;pointer-events:none')}>
+        <div style={css('position:absolute;left:22px;right:22px;top:58px;text-shadow:var(--tsh)')}>
+          <div style={css('font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--amb2)')}>{c.from} → {c.to}</div>
+          <h1 style={css('margin:6px 0 0;font-family:var(--fontH);font-weight:600;font-size:26px;letter-spacing:-.02em')}>Route map</h1>
+          <div style={css('font-size:13px;font-weight:700;color:var(--ink2);margin-top:8px;line-height:1.45')}>{rm.stat}</div>
+        </div>
+      </div>
+      <div style={css('padding:4px 16px 150px;display:flex;flex-direction:column;gap:14px;pointer-events:auto;background:var(--bg)')}>
+        <div style={css('border-radius:30px;padding:16px 12px 22px;background:var(--sheet);border:1px solid var(--line);overflow:hidden')}>
+          {s.mapFail ? <DrawnMap v={v} /> : <>
+            <LiveMap v={v} onFail={() => api.set({ mapFail: true })} />
+            <div style={css('display:flex;gap:8px 14px;flex-wrap:wrap;margin:12px 6px 0;font-size:11px;font-weight:700;color:var(--mute)')}><span style={css('display:flex;align-items:center;gap:6px')}><span style={css('width:16px;height:4px;border-radius:2px;background:var(--sky)')} />{v.mapRouteLabel}</span><span>Drag to pan · two fingers or the compass to tilt</span></div>
+          </>}
+        </div>
+        <section style={css('border-radius:30px;padding:18px;background:var(--card);border:1px solid var(--line)')}>
+          <h2 style={css('margin:0;font-size:14px;font-weight:700;color:var(--mute)')}>Where you sleep</h2>
+          <div style={css('display:flex;flex-direction:column;gap:12px;margin-top:14px')}>
+            {rm.nights.map(n => (
+              <div key={n.key} style={css('display:flex;align-items:center;gap:12px')}>
+                <div style={css('flex:none;min-width:74px;padding:4px 8px;border-radius:9px;background:rgba(255,181,71,.14);color:var(--amb2);font-size:11px;font-weight:800;text-align:center;white-space:nowrap')}>{n.badge}</div>
+                <div style={css('flex:1;min-width:0')}><div style={css('font-size:14px;font-weight:700')}>{n.name}</div><div style={css('font-size:12px;color:var(--mute);font-weight:500;margin-top:1px')}>{n.hotel}</div></div>
+              </div>
+            ))}
+          </div>
+        </section>
+        {!rm.isAir && (
+          <section style={css('border-radius:30px;padding:18px;background:var(--card);border:1px solid var(--line)')}>
+            <h2 style={css('margin:0;font-size:14px;font-weight:700;color:var(--mute)')}>Roads on this route</h2>
+            <div style={css('display:flex;flex-direction:column;gap:10px;margin-top:14px')}>
+              {rm.roads.map(r => (
+                <div key={r.name} style={css('display:flex;align-items:center;gap:10px')}>
+                  <i className="ph-fill ph-road-horizon" style={css('font-size:18px;color:var(--sky);flex:none')} />
+                  <div style={css('flex:1;min-width:0;font-size:14px;font-weight:700')}>{r.name}{r.hasNote && <span style={css(`font-size:11px;font-weight:800;color:${r.noteC}`)}> · {r.note}</span>}</div>
+                  <div style={css('flex:none;font-size:13px;font-weight:800;font-variant-numeric:tabular-nums')}>{r.km}</div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,12 @@
+{
+  "name": "SafarCo",
+  "short_name": "SafarCo",
+  "description": "Plan road trips across Pakistan: routes, day-by-day stops, budgets, weather and offline maps.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F3F2F2",
+  "theme_color": "#F3F2F2",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
