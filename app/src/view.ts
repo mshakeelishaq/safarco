@@ -3,8 +3,11 @@
 import { CONFIGS, EDGES, MODES, MON, MONTH_FULL, NODES, NODE_INFO, POPULAR, POP_DEST, SUGGEST_POOL, SUNRISE, SUNSET, TIERS, TIER_G, VEH, CAT, CAT2, GRADS, DESTS, STOP_KIND, type VehicleId } from './engine/data';
 import { MAX_DRIVE_H, airFor, babusarClosed, buildPlan, coachFare, costFor, freeDays, jeepMatch, jeepsFor, scheduledPlaces, seasonInfo, suggestions, trip, type Suggestion } from './engine/engine';
 import { clock, dayLabel, dur, fmt, fmtN, isoAdd, isoOf, isoOff, kShort, mapsQ, mon } from './engine/format';
-import { LIVE, WMO, fxRate, placesKey, routeKey, wxPlan, type Spot } from './engine/live';
+import { LIVE, fxRate, placesKey, routeKey, type Spot } from './engine/live';
+import { sunTimes } from './engine/sun';
 import { checkPricesUrl, nightRange, usd } from './money';
+import { routePoints, weatherPlan } from './weather/route';
+import { weatherView } from './weather/view';
 import { SECTIONS, activeAlerts, checkedText, type Section } from './prices';
 import { CITIES, CITY, CITY_DUP, DST, cityOr, placesFor, seasonFactor } from './engine/places';
 import type { AppState, Patch } from './state';
@@ -109,6 +112,11 @@ export function buildView(s: AppState, api: Api) {
   const oqT = s.oq.trim().toLowerCase();
   const plan = buildPlan(s);
 
+  // Weather along the whole route (see src/weather).
+  const liveRoad = LIVE.route[routeKey(cityOr(s.origin).n, s.corridor)];
+  const rPoints = routePoints(s, plan, liveRoad && liveRoad.status === 'ok' ? liveRoad.data.coords : null);
+  const wPlan = weatherPlan(s, plan, rPoints), rw = weatherView(s, plan, rPoints, wPlan);
+
   // Places to stay and see, from OpenStreetMap via Geoapify, plus honest price ranges.
   const D = DST(s.corridor), sf = seasonFactor(D, M), AD = s.adults + s.elders;
   const rooms = s.rooms === 'shared' ? Math.ceil(s.groupSize / 4) : Math.max(1, Math.ceil(AD / 2));
@@ -138,7 +146,7 @@ export function buildView(s: AppState, api: Api) {
   const alertNotes = activeAlerts().map(a => ({ icon: 'ph-megaphone', color: 'var(--cor)', text: `${a.title}${a.message ? `: ${a.message}` : ''}${a.date ? ` (posted ${dayLabel(a.date, 0)})` : ''}` }));
 
   return {
-    s, c, gate, tip, health, off, isAir, selCorridor: sug.sel?.corridor, stays, nearby, priceNotes, ratesChecked: checkedText(s.vehicle === 'public' ? 'coach' : isAir ? 'fares' : 'hire'),
+    s, c, gate, tip, health, off, isAir, wPlan, rPoints, selCorridor: sug.sel?.corridor, stays, nearby, priceNotes, ratesChecked: checkedText(s.vehicle === 'public' ? 'coach' : isAir ? 'fares' : 'hire'),
     fxNote: fx.live ? `US$ at 1 USD = PKR ${fx.pkrPerUsd.toFixed(2)}${fx.updated ? ` (${fx.updated})` : ''}` : `US$ at about PKR ${fx.pkrPerUsd} (live rate unavailable)`,
     wiki: { loading: !wikiE || wikiE.status === 'loading', info: wikiE && wikiE.status === 'ok' ? wikiE.data : null },
     stepLabel: `${s.step + 1} / 6`,
@@ -187,27 +195,13 @@ export function buildView(s: AppState, api: Api) {
       const inS = SUGGEST_POOL.filter(k => (DST(k).best || []).includes(M)).map(k => DST(k).name);
       return [{ icon: 'ph-sun', color: 'var(--g)', text: inS.length ? `In season in ${MONTH_FULL[M - 1]}: ${inS.slice(0, 6).join(', ')}${inS.length > 6 ? ' and more' : ''}.` : `Few destinations are in season in ${MONTH_FULL[M - 1]}.` },
         ...(babusarClosed(M) ? [{ icon: 'ph-road-horizon', color: 'var(--cor)', text: `Babusar Pass is closed in ${MONTH_FULL[M - 1]}. Northern routes go via Besham on the KKH.` }] : []),
-        { icon: 'ph-sun-horizon', color: 'var(--vio)', text: `Daylight about ${clock(SUNRISE[M - 1])} to ${clock(SUNSET[M - 1])}.` }];
+        (() => { const o = cityOr(s.origin), t = sunTimes(o.lat, o.lon, s.startDate); return { icon: 'ph-sun-horizon', color: 'var(--vio)', text: `Sunrise ${clock(t.rise)}, sunset ${clock(t.set)} in ${o.n} on ${dayLabel(s.startDate, 0)}.` }; })()];
     })(),
     mapRouteLabel: (() => {
       const r = LIVE.route[routeKey(cityOr(s.origin).n, s.corridor)];
       return isAir ? 'Flight path' : r && r.status === 'ok' ? `Road from OpenRouteService · ${fmtN(r.data.km)} km` : r && r.status === 'loading' ? 'Loading road from OpenRouteService…' : 'Route from SafarCo road table';
     })(),
-    wx: (() => {
-      const D = DST(s.corridor), p = wxPlan(D, s.startDate, s.days), r = LIVE.wx[p.key];
-      const base = { place: D.town || D.name, source: p.kind === 'forecast' ? 'Forecast · Open-Meteo' : `Same dates in ${p.year} · Open-Meteo`, loading: !r || r.status === 'loading', failed: !!r && r.status === 'error',
-        days: [] as { day: string; icon: string; color: string; hi: number; lo: number; wet: string; hasWet: boolean; snow: boolean; rainy: boolean }[], hasSummary: false, summary: '' };
-      if (!r || r.status !== 'ok' || !r.data || !r.data.time) return base;
-      const d = r.data, days = d.time.map((_, i) => {
-        const [icon, color] = WMO(d.weather_code ? d.weather_code[i] : null), snow = (d.snowfall_sum && d.snowfall_sum[i]) || 0, rain = (d.precipitation_sum && d.precipitation_sum[i]) || 0, pp = d.precipitation_probability_max ? d.precipitation_probability_max[i] : null;
-        const wet = snow >= 0.5 ? `${Math.round(snow)} cm snow` : pp != null ? (pp >= 30 ? `${pp}% rain` : '') : rain >= 1 ? `${Math.round(rain)} mm rain` : '';
-        return { day: dayLabel(s.startDate, i).split(' ').slice(0, 2).join(' '), icon, color, hi: Math.round(d.temperature_2m_max[i]), lo: Math.round(d.temperature_2m_min[i]), wet, hasWet: !!wet, snow: snow >= 0.5, rainy: snow < 0.5 && (pp != null ? pp >= 50 : rain >= 2) };
-      }).filter(x => !isNaN(x.hi));
-      if (!days.length) return base;
-      const hi = days.map(x => x.hi), lo = days.map(x => x.lo), sn = days.filter(x => x.snow).length, rn = days.filter(x => x.rainy).length, rng = (a: number[]) => Math.min(...a) === Math.max(...a) ? `${a[0]}` : `${Math.min(...a)} to ${Math.max(...a)}`;
-      const summary = `Highs ${rng(hi)}°C, lows ${rng(lo)}°C.` + (sn ? ` Snow on ${sn} day${sn > 1 ? 's' : ''}.` : '') + (rn ? ` Rain likely on ${rn} day${rn > 1 ? 's' : ''}.` : '') + (Math.min(...lo) <= 0 ? ' Below freezing at night.' : '');
-      return { ...base, days, hasSummary: true, summary };
-    })(),
+    wx: rw,
     liveRoadNotes: (() => {
       if (s.screen !== 'app' || isAir) return [];
       const o = cityOr(s.origin), r = LIVE.route[routeKey(o.n, s.corridor)];
@@ -265,9 +259,9 @@ export function buildView(s: AppState, api: Api) {
       const p = plan, K: Record<string, [string, string]> = { drive: ['linear-gradient(135deg,#2EE59D,#0FA678)', 'Drive'], explore: ['linear-gradient(135deg,#9B7BFF,#5B6CFF)', 'Explore'], return: ['linear-gradient(135deg,#FFB547,#FF7A3D)', 'Return'], fly: ['linear-gradient(135deg,#6FD3FF,#3B8DFF)', 'Fly'] };
       const depChips = [null, 4.5, 5.5, 6.5, 7.5, 8.5].map(v => { const on = (s.depart ?? null) === v; return { key: String(v), label: v === null ? `Auto · ${clock(p.rec)}` : clock(v), onClick: () => set({ depart: v }), ...chip(on) }; });
       return { summary: `${p.total} days · ${p.total - 1} nights`, via: p.air ? `Flights ${p.air.dep} ⇄ ${p.air.arr} · car and driver at the destination` : `${c.kmStr} km each way by road · ${c.via}`,
-        hasDep: !p.air && p.hasDrive, depChips, depNoteC: p.late ? 'var(--amb)' : 'var(--mute)',
+        hasDep: !p.air && p.hasDrive, depChips, wxDepart: rw.depart && s.depart !== rw.depart.dep ? { ...rw.depart, label: clock(rw.depart.dep), apply: () => set({ depart: rw.depart!.dep }) } : null, depNoteC: p.late ? 'var(--amb)' : 'var(--mute)',
         depNote: p.late ? `Some driving days end after sunset (about ${clock(p.sunset)}). ${p.dep > p.rec ? `Leave by ${clock(p.rec)}.` : 'Consider an extra night stop.'}` : s.depart == null ? `Recommended ${clock(p.rec)}, so every driving day ends before sunset (about ${clock(p.sunset)}).` : `Every driving day ends before sunset (about ${clock(p.sunset)}).`,
-        days: p.days.map((d, i) => ({ ...d, stay: d.stay && (() => {
+        days: p.days.map((d, i) => ({ ...d, strip: rw.strips.get(i) || null, destWx: d.track ? null : rw.destDays.find(x => x.idx === i) || null, stay: d.stay && (() => {
           const st = d.stay!, nr = nightRange(s.tier, sf), near = spotsAt('hotels', st.lat, st.lon).list.filter(h => h.name !== st.name).slice(0, 3).map(h => h.name);
           return { ...st, range: `${TIERS[s.tier].label} · ${nr.text} (${nr.usd}) a night`, href: check(st.curated ? `${st.name}, ${st.town}` : st.town, isoOff(s.startDate, i), 1), nearby: near.length ? `Nearby on OpenStreetMap: ${near.join(' · ')}` : st.alts };
         })(), stops: (d.stops || []).map(t => ({ ...t, icon: STOP_KIND[t.kind][0], color: STOP_KIND[t.kind][1] })), tile: K[d.kind][0], kindLabel: K[d.kind][1], lineOp: i === p.days.length - 1 ? 0 : 1 })) };
@@ -323,7 +317,8 @@ export function buildView(s: AppState, api: Api) {
       const groups: { name: string; hotel: string; from: number; to: number }[] = [];
       plan.days.forEach(d => { if (!d.stay) return; const g = groups[groups.length - 1]; if (g && g.name === d.stay.place) g.to = d.num!; else groups.push({ name: d.stay.place, hotel: d.stay.name, from: d.num!, to: d.num! }); });
       const roads: Record<string, { km: number; months?: number[] }> = {}; if (!isAir) legs.forEach(l => { const r = roads[l.road] || (roads[l.road] = { km: 0, months: l.months }); r.km += l.km; });
-      return { net, route, closed, dots, isAir,
+      const wxDots = rw.mapPts.map((m, i) => ({ key: `${i}`, x: X(m.lon).toFixed(2), y: Y(m.lat).toFixed(2), color: m.color, text: m.text }));
+      return { net, route, closed, dots, isAir, wxDots,
         stat: isAir ? `${air!.dep} ⇄ ${air!.arr} by air · car and driver there` : `${c.kmStr} km · ${dur(c.hours)} driving each way · ${c.legDays} driving day${c.legDays > 1 ? 's' : ''} each way`,
         nights: groups.map(g => ({ key: `${g.from}`, badge: g.from === g.to ? `Night ${g.from}` : `Nights ${g.from}–${g.to}`, name: g.name, hotel: g.hotel })),
         roads: Object.entries(roads).map(([name, r]) => ({ name, km: `${fmtN(Math.round(r.km / 5) * 5 || Math.round(r.km))} km`, note: r.months ? (r.months.includes(M) ? `Open in ${MON[M - 1]}` : `Closed in ${MON[M - 1]}`) : '', noteC: r.months && !r.months.includes(M) ? 'var(--cor)' : 'var(--g)', hasNote: !!r.months })) };

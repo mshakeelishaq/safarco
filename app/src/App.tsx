@@ -8,7 +8,8 @@ import { MapTab } from './components/MapTab';
 import { OfflineTab } from './components/OfflineTab';
 import { Onboarding } from './components/Onboarding';
 import { TripTab } from './components/TripTab';
-import { LIVE, fxFetch, geoSearch, placesFetch, placesKey, placesUrl, reverseGeo, routeFetch, routeKey, routeUrl, wikiFetch, wxFetch, wxPlan } from './engine/live';
+import { LIVE, fxFetch, geoSearch, placesFetch, placesKey, placesUrl, reverseGeo, routeFetch, routeKey, routeUrl, wikiFetch } from './engine/live';
+import { allUrls, fetchWeather } from './weather/route';
 import { mapsQ, mon } from './engine/format';
 import { trip } from './engine/engine';
 import { NODES } from './engine/data';
@@ -51,7 +52,6 @@ export function App() {
     if (s.screen !== 'app') return;
     const o = cityOr(s.origin), D = DST(s.corridor);
     if (s.vehicle !== 'air' || s.tab === 'map') routeFetch(o, D);
-    wxFetch(D, s.startDate, s.days);
   }, [s.screen, s.origin, s.corridor, s.vehicle, s.tab, s.startDate, s.days]);
 
   // Destination guide, sights and places to stay (destination and each night stop).
@@ -169,7 +169,7 @@ export function App() {
     const o = cityOr(st.origin), D = DST(st.corridor), r = LIVE.route[routeKey(o.n, D.id)];
     const coords: [number, number][] = r && r.status === 'ok' ? r.data.coords : view.routeMap.dots.map(d => [+d.p[1], +d.p[0]]);
     const abs = (u: string) => new URL(u, location.origin).href;
-    const extra = [abs(routeUrl(o, D)), wxPlan(D, st.startDate, st.days).url, abs(placesUrl('hotels', D.lat, D.lon)), abs(placesUrl('sights', D.lat, D.lon))];
+    const extra = [abs(routeUrl(o, D)), ...allUrls(view.wPlan), abs(placesUrl('hotels', D.lat, D.lon)), abs(placesUrl('sights', D.lat, D.lon))];
     const ac = new AbortController(); dlAbort.current = ac;
     set({ offline: 'downloading', progress: 0, offlineMB: 0, offlineErr: '' });
     downloadOffline(coords, extra, p => set({ progress: Math.round(p.done / Math.max(1, p.total) * 100), offlineMB: p.bytes / 1e6 }), ac.signal)
@@ -218,6 +218,10 @@ export function App() {
   // On the suggestions step, keep the scene on the selected option.
   const selCorridor = s.screen === 'onboard' && s.step === 5 ? view.selCorridor : undefined;
   useEffect(() => { if (selCorridor && selCorridor !== s.corridor) set({ corridor: selCorridor }); }, [selCorridor, s.corridor, set]);
+
+  // Weather along the route: hourly forecast, passes, typical weather and air quality.
+  const wxUrls = s.screen === 'app' ? allUrls(view.wPlan).join(' ') : '';
+  useEffect(() => { if (wxUrls) fetchWeather(view.wPlan); }, [wxUrls]);
 
   const onScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const st = e.currentTarget.scrollTop, n = sceneRef.current;

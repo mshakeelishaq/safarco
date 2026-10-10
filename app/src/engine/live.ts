@@ -22,13 +22,15 @@ export const LIVE = {
   places: {} as Record<string, LiveEntry<Spot[]>>,
   wiki: {} as Record<string, LiveEntry<WikiInfo | null>>,
   fx: {} as Record<string, LiveEntry<FxRate>>,
+  /** Route weather, pass weather, typical weather and air quality, keyed by request URL. */
+  rw: {} as Record<string, LiveEntry<any[]>>,
   subs: new Set<() => void>(),
   /** Called before subscribers when a road route arrives, so trip caches can reset. */
   routeHooks: new Set<() => void>()
 };
 const notify = () => LIVE.subs.forEach(fn => fn());
 
-async function liveFetch<T>(bucket: 'route' | 'wx' | 'geo' | 'places' | 'wiki' | 'fx', key: string, url: string, parse: (j: any) => T | Promise<T>) {
+export async function liveFetch<T>(bucket: 'route' | 'wx' | 'geo' | 'places' | 'wiki' | 'fx' | 'rw', key: string, url: string, parse: (j: any) => T | Promise<T>) {
   const store = LIVE[bucket] as Record<string, LiveEntry<T>>;
   if (store[key]) return store[key];
   store[key] = { status: 'loading' }; notify();
@@ -90,19 +92,8 @@ export function fxFetch() {
 }
 export const fxRate = (): FxRate => { const e = LIVE.fx.USD; return e && e.status === 'ok' ? e.data : FX_FALLBACK; };
 
-const shiftYear = (iso: string, k: number) => ((+iso.slice(0, 4) + k) + iso.slice(4)).replace('-02-29', '-02-28');
 
 /** Weather-code → [Phosphor icon, colour token]. */
 export const WMO = (c: number | null | undefined): [string, string] => c == null ? ['ph-cloud', 'var(--mute)'] : c === 0 ? ['ph-sun', 'var(--amb)'] : c <= 3 ? ['ph-cloud-sun', 'var(--amb)']
   : c <= 48 ? ['ph-cloud-fog', 'var(--mute)'] : ((c >= 71 && c <= 77) || c === 85 || c === 86) ? ['ph-snowflake', 'var(--sky)'] : c >= 95 ? ['ph-cloud-lightning', 'var(--vio)'] : ['ph-cloud-rain', 'var(--sky)'];
 
-export interface WxPlan { key: string; kind: 'forecast' | 'archive'; year?: number; url: string }
-/** Trips in the next 15 days get the forecast; later trips show the same dates in the most recent past year. */
-export function wxPlan(D: Dest, start: string, days: number): WxPlan {
-  const n = Math.max(1, Math.min(days, 14)), end = isoOff(start, n - 1), today = isoAdd(0), elev = D.ft ? `&elevation=${Math.round(D.ft * 0.3048)}` : '';
-  const q = `latitude=${D.lat}&longitude=${D.lon}${elev}&timezone=Asia%2FKarachi`;
-  if (start >= today && end <= isoAdd(15)) return { key: `${D.id}|${start}|${n}|f`, kind: 'forecast', url: `https://api.open-meteo.com/v1/forecast?${q}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,snowfall_sum&start_date=${start}&end_date=${end}` };
-  let y = 0, s0 = start, e0 = end; while (e0 > isoAdd(-6)) { y++; s0 = shiftYear(start, -y); e0 = shiftYear(end, -y); }
-  return { key: `${D.id}|${start}|${n}|a`, kind: 'archive', year: +s0.slice(0, 4), url: `https://archive-api.open-meteo.com/v1/archive?${q}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,snowfall_sum&start_date=${s0}&end_date=${e0}` };
-}
-export function wxFetch(D: Dest, start: string, days: number) { const p = wxPlan(D, start, days); liveFetch('wx', p.key, p.url, (j: any) => j.daily as WxDaily); return p; }

@@ -4,7 +4,8 @@ import {
   AIRPORTS, CONFIGS, EDGES, EDGE_STOPS, FARES, MONTH_FULL, MTN_NODES, NODES, NODE_INFO, P as PR, ROAD_NOTE, SLOTS, STOP_DUR, STOP_HOTELS,
   SUGGEST_POOL, SUNRISE, SUNSET, TIERS, VEH, type Edge, type EdgeStop, type Hotel, type Jeep, type Mode, type Place, type StopKind, type TierId, type TripConfig, type VehicleId
 } from './data';
-import { clock, dayLabel, dur, fmt, fmtN, hav, inM, mapsQ, mon } from './format';
+import { clock, dayLabel, dur, fmt, fmtN, hav, inM, isoOff, mapsQ, mon } from './format';
+import { sunTimes } from './sun';
 import { LIVE, routeKey } from './live';
 import { DST, cityOr, placesFor, rangeTxt, seasonFactor, type Dest } from './places';
 
@@ -17,7 +18,7 @@ export const MAX_DRIVE_H = 10;
 export const babusarClosed = (m: number) => !(m >= 6 && m <= 10);
 export const jeepsFor = (P: number) => Math.max(1, Math.ceil(P / 5));
 
-export interface Leg { a: string; b: string; km: number; h: number; road: string; months?: number[] }
+export interface Leg { a: string; b: string; km: number; h: number; road: string; months?: number[]; mtn?: boolean }
 export interface StopItem { time: string; kind: StopKind; label: string; note: string; dur?: string; isDrive?: boolean; href?: string }
 
 function stopsOn(l: Leg): EdgeStop[] {
@@ -31,6 +32,8 @@ const mealName = (t: number) => t < 10.75 ? 'Breakfast' : t < 16 ? 'Lunch' : t <
 /** Timed drive/stop list for one driving day. */
 function dayStops(ls: Leg[], fromName: string, toName: string, dep: number, sunset: number) {
   const out: StopItem[] = []; let t = dep, driveH = 0, stopMin = 0, km = 0, pend = { h: 0, km: 0, roads: [] as string[] };
+  // [km driven today, hours after departure]: where the car is at each moment (stops make flat steps).
+  const marks: [number, number][] = [[0, 0]], mark = () => marks.push([km + pend.km, t + pend.h - dep]);
   out.push({ time: clock(t), kind: 'go', label: `Leave ${fromName}`, note: '' });
   const road = (r: string) => { if (!pend.roads.includes(r)) pend.roads.push(r); };
   const flush = () => {
@@ -40,15 +43,24 @@ function dayStops(ls: Leg[], fromName: string, toName: string, dep: number, suns
   ls.forEach((l, li) => {
     const sp = l.km / Math.max(l.h, 0.01); let done = 0; road(l.road);
     stopsOn(l).filter(x => !(li === 0 && x[0] < 8) && !(li === ls.length - 1 && x[0] > l.km - 8)).forEach(([at, kind, label, note]) => {
-      pend.h += (at - done) / sp; pend.km += at - done; done = at; flush(); const m = STOP_DUR[kind] || 15;
-      out.push({ time: clock(t), kind, label, note: kind === 'food' ? `${mealName(t)} · ${note}` : note, dur: `${m} min stop` }); t += m / 60; stopMin += m; road(l.road);
+      pend.h += (at - done) / sp; pend.km += at - done; done = at; mark(); flush(); const m = STOP_DUR[kind] || 15;
+      out.push({ time: clock(t), kind, label, note: kind === 'food' ? `${mealName(t)} · ${note}` : note, dur: `${m} min stop` }); t += m / 60; stopMin += m; road(l.road); mark();
     });
-    pend.h += (l.km - done) / sp; pend.km += l.km - done;
+    pend.h += (l.km - done) / sp; pend.km += l.km - done; mark();
   });
   flush();
   const late = t > sunset;
   out.push({ time: clock(t), kind: 'bed', label: `Arrive ${toName}`, note: late ? `After sunset (about ${clock(sunset)}). Leave earlier if you can.` : `Before sunset (about ${clock(sunset)})` });
-  return { items: out, arrive: t, driveH, stopMin, km, late };
+  return { items: out, arrive: t, driveH, stopMin, km, late, marks };
+}
+
+/** Hours after departure at which the car reaches `km` on a driving day. */
+export function hoursAt(marks: [number, number][], km: number) {
+  for (let i = 1; i < marks.length; i++) {
+    const [k0, h0] = marks[i - 1], [k1, h1] = marks[i];
+    if (km <= k1) return k1 === k0 ? h0 : h0 + (h1 - h0) * (km - k0) / (k1 - k0);
+  }
+  return marks[marks.length - 1][1];
 }
 
 const ADJ: Record<string, [string, Edge][]> = {};
@@ -129,12 +141,12 @@ export function trip(key: string, origin: string | null, month = 7): Trip {
   dc.forEach(d => { const { dist } = shortest(d.n, month); oc.forEach(st => { if (dist[st.n] === undefined) return; const tot = st.local + dist[st.n] + d.local; if (!best || tot < best.tot) best = { st, d, tot }; }); });
   const { st: start, d: end } = best!, { next } = shortest(end.n, month);
   let flat = 0, mtn = 0, hours = 0; const tolls: [string, number][] = [], via: string[] = [], legs: Leg[] = [];
-  const addLocal = (a: string, b: string, x: { local: number; mtn: boolean }) => { const sp = x.mtn ? 30 : 55; legs.push({ a, b, km: x.local, h: x.local / sp, road: 'Local roads' }); hours += x.local / sp; if (x.mtn) mtn += x.local; else flat += x.local; };
+  const addLocal = (a: string, b: string, x: { local: number; mtn: boolean }) => { const sp = x.mtn ? 30 : 55; legs.push({ a, b, km: x.local, h: x.local / sp, road: 'Local roads', mtn: x.mtn }); hours += x.local / sp; if (x.mtn) mtn += x.local; else flat += x.local; };
   if (start.local > 0) addLocal('HOME', start.n, start);
   let n = start.n;
   while (n !== end.n) {
     const [m, e] = next[n]; if (e[5]) mtn += e[2]; else flat += e[2]; hours += e[2] / e[3];
-    legs.push({ a: n, b: m, km: e[2], h: e[2] / e[3], road: e[6], months: e[7] });
+    legs.push({ a: n, b: m, km: e[2], h: e[2] / e[3], road: e[6], months: e[7], mtn: !!e[5] });
     if (e[4]) tolls.push([e[6], e[4]]); if (!via.includes(e[6])) via.push(e[6]); n = m;
   }
   if (end.local > 0) addLocal(end.n, 'DEST', end);
@@ -162,7 +174,9 @@ function stayAt(node: string | null, key: string, tier: TierId, isDest: boolean)
 }
 
 export type DayKind = 'drive' | 'explore' | 'return' | 'fly';
-export interface PlanDay { kind: DayKind; title: string; meta: string; note: string; stops: StopItem[]; stay: Stay | null; num?: number; date?: string }
+/** Where a driving day goes and when: used for weather along the road. */
+export interface Track { legs: Leg[]; coords: [number, number][]; marks: [number, number][]; dep: number; sunset: number; sunrise: number }
+export interface PlanDay { kind: DayKind; title: string; meta: string; note: string; stops: StopItem[]; stay: Stay | null; num?: number; date?: string; iso?: string; track?: Track }
 
 function exploreDays(D: Dest, m: number, n: number): Omit<PlanDay, 'stay'>[] {
   const pl = placesFor(D, m), out: Omit<PlanDay, 'stay'>[] = []; if (!n) return out;
@@ -197,18 +211,23 @@ export function seasonInfo(s: TripState, key: string): Note[] {
   const cl = [...(D.places || []).filter(p => p[3] && !p[3].includes(m)).map(p => p[0]), ...(D.jeeps || []).filter(j => j[4] && !j[4].includes(m)).map(j => j[1])]
     .filter((x, i, a) => !a.some((y, k) => k !== i && ((x !== y && x.includes(y)) || (x === y && k < i))));
   if (cl.length) notes.push({ icon: 'ph-prohibit', color: 'var(--cor)', text: `Not possible in ${Mo}: ${cl.join(', ')}.` });
-  notes.push({ icon: 'ph-sun-horizon', color: 'var(--vio)', text: `Daylight about ${clock(SUNRISE[m - 1])} to ${clock(SUNSET[m - 1])}.` });
+  const sun = sunTimes(D.lat, D.lon, s.startDate);
+  notes.push({ icon: 'ph-sun-horizon', color: 'var(--vio)', text: `Sunrise ${clock(sun.rise)}, sunset ${clock(sun.set)} in ${D.town} on ${dayLabel(s.startDate, 0)}.` });
   return notes;
 }
 
 export interface Plan { days: PlanDay[]; total: number; sunset: number; rec: number; dep: number; late: boolean; hasDrive: boolean; air: AirOption | null }
 export function buildPlan(s: TripState): Plan {
-  const key = s.corridor, D = DST(key), m = mon(s), sunset = SUNSET[m - 1], c = trip(key, s.origin, m), legs = c.legs;
+  const key = s.corridor, D = DST(key), m = mon(s), c = trip(key, s.origin, m), legs = c.legs, o = cityOr(s.origin);
+  const at = (n: string): [number, number] => n === 'HOME' ? [o.lat, o.lon] : n === 'DEST' ? [D.lat, D.lon] : NODES[n];
+  // Real sunset where each driving day ends, on that day's date.
+  const sunOn = (n: string, day: number) => { const [la, lo] = at(n); return sunTimes(la, lo, isoOff(s.startDate, day)); };
+  let sunset = sunOn('DEST', 0).set;
   const nm = (n: string) => n === 'DEST' ? D.town : n === 'HOME' ? c.from : NODE_INFO[n][0];
   const notes = (roads: string[]) => roads.map(r => ROAD_NOTE[r]).filter(Boolean).join(' ');
   const elderNote = (roads: string[], last: boolean) => s.elders && (roads.some(r => /Babusar/.test(r)) || (last && (D.ft || 0) >= 7000)) ? 'Elders: high altitude. Go slow, keep water and any BP or heart medicine handy.' : '';
   const days: PlanDay[] = [];
-  const finish = (extra: Partial<Plan>): Plan => { days.forEach((d, i) => { d.num = i + 1; d.date = dayLabel(s.startDate, i); }); return { days, total: days.length, sunset, rec: 6, dep: 6, late: false, hasDrive: false, air: null, ...extra }; };
+  const finish = (extra: Partial<Plan>): Plan => { days.forEach((d, i) => { d.num = i + 1; d.date = dayLabel(s.startDate, i); d.iso = isoOff(s.startDate, i); }); return { days, total: days.length, sunset, rec: 6, dep: 6, late: false, hasDrive: false, air: null, ...extra }; };
   if (s.vehicle === 'air') {
     const a = airFor(key, s.origin);
     if (a) {
@@ -225,22 +244,29 @@ export function buildPlan(s: TripState): Plan {
     const ls = legs.slice(bounds[i] + 1, bounds[i + 1] + 1), last = i === bounds.length - 2, toNode = legs[bounds[i + 1]].b;
     segs.push({ ls, roads: [...new Set(ls.map(l => l.road))], last, toNode, from: i === 0 ? c.from : nm(legs[bounds[i]].b), to: last ? D.town : nm(toNode) });
   }
-  const longest = Math.max(...segs.map(g => dayStops(g.ls, '', '', 6, 30).arrive - 6));
-  const rec = Math.max(4.5, Math.min(8, Math.floor((sunset - 0.5 - longest) * 2) / 2)), dep = s.depart ?? rec;
+  const free = Math.max(0, s.days - 2 * segs.length);
+  // Day index and end point of every driving day, out and back.
+  const outDays = segs.map((g, i) => ({ g, day: i, end: g.toNode === legs[legs.length - 1].b && g.last ? 'DEST' : g.toNode }));
+  const backDays = segs.map((g, i) => ({ g, day: segs.length + free + (segs.length - 1 - i), end: i === 0 ? 'HOME' : legs[bounds[i]].b }));
+  const suns = new Map([...outDays, ...backDays].map(x => [x.day, sunOn(x.end, x.day)]));
+  sunset = Math.min(...[...suns.values()].map(x => x.set));
+  const spans = [...outDays, ...backDays].map(x => ({ span: dayStops(x.g.ls, '', '', 6, 30).arrive - 6, set: suns.get(x.day)!.set }));
+  const rec = Math.max(4.5, Math.min(8, Math.floor(Math.min(...spans.map(x => x.set - 0.5 - x.span)) * 2) / 2)), dep = s.depart ?? rec;
+  const coordsOf = (ls: Leg[]): [number, number][] => [at(ls[0].a), ...ls.map(l => at(l.b))];
   let late = false;
   const meta = (r: ReturnType<typeof dayStops>) => `${fmtN(r.km < 20 ? r.km : Math.round(r.km / 5) * 5)} km · ${dur(r.driveH)} driving + ${dur(r.stopMin / 60)} stops`;
-  segs.forEach(g => {
-    const r = dayStops(g.ls, g.from, g.to, dep, sunset); late = late || r.late;
-    days.push({ kind: 'drive', title: `${g.from} → ${g.to}`, meta: meta(r), stops: r.items,
+  outDays.forEach(({ g, day }) => {
+    const sun = suns.get(day)!, r = dayStops(g.ls, g.from, g.to, dep, sun.set); late = late || r.late;
+    days.push({ kind: 'drive', title: `${g.from} → ${g.to}`, meta: meta(r), stops: r.items, track: { legs: g.ls, coords: coordsOf(g.ls), marks: r.marks, dep, sunset: sun.set, sunrise: sun.rise },
       note: [notes(g.roads), g.last && D.hub !== undefined ? 'Park at Raikot Bridge, jeep to Tato (1.5 h), then a 2–3 h hike.' : '', elderNote(g.roads, g.last)].filter(Boolean).join(' '),
       stay: g.last ? stayAt(null, key, s.tier, true) : stayAt(g.toNode, key, s.tier, false) });
   });
-  const free = Math.max(0, s.days - 2 * segs.length);
   if (!free && days.length) { const pl = placesFor(D, m)[0]; if (pl) days[days.length - 1].stops.push({ time: 'Evening', kind: 'pin', label: pl[0], note: `${pl[1]} · ${pl[2]}`, href: pl[4] }); }
   exploreDays(D, m, free).forEach(d => days.push({ ...d, stay: stayAt(null, key, s.tier, true) }));
   for (let i = segs.length - 1; i >= 0; i--) {
-    const g = segs[i], back = g.ls.slice().reverse().map(l => ({ ...l, a: l.b, b: l.a })), r = dayStops(back, g.to, g.from, dep, sunset); late = late || r.late;
-    days.push({ kind: 'return', title: `${g.to} → ${g.from}`, meta: meta(r), stops: r.items, note: '', stay: i === 0 ? null : stayAt(segs[i - 1].toNode, key, s.tier, false) });
+    const g = segs[i], back = g.ls.slice().reverse().map(l => ({ ...l, a: l.b, b: l.a })), sun = suns.get(backDays[i].day)!, r = dayStops(back, g.to, g.from, dep, sun.set); late = late || r.late;
+    days.push({ kind: 'return', title: `${g.to} → ${g.from}`, meta: meta(r), stops: r.items, note: '', stay: i === 0 ? null : stayAt(segs[i - 1].toNode, key, s.tier, false),
+      track: { legs: back, coords: coordsOf(back), marks: r.marks, dep, sunset: sun.set, sunrise: sun.rise } });
   }
   return finish({ rec, dep, late, hasDrive: segs.length > 0 });
 }

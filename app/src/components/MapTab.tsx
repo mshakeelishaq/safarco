@@ -11,7 +11,7 @@ const escH = (s: string) => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '
 /** Real 3D map (MapLibre + OpenFreeMap + Terrarium elevation) with the trip route and pins. */
 function LiveMap({ v, onFail }: { v: View; onFail: () => void }) {
   const el = useRef<HTMLDivElement>(null);
-  const st = useRef<{ ml?: ML; map?: import('maplibre-gl').Map; ok?: boolean; key?: string; markers: import('maplibre-gl').Marker[] }>({ markers: [] });
+  const st = useRef<{ ml?: ML; map?: import('maplibre-gl').Map; ok?: boolean; key?: string; wxKey?: string; markers: import('maplibre-gl').Marker[] }>({ markers: [] });
   const { s } = v, rm = v.routeMap, o = cityOr(s.origin), r = LIVE.route[routeKey(o.n, s.corridor)];
 
   useEffect(() => {
@@ -38,6 +38,11 @@ function LiveMap({ v, onFail }: { v: View; onFail: () => void }) {
         m.addSource('route', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
         m.addLayer({ id: 'route-case', type: 'line', source: 'route', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#FFFFFF', 'line-width': 8 } });
         m.addLayer({ id: 'route-line', type: 'line', source: 'route', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': acc, 'line-width': 4.5 } });
+        m.addSource('wx', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+        m.addLayer({ id: 'wx-line', type: 'line', source: 'wx', filter: ['==', ['geometry-type'], 'LineString'], layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': ['get', 'color'], 'line-width': 6, 'line-opacity': 0.9 } });
+        m.addLayer({ id: 'wx-pts', type: 'circle', source: 'wx', filter: ['==', ['geometry-type'], 'Point'], paint: { 'circle-radius': 6, 'circle-color': ['get', 'color'], 'circle-stroke-color': '#FFFFFF', 'circle-stroke-width': 2 } });
+        m.on('click', 'wx-pts', e => { const f = e.features?.[0]; if (f) new mod.Popup({ closeButton: false, maxWidth: '240px' }).setLngLat((f.geometry as unknown as { coordinates: [number, number] }).coordinates).setText(String(f.properties?.text || '')).addTo(m); });
+        m.on('mouseenter', 'wx-pts', () => { m.getCanvas().style.cursor = 'pointer'; }); m.on('mouseleave', 'wx-pts', () => { m.getCanvas().style.cursor = ''; });
         st.current.key = undefined; update();
       });
     }).catch(() => onFail());
@@ -47,6 +52,15 @@ function LiveMap({ v, onFail }: { v: View; onFail: () => void }) {
 
   const update = () => {
     const { map: m, ml, ok } = st.current; if (!m || !ml || !ok || !m.getSource('route')) return;
+    // Weather colours along the road (way there), redrawn whenever the forecast changes.
+    const pts = v.wx.mapPts, wxKey = pts.map(p => p.color + p.text).join('|');
+    if (wxKey !== st.current.wxKey) {
+      st.current.wxKey = wxKey;
+      const feats: { type: 'Feature'; properties: Record<string, string>; geometry: { type: 'LineString'; coordinates: number[][] } | { type: 'Point'; coordinates: number[] } }[] = [];
+      for (let i = 0; i < pts.length - 1; i++) if (pts[i].day === pts[i + 1].day) feats.push({ type: 'Feature', properties: { color: pts[i].color }, geometry: { type: 'LineString', coordinates: [[pts[i].lon, pts[i].lat], [pts[i + 1].lon, pts[i + 1].lat]] } });
+      pts.forEach(p => feats.push({ type: 'Feature', properties: { color: p.color, text: p.text }, geometry: { type: 'Point', coordinates: [p.lon, p.lat] } }));
+      (m.getSource('wx') as import('maplibre-gl').GeoJSONSource | undefined)?.setData({ type: 'FeatureCollection', features: feats } as never);
+    }
     const key = `${o.n}|${s.corridor}|${s.startDate}|${s.days}|${s.vehicle}|${r ? r.status : ''}`; if (key === st.current.key) return; st.current.key = key;
     const coords: [number, number][] = !rm.isAir && r && r.status === 'ok' ? r.data.coords : rm.dots.map(d => [+d.p[1], +d.p[0]]);
     (m.getSource('route') as import('maplibre-gl').GeoJSONSource).setData({ type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: coords } });
@@ -65,6 +79,18 @@ function LiveMap({ v, onFail }: { v: View; onFail: () => void }) {
   return <div ref={el} role="application" aria-label="Route map" style={css('position:relative;height:440px;border-radius:20px;overflow:hidden;background:var(--fill)')} />;
 }
 
+/** What the weather colours on the route mean. */
+function WxLegend({ v }: { v: View }) {
+  if (!v.wx.mapPts.length) return null;
+  const items: [string, string][] = [['#2EB67D', 'Clear'], ['#2F6FED', 'Rain'], ['#5BB8F5', 'Snow'], ['#8E8E93', 'Fog'], ['#F2A007', 'Take care'], ['#E5484D', 'Danger']];
+  return (
+    <div style={css('margin:10px 6px 0')}>
+      <div style={css('font-size:11px;font-weight:800;color:var(--mute)')}>Weather on the way there{v.wx.mapPts.length && v.wx.note.startsWith('Your dates') ? ' (typical for your dates)' : ', at the time you pass'} · tap a dot for details</div>
+      <div style={css('display:flex;gap:6px 12px;flex-wrap:wrap;margin-top:6px;font-size:11px;font-weight:700;color:var(--mute)')}>{items.map(([c, l]) => <span key={l} style={css('display:flex;align-items:center;gap:5px')}><span style={css(`width:10px;height:10px;border-radius:50%;background:${c}`)} />{l}</span>)}</div>
+    </div>
+  );
+}
+
 /** Hand-drawn tilted map, used when the live map can't load. */
 function DrawnMap({ v }: { v: View }) {
   const rm = v.routeMap;
@@ -78,6 +104,7 @@ function DrawnMap({ v }: { v: View }) {
           <path d={rm.route} fill="none" stroke="#FF9A3D" strokeWidth="10" strokeOpacity=".25" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
           <path d={rm.route} fill="none" stroke="#FFC060" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
         </svg>
+        {rm.wxDots.map(p => <div key={'w' + p.key} title={p.text} style={css(`position:absolute;left:${p.x}%;top:${p.y}%;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:${p.color};box-shadow:0 0 0 2px #FFFFFF`)} />)}
         {rm.dots.map((p, i) => (
           <div key={i} style={css(`position:absolute;left:${p.x}%;top:${p.y}%;width:0;height:0;transform-style:preserve-3d`)}>
             <div style={css(`position:absolute;left:-7px;top:-7px;width:14px;height:14px;border-radius:50%;background:${p.color};box-shadow:0 0 0 5px ${p.ring},0 0 18px ${p.color}`)} />
@@ -93,6 +120,7 @@ function DrawnMap({ v }: { v: View }) {
       <span style={css('display:flex;align-items:center;gap:6px')}><span style={css('width:16px;height:2px;background:var(--fill2)')} />Other roads</span>
       <span style={css('display:flex;align-items:center;gap:6px')}><span style={css('width:16px;height:0;border-top:2px dashed #FF6B5B')} />Closed this month</span>
     </div>
+    <WxLegend v={v} />
   </>;
 }
 
@@ -112,6 +140,7 @@ export function MapTab({ v, api }: { v: View; api: Api }) {
           {s.mapFail ? <DrawnMap v={v} /> : <>
             <LiveMap v={v} onFail={() => api.set({ mapFail: true })} />
             <div style={css('display:flex;gap:8px 14px;flex-wrap:wrap;margin:12px 6px 0;font-size:11px;font-weight:700;color:var(--mute)')}><span style={css('display:flex;align-items:center;gap:6px')}><span style={css('width:16px;height:4px;border-radius:2px;background:var(--sky)')} />{v.mapRouteLabel}</span><span>Drag to pan · two fingers or the compass to tilt</span></div>
+            <WxLegend v={v} />
           </>}
         </div>
         <section style={css('border-radius:30px;padding:18px;background:var(--card);border:1px solid var(--line)')}>

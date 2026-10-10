@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { css } from '../lib/css';
 import type { Api, View } from '../view';
 import { Notes } from './Onboarding';
@@ -12,6 +13,32 @@ const BannerCard = ({ b, children, center }: { b: Banner; children?: React.React
     {children}
   </div>
 );
+
+function PackingCard({ v }: { v: View }) {
+  const key = 'safarco-pack:' + v.s.corridor + '|' + v.s.startDate;
+  const [done, setDone] = useState<string[]>(() => { try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch { return []; } });
+  useEffect(() => { try { setDone(JSON.parse(localStorage.getItem(key) || '[]')); } catch { setDone([]); } }, [key]);
+  const toggle = (k: string) => { const n = done.includes(k) ? done.filter(x => x !== k) : [...done, k]; setDone(n); try { localStorage.setItem(key, JSON.stringify(n)); } catch { /* storage blocked */ } };
+  return (
+    <section aria-label="Packing list" style={css('border-radius:30px;padding:18px;background:var(--card);border:1px solid var(--line)')}>
+      <div style={css('display:flex;align-items:baseline;justify-content:space-between;gap:8px')}>
+        <h2 style={css('margin:0;font-size:14px;font-weight:700;color:var(--mute)')}>Packing list</h2>
+        <div style={css('font-size:11px;font-weight:700;color:var(--mute)')}>{done.filter(k => v.wx.pack.some(p => p.key === k)).length} of {v.wx.pack.length} packed</div>
+      </div>
+      <div style={css('display:flex;flex-direction:column;gap:2px;margin-top:10px')}>
+        {v.wx.pack.map(p => {
+          const on = done.includes(p.key);
+          return (
+            <button key={p.key} onClick={() => toggle(p.key)} role="checkbox" aria-checked={on} style={css('display:flex;align-items:flex-start;gap:10px;min-height:44px;padding:6px 4px;border:0;background:none;color:var(--ink);text-align:left;cursor:pointer')}>
+              <i className={`${on ? 'ph-fill ph-check-square' : 'ph-bold ph-square'}`} style={css(`font-size:20px;flex:none;margin-top:1px;color:${on ? 'var(--g)' : 'var(--mute)'}`)} />
+              <span style={css('flex:1;min-width:0')}><span style={css(`display:block;font-size:14px;font-weight:700;${on ? 'text-decoration:line-through;color:var(--mute)' : ''}`)}>{p.item}</span><span style={css('display:block;font-size:12px;font-weight:600;color:var(--mute);margin-top:1px')}>{p.why}</span></span>
+            </button>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
 
 export function TripTab({ v, api }: { v: View; api: Api }) {
   const { s, c, plan } = v, { set } = api;
@@ -67,25 +94,62 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
         </section>
 
         <section data-screen-label="Weather" style={css(card)}>
-          <div style={css('display:flex;align-items:baseline;justify-content:space-between;gap:8px')}>
-            <h2 style={css('margin:0;font-size:14px;font-weight:700;color:var(--mute)')}>Weather in {v.wx.place}</h2>
-            <div style={css('font-size:11px;font-weight:700;color:var(--mute);white-space:nowrap')}>{v.wx.source}</div>
+          <div style={css('display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap')}>
+            <h2 style={css('margin:0;font-size:14px;font-weight:700;color:var(--mute)')}>Weather in {c.town}</h2>
+            <div style={css('font-size:11px;font-weight:700;color:var(--mute)')}>{v.wx.destSource}</div>
           </div>
-          {v.wx.hasSummary && <div style={css('font-size:13px;font-weight:600;color:var(--ink2);margin-top:8px;line-height:1.45')}>{v.wx.summary}</div>}
-          {v.wx.loading && <div style={css('font-size:13px;font-weight:600;color:var(--mute);margin-top:10px')}>Loading weather…</div>}
-          {v.wx.failed && <div style={css('font-size:13px;font-weight:600;color:var(--mute);margin-top:10px')}>Weather is unavailable right now.</div>}
+          {v.wx.destSummary && <div style={css('font-size:13px;font-weight:600;color:var(--ink2);margin-top:8px;line-height:1.45')}>{v.wx.destSummary}</div>}
+          {v.wx.destLoading && <div style={css('font-size:13px;font-weight:600;color:var(--mute);margin-top:10px')}>Loading weather…</div>}
           <div style={css('display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:14px -18px 0;padding:0 18px 2px')}>
-            {v.wx.days.map((w, i) => (
-              <div key={i} style={css('flex:none;width:68px;padding:10px 4px;border-radius:16px;background:var(--fill);display:flex;flex-direction:column;align-items:center;gap:5px')}>
+            {v.wx.destDays.map(w => (
+              <div key={w.key} title={w.typical ? 'Typical for this date' : 'Forecast'} style={css(`flex:none;width:68px;padding:10px 4px;border-radius:16px;background:var(--fill);border:1px ${w.typical ? 'dashed var(--line2)' : 'solid transparent'};display:flex;flex-direction:column;align-items:center;gap:5px`)}>
                 <div style={css('font-size:11px;font-weight:800;color:var(--mute);white-space:nowrap')}>{w.day}</div>
                 <i className={`ph-duotone ${w.icon}`} style={css(`font-size:26px;color:${w.color}`)} />
                 <div style={css('font-size:15px;font-weight:800;font-variant-numeric:tabular-nums')}>{w.hi}°</div>
                 <div style={css('font-size:12px;font-weight:600;color:var(--mute);font-variant-numeric:tabular-nums')}>{w.lo}°</div>
-                {w.hasWet && <div style={css('font-size:10px;font-weight:800;color:var(--sky);text-align:center;line-height:1.2')}>{w.wet}</div>}
+                {w.wet && <div style={css('font-size:10px;font-weight:800;color:var(--sky);text-align:center;line-height:1.2')}>{w.wet}</div>}
               </div>
             ))}
           </div>
+          <div style={css('font-size:11px;font-weight:600;color:var(--mute);margin-top:10px;line-height:1.45')}>{v.wx.note}{v.wx.destDays.some(d => d.typical) ? ' Dashed boxes are typical, not forecast.' : ''}</div>
         </section>
+
+        {v.wx.passes.length > 0 && (
+          <section aria-label="Mountain passes" style={css(card)}>
+            <h2 style={css('margin:0;font-size:14px;font-weight:700;color:var(--mute)')}>Mountain passes on your route</h2>
+            <div style={css('display:flex;flex-direction:column;gap:12px;margin-top:12px')}>
+              {v.wx.passes.map(p => (
+                <div key={p.key} style={css(`padding:12px;border-radius:18px;background:var(--fill);border-left:4px solid ${p.color}`)}>
+                  <div style={css('display:flex;align-items:center;gap:10px')}>
+                    <i className={`ph-duotone ${p.icon}`} style={css(`font-size:28px;color:${p.color};flex:none`)} />
+                    <div style={css('flex:1;min-width:0')}><div style={css('font-size:15px;font-weight:800')}>{p.name} <span style={css('font-weight:600;color:var(--mute);font-size:12px')}>· {p.ft}</span></div><div style={css('font-size:12px;font-weight:600;color:var(--mute);margin-top:1px')}>{p.when}</div></div>
+                    <div style={css('flex:none;font-family:var(--fontH);font-size:22px;font-weight:600')}>{p.temp}</div>
+                  </div>
+                  <div style={css('font-size:12px;font-weight:600;color:var(--ink2);margin-top:8px;line-height:1.45')}>{p.text}</div>
+                  {p.flags.map(f => <div key={f.text} style={css(`display:flex;gap:6px;align-items:center;margin-top:6px;font-size:12px;font-weight:800;color:${f.level === 'danger' ? 'var(--cor)' : 'var(--amb2)'}`)}><i className={`ph-fill ${f.icon}`} />{f.text}</div>)}
+                </div>
+              ))}
+            </div>
+            <div style={css('font-size:11px;font-weight:600;color:var(--mute);margin-top:10px;line-height:1.45')}>Weather at each pass's real height. Passes can close at short notice: check with local police before you set off.</div>
+          </section>
+        )}
+
+        {(v.wx.aq.rows.length > 0 || v.wx.aq.note) && (
+          <section aria-label="Air quality" style={css(card)}>
+            <h2 style={css('margin:0;font-size:14px;font-weight:700;color:var(--mute)')}>Air quality</h2>
+            {v.wx.aq.rows.length > 0 && <div style={css('display:flex;flex-direction:column;gap:8px;margin-top:12px')}>
+              {v.wx.aq.rows.map(r => (
+                <div key={r.key} style={css('display:flex;align-items:center;gap:10px')}>
+                  <span style={css(`flex:none;min-width:44px;padding:4px 6px;border-radius:9px;background:var(--fill);color:${r.color};font-size:13px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums`)}>{r.aqi}</span>
+                  <div style={css('flex:1;min-width:0')}><div style={css('font-size:14px;font-weight:700')}>{r.place} <span style={css('font-weight:600;color:var(--mute);font-size:12px')}>· {r.date}</span></div><div style={css(`font-size:12px;font-weight:700;color:${r.color}`)}>{r.label} · PM2.5 {r.pm} µg/m³</div></div>
+                </div>
+              ))}
+            </div>}
+            {v.wx.aq.note && <div style={css('font-size:13px;font-weight:600;color:var(--ink2);margin-top:8px;line-height:1.45')}>{v.wx.aq.note}</div>}
+            {v.wx.aq.rows.some(r => r.bad) && <div style={css('font-size:12px;font-weight:700;color:var(--cor);margin-top:8px;line-height:1.45')}>Unhealthy air: wear N95 masks outdoors, keep car windows closed, and take care with children and elders.</div>}
+            <div style={css('font-size:10px;font-weight:600;color:var(--mute);margin-top:8px')}>US AQI, highest of the day · Open-Meteo (CAMS)</div>
+          </section>
+        )}
 
         <section data-screen-label="Route plan" style={css('border-radius:30px;padding:20px 18px 8px;background:var(--card);border:1px solid var(--line)')}>
           <div style={css('display:flex;justify-content:space-between;align-items:center;gap:8px')}>
@@ -99,6 +163,13 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
               {plan.depChips.map(p => <button key={p.key} onClick={p.onClick} style={css(`flex:none;height:40px;padding:0 12px;border-radius:13px;border:1px solid ${p.border};background:${p.bg};color:${p.fg};font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;transition:all .2s`)}>{p.label}</button>)}
             </div>
             <div style={css(`font-size:12px;color:${plan.depNoteC};font-weight:600;margin-top:8px;line-height:1.45`)}>{plan.depNote}</div>
+            {plan.wxDepart && (
+              <div style={css('display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;border-radius:16px;background:rgba(91,184,245,.12);border:1px solid rgba(91,184,245,.4)')}>
+                <i className="ph-fill ph-cloud-sun" style={css('font-size:20px;color:var(--sky);flex:none')} />
+                <div style={css('flex:1;min-width:0;font-size:12px;font-weight:700;line-height:1.45;color:var(--ink2)')}>{plan.wxDepart.text}</div>
+                <button onClick={plan.wxDepart.apply} style={css('flex:none;height:36px;padding:0 12px;border-radius:12px;border:0;background:var(--ink);color:var(--bg);font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap')}>Use {plan.wxDepart.label}</button>
+              </div>
+            )}
           </>}
           <ol style={css('display:flex;flex-direction:column;margin:16px 0 0;padding:0;list-style:none')}>
             {plan.days.map(d => (
@@ -112,6 +183,23 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
                   <div style={css('font-size:15px;font-weight:800;margin-top:3px;line-height:1.3')}>{d.title}</div>
                   <div style={css('font-size:12px;color:var(--ink2);font-weight:600;margin-top:3px;line-height:1.45')}>{d.meta}</div>
                   {d.note && <div style={css('font-size:12px;color:var(--amb2);font-weight:600;margin-top:5px;line-height:1.45')}>{d.note}</div>}
+                  {d.destWx && <div style={css('display:flex;align-items:center;gap:6px;margin-top:6px;font-size:12px;font-weight:700;color:var(--ink2)')}><i className={`ph-duotone ${d.destWx.icon}`} style={css(`font-size:17px;color:${d.destWx.color}`)} />{d.destWx.typical ? 'Usually ' : ''}{d.destWx.hi}° / {d.destWx.lo}°{d.destWx.wet ? ` · ${d.destWx.wet}` : ''}</div>}
+                  {d.strip && d.strip.samples.length > 0 && (
+                    <div style={css('margin-top:10px')}>
+                      <div style={css('font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)')}>{d.strip.typical ? 'Typical weather on the road' : 'Weather on the road'}</div>
+                      {d.strip.flags.map(f => <div key={f.key} style={css(`display:flex;gap:6px;align-items:flex-start;margin-top:6px;font-size:12px;font-weight:700;line-height:1.4;color:${f.level === 'danger' ? 'var(--cor)' : 'var(--amb2)'}`)}><i className={`ph-fill ${f.icon}`} style={css('margin-top:2px;flex:none')} />{f.text}</div>)}
+                      <div style={css('display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:8px 0 0;padding-bottom:2px')}>
+                        {d.strip.samples.map(w => (
+                          <div key={w.key} title={w.text} style={css(`flex:none;width:86px;padding:8px 6px;border-radius:14px;background:var(--fill);border-top:3px solid ${w.flags.some(f => f.level === 'danger') ? '#E5484D' : w.flags.length ? '#F2A007' : 'transparent'};display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center`)}>
+                            <div style={css('font-size:10px;font-weight:800;color:var(--mute);font-variant-numeric:tabular-nums')}>{w.time}</div>
+                            <i className={`ph-duotone ${w.icon}`} style={css(`font-size:22px;color:${w.color}`)} />
+                            <div style={css('font-size:14px;font-weight:800;font-variant-numeric:tabular-nums')}>{w.temp}</div>
+                            <div style={css('font-size:10px;font-weight:700;color:var(--ink2);line-height:1.2;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical')}>{w.label}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   {d.stops.length > 0 && (
                     <div style={css('display:flex;flex-direction:column;gap:9px;margin-top:12px;padding:12px;border-radius:16px;background:var(--deep)')}>
                       {d.stops.map((t, j) => t.isDrive ? (
@@ -151,6 +239,8 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
             ))}
           </ol>
         </section>
+
+        <PackingCard v={v} />
 
         <section aria-label={`Where to stay in ${v.stays.town}`} style={css('border-radius:30px;padding:20px 18px 18px;background:var(--card);border:1px solid var(--line)')}>
           <h2 style={css('margin:0;font-size:14px;font-weight:700;color:var(--mute)')}>Where to stay in {v.stays.town}</h2>

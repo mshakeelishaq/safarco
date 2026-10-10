@@ -93,6 +93,9 @@
 .ph-fill.ph-check-circle:before {
   content: "\e184";
 }
+.ph-fill.ph-check-square:before {
+  content: "\e186";
+}
 .ph-fill.ph-circle-notch:before {
   content: "\eb44";
 }
@@ -246,6 +249,9 @@
 .ph-fill.ph-sparkle:before {
   content: "\e6a2";
 }
+.ph-fill.ph-square:before {
+  content: "\e45e";
+}
 .ph-fill.ph-steering-wheel:before {
   content: "\e9ac";
 }
@@ -257,6 +263,12 @@
 }
 .ph-fill.ph-tag:before {
   content: "\e478";
+}
+.ph-fill.ph-thermometer-cold:before {
+  content: "\e5c8";
+}
+.ph-fill.ph-thermometer-hot:before {
+  content: "\e5ca";
 }
 .ph-fill.ph-trash:before {
   content: "\e4a6";
@@ -290,6 +302,9 @@
 }
 .ph-fill.ph-wifi-slash:before {
   content: "\e4f2";
+}
+.ph-fill.ph-wind:before {
+  content: "\e5d2";
 }
 .ph-fill.ph-x:before {
   content: "\e4f6";
@@ -390,6 +405,9 @@
 }
 .ph-bold.ph-check-circle:before {
   content: "\e184";
+}
+.ph-bold.ph-check-square:before {
+  content: "\e186";
 }
 .ph-bold.ph-circle-notch:before {
   content: "\eb44";
@@ -544,6 +562,9 @@
 .ph-bold.ph-sparkle:before {
   content: "\e6a2";
 }
+.ph-bold.ph-square:before {
+  content: "\e45e";
+}
 .ph-bold.ph-steering-wheel:before {
   content: "\e9ac";
 }
@@ -555,6 +576,12 @@
 }
 .ph-bold.ph-tag:before {
   content: "\e478";
+}
+.ph-bold.ph-thermometer-cold:before {
+  content: "\e5c8";
+}
+.ph-bold.ph-thermometer-hot:before {
+  content: "\e5ca";
 }
 .ph-bold.ph-trash:before {
   content: "\e4a6";
@@ -588,6 +615,9 @@
 }
 .ph-bold.ph-wifi-slash:before {
   content: "\e4f2";
+}
+.ph-bold.ph-wind:before {
+  content: "\e5d2";
 }
 .ph-bold.ph-x:before {
   content: "\e4f6";
@@ -792,6 +822,14 @@
 }
 .ph-duotone.ph-check-circle:after {
   content: "\e185";
+  margin-left: -1em;
+}
+.ph-duotone.ph-check-square:before {
+  content: "\e186";
+  opacity: 0.2;
+}
+.ph-duotone.ph-check-square:after {
+  content: "\e187";
   margin-left: -1em;
 }
 .ph-duotone.ph-circle-notch:before {
@@ -1202,6 +1240,14 @@
   content: "\e6a3";
   margin-left: -1em;
 }
+.ph-duotone.ph-square:before {
+  content: "\e45e";
+  opacity: 0.2;
+}
+.ph-duotone.ph-square:after {
+  content: "\e45f";
+  margin-left: -1em;
+}
 .ph-duotone.ph-steering-wheel:before {
   content: "\e9ac";
   opacity: 0.2;
@@ -1232,6 +1278,22 @@
 }
 .ph-duotone.ph-tag:after {
   content: "\e479";
+  margin-left: -1em;
+}
+.ph-duotone.ph-thermometer-cold:before {
+  content: "\e5c8";
+  opacity: 0.2;
+}
+.ph-duotone.ph-thermometer-cold:after {
+  content: "\e5c9";
+  margin-left: -1em;
+}
+.ph-duotone.ph-thermometer-hot:before {
+  content: "\e5ca";
+  opacity: 0.2;
+}
+.ph-duotone.ph-thermometer-hot:after {
+  content: "\e5cb";
   margin-left: -1em;
 }
 .ph-duotone.ph-trash:before {
@@ -1320,6 +1382,14 @@
 }
 .ph-duotone.ph-wifi-slash:after {
   content: "\e4f3";
+  margin-left: -1em;
+}
+.ph-duotone.ph-wind:before {
+  content: "\e5d2";
+  opacity: 0.2;
+}
+.ph-duotone.ph-wind:after {
+  content: "\e5d3";
   margin-left: -1em;
 }
 .ph-duotone.ph-x:before {
