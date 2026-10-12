@@ -10,7 +10,10 @@ import { t as tx } from './i18n';
 import { applyPrices } from './prices';
 import { clearCurrent, cloudMerge, defaultName, deleteLocal, loadCurrent, localTrips, newId, saveCurrent, saveLocal, shareUrl, tripData, tripFromUrl, type SavedTrip } from './trips';
 import { MapTab } from './components/MapTab';
-import { OfflineTab } from './components/OfflineTab';
+import { BudgetTab } from './components/BudgetTab';
+import { Building } from './components/Building';
+import { DayPage } from './components/DayPage';
+import { PrepareTab } from './components/PrepareTab';
 import { Onboarding } from './components/Onboarding';
 import { TripTab } from './components/TripTab';
 import { LIVE, fxFetch, geoSearch, placesFetch, placesKey, placesUrl, reverseGeo, routeFetch, routeKey, routeUrl, wikiFetch } from './engine/live';
@@ -67,7 +70,7 @@ export function App() {
     wikiFetch(D);
     placesFetch('sights', D.lat, D.lon);
     placesFetch('hotels', D.lat, D.lon);
-    nightNodes.forEach(n => placesFetch('hotels', NODES[n][0], NODES[n][1]));
+    nightNodes.forEach(n => { placesFetch('hotels', NODES[n][0], NODES[n][1]); placesFetch('sights', NODES[n][0], NODES[n][1]); });
   }, [s.screen, s.corridor, nightNodes.join()]);
 
   // Cities without a hand-written guide get their day plans from live sights.
@@ -219,6 +222,9 @@ export function App() {
     return Promise.resolve();
   };
 
+  const doneBuilding = useCallback(() => set({ building: null }), [set]);
+  // Close a day page when the trip changes.
+  useEffect(() => { set({ dayOpen: null }); }, [s.corridor, s.origin, s.days, set]);
   const api: Api = { set, later, locate, setPeople, toggleOffline, share: () => shareTrip(), newTrip };
   const view = buildView(s, api);
 
@@ -257,10 +263,11 @@ export function App() {
             <div ref={scrollRef} onScroll={onScroll} style={css('position:absolute;inset:0;z-index:5;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;pointer-events:none')}>
               {s.tab === 'trip' && <TripTab v={view} api={api} />}
               {s.tab === 'map' && <MapTab v={view} api={api} />}
-              {s.tab === 'offline' && <OfflineTab v={view} api={api} />}
+              {s.tab === 'budget' && <BudgetTab v={view} api={api} />}
+              {s.tab === 'prepare' && <PrepareTab v={view} api={api} />}
             </div>
 
-            {s.tab === 'trip' && <div aria-hidden style={css('position:absolute;left:0;right:0;bottom:0;height:calc(70px + env(safe-area-inset-bottom));z-index:11;pointer-events:none;background:linear-gradient(180deg,transparent,var(--bg) 55%)')} />}
+            {s.tab !== 'map' && <div aria-hidden style={css('position:absolute;left:0;right:0;bottom:0;height:calc(70px + env(safe-area-inset-bottom));z-index:11;pointer-events:none;background:linear-gradient(180deg,transparent,var(--bg) 55%)')} />}
             <nav aria-label="Sections" className="sc-nav" style={css('position:absolute;left:18px;right:18px;bottom:calc(24px + env(safe-area-inset-bottom));z-index:12;display:flex;align-items:center;gap:12px')}>
               <div style={css('flex:1;height:64px;border-radius:24px;background:var(--sheet);backdrop-filter:blur(20px) saturate(1.4);border:1px solid var(--line);display:flex;align-items:center;padding:6px;gap:6px;box-shadow:0 12px 30px -14px rgba(0,0,0,.35)')}>
                 {view.tabs.map(t => <button key={t.key} onClick={t.onClick} aria-current={s.tab === t.key ? 'page' : undefined} style={css(`flex:1;height:52px;border-radius:19px;border:0;background:${t.bg};color:${t.fg};display:flex;align-items:center;justify-content:center;gap:5px;font-size:13px;font-weight:800;cursor:pointer;transition:all .25s`)}><i className={`ph-fill ${t.icon}`} style={css('font-size:19px')} />{t.label}</button>)}
@@ -268,6 +275,8 @@ export function App() {
             </nav>
 
             <EditSheet v={view} api={api} />
+            <DayPage v={view} />
+            {s.building != null && <Building v={view} started={s.building} onDone={doneBuilding} />}
           </>}
 
           {s.toast && <div role="status" style={css('position:absolute;left:18px;right:18px;top:calc(56px + env(safe-area-inset-top));z-index:60;padding:12px 14px;border-radius:20px;background:var(--sheet);backdrop-filter:blur(20px);border:1px solid rgba(46,229,157,.35);color:var(--ink);font-size:13px;font-weight:700;display:flex;align-items:center;gap:10px;box-shadow:0 20px 40px -16px rgba(0,0,0,.5)')} className="sc-toast"><div style={css('width:30px;height:30px;flex:none;border-radius:10px;background:var(--cta);color:var(--onCta);display:flex;align-items:center;justify-content:center;font-size:16px')}><i className="ph-fill ph-check" /></div>{s.toast}</div>}

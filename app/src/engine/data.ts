@@ -5,6 +5,8 @@
 export type VehicleId = 'sedan' | 'suv' | 'bike' | 'public' | 'air' | 'rentcar' | 'rent4x4' | 'coaster';
 export type TierId = 'backpacker' | 'standard' | 'premium';
 export type Mode = 'know' | 'suggest';
+/** What the traveller already has: their own car, SUV or bike, or nothing (SafarCo suggests the best way). */
+export type Have = 'any' | 'car' | 'suv' | 'bike';
 export type StopKind = 'drive' | 'food' | 'tea' | 'view' | 'fuel' | 'go' | 'bed' | 'pin' | 'plane';
 
 export interface Vehicle {
@@ -36,6 +38,14 @@ export interface DestInput {
 export const R = (a: number, b: number): number[] => { const o: number[] = []; for (let m = a; ; m = m % 12 + 1) { o.push(m); if (m === b) break; } return o; };
 
 export const PETROL: number = 387.40;
+/** Trip styles for travellers with their own vehicle: only that vehicle, at each kind of stay. */
+export const OWN_CONFIGS: Record<Exclude<Have, 'any'>, TripConfig[]> = {
+  car: [{ id: 'value', name: 'Budget drive', vehicle: 'sedan', tier: 'backpacker' }, { id: 'std', name: 'Standard', vehicle: 'sedan', tier: 'standard' }, { id: 'carp', name: 'Premium', vehicle: 'sedan', tier: 'premium' }],
+  suv: [{ id: 'suvb', name: 'Budget drive', vehicle: 'suv', tier: 'backpacker' }, { id: 'comfort', name: 'Comfort 4x4', vehicle: 'suv', tier: 'standard' }, { id: 'premium', name: 'Premium', vehicle: 'suv', tier: 'premium' }],
+  bike: [{ id: 'bikeb', name: 'Backpacker', vehicle: 'bike', tier: 'backpacker' }, { id: 'bikes', name: 'Standard', vehicle: 'bike', tier: 'standard' }]
+};
+/** The vehicle a traveller's own transport means. */
+export const HAVE_VEHICLE: Record<Exclude<Have, 'any'>, VehicleId> = { car: 'sedan', suv: 'suv', bike: 'bike' };
 export const VEH: Record<VehicleId, Vehicle> = {
   sedan: { short: 'Sedan', icon: 'ph-car-profile', label: 'Standard Sedan / Hatchback', sub: 'Corolla GLi, City, Alto', mileage: 13, mtn: 9, cap: 4 },
   suv: { short: '4x4 SUV', icon: 'ph-jeep', label: '4x4 SUV', sub: 'Prado, Fortuner, Land Cruiser', mileage: 8, mtn: 5.5, cap: 6 },

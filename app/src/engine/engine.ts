@@ -2,7 +2,7 @@
 // Ported from the SafarCo App v7 design; all figures are estimates.
 import {
   AIRPORTS, CONFIGS, EDGES, EDGE_STOPS, FARES, MONTH_FULL, MTN_NODES, NODES, NODE_INFO, P as PR, ROAD_NOTE, SLOTS, STOP_DUR, STOP_HOTELS,
-  SUGGEST_POOL, SUNRISE, SUNSET, TIERS, VEH, type Edge, type EdgeStop, type Hotel, type Jeep, type Mode, type Place, type StopKind, type TierId, type TripConfig, type VehicleId
+  SUGGEST_POOL, SUNRISE, SUNSET, TIERS, VEH, OWN_CONFIGS, type Have, type Edge, type EdgeStop, type Hotel, type Jeep, type Mode, type Place, type StopKind, type TierId, type TripConfig, type VehicleId
 } from './data';
 import { clock, dayLabel, dur, fmt, fmtN, hav, inM, isoOff, mapsQ, mon } from './format';
 import { sunTimes } from './sun';
@@ -13,6 +13,21 @@ import { DST, cityOr, placesFor, rangeTxt, seasonFactor, type Dest } from './pla
 export interface TripState {
   origin: string | null; mode: Mode | null; dest: string; corridor: string; startDate: string; days: number; depart: number | null;
   vehicle: VehicleId; tier: TierId; adults: number; kids: number; elders: number; groupSize: number; rooms: 'separate' | 'shared'; cap: number;
+  /** The traveller's own transport, if any; 'any' (or unset) lets SafarCo pick. */
+  have?: Have;
+}
+
+/** Trip styles to compare: the traveller's own vehicle only, or every style SafarCo knows. */
+export const configsFor = (s: { have?: Have; groupSize: number }) => s.have && s.have !== 'any' ? OWN_CONFIGS[s.have] : CONFIGS.filter(cf => cf.id !== 'group' || s.groupSize >= 8);
+
+/** Whether a destination suits a sedan or bike: a jeep for the last part, or fine. Null for 4x4s, coaches and flights. */
+export function roadFit(vehicle: VehicleId, key: string, origin: string | null, month: number): { level: 'jeep'; text: string } | null {
+  if (!['sedan', 'bike', 'rentcar'].includes(vehicle)) return null;
+  const D = DST(key);
+  if (D.hub !== undefined) return { level: 'jeep', text: t('Last part by local jeep (Raikot Bridge → Tato)') };
+  const c = trip(key, origin, month);
+  if (c.legs.some(l => /jeep/i.test(l.road))) return { level: 'jeep', text: t('Last stretch is a jeep track: hire a local jeep') };
+  return null;
 }
 
 export const MAX_DRIVE_H = 10;
@@ -331,7 +346,7 @@ export interface Suggestion extends TripConfig { corridor: string; key: string; 
 /** Options for the suggestions step: trip styles for one destination, or the best style per destination. */
 export function suggestions(s: TripState & { pickId: string | null }) {
   const cost = (corridor: string, cf: TripConfig): Suggestion => { const r = costFor({ ...s, corridor, vehicle: cf.vehicle, tier: cf.tier }); return { ...cf, corridor, key: corridor + ':' + cf.id, total: r.total, ok: r.ok, minDays: r.minDays, why: r.why }; };
-  const cfgs = CONFIGS.filter(cf => cf.id !== 'group' || s.groupSize >= 8);
+  const cfgs = configsFor(s);
   const priced = (k: string) => cfgs.map(cf => cost(k, cf)).filter(x => !x.why).sort((a, b) => a.total - b.total);
   const fits = (x: Suggestion) => x.ok && x.total <= s.cap;
   let list: Suggestion[];

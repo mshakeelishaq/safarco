@@ -107,7 +107,7 @@ export function Onboarding({ v, api }: { v: View; api: Api }) {
                 {v.destRows.map(r => (
                   <button key={r.key} onClick={r.onClick} className="hov-fill" aria-pressed={r.checkOp === 1} style={css(`display:flex;align-items:center;gap:12px;min-height:56px;padding:6px 12px;border-radius:16px;border:1px solid ${r.border};background:${r.bg};color:var(--ink);text-align:left;cursor:pointer;transition:all .2s`)}>
                     <i className={`ph-fill ${r.icon}`} style={css(`font-size:20px;color:${r.iconC};flex:none`)} />
-                    <span style={css('flex:1;min-width:0;display:flex;flex-direction:column')}><span style={css('font-size:15px;font-weight:700')}>{r.name}</span><span style={css('font-size:12px;font-weight:600;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis')}>{r.sub}</span></span>
+                    <span style={css('flex:1;min-width:0;display:flex;flex-direction:column')}><span style={css('font-size:15px;font-weight:700')}>{r.name}</span><span style={css('font-size:12px;font-weight:600;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis')}>{r.sub}</span>{r.fit && <span style={css('font-size:11px;font-weight:700;color:var(--amb2);display:flex;align-items:center;gap:4px;margin-top:1px')}><i className="ph-fill ph-jeep" />{r.fit}</span>}</span>
                     <span style={css('flex:none;font-size:12px;font-weight:700;color:var(--ink2);font-variant-numeric:tabular-nums;white-space:nowrap')}>{r.meta}</span>
                     <i className="ph-bold ph-check" style={css(`font-size:16px;color:var(--amb);opacity:${r.checkOp};flex:none`)} />
                   </button>
@@ -157,6 +157,15 @@ export function Onboarding({ v, api }: { v: View; api: Api }) {
                 </div>
               ))}
             </div>
+            <SectionLabel style="margin:16px 4px 8px">{t('How will you travel?')}</SectionLabel>
+            <div role="radiogroup" aria-label={t('How will you travel?')} style={css('display:grid;grid-template-columns:1fr 1fr;gap:8px')}>
+              {v.travelOpts.map(o => (
+                <button key={o.key} role="radio" aria-checked={o.on} onClick={o.onClick} style={css(`min-height:64px;padding:10px 12px;border-radius:18px;border:1.5px solid ${o.on ? 'var(--g)' : 'var(--line2)'};background:${o.on ? 'rgba(46,229,157,.12)' : 'var(--fill)'};color:var(--ink);text-align:left;cursor:pointer;display:flex;align-items:center;gap:10px;transition:all .2s`)}>
+                  <i className={`ph-fill ${o.icon}`} style={css(`font-size:24px;flex:none;color:${o.on ? 'var(--g)' : 'var(--mute)'}`)} />
+                  <span style={css('min-width:0')}><span style={css('display:block;font-size:13px;font-weight:800;line-height:1.25')}>{o.label}</span><span style={css('display:block;font-size:11px;font-weight:600;color:var(--mute);margin-top:2px;line-height:1.3')}>{o.sub}</span></span>
+                </button>
+              ))}
+            </div>
             <SectionLabel style="margin:16px 4px 8px">{t('Rooms')}</SectionLabel>
             <RoomOpts v={v} />
             {v.hasFamilyNote && <div style={css('font-size:12px;color:var(--amb2);font-weight:600;margin:10px 4px 0;line-height:1.45')}>{v.familyNote}</div>}
@@ -185,6 +194,7 @@ export function Onboarding({ v, api }: { v: View; api: Api }) {
                   <div style={css('flex:1;min-width:0')}>
                     <div style={css('display:flex;align-items:center;gap:6px;flex-wrap:wrap')}><span style={css('font-size:15px;font-weight:800')}>{g.title}</span>{g.best && <span style={css('padding:2px 7px;border-radius:7px;background:linear-gradient(135deg,#FFB547,#FF7A3D);color:#2A1500;font-size:10px;font-weight:800;letter-spacing:.03em;text-transform:uppercase')}>{t('Best match')}</span>}</div>
                     <div style={css('font-size:12px;color:var(--mute);font-weight:600;margin-top:3px')}>{g.sub}</div>
+                    {g.fit && <div style={css('font-size:11px;color:var(--amb2);font-weight:700;margin-top:3px;display:flex;align-items:center;gap:4px')}><i className="ph-fill ph-jeep" />{g.fit}</div>}
                   </div>
                   <div style={css('flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:4px')}>
                     <div style={css('font-size:14px;font-weight:800;font-variant-numeric:tabular-nums;text-align:right')}>{g.amount}<div style={css('font-size:11px;font-weight:600;color:var(--mute)')}>{g.amountUsd}</div></div>

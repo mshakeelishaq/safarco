@@ -197,3 +197,19 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
   .sc-page:not(.sc-framed) .sc-phone { --ob-top: clamp(200px, calc(100dvh - 600px), 320px); }
 }
 .sc-sheet { max-height: calc(100% - 40px); }
+
+/* "Getting your plan ready": the vehicle drives the road while the route draws itself. */
+@keyframes sc-drive { 0% { offset-distance: 0%; } 100% { offset-distance: 100%; } }
+@keyframes sc-draw { 0% { stroke-dashoffset: 1; } 100% { stroke-dashoffset: 0; } }
+@keyframes sc-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+@keyframes sc-fadein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes sc-cloud { from { transform: translateX(-30px); } to { transform: translateX(30px); } }
+.sc-drive { animation: sc-drive 3.4s cubic-bezier(.45,.05,.55,.95) infinite; offset-rotate: 0deg; }
+.sc-draw { animation: sc-draw 3.4s cubic-bezier(.45,.05,.55,.95) infinite; }
+.sc-bob { animation: sc-bob .5s ease-in-out infinite; }
+.sc-fadein { animation: sc-fadein .35s ease-out both; }
+.sc-cloud { animation: sc-cloud 6s ease-in-out infinite alternate; }
+@media (prefers-reduced-motion: reduce) {
+  .sc-drive, .sc-draw, .sc-bob, .sc-cloud { animation: none; }
+  .sc-drive { offset-distance: 60%; }
+}

@@ -1,4 +1,5 @@
 import type { TripState } from './engine/engine';
+import type { Have } from './engine/data';
 import { isoAdd } from './engine/format';
 import { lang as currentLang, type Lang } from './i18n';
 
@@ -8,7 +9,7 @@ export const THEMES: { id: Theme; label: string }[] = [
 
 export interface AppState extends TripState {
   screen: 'onboard' | 'app'; step: number; oq: string; loc: 'idle' | 'ask' | 'locating' | 'done' | 'denied' | 'failed'; locNote: string;
-  dq: string; pickId: string | null; tab: 'trip' | 'map' | 'offline'; settings: boolean;
+  dq: string; pickId: string | null; tab: 'trip' | 'map' | 'budget' | 'prepare'; settings: boolean;
   flash: 'budget' | null; offline: 'off' | 'downloading' | 'ready'; progress: number;
   offlineMB: number; offlineErr: string; mapFail: boolean; theme: Theme;
   /** Which bottom sheet is open besides Edit trip. */
@@ -28,7 +29,20 @@ export interface AppState extends TripState {
   lite: boolean;
   /** The destination this trip was built for: its chip stays while other chips are tried. */
   chosen: string | null;
+  have: Have;
+  /** When the "getting your plan ready" screen opened (ms), or null when it isn't showing. */
+  building: number | null;
+  /** The day whose full page is open, or null. */
+  dayOpen: number | null;
+  /** Places the traveller added or removed, for the plan they were made on. */
+  edits: PlanEdits;
 }
+
+/** A place the traveller added to a day. */
+export interface PlacePick { day: number; name: string; note: string; href: string }
+/** Changes to the plan's places. `key` names the plan they apply to; a different plan ignores them. */
+export interface PlanEdits { key: string; picks: PlacePick[]; drops: string[] }
+export const NO_EDITS: PlanEdits = { key: '', picks: [], drops: [] };
 
 const prefersLite = () => {
   try {
@@ -50,7 +64,8 @@ export const initialState = (): AppState => ({
   vehicle: 'sedan', tier: 'standard', groupSize: 2, adults: 2, kids: 0, elders: 0, rooms: 'separate', days: 4, cap: 120000,
   corridor: 'hunza', tab: 'trip', settings: false, flash: null,
   offline: 'off', progress: 0, offlineMB: 0, offlineErr: '', mapFail: false, theme: savedTheme(),
-  sheet: 'none', savedId: null, toast: null, lite: prefersLite(), chosen: null, reviewFor: null, welcome: false, guide: false, lang: currentLang()
+  sheet: 'none', savedId: null, toast: null, lite: prefersLite(), chosen: null, reviewFor: null, welcome: false, guide: false, lang: currentLang(),
+  have: 'any', building: null, dayOpen: null, edits: NO_EDITS
 });
 
 export type Patch = Partial<AppState>;

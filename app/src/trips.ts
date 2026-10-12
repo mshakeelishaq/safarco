@@ -1,5 +1,6 @@
 // Saved trips on this device, the auto-saved current trip, and share links.
 import type { TripState } from './engine/engine';
+import type { PlanEdits } from './state';
 import { DESTS, MON } from './engine/data';
 import { mon } from './engine/format';
 import { CITY, DST, addPlace } from './engine/places';
@@ -8,14 +9,14 @@ const DEST_IDS = new Set(DESTS.map(d => d.id));
 
 /** The parts of the app state that describe a trip. */
 export type TripData = Pick<TripState, 'origin' | 'mode' | 'dest' | 'corridor' | 'startDate' | 'days' | 'depart' | 'vehicle' | 'tier' | 'adults' | 'kids' | 'elders' | 'groupSize' | 'rooms' | 'cap'>
-  & { places?: { n: string; p: string; lat: number; lon: number }[] };
+  & { places?: { n: string; p: string; lat: number; lon: number }[]; have?: TripState['have']; edits?: PlanEdits };
 export interface SavedTrip { id: string; name: string; data: TripData; savedAt: string; cloudId?: string }
 
-const KEYS: Exclude<keyof TripData, 'places'>[] = ['origin', 'mode', 'dest', 'corridor', 'startDate', 'days', 'depart', 'vehicle', 'tier', 'adults', 'kids', 'elders', 'groupSize', 'rooms', 'cap'];
+const KEYS: Exclude<keyof TripData, 'places'>[] = ['origin', 'mode', 'dest', 'corridor', 'startDate', 'days', 'depart', 'vehicle', 'tier', 'adults', 'kids', 'elders', 'groupSize', 'rooms', 'cap', 'have', 'edits'];
 const LIST = 'safarco-trips', CURRENT = 'safarco-current';
 
 /** Trip fields from app state, plus any searched places the trip needs (they aren't built in). */
-export function tripData(s: TripState): TripData {
+export function tripData(s: TripState & { edits?: PlanEdits }): TripData {
   const d = Object.fromEntries(KEYS.map(k => [k, s[k]])) as unknown as TripData;
   const names = [s.origin, s.corridor.startsWith('city:') ? s.corridor.slice(5) : null, s.dest.startsWith('city:') ? s.dest.slice(5) : null];
   const places = [...new Set(names)].map(n => n ? CITY[n] : undefined).filter((c): c is NonNullable<typeof c> => !!c && !!c.osm).map(c => ({ n: c.n, p: c.p, lat: c.lat, lon: c.lon }));
@@ -25,6 +26,16 @@ export function tripData(s: TripState): TripData {
 
 const VEHICLES = ['sedan', 'suv', 'bike', 'public', 'air', 'rentcar', 'rent4x4', 'coaster'], TIERS = ['backpacker', 'standard', 'premium'];
 const int = (v: unknown, lo: number, hi: number, dflt: number) => typeof v === 'number' && isFinite(v) ? Math.max(lo, Math.min(hi, Math.round(v))) : dflt;
+
+const str = (v: unknown, max: number) => String(v ?? '').slice(0, max);
+/** Added and removed places, kept small and plain. */
+function cleanEdits(raw: unknown): PlanEdits {
+  const e = raw && typeof raw === 'object' ? raw as Record<string, unknown> : {};
+  const picks = (Array.isArray(e.picks) ? e.picks : []).slice(0, 40).filter((p: any) => p && typeof p.name === 'string' && Number.isInteger(p.day) && p.day >= 0 && p.day < 20)
+    .map((p: any) => ({ day: p.day as number, name: str(p.name, 80), note: str(p.note, 120), href: /^https:\/\//.test(String(p.href || '')) ? str(p.href, 300) : '' }));
+  const drops = (Array.isArray(e.drops) ? e.drops : []).slice(0, 60).map(d => str(d, 100));
+  return { key: str(e.key, 200), picks, drops };
+}
 
 /** Checks and cleans trip data from storage or a shared link. Returns null if it isn't usable. */
 export function cleanTrip(raw: unknown): TripData | null {
@@ -44,7 +55,8 @@ export function cleanTrip(raw: unknown): TripData | null {
     days: int(r.days, 2, 14, 4), depart: typeof r.depart === 'number' && r.depart >= 3 && r.depart <= 11 ? r.depart : null,
     vehicle: (VEHICLES.includes(r.vehicle as string) ? r.vehicle : 'sedan') as TripData['vehicle'],
     tier: (TIERS.includes(r.tier as string) ? r.tier : 'standard') as TripData['tier'],
-    adults, kids, elders, groupSize: adults + kids + elders, rooms: r.rooms === 'shared' ? 'shared' : 'separate', cap: int(r.cap, 20000, 5000000, 120000)
+    adults, kids, elders, groupSize: adults + kids + elders, rooms: r.rooms === 'shared' ? 'shared' : 'separate', cap: int(r.cap, 20000, 5000000, 120000),
+    have: (['car', 'suv', 'bike'].includes(r.have as string) ? r.have : 'any') as TripData['have'], edits: cleanEdits(r.edits)
   };
 }
 

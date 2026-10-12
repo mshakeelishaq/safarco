@@ -1,7 +1,7 @@
 // Everything the screens display, derived from app state. Ported from the
 // design's renderVals(); the screens in components/ read from this.
-import { CONFIGS, EDGES, MODES, MON, MONTH_FULL, NODES, NODE_INFO, POPULAR, POP_DEST, SUGGEST_POOL, SUNRISE, SUNSET, TIERS, TIER_G, VEH, CAT, CAT2, GRADS, DESTS, STOP_KIND, type VehicleId } from './engine/data';
-import { MAX_DRIVE_H, airFor, babusarClosed, buildPlan, coachFare, costFor, freeDays, jeepMatch, jeepsFor, scheduledPlaces, seasonInfo, suggestions, trip, type Suggestion, resetTripCache } from './engine/engine';
+import { HAVE_VEHICLE, EDGES, MODES, MON, MONTH_FULL, NODES, NODE_INFO, POPULAR, POP_DEST, SUGGEST_POOL, SUNRISE, SUNSET, TIERS, TIER_G, VEH, CAT, CAT2, GRADS, DESTS, STOP_KIND, type VehicleId } from './engine/data';
+import { MAX_DRIVE_H, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
 import { clock, dayLabel, dur, fmt, fmtN, isoAdd, isoOf, isoOff, kShort, mapsQ, mon } from './engine/format';
 import { LIVE, fxRate, placesKey, routeKey, type Spot } from './engine/live';
 import { sunTimes } from './engine/sun';
@@ -15,6 +15,8 @@ import { SEASONS, highlightIn, highlightsOf, iconFor, monthsLabel, nextStartIn, 
 import { isRated, markRated, ratedKey } from './rated';
 import { CITIES, CITY, CITY_DUP, DST, cityOr, placesFor, seasonFactor } from './engine/places';
 import type { AppState, Patch } from './state';
+import { NO_EDITS } from './state';
+import { dropKey, editDay, planKey, type EditedStop } from './edits';
 import { THEMES } from './state';
 import { tilesAlong } from './offline';
 import { fuelByDay, fuelQueryPoints, type DayFuel } from './engine/fuel';
@@ -61,7 +63,7 @@ export function buildView(s: AppState, api: Api) {
   const tierC: Record<string, string> = { Premium: 'var(--vio)', Standard: 'var(--g)', Backpacker: 'var(--amb)', Search: 'var(--sky)' };
   const tierG: Record<string, string> = { Premium: 'linear-gradient(135deg,#9B7BFF,#5B6CFF)', Standard: 'linear-gradient(135deg,#2EE59D,#0FA678)', Backpacker: 'linear-gradient(135deg,#FFB547,#FF7A3D)', Search: 'linear-gradient(135deg,#6FD3FF,#3B8DFF)' };
   const fitsS = (x: { ok: boolean; total: number }) => x.ok !== false && x.total <= s.cap;
-  const opts = CONFIGS.map(cf => { const r = costFor({ ...s, vehicle: cf.vehicle, tier: cf.tier }); return { ...cf, total: r.total, ok: r.ok, why: r.why }; }).filter(o => !o.why && o.ok).sort((a, b) => a.total - b.total);
+  const opts = configsFor(s).map(cf => { const r = costFor({ ...s, vehicle: cf.vehicle, tier: cf.tier }); return { ...cf, total: r.total, ok: r.ok, why: r.why }; }).filter(o => !o.why && o.ok).sort((a, b) => a.total - b.total);
   const applyCfg = (o: { vehicle: VehicleId; tier: AppState['tier'] }) => () => { set({ vehicle: o.vehicle, tier: o.tier, flash: 'budget' }); api.later(2200, () => set({ flash: null })); };
   const warn = { bg: 'linear-gradient(135deg,rgba(255,181,71,.22),rgba(255,122,61,.06))', border: 'rgba(255,181,71,.45)', tile: 'linear-gradient(135deg,#FFB547,#FF7A3D)', icon: 'ph-trend-down' };
   const good = { bg: 'linear-gradient(135deg,rgba(155,123,255,.22),rgba(111,211,255,.06))', border: 'rgba(155,123,255,.45)', tile: 'linear-gradient(135deg,#9B7BFF,#6FD3FF)', icon: 'ph-arrow-fat-lines-up' };
@@ -76,7 +78,7 @@ export function buildView(s: AppState, api: Api) {
     const fit = opts.filter(fitsS);
     if (fit.length) { const o = fit[fit.length - 1]; tip = { show: true, ...warn, title: t('{amount} over your cap', { amount: fmt(total - s.cap) }), msg: t('{name} ({vehicle}, {tier} stays) comes to {amount}.', { name: t(o.name), vehicle: t(VEH[o.vehicle].short), tier: t(TIERS[o.tier].label).toLowerCase(), amount: fmt(o.total) }), cta: t('Switch'), apply: applyCfg(o) }; }
     else {
-      const minD = cc.minDays || 2, cheapest = Math.min(total, ...CONFIGS.map(cf => costFor({ ...s, vehicle: cf.vehicle, tier: cf.tier })).filter(r => r.ok && !r.why).map(r => r.total)), need = Math.ceil(cheapest / 5000) * 5000;
+      const minD = cc.minDays || 2, cheapest = Math.min(total, ...configsFor(s).map(cf => costFor({ ...s, vehicle: cf.vehicle, tier: cf.tier })).filter(r => r.ok && !r.why).map(r => r.total)), need = Math.ceil(cheapest / 5000) * 5000;
       tip = s.days - 1 >= minD
         ? { show: true, ...warn, title: t('{amount} over your cap', { amount: fmt(total - s.cap) }), msg: t('Even the cheapest option is over. Drop a day or raise the cap.'), cta: t('−1 day'), apply: () => set({ days: s.days - 1 }) }
         : { show: true, ...warn, title: t('{amount} over your cap', { amount: fmt(total - s.cap) }), msg: t('This route needs at least {n} days, so cutting days won’t work. The cheapest option comes to {amount}.', { n: minD, amount: fmt(cheapest) }), cta: t('Cap {amount}', { amount: kShort(need) }), apply: () => set({ cap: need }) };
@@ -93,7 +95,7 @@ export function buildView(s: AppState, api: Api) {
     { title: t('Which city do you live in?'), sub: t('Your trip starts here. Distance, fuel, tolls and travel time are calculated from it.') },
     { title: t('Where do you want to go?'), sub: t('From {origin}. Search any city or tourist spot, or let SafarCo suggest one.', { origin: s.origin || 'Islamabad' }) },
     { title: t('When are you going?'), sub: t('Tentative dates are fine. Roads, season and prices change with the month.') },
-    { title: t('Who’s travelling?'), sub: t('Fares, meals and rooms are worked out for each person.') },
+    { title: t('Who’s travelling, and how?'), sub: t('Fares, meals and rooms are worked out for each person.') },
     { title: t('What’s your budget?'), sub: t('Total for the whole group: transport, stays and food.') },
     s.mode === 'know' ? { title: t('Your {name} options', { name: DST(s.dest).name }), sub: t('Move the budget and the options re-rank instantly.') } : { title: t('Trips that fit your budget'), sub: t('Ranked for your dates, days and budget.') }];
 
@@ -112,13 +114,22 @@ export function buildView(s: AppState, api: Api) {
     if (!q && !ids.includes(s.dest) && DST(s.dest).name !== o) ids.unshift(s.dest);
     return ids.slice(0, 30).map(id => {
       const D = DST(id), tr = trip(id, o, M), on = s.dest === id;
-      return { key: id, name: D.name, sub: D.ft != null && !D.generic ? t('{region} · {ft} ft', { region: D.region, ft: fmtN(D.ft) }) : D.region, meta: t('{km} km · {h} h', { km: tr.kmStr, h: Math.round(tr.hours) }), icon: D.icon, onClick: () => set({ dest: id, corridor: id, pickId: null }),
+      const fitTxt = s.have === 'car' || s.have === 'bike' ? roadFit(HAVE_VEHICLE[s.have], id, o, M)?.text || '' : '';
+      return { key: id, name: D.name, fit: fitTxt, sub: D.ft != null && !D.generic ? t('{region} · {ft} ft', { region: D.region, ft: fmtN(D.ft) }) : D.region, meta: t('{km} km · {h} h', { km: tr.kmStr, h: Math.round(tr.hours) }), icon: D.icon, onClick: () => set({ dest: id, corridor: id, pickId: null }),
         bg: on ? 'rgba(255,181,71,.12)' : 'transparent', border: on ? 'rgba(255,181,71,.5)' : 'transparent', iconC: on ? 'var(--amb)' : 'var(--mute)', checkOp: on ? 1 : 0 };
     });
   })();
 
   const oqT = s.oq.trim().toLowerCase();
   const plan = buildPlan(s);
+
+  // The traveller's added and removed places (see src/edits.ts).
+  const pk = planKey(s), edits = s.edits.key === pk ? s.edits : { ...NO_EDITS, key: pk };
+  const edited = plan.days.map((d, i) => editDay(d, i, edits));
+  const addPick = (day: number, p: { name: string; note: string; href: string }) => set({ edits: { ...edits, picks: [...edits.picks, { day, ...p }] }, toast: t('Added {name} to Day {n}', { name: p.name, n: day + 1 }) });
+  const removeStop = (day: number, x: EditedStop) => x.added
+    ? set({ edits: { ...edits, picks: edits.picks.filter(p => !(p.day === day && p.name === x.label)) } })
+    : set({ edits: { ...edits, drops: [...edits.drops, dropKey(day, x.label)] } });
 
   // Weather along the whole route (see src/weather).
   const liveRoad = LIVE.route[routeKey(cityOr(s.origin).n, s.corridor)];
@@ -220,6 +231,28 @@ export function buildView(s: AppState, api: Api) {
   const nearby = { loading: destSights.loading, list: destSights.list.filter(x => !planned.has(x.name.toLowerCase())).slice(0, 8).map(x => ({ key: x.name, name: x.name, note: x.km ? t('{type} · {km} km', { type: t(x.type), km: x.km }) : t(x.type), href: mapsQ(`${x.name}, ${D.town}`) })) };
   const fx = fxRate(), wikiE = LIVE.wiki[D.id];
 
+  // Places to add to a day: the destination's places and live sights, or sights near a driving day's night stop.
+  const inPlan = new Set(edited.flatMap(e => e.stops.map(x => x.label.toLowerCase())));
+  const destPool = () => [...placesFor(D, M).map(p => ({ name: p[0], note: `${t(p[1])} · ${t(p[2])}`, href: p[4] || mapsQ(`${p[0]}, ${D.town}`) })),
+    ...destSights.list.map(x => ({ name: x.name, note: x.km ? t('{type} · {km} km', { type: t(x.type), km: x.km }) : t(x.type), href: mapsQ(`${x.name}, ${D.town}`) }))];
+  const suggestFor = (d: PlanDay, i: number) => {
+    let title = '', pool: { name: string; note: string; href: string }[] = [], loading = false;
+    if (d.kind === 'explore') { title = t('Also nearby · tap + to add'); pool = destPool(); loading = destSights.loading; }
+    else if (d.stay && (d.kind === 'drive' || d.kind === 'return')) {
+      const st = d.stay, near = spotsAt('sights', st.lat, st.lon);
+      title = t('Near {town} for the evening', { town: st.town });
+      pool = st.town === D.town ? destPool() : near.list.map(x => ({ name: x.name, note: x.km ? t('{type} · {km} km', { type: t(x.type), km: x.km }) : t(x.type), href: mapsQ(`${x.name}, ${st.town}`) }));
+      loading = st.town === D.town ? destSights.loading : near.loading;
+    }
+    const seen = new Set<string>();
+    // "Hopper Glacier" and "Hopper Glacier, Nagar" are the same place.
+    const same = (a: string, b: string) => a === b || a.startsWith(b + ',') || b.startsWith(a + ',') || a.startsWith(b + ' ') || b.startsWith(a + ' ');
+    const taken = [...inPlan];
+    const list = pool.filter(p => { const k = p.name.toLowerCase(); if (taken.some(x => same(x, k)) || [...seen].some(x => same(x, k))) return false; seen.add(k); return true; })
+      .slice(0, d.kind === 'explore' ? 6 : 4).map(p => ({ key: p.name, ...p, add: () => addPick(i, p) }));
+    return { title, list, loading: loading && !list.length };
+  };
+
   // Where each price comes from and when it was last checked, for the prices this trip uses.
   const own = ['sedan', 'suv', 'bike', 'rentcar', 'rent4x4', 'coaster'].includes(s.vehicle);
   const used: Section[] = [...(own ? ['fuel', 'tolls'] as Section[] : []), 'stays', ...(['rentcar', 'rent4x4', 'coaster'].includes(s.vehicle) || isAir ? ['hire'] as Section[] : []),
@@ -227,7 +260,52 @@ export function buildView(s: AppState, api: Api) {
   const priceNotes = used.map(k => ({ key: k, label: t(SECTIONS[k].label), source: t(SECTIONS[k].source), checked: checkedText(k), ok: !isStale(k) }));
   const alertNotes = activeAlerts().filter(a => !a.areas?.length || onTrip(a.areas, tripLine, tripStops)).map(a => ({ icon: 'ph-megaphone', color: 'var(--cor)', text: a.date ? t('{alert} (posted {date})', { alert: `${a.title}${a.message ? `: ${a.message}` : ''}`, date: dayLabel(a.date, 0) }) : `${a.title}${a.message ? `: ${a.message}` : ''}` }));
 
+  // "How will you travel?": what the traveller already has.
+  const travelOpts = ([['any', 'ph-sparkle', t('Suggest the best way'), t('Coach, hired car or flight')], ['car', 'ph-car-profile', t('Our own car'), t('Sedan or hatchback')],
+    ['suv', 'ph-jeep', t('Own SUV / 4x4'), t('Prado, Fortuner, Land Cruiser')], ['bike', 'ph-motorcycle', t('Motorbike'), t('Our own bike')]] as const).map(([k, icon, label, sub]) => {
+    const on = s.have === k;
+    return { key: k, icon, label, sub, on, onClick: () => set({ have: k, pickId: null, ...(k === 'any' ? {} : { vehicle: HAVE_VEHICLE[k] }) }) };
+  });
+
+  // "Getting your plan ready": the live data a new plan waits for, each ticked off as it arrives.
+  const buildSteps = (() => {
+    const out: { key: string; done: boolean; label: string }[] = [];
+    if (!isAir) out.push({ key: 'road', done: !liveRoad || liveRoad.status !== 'loading', label: liveRoad && liveRoad.status === 'ok' ? t('Roads checked · {km} km', { km: fmtN(liveRoad.data.km) }) : liveRoad && liveRoad.status === 'loading' ? t('Checking the roads…') : t('Route planned from SafarCo’s road table') });
+    const pass = rw.passes[0];
+    out.push({ key: 'wx', done: !rw.destLoading, label: !rw.destLoading ? t('Weather checked for your dates') : pass ? t('Checking the weather at {place}…', { place: pass.name }) : t('Checking the weather in {place}…', { place: D.town }) });
+    const waiting = plan.days.find(d => d.stay && spotsAt('hotels', d.stay.lat, d.stay.lon).loading);
+    out.push({ key: 'hotels', done: !waiting, label: waiting ? t('Finding hotels in {town}…', { town: waiting.stay!.town }) : t('Hotels found for every night') });
+    if (ownTank) { const busy = (liveRoad?.status === 'loading') || [...fuel.values()].some(f => f.loading); out.push({ key: 'fuel', done: !busy, label: busy ? t('Finding fuel pumps on the road…') : t('Fuel stops marked') }); }
+    return out;
+  })();
+  const buildTips = [
+    tripSeason && tripSeason.tone === 'good' ? tripSeason.text : '',
+    ...rw.passes.slice(0, 2).map(p => t('{pass} is at {ft}. Carry a warm jacket, even in summer.', { pass: p.name, ft: p.ft })),
+    t('Mountain roads are slower than map apps show. SafarCo plans for it.'),
+    t('Tap any day in your plan to add or remove places.'),
+    ...(ownTank ? [t('Fuel pumps are far apart in the mountains. SafarCo marks where to fill up.')] : [])
+  ].filter(Boolean);
+
+  // Budget: one bar split by what the money goes on, in a fixed colour order (checked for colour-blind readers).
+  const BUD: [string, string][] = [['Stay', 'Stay'], ['Fuel', 'Fuel'], ['Meals', 'Meals'], ['Transport', 'Transport'], ['Tolls', 'Tolls'], ['Jeeps', 'Local jeeps']];
+  const SER = s.theme === 'dark' ? ['#3987e5', '#d95926', '#199e70', '#c98500', '#d55181', '#9085e9'] : ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#6250d6'];
+  const groupOf = (label: string) => label === 'Stay' || label === 'Fuel' || label === 'Meals' || label === 'Tolls' ? label : /jeep/i.test(label) ? 'Jeeps' : 'Transport';
+  const budget = (() => {
+    const sums = new Map<string, number>(); rows.forEach(r => sums.set(groupOf(r.label), (sums.get(groupOf(r.label)) || 0) + r.val));
+    const segs = BUD.map(([k, label], i) => ({ key: k, label: t(label), val: sums.get(k) || 0, color: SER[i] })).filter(x => x.val > 0)
+      .map(x => ({ ...x, pct: total ? x.val / total * 100 : 0, amount: fmt(x.val), share: total ? `${Math.max(1, Math.round(x.val / total * 100))}%` : '' }));
+    const others = opts.filter(o => !(o.vehicle === s.vehicle && o.tier === s.tier)).map(o => ({ key: o.id, name: t(o.name), sub: t('{vehicle} · {tier} stays', { vehicle: t(VEH[o.vehicle].short), tier: t(TIERS[o.tier].label) }),
+      amount: fmt(o.total), diff: o.total < total ? t('Save {amount}', { amount: kShort(total - o.total) }) : t('+{amount}', { amount: kShort(o.total - total) }), cheaper: o.total < total, fits: o.total <= s.cap, onClick: applyCfg(o) }));
+    return { segs, others };
+  })();
+
+  const dayCount = plan.days.length;
+  const dayPage = s.dayOpen != null && s.dayOpen < dayCount ? { i: s.dayOpen, close: () => set({ dayOpen: null }), prev: s.dayOpen > 0 ? () => set({ dayOpen: s.dayOpen! - 1 }) : null, next: s.dayOpen < dayCount - 1 ? () => set({ dayOpen: s.dayOpen! + 1 }) : null } : null;
+  const editCount = edits.picks.length + edits.drops.length;
+
   return {
+    travelOpts, buildSteps, buildTips, budget, dayPage, totalShort: kShort(total), openDay: (i: number) => set({ dayOpen: i }), vehIcon: VEH[s.vehicle].icon,
+    editNote: editCount ? { text: editCount > 1 ? t('{n} changes to the places', { n: editCount }) : t('1 change to the places'), undo: () => set({ edits: NO_EDITS }) } : null,
     s, c, gate, tip, health, off, isAir, fuelPoints, fuelPins, drivers, afterTrip, guide, bestNow, tripSeason, wPlan, rPoints, selCorridor: sug.sel?.corridor, stays, nearby, priceNotes, ratesNote: isAir ? t('Flight fares are tentative: tap a flight day to see live fares. Confirm with the airline before you book.')
       : t('Prices {checked}. Confirm with the operator before you book.', { checked: checkedText(s.vehicle === 'public' ? 'coach' : 'hire') }),
     fxNote: fx.live ? (fx.updated ? t('US$ at 1 USD = PKR {rate} ({updated})', { rate: fx.pkrPerUsd.toFixed(2), updated: fx.updated }) : t('US$ at 1 USD = PKR {rate}', { rate: fx.pkrPerUsd.toFixed(2) })) : t('US$ at about PKR {rate} (live rate unavailable)', { rate: fx.pkrPerUsd }),
@@ -322,7 +400,7 @@ export function buildView(s: AppState, api: Api) {
       return { key: g.key, title: s.mode === 'know' ? t(g.name) : DST(g.corridor).label, sub: s.mode === 'know' ? t('{vehicle} · {tier} stays', { vehicle: t(VEH[g.vehicle].short), tier: t(TIERS[g.tier].label) })
           : g.name === TIERS[g.tier].label ? t('{name} · {vehicle}', { name: t(g.name), vehicle: t(VEH[g.vehicle].short) })
           : t('{name} · {vehicle} · {tier} stays', { name: t(g.name), vehicle: t(VEH[g.vehicle].short), tier: t(TIERS[g.tier].label) }),
-        icon: VEH[g.vehicle].icon, tile: TIER_G[g.tier], amount: fmt(g.total), amountUsd: usd(g.total), best: !!g.best,
+        icon: VEH[g.vehicle].icon, tile: TIER_G[g.tier], fit: roadFit(g.vehicle, g.corridor, s.origin, M)?.text || '', amount: fmt(g.total), amountUsd: usd(g.total), best: !!g.best,
         fitLabel: !g.ok ? (g.why ? t(g.why) : t('Needs {n}+ days', { n: g.minDays })) : fits ? t('{amount} left', { amount: kShort(s.cap - g.total) }) : `+${kShort(g.total - s.cap)}`, fitFg: fits ? 'var(--g)' : 'var(--cor)', fitBg: fits ? 'rgba(46,229,157,.14)' : 'rgba(255,107,91,.16)',
         bg: on ? 'linear-gradient(var(--fill),var(--fill)) padding-box, linear-gradient(135deg,#2EE59D,#FFB547) border-box' : 'linear-gradient(rgba(255,255,255,.05),rgba(255,255,255,.05)) padding-box, linear-gradient(rgba(255,255,255,.1),rgba(255,255,255,.1)) border-box',
         transform: on ? 'translateZ(18px) rotateX(4deg)' : 'translateZ(0)', shadow: on ? '0 22px 40px -18px rgba(46,229,157,.7)' : 'none', op: fits || on ? 1 : .62,
@@ -333,7 +411,7 @@ export function buildView(s: AppState, api: Api) {
     next: () => {
       if (!canNext) return;
       if (s.step < 5) set({ step: s.step + 1, pickId: null });
-      else { const g = sug.sel; if (g) set({ screen: 'app', tab: 'trip', chosen: g.corridor, corridor: g.corridor, dest: g.corridor, vehicle: g.vehicle, tier: g.tier }); }
+      else { const g = sug.sel; if (g) set({ screen: 'app', tab: 'trip', chosen: g.corridor, corridor: g.corridor, dest: g.corridor, vehicle: g.vehicle, tier: g.tier, building: Date.now(), dayOpen: null }); }
     },
     nextLabel: s.step < 5 ? t('Continue') : t('Build this trip'),
     restart: () => api.newTrip(),
@@ -363,7 +441,11 @@ export function buildView(s: AppState, api: Api) {
           const options = [...mine, ...picks.filter(h => !mine.some(m => m.name.toLowerCase() === h.name.toLowerCase())).slice(0, Math.max(2, 4 - mine.length))
             .map(h => ({ ...h, key: h.name, trusted: false, wa: '', tel: '', rating: null, review: null, checkUrl: check(`${h.name}, ${st.town}`, night, 1), mapUrl: mapsQ(`${h.name}, ${st.town}`) }))];
           return { ...st, range: t('{tier} · {range} ({usd}) a night', { tier: t(TIERS[s.tier].label), range: nr.text, usd: nr.usd }), href: check(st.town, night, 1), options, loading: live.loading && !picks.length, source: live.list.length ? 'OpenStreetMap, via Geoapify' : '' };
-        })(), stops: (d.stops || []).map(x => ({ ...x, icon: STOP_KIND[x.kind][0], color: STOP_KIND[x.kind][1] })), tile: K[d.kind][0], kindLabel: K[d.kind][1], lineOp: i === p.days.length - 1 ? 0 : 1 })) };
+        })(), stops: edited[i].stops.map(x => ({ ...x, icon: STOP_KIND[x.kind][0], color: STOP_KIND[x.kind][1], remove: x.removable ? () => removeStop(i, x) : null })),
+          places: edited[i].places, savedMin: edited[i].saved, suggest: suggestFor(d, i),
+          ...(d.kind === 'explore' ? { note: '', meta: edited[i].places > 1 ? t('{n} places · local car or jeep', { n: edited[i].places }) : edited[i].places ? t('{n} place · local car or jeep', { n: 1 }) : t('Nothing scheduled') } : {}),
+          busy: d.kind === 'explore' && edited[i].places > 4 ? t('Busy day: {n} places. Consider moving one to another day.', { n: edited[i].places }) : '',
+          tile: K[d.kind][0], kindLabel: K[d.kind][1], lineOp: i === p.days.length - 1 ? 0 : 1 })) };
     })(),
     rows: rows.map(r => ({ ...r, label: t(r.label), amount: fmtN(r.val), amountUsd: usd(r.val), color: CAT[r.label] || 'var(--sky)', grad: `linear-gradient(135deg,${CAT[r.label] || 'var(--sky)'},${CAT2[r.label] || '#3B8DFF'})` })),
     vehChips: (Object.entries(VEH) as [VehicleId, typeof VEH[VehicleId]][]).map(([k, v]) => {
@@ -438,7 +520,7 @@ export function buildView(s: AppState, api: Api) {
     ],
     helplines: [['1122', t('Rescue')], ['15', t('Police')], ['130', t('Motorway Police')], ['115', t('Edhi Ambulance')]].map(([num, label]) => ({ num, label, href: `tel:${num}` })),
     hotels: stays.list.map(h => ({ ...h, tierC: tierC[h.tier] || 'var(--sky)', grad: tierG[h.tier] || 'linear-gradient(135deg,#6FD3FF,#3B8DFF)' })),
-    tabs: ([['trip', 'ph-mountains', t('Trip')], ['map', 'ph-map-trifold', t('Map')], ['offline', 'ph-cloud-slash', t('Offline')]] as const).map(([k, icon, label]) => {
+    tabs: ([['trip', 'ph-path', t('Plan')], ['map', 'ph-map-trifold', t('Map')], ['budget', 'ph-wallet', t('Budget')], ['prepare', 'ph-backpack', t('Prepare')]] as const).map(([k, icon, label]) => {
       const on = s.tab === k; return { key: k, icon, label, bg: on ? 'linear-gradient(135deg,rgba(46,229,157,.22),rgba(25,194,184,.12))' : 'transparent', fg: on ? 'var(--g)' : 'var(--mute)', onClick: () => set({ tab: k }) };
     }),
     pillA: isAir ? t('{from} ⇄ {to} by air', { from: air!.dep, to: air!.arr }) : t('{km} km by road', { km: c.kmStr }),

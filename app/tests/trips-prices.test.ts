@@ -16,8 +16,11 @@ const trip: TripState = {
 
 describe('saved trips', () => {
   it('round-trips through storage and rejects broken data', () => {
-    const d = tripData(trip);
+    const d = tripData({ ...trip, have: 'car', edits: { key: 'Lahore|skardu|8|road', picks: [{ day: 3, name: 'Shangrila Lake', note: 'Lake · 25 km', href: 'https://www.google.com/maps/search/?api=1&query=Shangrila' }], drops: ['4|Deosai Plains'] } });
     expect(cleanTrip(JSON.parse(JSON.stringify(d)))).toEqual(d);
+    // Added places keep only safe links; an unknown vehicle choice falls back to "suggest".
+    const bad = cleanTrip({ ...d, have: 'tank', edits: { key: 'x', picks: [{ day: 1, name: 'X', note: '', href: 'javascript:alert(1)' }], drops: [] } })!;
+    expect(bad.have).toBe('any'); expect(bad.edits!.picks[0].href).toBe('');
     expect(cleanTrip({ ...d, origin: 'Atlantis' })).toBeNull();
     expect(cleanTrip({ ...d, corridor: '<script>' })).toBeNull();
     expect(cleanTrip({ ...d, days: 99, adults: -3 })).toMatchObject({ days: 14, adults: 1 });

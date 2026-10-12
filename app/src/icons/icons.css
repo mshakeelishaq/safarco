@@ -39,6 +39,9 @@
 .ph-fill.ph-arrow-up-right:before {
   content: "\e092";
 }
+.ph-fill.ph-arrows-left-right:before {
+  content: "\e0a0";
+}
 .ph-fill.ph-baby:before {
   content: "\e774";
 }
@@ -87,8 +90,8 @@
 .ph-fill.ph-car-simple:before {
   content: "\e114";
 }
-.ph-fill.ph-caret-down:before {
-  content: "\e136";
+.ph-fill.ph-caret-left:before {
+  content: "\e138";
 }
 .ph-fill.ph-caret-right:before {
   content: "\e13a";
@@ -135,9 +138,6 @@
 .ph-fill.ph-cloud-rain:before {
   content: "\e1b4";
 }
-.ph-fill.ph-cloud-slash:before {
-  content: "\e1b6";
-}
 .ph-fill.ph-cloud-sun:before {
   content: "\e540";
 }
@@ -183,6 +183,12 @@
 .ph-fill.ph-gps-slash:before {
   content: "\edd4";
 }
+.ph-fill.ph-hand-tap:before {
+  content: "\ec90";
+}
+.ph-fill.ph-heartbeat:before {
+  content: "\e2ac";
+}
 .ph-fill.ph-hourglass:before {
   content: "\e2b2";
 }
@@ -197,6 +203,9 @@
 }
 .ph-fill.ph-letter-circle-p:before {
   content: "\ec08";
+}
+.ph-fill.ph-lightbulb:before {
+  content: "\e2dc";
 }
 .ph-fill.ph-lightning:before {
   content: "\e2de";
@@ -255,6 +264,9 @@
 .ph-fill.ph-prohibit:before {
   content: "\e3de";
 }
+.ph-fill.ph-receipt:before {
+  content: "\e3ec";
+}
 .ph-fill.ph-road-horizon:before {
   content: "\e838";
 }
@@ -266,6 +278,9 @@
 }
 .ph-fill.ph-shield-check:before {
   content: "\e40c";
+}
+.ph-fill.ph-shield-warning:before {
+  content: "\e412";
 }
 .ph-fill.ph-sign-out:before {
   content: "\e42a";
@@ -400,6 +415,9 @@
 .ph-bold.ph-arrow-up-right:before {
   content: "\e092";
 }
+.ph-bold.ph-arrows-left-right:before {
+  content: "\e0a0";
+}
 .ph-bold.ph-baby:before {
   content: "\e774";
 }
@@ -448,8 +466,8 @@
 .ph-bold.ph-car-simple:before {
   content: "\e114";
 }
-.ph-bold.ph-caret-down:before {
-  content: "\e136";
+.ph-bold.ph-caret-left:before {
+  content: "\e138";
 }
 .ph-bold.ph-caret-right:before {
   content: "\e13a";
@@ -496,9 +514,6 @@
 .ph-bold.ph-cloud-rain:before {
   content: "\e1b4";
 }
-.ph-bold.ph-cloud-slash:before {
-  content: "\e1b6";
-}
 .ph-bold.ph-cloud-sun:before {
   content: "\e540";
 }
@@ -544,6 +559,12 @@
 .ph-bold.ph-gps-slash:before {
   content: "\edd4";
 }
+.ph-bold.ph-hand-tap:before {
+  content: "\ec90";
+}
+.ph-bold.ph-heartbeat:before {
+  content: "\e2ac";
+}
 .ph-bold.ph-hourglass:before {
   content: "\e2b2";
 }
@@ -558,6 +579,9 @@
 }
 .ph-bold.ph-letter-circle-p:before {
   content: "\ec08";
+}
+.ph-bold.ph-lightbulb:before {
+  content: "\e2dc";
 }
 .ph-bold.ph-lightning:before {
   content: "\e2de";
@@ -616,6 +640,9 @@
 .ph-bold.ph-prohibit:before {
   content: "\e3de";
 }
+.ph-bold.ph-receipt:before {
+  content: "\e3ec";
+}
 .ph-bold.ph-road-horizon:before {
   content: "\e838";
 }
@@ -627,6 +654,9 @@
 }
 .ph-bold.ph-shield-check:before {
   content: "\e40c";
+}
+.ph-bold.ph-shield-warning:before {
+  content: "\e412";
 }
 .ph-bold.ph-sign-out:before {
   content: "\e42a";
@@ -776,6 +806,14 @@
   content: "\e093";
   margin-left: -1em;
 }
+.ph-duotone.ph-arrows-left-right:before {
+  content: "\e0a0";
+  opacity: 0.2;
+}
+.ph-duotone.ph-arrows-left-right:after {
+  content: "\e0a1";
+  margin-left: -1em;
+}
 .ph-duotone.ph-baby:before {
   content: "\e774";
   opacity: 0.2;
@@ -904,12 +942,12 @@
   content: "\e115";
   margin-left: -1em;
 }
-.ph-duotone.ph-caret-down:before {
-  content: "\e136";
+.ph-duotone.ph-caret-left:before {
+  content: "\e138";
   opacity: 0.2;
 }
-.ph-duotone.ph-caret-down:after {
-  content: "\e137";
+.ph-duotone.ph-caret-left:after {
+  content: "\e139";
   margin-left: -1em;
 }
 .ph-duotone.ph-caret-right:before {
@@ -1032,14 +1070,6 @@
   content: "\e1b5";
   margin-left: -1em;
 }
-.ph-duotone.ph-cloud-slash:before {
-  content: "\e1b6";
-  opacity: 0.2;
-}
-.ph-duotone.ph-cloud-slash:after {
-  content: "\e1b7";
-  margin-left: -1em;
-}
 .ph-duotone.ph-cloud-sun:before {
   content: "\e540";
   opacity: 0.2;
@@ -1160,6 +1190,22 @@
   content: "\edd5";
   margin-left: -1em;
 }
+.ph-duotone.ph-hand-tap:before {
+  content: "\ec90";
+  opacity: 0.2;
+}
+.ph-duotone.ph-hand-tap:after {
+  content: "\ec91";
+  margin-left: -1em;
+}
+.ph-duotone.ph-heartbeat:before {
+  content: "\e2ac";
+  opacity: 0.2;
+}
+.ph-duotone.ph-heartbeat:after {
+  content: "\e2ad";
+  margin-left: -1em;
+}
 .ph-duotone.ph-hourglass:before {
   content: "\e2b2";
   opacity: 0.2;
@@ -1198,6 +1244,14 @@
 }
 .ph-duotone.ph-letter-circle-p:after {
   content: "\ec09";
+  margin-left: -1em;
+}
+.ph-duotone.ph-lightbulb:before {
+  content: "\e2dc";
+  opacity: 0.2;
+}
+.ph-duotone.ph-lightbulb:after {
+  content: "\e2dd";
   margin-left: -1em;
 }
 .ph-duotone.ph-lightning:before {
@@ -1352,6 +1406,14 @@
   content: "\e3df";
   margin-left: -1em;
 }
+.ph-duotone.ph-receipt:before {
+  content: "\e3ec";
+  opacity: 0.2;
+}
+.ph-duotone.ph-receipt:after {
+  content: "\e3f1";
+  margin-left: -1em;
+}
 .ph-duotone.ph-road-horizon:before {
   content: "\e838";
   opacity: 0.2;
@@ -1382,6 +1444,14 @@
 }
 .ph-duotone.ph-shield-check:after {
   content: "\e40f";
+  margin-left: -1em;
+}
+.ph-duotone.ph-shield-warning:before {
+  content: "\e412";
+  opacity: 0.2;
+}
+.ph-duotone.ph-shield-warning:after {
+  content: "\e414";
   margin-left: -1em;
 }
 .ph-duotone.ph-sign-out:before {
