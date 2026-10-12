@@ -262,6 +262,24 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
                       ))}
                     </div>
                   )}
+                  {d.fuel && (
+                    <div style={css('margin-top:10px;padding:12px;border-radius:16px;background:var(--card);border:1px solid var(--line)')}>
+                      <div style={css('display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800')}><i className="ph-fill ph-gas-pump" style={css('font-size:18px;color:var(--vio)')} />{t('Fuel on the way')}</div>
+                      {[...d.fuel.notes, ...d.fuel.gaps].map(n => <div key={n} style={css('display:flex;gap:6px;align-items:flex-start;margin-top:8px;font-size:12px;font-weight:700;line-height:1.45;color:var(--amb2)')}><i className="ph-fill ph-warning" style={css('margin-top:2px;flex:none')} />{n}</div>)}
+                      {d.fuel.stops.length > 0 && <>
+                        <div style={css('font-size:12px;font-weight:600;color:var(--mute);margin-top:8px')}>{t('Pumps on this road, from the start of the day:')}</div>
+                        <div style={css('display:flex;flex-wrap:wrap;gap:6px;margin-top:6px')}>
+                          {d.fuel.stops.map(x => (
+                            <a key={x.key} href={x.href} target="_blank" rel="noopener" style={css('display:inline-flex;align-items:center;gap:5px;min-height:32px;padding:4px 10px;border-radius:10px;background:var(--fill);border:1px solid var(--line);color:var(--ink);font-size:12px;font-weight:700;text-decoration:none')}>
+                              {x.label}<span style={css('color:var(--mute);font-weight:600;font-variant-numeric:tabular-nums')}>{x.km}</span>
+                            </a>
+                          ))}
+                        </div>
+                      </>}
+                      {d.fuel.loading && !d.fuel.stops.length && <div style={css('font-size:12px;font-weight:600;color:var(--mute);margin-top:8px')}>{t('Finding fuel pumps on the road…')}</div>}
+                      {d.fuel.live && <div style={css('font-size:11px;font-weight:600;color:var(--mute);margin-top:8px;line-height:1.4')}>{t('Pumps from OpenStreetMap. Small village pumps may be missing, so fill up when you can.')}</div>}
+                    </div>
+                  )}
                   {d.flight && (
                     <a href={d.flight.href} target="_blank" rel="noopener" style={css('display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;border-radius:16px;background:var(--card);border:1px solid var(--line);text-decoration:none;color:var(--ink)')}>
                       <i className="ph-fill ph-airplane-tilt" style={css('font-size:20px;color:var(--g);flex:none')} />

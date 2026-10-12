@@ -17,6 +17,7 @@ import { CITIES, CITY, CITY_DUP, DST, cityOr, placesFor, seasonFactor } from './
 import type { AppState, Patch } from './state';
 import { THEMES } from './state';
 import { tilesAlong } from './offline';
+import { fuelByDay, fuelQueryPoints, type DayFuel } from './engine/fuel';
 import { LANGS, setLang, t } from './i18n';
 
 export interface Api {
@@ -124,6 +125,14 @@ export function buildView(s: AppState, api: Api) {
   const rPoints = routePoints(s, plan, liveRoad && liveRoad.status === 'ok' ? liveRoad.data.coords : null);
   const wPlan = weatherPlan(s, plan, rPoints), rw = weatherView(s, plan, rPoints, wPlan);
 
+  // Fuel pumps along the road, for trips where you fill the tank yourself (see src/engine/fuel.ts).
+  const ownTank = ['sedan', 'suv', 'bike', 'rentcar', 'rent4x4', 'coaster'].includes(s.vehicle) && s.screen === 'app';
+  const roadLine = liveRoad && liveRoad.status === 'ok' ? liveRoad.data.coords : null;
+  const fuel = ownTank ? fuelByDay(plan, rPoints, roadLine) : new Map<number, DayFuel>();
+  const fuelPoints = ownTank && roadLine ? fuelQueryPoints(rPoints).map(p => ({ lat: p.lat, lon: p.lon })) : [];
+  const fuelPins = [...fuel.entries()].filter(([i]) => plan.days[i].kind !== 'return').flatMap(([, f]) => f.stops)
+    .map(x => ({ key: x.key, lat: x.lat, lon: x.lon, text: x.count > 1 ? t('{place}: {n} fuel pumps', { place: x.place || x.name, n: x.count }) : `${x.place ? x.place + ': ' : ''}${x.name === 'Fuel station' ? t('Fuel station') : x.name}` }));
+
   // Places to stay and see, from OpenStreetMap via Geoapify, plus honest price ranges.
   const D = DST(s.corridor), sf = seasonFactor(D, M), AD = s.adults + s.elders;
   const rooms = s.rooms === 'shared' ? Math.ceil(s.groupSize / 4) : Math.max(1, Math.ceil(AD / 2));
@@ -219,7 +228,7 @@ export function buildView(s: AppState, api: Api) {
   const alertNotes = activeAlerts().filter(a => !a.areas?.length || onTrip(a.areas, tripLine, tripStops)).map(a => ({ icon: 'ph-megaphone', color: 'var(--cor)', text: a.date ? t('{alert} (posted {date})', { alert: `${a.title}${a.message ? `: ${a.message}` : ''}`, date: dayLabel(a.date, 0) }) : `${a.title}${a.message ? `: ${a.message}` : ''}` }));
 
   return {
-    s, c, gate, tip, health, off, isAir, drivers, afterTrip, guide, bestNow, tripSeason, wPlan, rPoints, selCorridor: sug.sel?.corridor, stays, nearby, priceNotes, ratesNote: isAir ? t('Flight fares are tentative: tap a flight day to see live fares. Confirm with the airline before you book.')
+    s, c, gate, tip, health, off, isAir, fuelPoints, fuelPins, drivers, afterTrip, guide, bestNow, tripSeason, wPlan, rPoints, selCorridor: sug.sel?.corridor, stays, nearby, priceNotes, ratesNote: isAir ? t('Flight fares are tentative: tap a flight day to see live fares. Confirm with the airline before you book.')
       : t('Prices {checked}. Confirm with the operator before you book.', { checked: checkedText(s.vehicle === 'public' ? 'coach' : 'hire') }),
     fxNote: fx.live ? (fx.updated ? t('US$ at 1 USD = PKR {rate} ({updated})', { rate: fx.pkrPerUsd.toFixed(2), updated: fx.updated }) : t('US$ at 1 USD = PKR {rate}', { rate: fx.pkrPerUsd.toFixed(2) })) : t('US$ at about PKR {rate} (live rate unavailable)', { rate: fx.pkrPerUsd }),
     wiki: { loading: !wikiE || wikiE.status === 'loading', info: wikiE && wikiE.status === 'ok' ? wikiE.data : null },
@@ -342,7 +351,8 @@ export function buildView(s: AppState, api: Api) {
           : s.depart == null ? t('Recommended {time}, so every driving day ends before sunset (the earliest is about {sunset}).', { time: clock(p.rec), sunset: clock(p.sunset) })
           : t('Every driving day ends before sunset (the earliest is about {sunset}).', { sunset: clock(p.sunset) }),
         days: p.days.map((d, i) => ({ ...d, flight: d.kind === 'fly' && p.air && d.iso ? (() => { const out = i === 0, from = out ? p.air!.dep : p.air!.arr, to = out ? p.air!.arr : p.air!.dep;
-          return { from, to, fare: t('Tentative: about {fare} one way per adult', { fare: pkrUsd(p.air!.fare) }), href: flightSearchUrl(from, to, d.iso!, s.adults + s.elders, s.kids) }; })() : null, strip: rw.strips.get(i) || null, destWx: d.track ? null : rw.destDays.find(x => x.idx === i) || null, stay: d.stay && (() => {
+          return { from, to, fare: t('Tentative: about {fare} one way per adult', { fare: pkrUsd(p.air!.fare) }), href: flightSearchUrl(from, to, d.iso!, s.adults + s.elders, s.kids) }; })() : null, fuel: (() => { const f = fuel.get(i); if (!f || !(f.stops.length || f.notes.length || f.gaps.length || f.loading)) return null;
+          return { ...f, stops: f.stops.map(x => ({ ...x, label: x.place || (x.name === 'Fuel station' ? t('Fuel station') : x.name), km: t('km {km}', { km: x.at }) })) }; })(), strip: rw.strips.get(i) || null, destWx: d.track ? null : rw.destDays.find(x => x.idx === i) || null, stay: d.stay && (() => {
           // Hotels for this night's town (live from OpenStreetMap), each linked to Booking.com for this exact night.
           const st = d.stay!, nr = nightRange(s.tier, sf), night = isoOff(s.startDate, i), live = spotsAt('hotels', st.lat, st.lon);
           const picks = live.list.length ? live.list.slice(0, 4).map(h => ({ name: h.name, note: h.km ? t('{type} · {km} km from centre', { type: t(h.type), km: Math.round(h.km * 10) / 10 }) : t(h.type) }))
@@ -407,7 +417,8 @@ export function buildView(s: AppState, api: Api) {
       plan.days.forEach(d => { if (!d.stay) return; const g = groups[groups.length - 1]; if (g && g.name === d.stay.place) g.to = d.num!; else groups.push({ name: d.stay.place, hotel: d.stay.name, from: d.num!, to: d.num! }); });
       const roads: Record<string, { km: number; months?: number[] }> = {}; if (!isAir) legs.forEach(l => { const r = roads[l.road] || (roads[l.road] = { km: 0, months: l.months }); r.km += l.km; });
       const wxDots = rw.mapPts.map((m, i) => ({ key: `${i}`, x: X(m.lon).toFixed(2), y: Y(m.lat).toFixed(2), color: m.color, text: m.text }));
-      return { net, route, closed, dots, isAir, wxDots,
+      const fuelDots = fuelPins.map(f => ({ key: f.key, x: X(f.lon).toFixed(2), y: Y(f.lat).toFixed(2), text: f.text }));
+      return { net, route, closed, dots, isAir, wxDots, fuelDots,
         stat: isAir ? t('{from} ⇄ {to} by air · car and driver there', { from: air!.dep, to: air!.arr })
           : c.legDays > 1 ? t('{km} km · {time} driving each way · {n} driving days each way', { km: c.kmStr, time: dur(c.hours), n: c.legDays })
           : t('{km} km · {time} driving each way · {n} driving day each way', { km: c.kmStr, time: dur(c.hours), n: c.legDays }),

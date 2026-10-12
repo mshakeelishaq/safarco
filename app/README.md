@@ -57,6 +57,7 @@ Without keys the app still works: it uses its built-in road table, hand-written 
 ## What is live, checked or modelled
 
 - **Live:** road distance and route, places and hotels, destination guides, dollar rate, and weather from Open-Meteo: the forecast at each point of the drive at the hour you pass it, mountain passes at their real height, danger flags (storms, heavy rain/landslides, black ice, fog, heat, wind), air quality, and a suggested departure time. Beyond 16 days ahead the app shows the last 5 years for those dates, marked "typical".
+- **Fuel on the road:** pumps along each driving day from OpenStreetMap (Geoapify, `/api/places?kind=fuel`), with a warning where the map shows none for 100 km, plus SafarCo's notes for known empty stretches (Babusar, Deosai, Shandur, Khunjerab, Makran coast…) in `src/engine/fuel.ts`. Shown for trips in your own or a rented vehicle.
 - **Calculated on the device:** sunrise and sunset for each town and date (`src/engine/sun.ts`), the packing list.
 - **Checked by the admin, with dates shown to users:** fuel, tolls, hotel and meal ranges, hire, coach fares, jeep rates, road alerts. Until a section is checked, the app labels it "not checked yet". Flight fares are always shown as tentative, with a link to live fares for the travel date.
 - **Modelled:** drive times on mountain roads, fuel economy per vehicle and pass opening seasons. Hand-picked hotel names in the 21 built-in guides appear only where Geoapify has no live list.

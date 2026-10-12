@@ -176,7 +176,7 @@ export function App() {
     const o = cityOr(st.origin), D = DST(st.corridor), r = LIVE.route[routeKey(o.n, D.id)];
     const coords: [number, number][] = r && r.status === 'ok' ? r.data.coords : view.routeMap.dots.map(d => [+d.p[1], +d.p[0]]);
     const abs = (u: string) => new URL(u, location.origin).href;
-    const extra = [abs(routeUrl(o, D)), ...allUrls(view.wPlan), abs(placesUrl('hotels', D.lat, D.lon)), abs(placesUrl('sights', D.lat, D.lon))];
+    const extra = [abs(routeUrl(o, D)), ...allUrls(view.wPlan), abs(placesUrl('hotels', D.lat, D.lon)), abs(placesUrl('sights', D.lat, D.lon)), ...view.fuelPoints.map(p => abs(placesUrl('fuel', p.lat, p.lon)))];
     const ac = new AbortController(); dlAbort.current = ac;
     set({ offline: 'downloading', progress: 0, offlineMB: 0, offlineErr: '' });
     downloadOffline(coords, extra, p => set({ progress: Math.round(p.done / Math.max(1, p.total) * 100), offlineMB: p.bytes / 1e6 }), ac.signal)
@@ -229,6 +229,10 @@ export function App() {
   // Weather along the route: hourly forecast, passes, typical weather and air quality.
   const wxUrls = s.screen === 'app' ? allUrls(view.wPlan).join(' ') : '';
   useEffect(() => { if (wxUrls) fetchWeather(view.wPlan); }, [wxUrls]);
+
+  // Fuel pumps along the road (only for trips in your own or a rented vehicle, once the road has loaded).
+  const fuelKeys = view.fuelPoints.map(p => placesKey('fuel', p.lat, p.lon)).join(' ');
+  useEffect(() => { view.fuelPoints.forEach(p => placesFetch('fuel', p.lat, p.lon)); }, [fuelKeys]);
 
   const onScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const st = e.currentTarget.scrollTop, n = sceneRef.current;

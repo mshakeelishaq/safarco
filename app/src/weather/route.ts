@@ -39,7 +39,7 @@ function along(line: [number, number][], f: number): [number, number] {
 }
 
 /** "Chilas", or "near Chilas" a little further out, from the towns and passes SafarCo knows; `at` is the bare name. */
-const nearName = (lat: number, lon: number) => {
+export const nearName = (lat: number, lon: number) => {
   let best = '', bd = 1e9;
   const look = (n: string, la: number, lo: number) => { const d = Math.hypot(la - lat, (lo - lon) * 0.85); if (d < bd) { bd = d; best = n; } };
   for (const k of Object.keys(NODES)) look(NODE_INFO[k][0], NODES[k][0], NODES[k][1]);

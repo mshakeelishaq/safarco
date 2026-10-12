@@ -12,7 +12,7 @@ const escH = (s: string) => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '
 /** Real 3D map (MapLibre + OpenFreeMap + Terrarium elevation) with the trip route and pins. */
 function LiveMap({ v, onFail }: { v: View; onFail: () => void }) {
   const el = useRef<HTMLDivElement>(null);
-  const st = useRef<{ ml?: ML; map?: import('maplibre-gl').Map; ok?: boolean; key?: string; wxKey?: string; markers: import('maplibre-gl').Marker[] }>({ markers: [] });
+  const st = useRef<{ ml?: ML; map?: import('maplibre-gl').Map; ok?: boolean; key?: string; wxKey?: string; fuelKey?: string; markers: import('maplibre-gl').Marker[] }>({ markers: [] });
   const { s } = v, rm = v.routeMap, o = cityOr(s.origin), r = LIVE.route[routeKey(o.n, s.corridor)];
 
   useEffect(() => {
@@ -44,6 +44,11 @@ function LiveMap({ v, onFail }: { v: View; onFail: () => void }) {
         m.addLayer({ id: 'wx-pts', type: 'circle', source: 'wx', filter: ['==', ['geometry-type'], 'Point'], paint: { 'circle-radius': 6, 'circle-color': ['get', 'color'], 'circle-stroke-color': '#FFFFFF', 'circle-stroke-width': 2 } });
         m.on('click', 'wx-pts', e => { const f = e.features?.[0]; if (f) new mod.Popup({ closeButton: false, maxWidth: '240px' }).setLngLat((f.geometry as unknown as { coordinates: [number, number] }).coordinates).setText(String(f.properties?.text || '')).addTo(m); });
         m.on('mouseenter', 'wx-pts', () => { m.getCanvas().style.cursor = 'pointer'; }); m.on('mouseleave', 'wx-pts', () => { m.getCanvas().style.cursor = ''; });
+        // Fuel pumps on the road: small purple dots, tap for the place.
+        m.addSource('fuel', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+        m.addLayer({ id: 'fuel-pts', type: 'circle', source: 'fuel', minzoom: 6, paint: { 'circle-radius': 5, 'circle-color': '#7B5BFF', 'circle-stroke-color': '#FFFFFF', 'circle-stroke-width': 1.5 } });
+        m.on('click', 'fuel-pts', e => { const f = e.features?.[0]; if (f) new mod.Popup({ closeButton: false, maxWidth: '240px' }).setLngLat((f.geometry as unknown as { coordinates: [number, number] }).coordinates).setText(String(f.properties?.text || '')).addTo(m); });
+        m.on('mouseenter', 'fuel-pts', () => { m.getCanvas().style.cursor = 'pointer'; }); m.on('mouseleave', 'fuel-pts', () => { m.getCanvas().style.cursor = ''; });
         st.current.key = undefined; update();
       });
     }).catch(() => onFail());
@@ -61,6 +66,11 @@ function LiveMap({ v, onFail }: { v: View; onFail: () => void }) {
       for (let i = 0; i < pts.length - 1; i++) if (pts[i].day === pts[i + 1].day) feats.push({ type: 'Feature', properties: { color: pts[i].color }, geometry: { type: 'LineString', coordinates: [[pts[i].lon, pts[i].lat], [pts[i + 1].lon, pts[i + 1].lat]] } });
       pts.forEach(p => feats.push({ type: 'Feature', properties: { color: p.color, text: p.text }, geometry: { type: 'Point', coordinates: [p.lon, p.lat] } }));
       (m.getSource('wx') as import('maplibre-gl').GeoJSONSource | undefined)?.setData({ type: 'FeatureCollection', features: feats } as never);
+    }
+    const fuelKey = v.fuelPins.map(p => p.key).join('|');
+    if (fuelKey !== st.current.fuelKey) {
+      st.current.fuelKey = fuelKey;
+      (m.getSource('fuel') as import('maplibre-gl').GeoJSONSource | undefined)?.setData({ type: 'FeatureCollection', features: v.fuelPins.map(p => ({ type: 'Feature', properties: { text: p.text }, geometry: { type: 'Point', coordinates: [p.lon, p.lat] } })) } as never);
     }
     const key = `${o.n}|${s.corridor}|${s.startDate}|${s.days}|${s.vehicle}|${r ? r.status : ''}`; if (key === st.current.key) return; st.current.key = key;
     const coords: [number, number][] = !rm.isAir && r && r.status === 'ok' ? r.data.coords : rm.dots.map(d => [+d.p[1], +d.p[0]]);
@@ -106,6 +116,7 @@ function DrawnMap({ v }: { v: View }) {
           <path d={rm.route} fill="none" stroke="#FFC060" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
         </svg>
         {rm.wxDots.map(p => <div key={'w' + p.key} title={p.text} style={css(`position:absolute;left:${p.x}%;top:${p.y}%;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:${p.color};box-shadow:0 0 0 2px #FFFFFF`)} />)}
+        {rm.fuelDots.map(p => <div key={'f' + p.key} title={p.text} style={css(`position:absolute;left:${p.x}%;top:${p.y}%;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:#7B5BFF;box-shadow:0 0 0 1.5px #FFFFFF`)} />)}
         {rm.dots.map((p, i) => (
           <div key={i} style={css(`position:absolute;left:${p.x}%;top:${p.y}%;width:0;height:0;transform-style:preserve-3d`)}>
             <div style={css(`position:absolute;left:-7px;top:-7px;width:14px;height:14px;border-radius:50%;background:${p.color};box-shadow:0 0 0 5px ${p.ring},0 0 18px ${p.color}`)} />
@@ -120,6 +131,7 @@ function DrawnMap({ v }: { v: View }) {
       <span style={css('display:flex;align-items:center;gap:6px')}><span style={css('width:16px;height:3px;border-radius:2px;background:#FFC060')} />{t('Your route')}</span>
       <span style={css('display:flex;align-items:center;gap:6px')}><span style={css('width:16px;height:2px;background:var(--fill2)')} />{t('Other roads')}</span>
       <span style={css('display:flex;align-items:center;gap:6px')}><span style={css('width:16px;height:0;border-top:2px dashed #FF6B5B')} />{t('Closed this month')}</span>
+      {rm.fuelDots.length > 0 && <span style={css('display:flex;align-items:center;gap:6px')}><span style={css('width:8px;height:8px;border-radius:50%;background:#7B5BFF')} />{t('Fuel pumps')}</span>}
     </div>
     <WxLegend v={v} />
   </>;
@@ -141,6 +153,7 @@ export function MapTab({ v, api }: { v: View; api: Api }) {
           {s.mapFail ? <DrawnMap v={v} /> : <>
             <LiveMap v={v} onFail={() => api.set({ mapFail: true })} />
             <div style={css('display:flex;gap:8px 14px;flex-wrap:wrap;margin:12px 6px 0;font-size:11px;font-weight:700;color:var(--mute)')}><span style={css('display:flex;align-items:center;gap:6px')}><span style={css('width:16px;height:4px;border-radius:2px;background:var(--sky)')} />{v.mapRouteLabel}</span><span>{t('Drag to pan · two fingers or the compass to tilt')}</span></div>
+            {v.fuelPins.length > 0 && <div style={css('display:flex;align-items:center;gap:6px;margin:8px 6px 0;font-size:11px;font-weight:700;color:var(--mute)')}><span style={css('width:10px;height:10px;border-radius:50%;background:#7B5BFF;box-shadow:0 0 0 1.5px #FFFFFF')} />{t('Fuel pumps on your road · zoom in and tap one')}</div>}
             <WxLegend v={v} />
           </>}
         </div>

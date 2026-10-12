@@ -64,10 +64,11 @@ export function routeFetch(o: { n: string; lat: number; lon: number }, D: Dest) 
   return liveFetch('route', routeKey(o.n, D.id), routeUrl(o, D), (j: RouteData): RouteData => j);
 }
 
-export const placesKey = (kind: 'sights' | 'hotels', lat: number, lon: number) => `${kind}|${lat.toFixed(2)},${lon.toFixed(2)}`;
-export const placesUrl = (kind: 'sights' | 'hotels', lat: number, lon: number) => `/api/places?kind=${kind}&lat=${lat.toFixed(2)}&lon=${lon.toFixed(2)}`;
-/** Sights or places to stay near a point (Geoapify via /api/places). */
-export function placesFetch(kind: 'sights' | 'hotels', lat: number, lon: number) {
+export type PlaceKind = 'sights' | 'hotels' | 'fuel';
+export const placesKey = (kind: PlaceKind, lat: number, lon: number) => `${kind}|${lat.toFixed(2)},${lon.toFixed(2)}`;
+export const placesUrl = (kind: PlaceKind, lat: number, lon: number) => `/api/places?kind=${kind}&lat=${lat.toFixed(2)}&lon=${lon.toFixed(2)}`;
+/** Sights, places to stay or fuel stations near a point (Geoapify via /api/places). */
+export function placesFetch(kind: PlaceKind, lat: number, lon: number) {
   return liveFetch('places', placesKey(kind, lat, lon), placesUrl(kind, lat, lon), (j: { spots?: Spot[] }) => j.spots || []);
 }
 
