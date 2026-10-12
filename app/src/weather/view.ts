@@ -4,9 +4,10 @@ import type { Plan, TripState } from '../engine/engine';
 import { clock, dayLabel, fmtN, isoAdd } from '../engine/format';
 import { WMO } from '../engine/live';
 import { DST, cityOr } from '../engine/places';
+import { t } from '../i18n';
 import { airQuality, bestDeparture, pointWx, type Flag, type PointWx, type RoutePoint, type WeatherPlan } from './route';
 
-export const wxText = (c: number | null) => c == null ? '' : c === 0 ? 'Clear' : c <= 2 ? 'Partly cloudy' : c === 3 ? 'Cloudy' : c <= 48 ? 'Fog' : c <= 57 ? 'Drizzle' : c <= 67 ? 'Rain' : c <= 77 ? 'Snow' : c <= 82 ? 'Showers' : c <= 86 ? 'Snow showers' : 'Thunderstorm';
+export const wxText = (c: number | null) => c == null ? '' : c === 0 ? t('Clear') : c <= 2 ? t('Partly cloudy') : c === 3 ? t('Cloudy') : c <= 48 ? t('Fog') : c <= 57 ? t('Drizzle') : c <= 67 ? t('Rain') : c <= 77 ? t('Snow') : c <= 82 ? t('Showers') : c <= 86 ? t('Snow showers') : t('Thunderstorm');
 /** Colour on the map and in the strips: worst hazard first, then the sky. */
 export const wxColor = (x: PointWx | null) => {
   if (!x) return '#9AA3AB';
@@ -33,7 +34,8 @@ export function weatherView(s: TripState, plan: Plan, points: RoutePoint[], w: W
     all.push({ p, x });
     const st = strips.get(p.day) || { samples: [], flags: [], typical: false, loading: false };
     st.typical = st.typical || !!x?.typical; st.loading = st.loading || !x;
-    const text = x ? `${x.typical ? 'Usually ' : ''}${wxText(x.code).toLowerCase() || 'no data'}${x.typical ? ` · ${fmtT(x.hi)}/${fmtT(x.lo)}` : ''}${x.gust != null && !x.typical && x.gust >= 35 ? ` · gusts ${Math.round(x.gust)} km/h` : ''}` : 'Loading…';
+    const sky = x ? wxText(x.code).toLowerCase() || t('no data') : '';
+    const text = x ? `${x.typical ? t('Usually {weather}', { weather: sky }) : sky}${x.typical ? ` · ${fmtT(x.hi)}/${fmtT(x.lo)}` : ''}${x.gust != null && !x.typical && x.gust >= 35 ? ` · ${t('gusts {n} km/h', { n: Math.round(x.gust) })}` : ''}` : t('Loading…');
     st.samples.push({ key: `${p.day}-${p.km}-${p.label}`, time: clock(hour), label: p.pass ? `${p.label} · ${fmtN(p.ft!)} ft` : p.label, icon, color: x ? color : 'var(--mute)', temp: fmtT(x?.temp), text, flags: x?.flags || [] });
     // One line per place, worst hazard first: "2:50 pm · Babusar Top: snow on the road, icy road risk".
     if (x?.flags.length && !st.flags.some(g => g.key === `${p.day}-${p.label}`)) {
@@ -41,17 +43,17 @@ export function weatherView(s: TripState, plan: Plan, points: RoutePoint[], w: W
       st.flags.push({ key: `${p.day}-${p.label}`, level: fl[0].level, icon: fl[0].icon, text: `${x.typical ? '' : `${clock(hour)} · `}${p.label}: ${fl.map((f, i) => i ? f.text.charAt(0).toLowerCase() + f.text.slice(1) : f.text).join(', ')}` });
     }
     strips.set(p.day, st);
-    if (p.outbound) mapPts.push({ lat: p.lat, lon: p.lon, color: wxColor(x), label: p.label, day: p.day, text: `Day ${p.day + 1} · ${clock(hour)} · ${p.label}: ${x ? `${fmtT(x.temp)}, ${wxText(x.code).toLowerCase()}${x.flags.length ? ` · ${x.flags.map(f => f.text).join(', ')}` : ''}` : 'no weather yet'}` });
+    if (p.outbound) mapPts.push({ lat: p.lat, lon: p.lon, color: wxColor(x), label: p.label, day: p.day, text: `${t('Day {n}', { n: p.day + 1 })} · ${clock(hour)} · ${p.label}: ${x ? `${fmtT(x.temp)}, ${wxText(x.code).toLowerCase()}${x.flags.length ? ` · ${x.flags.map(f => f.text).join(', ')}` : ''}` : t('no weather yet')}` });
   }
 
   // Passes on the route, at the hour you cross.
   const passes = all.filter(a => a.p.pass).map(({ p, x }) => ({
-    key: `${p.day}-${p.label}`, name: p.label, ft: `${fmtN(p.ft!)} ft`, when: `Day ${p.day + 1} · ${dayLabel(p.iso, 0)} · around ${clock(plan.dep + p.offsetH)}`,
+    key: `${p.day}-${p.label}`, name: p.label, ft: `${fmtN(p.ft!)} ft`, when: t('Day {n} · {date} · around {time}', { n: p.day + 1, date: dayLabel(p.iso, 0), time: clock(plan.dep + p.offsetH) }),
     icon: WMO(x?.code ?? null)[0], color: wxColor(x), temp: fmtT(x?.temp),
-    text: !x ? 'Loading…' : x.typical
-      ? `Usually ${fmtT(x.hi)} by day, ${fmtT(x.lo)} at night. Snow on these dates in ${x.snowYears} of the last ${x.years} years.`
-      : [wxText(x.code), x.gust != null ? `gusts ${Math.round(x.gust)} km/h` : '', x.snow > 0 ? `${x.snow.toFixed(1)} cm snow per hour` : '', x.prob != null ? `${x.prob}% chance of rain or snow` : '',
-        x.freeze != null ? (x.freeze < (p.ft! * 0.3048) ? `freezing level ${fmtN(Math.round(x.freeze / 0.3048 / 100) * 100)} ft, below the pass` : `freezing level ${fmtN(Math.round(x.freeze / 0.3048 / 100) * 100)} ft`) : ''].filter(Boolean).join(' · '),
+    text: !x ? t('Loading…') : x.typical
+      ? t('Usually {hi} by day, {lo} at night. Snow on these dates in {n} of the last {years} years.', { hi: fmtT(x.hi), lo: fmtT(x.lo), n: String(x.snowYears), years: String(x.years) })
+      : [wxText(x.code), x.gust != null ? t('gusts {n} km/h', { n: Math.round(x.gust) }) : '', x.snow > 0 ? t('{n} cm snow per hour', { n: x.snow.toFixed(1) }) : '', x.prob != null ? t('{pct}% chance of rain or snow', { pct: x.prob }) : '',
+        x.freeze != null ? (x.freeze < (p.ft! * 0.3048) ? t('freezing level {ft} ft, below the pass', { ft: fmtN(Math.round(x.freeze / 0.3048 / 100) * 100) }) : t('freezing level {ft} ft', { ft: fmtN(Math.round(x.freeze / 0.3048 / 100) * 100) })) : ''].filter(Boolean).join(' · '),
     flags: x?.flags || [], typical: !!x?.typical
   }));
 
@@ -60,24 +62,25 @@ export function weatherView(s: TripState, plan: Plan, points: RoutePoint[], w: W
     const x = pointWx(w, { iso: d.iso!, lat: D.lat, lon: D.lon, mtn: (D.ft || 0) >= 4000 }, 13, bike);
     if (!x) return null;
     const [icon, color] = WMO(x.code);
-    const wet = x.typical ? (x.snowYears ? `Snow ${x.snowYears}/${x.years} yrs` : x.rainYears ? `Rain ${x.rainYears}/${x.years} yrs` : '') : x.prob != null && x.prob >= 30 ? `${x.prob}% rain` : '';
-    return { key: d.iso!, day: dayLabel(d.iso!, 0).split(' ').slice(0, 2).join(' '), icon, color, hi: x.hi != null ? Math.round(x.hi) : null, lo: x.lo != null ? Math.round(x.lo) : null, wet, typical: x.typical, idx: i };
+    const wet = x.typical ? (x.snowYears ? t('Snow {n}/{years} yrs', { n: x.snowYears, years: String(x.years) }) : x.rainYears ? t('Rain {n}/{years} yrs', { n: x.rainYears, years: String(x.years) }) : '') : x.prob != null && x.prob >= 30 ? t('{pct}% rain', { pct: x.prob }) : '';
+    return { key: d.iso!, snowy: !!(x.typical && x.snowYears), day: dayLabel(d.iso!, 0).split(' ').slice(0, 2).join(' '), icon, color, hi: x.hi != null ? Math.round(x.hi) : null, lo: x.lo != null ? Math.round(x.lo) : null, wet, typical: x.typical, idx: i };
   });
   const destKnown = destDays.filter((x): x is NonNullable<typeof x> => !!x);
   const fcCount = destKnown.filter(x => !x.typical).length, typCount = destKnown.length - fcCount;
-  const source = fcCount && typCount ? `Forecast for ${fcCount} day${fcCount > 1 ? 's' : ''}, then typical for these dates (${w.years[w.years.length - 1]}–${w.years[0]})`
-    : fcCount ? 'Forecast · Open-Meteo' : typCount ? `Typical for these dates, ${w.years[w.years.length - 1]}–${w.years[0]} · Open-Meteo` : '';
+  const yrs = { from: String(w.years[w.years.length - 1]), to: String(w.years[0]) };
+  const source = fcCount && typCount ? (fcCount > 1 ? t('Forecast for {n} days, then typical for these dates ({from}–{to})', { n: fcCount, ...yrs }) : t('Forecast for {n} day, then typical for these dates ({from}–{to})', { n: fcCount, ...yrs }))
+    : fcCount ? `${t('Forecast')} · Open-Meteo` : typCount ? `${t('Typical for these dates, {from}–{to}', yrs)} · Open-Meteo` : '';
   const destSummary = destKnown.length ? (() => {
     const hi = destKnown.map(x => x.hi!).filter(x => x != null), lo = destKnown.map(x => x.lo!).filter(x => x != null);
-    const rng = (a: number[]) => Math.min(...a) === Math.max(...a) ? `${a[0]}` : `${Math.min(...a)} to ${Math.max(...a)}`;
-    return hi.length ? `Highs ${rng(hi)}°C, lows ${rng(lo)}°C.${Math.min(...lo) <= 0 ? ' Below freezing at night.' : ''}` : '';
+    const rng = (a: number[]) => Math.min(...a) === Math.max(...a) ? `${a[0]}` : t('{min} to {max}', { min: Math.min(...a), max: Math.max(...a) });
+    return hi.length ? `${t('Highs {hi}°C, lows {lo}°C.', { hi: rng(hi), lo: rng(lo) })}${Math.min(...lo) <= 0 ? ` ${t('Below freezing at night.')}` : ''}` : '';
   })() : '';
 
   // Air quality.
   const aq = airQuality(w);
   const m = +s.startDate.slice(5, 7), plains = [cityOr(s.origin), ...plan.days.filter(d => d.stay).map(d => ({ lat: d.stay!.lat, lon: d.stay!.lon }))].some(p => p.lat < 33.9 && p.lon > 70 && p.lon < 75.5);
   const smogSeason = [11, 12, 1].includes(m) && plains;
-  const aqNote = aq.rows.length ? '' : smogSeason ? 'November to January is smog season in Punjab, especially Lahore. The air-quality forecast appears 5 days before you travel.' : aq.inRange ? '' : 'Air-quality forecasts appear 5 days before you travel.';
+  const aqNote = aq.rows.length ? '' : smogSeason ? t('November to January is smog season in Punjab, especially Lahore. The air-quality forecast appears 5 days before you travel.') : aq.inRange ? '' : t('Air-quality forecasts appear 5 days before you travel.');
 
   // Departure time that dodges the worst weather.
   const depart = bestDeparture(w, plan, points, bike);
@@ -88,34 +91,36 @@ export function weatherView(s: TripState, plan: Plan, points: RoutePoint[], w: W
   const destLo = destKnown.reduce((a, x) => Math.min(a, x.lo ?? 99), 99), destHi = destKnown.reduce((a, x) => Math.max(a, x.hi ?? -99), -99);
   const minT = Math.min(coldest?.t ?? 99, destLo), maxT = Math.max(...temps.map(x => x.typical ? x.hi! : x.temp ?? -99), destHi);
   const wet = temps.some(x => x.flags.some(f => f.kind === 'rain') || (x.code != null && x.code >= 51)) || destKnown.some(x => x.wet);
-  const snowy = temps.some(x => x.flags.some(f => f.kind === 'snow' || f.kind === 'ice')) || destKnown.some(x => /Snow/.test(x.wet));
+  const snowy = temps.some(x => x.flags.some(f => f.kind === 'snow' || f.kind === 'ice')) || destKnown.some(x => x.snowy);
   const highFt = Math.max(D.ft || 0, ...points.filter(p => p.ft).map(p => p.ft!));
   const north = points.some(p => p.mtn) || (D.ft || 0) >= 4000;
   const coldWhere = coldest && coldest.t === minT ? coldest.where : D.town;
   const pack: { key: string; item: string; why: string }[] = [];
   const add = (key: string, item: string, why: string) => pack.push({ key, item, why });
   const known = temps.length > 0 || destKnown.length > 0;
-  if (known && minT <= 0) add('down', 'Down jacket, gloves and a warm hat', `Down to ${Math.round(minT)}° at ${coldWhere}`);
-  else if (known && minT <= 8) add('jacket', 'Warm jacket or fleece', `Down to ${Math.round(minT)}° at ${coldWhere}`);
-  else if (known && minT <= 15) add('sweater', 'A sweater for evenings', `Evenings around ${Math.round(minT)}°`);
-  if (known && maxT >= 35) add('heat', 'Light cotton clothes, a cap and 2–3 litres of water per person a day', `Up to ${Math.round(maxT)}° on the way`);
-  if (wet) add('rain', 'Rain jacket or umbrella', 'Rain expected on some days');
-  if (snowy) add('snow', 'Waterproof boots; ask locally about snow chains before mountain roads', 'Snow or ice possible');
-  if (highFt >= 9000) add('sun', 'Sunscreen and sunglasses', `Strong sun at ${fmtN(highFt)} ft`);
-  if (highFt >= 11000) add('alt', 'Water and light snacks for high passes; go slowly if you feel dizzy', `Crossing ${fmtN(highFt)} ft`);
-  if (s.elders) add('meds', 'BP and heart medicines, and any regular medicines', 'Elders travelling at altitude');
-  if (s.kids && north) add('kids', 'Snacks and travel-sickness tablets for winding roads', 'Kids on mountain roads');
-  if (aq.rows.some(r => r.bad) || smogSeason) add('mask', 'N95 masks', smogSeason ? 'Smog season in Punjab' : 'Unhealthy air forecast');
-  add('id', 'CNIC (and passport for foreign visitors)', north ? 'Checkposts on northern roads' : 'Hotels ask for ID');
-  add('power', 'Power bank and the offline map (Offline tab)', north ? 'Little signal past Chilas and in valleys' : 'For long drives');
-  if (north) add('cash', 'Enough cash', 'ATMs are few in the mountains');
-  add('firstaid', 'First-aid kit', 'Always');
+  if (known && minT <= 0) add('down', t('Down jacket, gloves and a warm hat'), t('Down to {temp}° at {place}', { temp: Math.round(minT), place: coldWhere }));
+  else if (known && minT <= 8) add('jacket', t('Warm jacket or fleece'), t('Down to {temp}° at {place}', { temp: Math.round(minT), place: coldWhere }));
+  else if (known && minT <= 15) add('sweater', t('A sweater for evenings'), t('Evenings around {temp}°', { temp: Math.round(minT) }));
+  if (known && maxT >= 35) add('heat', t('Light cotton clothes, a cap and 2–3 litres of water per person a day'), t('Up to {temp}° on the way', { temp: Math.round(maxT) }));
+  if (wet) add('rain', t('Rain jacket or umbrella'), t('Rain expected on some days'));
+  if (snowy) add('snow', t('Waterproof boots; ask locally about snow chains before mountain roads'), t('Snow or ice possible'));
+  if (highFt >= 9000) add('sun', t('Sunscreen and sunglasses'), t('Strong sun at {ft} ft', { ft: fmtN(highFt) }));
+  if (highFt >= 11000) add('alt', t('Water and light snacks for high passes; go slowly if you feel dizzy'), t('Crossing {ft} ft', { ft: fmtN(highFt) }));
+  if (s.elders) add('meds', t('BP and heart medicines, and any regular medicines'), t('Elders travelling at altitude'));
+  if (s.kids && north) add('kids', t('Snacks and travel-sickness tablets for winding roads'), t('Kids on mountain roads'));
+  if (aq.rows.some(r => r.bad) || smogSeason) add('mask', t('N95 masks'), smogSeason ? t('Smog season in Punjab') : t('Unhealthy air forecast'));
+  add('id', t('CNIC (and passport for foreign visitors)'), north ? t('Checkposts on northern roads') : t('Hotels ask for ID'));
+  add('power', t('Power bank and the offline map (Offline tab)'), north ? t('Little signal past Chilas and in valleys') : t('For long drives'));
+  if (north) add('cash', t('Enough cash'), t('ATMs are few in the mountains'));
+  add('firstaid', t('First-aid kit'), t('Always'));
 
   const anyFc = !!w.fcStart, loading = points.some(p => !strips.get(p.day)?.samples.length) || [...strips.values()].some(st => st.loading);
   return {
     strips, mapPts, passes, destDays: destKnown, destSource: source, destSummary, destLoading: !destKnown.length,
     aq: { ...aq, note: aqNote }, depart, pack,
-    note: anyFc ? (w.needTypical ? `Hourly forecast where it reaches (until ${dayLabel(isoAdd(15), 0)}); typical weather for later days.` : 'Hourly forecast from Open-Meteo. Most reliable 3–5 days ahead.') : 'Your dates are more than 16 days away, so this shows what the last 5 years were like on the same dates. The hourly forecast appears 16 days before you travel.',
+    note: anyFc ? (w.needTypical ? t('Hourly forecast where it reaches (until {date}); typical weather for later days.', { date: dayLabel(isoAdd(15), 0) }) : t('Hourly forecast from Open-Meteo. Most reliable 3–5 days ahead.')) : t('Your dates are more than 16 days away, so this shows what the last 5 years were like on the same dates. The hourly forecast appears 16 days before you travel.'),
+    /** True when every day is typical weather (no forecast yet); use this rather than matching the note text. */
+    typicalOnly: !anyFc,
     loading
   };
 }
