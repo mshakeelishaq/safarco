@@ -273,6 +273,9 @@
 .ph-fill.ph-steering-wheel:before {
   content: "\e9ac";
 }
+.ph-fill.ph-suitcase-rolling:before {
+  content: "\e9b0";
+}
 .ph-fill.ph-sun:before {
   content: "\e472";
 }
@@ -609,6 +612,9 @@
 }
 .ph-bold.ph-steering-wheel:before {
   content: "\e9ac";
+}
+.ph-bold.ph-suitcase-rolling:before {
+  content: "\e9b0";
 }
 .ph-bold.ph-sun:before {
   content: "\e472";
@@ -1350,6 +1356,14 @@
 }
 .ph-duotone.ph-steering-wheel:after {
   content: "\e9ad";
+  margin-left: -1em;
+}
+.ph-duotone.ph-suitcase-rolling:before {
+  content: "\e9b0";
+  opacity: 0.2;
+}
+.ph-duotone.ph-suitcase-rolling:after {
+  content: "\e9b1";
   margin-left: -1em;
 }
 .ph-duotone.ph-sun:before {

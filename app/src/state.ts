@@ -13,7 +13,7 @@ export interface AppState extends TripState {
   /** Which bottom sheet is open besides Edit trip. */
   sheet: 'none' | 'trips' | 'save' | 'signin' | 'feedback' | 'review';
   /** The trusted hotel or driver being rated in the review sheet. */
-  reviewFor: { kind: 'hotel' | 'driver'; id: string; name: string } | null;
+  reviewFor: { kind: 'hotel' | 'driver'; id: string; name: string; date: string } | null;
   /** The saved trip being edited, if any (changes save to it automatically). */
   savedId: string | null;
   toast: string | null;

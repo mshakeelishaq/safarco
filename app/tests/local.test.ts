@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { isoAdd } from '../src/engine/format';
 import { AREAS, kmFromLine, onTrip, waLink } from '../src/local';
 import { applyPrices } from '../src/prices';
+import { clearRated } from '../src/rated';
 import { ratingOf, setReviews } from '../src/reviews';
 import { initialState, type AppState } from '../src/state';
 import { buildView, type Api } from '../src/view';
@@ -12,7 +13,7 @@ const trip = (p: Partial<AppState>): AppState => ({ ...initialState(), screen: '
 const view = (p: Partial<AppState>) => buildView(trip(p), api);
 const id = (name: string) => AREAS.find(a => a.name === name)!.id;
 
-afterEach(() => { applyPrices(null); setReviews([]); });
+afterEach(() => { applyPrices(null); setReviews([]); clearRated(); });
 
 describe('places and phone numbers', () => {
   it('lists destinations, towns and passes once each', () => {
@@ -78,16 +79,28 @@ describe('reviews', () => {
     expect(ratingOf('driver', 'h1').count).toBe(0);
   });
 
-  it('shows ratings and a Rate action on trusted hotels and drivers', () => {
+  it('shows ratings while planning, and Rate only once the stay is over', () => {
     applyPrices({ hotels: [{ id: 'h1', name: 'Pine Lodge', area: id('Naran'), tier: 'standard', price: 9000, phone: '', note: '', checked: '', active: true }],
       drivers: [{ id: 'd1', name: 'Karim', area: id('Naran'), vehicle: 'Jeep', seats: 5, rate: 0, phone: '', note: '', checked: '', active: true }] });
     setReviews([rv(1, 'h1', 4, 'Good')]);
-    const calls: unknown[] = [];
-    const v = buildView(trip({ dest: 'naran', corridor: 'naran', days: 4, startDate: '2027-06-10' }), { ...api, set: (p: unknown) => calls.push(p) } as Api);
-    const h = v.plan.days.find(d => d.stay && /Naran/.test(d.stay.place))!.stay!.options[0];
-    expect(h.rating?.text).toBe('4.0 · 1 review');
-    h.review!();
-    expect(calls[0]).toMatchObject({ sheet: 'review', reviewFor: { kind: 'hotel', id: 'h1', name: 'Pine Lodge' } });
-    expect(v.drivers[0].rating.text).toBe('No reviews yet');
+    const calls: Record<string, unknown>[] = [];
+    const at = (start: string) => buildView(trip({ dest: 'naran', corridor: 'naran', days: 4, startDate: start }), { ...api, set: (p: Record<string, unknown>) => calls.push(p) } as Api);
+    const nightIn = (v: ReturnType<typeof at>) => v.plan.days.find(d => d.stay && /Naran/.test(d.stay.place))!.stay!.options[0];
+
+    const planning = at(isoAdd(20));
+    expect(nightIn(planning).rating?.text).toBe('4.0 · 1 review');
+    expect(nightIn(planning).review).toBeNull();
+    expect(planning.drivers[0].review).toBeNull();
+    expect(planning.afterTrip).toBeNull();
+
+    const back = at(isoAdd(-10));
+    nightIn(back).review!();
+    expect(calls[0]).toMatchObject({ sheet: 'review', reviewFor: { kind: 'hotel', id: 'h1', name: 'Pine Lodge', date: isoAdd(-10) } });
+    expect(back.drivers[0].review).not.toBeNull();
+    expect(back.afterTrip!.items.map(x => `${x.kind}:${x.name}`)).toEqual(['hotel:Pine Lodge', 'driver:Karim']);
+    back.afterTrip!.items[0].skip();
+    expect(at(isoAdd(-10)).afterTrip!.items.map(x => x.name)).toEqual(['Karim']);
+    at(isoAdd(-10)).afterTrip!.dismiss();
+    expect(at(isoAdd(-10)).afterTrip).toBeNull();
   });
 });

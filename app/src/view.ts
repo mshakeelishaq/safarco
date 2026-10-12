@@ -11,6 +11,7 @@ import { weatherView } from './weather/view';
 import { SECTIONS, activeAlerts, checkedText, isStale, prices, type Section } from './prices';
 import { areaOf, nearPoint, onTrip, telLink, waLink } from './local';
 import { ratingOf } from './reviews';
+import { isRated, markRated, ratedKey } from './rated';
 import { CITIES, CITY, CITY_DUP, DST, cityOr, placesFor, seasonFactor } from './engine/places';
 import type { AppState, Patch } from './state';
 import { THEMES } from './state';
@@ -130,11 +131,32 @@ export function buildView(s: AppState, api: Api) {
   const tripStops = [{ lat: D.lat, lon: D.lon }, ...plan.days.flatMap(d => d.stay ? [{ lat: d.stay.lat, lon: d.stay.lon }] : [])];
   const shortDate = (iso: string) => { const d = new Date(iso + 'T00:00'); return isNaN(+d) ? '' : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }); };
   const contact = (phone: string) => ({ wa: waLink(phone), tel: telLink(phone) });
+  // Rating opens after the stay: a hotel from the morning after its night, a driver from the day
+  // after the trip first sleeps near them (or after the trip if it only passes by).
+  const today = isoAdd(0), tripEnd = isoOff(s.startDate, Math.max(0, plan.days.length - 1));
+  const rateOpen = (kind: 'hotel' | 'driver', id: string, name: string, date: string) => date < today ? () => set({ sheet: 'review', reviewFor: { kind, id, name, date } }) : null;
+  const driverDay = (area: string) => { const i = plan.days.findIndex(d => d.stay && nearPoint(area, d.stay.lat, d.stay.lon, 25)); return i >= 0 ? isoOff(s.startDate, i + 1) : tripEnd; };
   const drivers = prices().drivers.filter(x => x.active && onTrip([x.area], tripLine, tripStops)).map(x => ({
     key: x.id, name: x.name, area: areaOf(x.area)?.name || '', vehicle: `${x.vehicle}${x.seats ? ` · ${x.seats} seats` : ''}`,
     rate: x.rate ? `PKR ${fmtN(x.rate)} (${usd(x.rate)})${x.checked ? ` · checked ${shortDate(x.checked)}` : ''}` : '', note: x.note, ...contact(x.phone),
-    rating: ratingOf('driver', x.id), review: () => set({ sheet: 'review', reviewFor: { kind: 'driver', id: x.id, name: x.name } }) }));
+    rating: ratingOf('driver', x.id), date: driverDay(x.area), review: rateOpen('driver', x.id, x.name, driverDay(x.area)) }));
   const trustedAt = (lat: number, lon: number) => prices().hotels.filter(h => h.active && nearPoint(h.area, lat, lon, 15));
+
+  // After the trip: ask about each trusted hotel and driver it used, once per person.
+  const tripKey = `trip:${s.corridor}|${s.startDate}`;
+  const afterTrip = (() => {
+    if (tripEnd >= today || isRated(tripKey)) return null;
+    const seen = new Set<string>(), items: { kind: 'hotel' | 'driver'; id: string; name: string; date: string; when: string }[] = [];
+    plan.days.forEach((d, i) => d.stay && trustedAt(d.stay.lat, d.stay.lon).forEach(h => {
+      if (seen.has('h' + h.id)) return; seen.add('h' + h.id);
+      items.push({ kind: 'hotel', id: h.id, name: h.name, date: isoOff(s.startDate, i), when: `Night of ${dayLabel(s.startDate, i)}` });
+    }));
+    drivers.forEach(x => items.push({ kind: 'driver', id: x.key, name: x.name, date: x.date, when: x.vehicle }));
+    const left = items.filter(x => !isRated(ratedKey(x.kind, x.id))).map(x => ({ ...x, key: ratedKey(x.kind, x.id),
+      rate: () => set({ sheet: 'review', reviewFor: { kind: x.kind, id: x.id, name: x.name, date: x.date } }),
+      skip: () => { markRated(ratedKey(x.kind, x.id)); set({}); } }));
+    return left.length ? { items: left, dismiss: () => { markRated(tripKey); set({}); } } : null;
+  })();
   const tierRanges = (['backpacker', 'standard', 'premium'] as const).map(t => ({ key: t, label: TIERS[t].label, on: s.tier === t, ...nightRange(t, sf) }));
   const destHotels = spotsAt('hotels', D.lat, D.lon), destSights = spotsAt('sights', D.lat, D.lon);
   const nightsAtDest = plan.days.filter(d => d.stay && d.stay.town === D.town).length || 1;
@@ -159,7 +181,7 @@ export function buildView(s: AppState, api: Api) {
   const alertNotes = activeAlerts().filter(a => !a.areas?.length || onTrip(a.areas, tripLine, tripStops)).map(a => ({ icon: 'ph-megaphone', color: 'var(--cor)', text: `${a.title}${a.message ? `: ${a.message}` : ''}${a.date ? ` (posted ${dayLabel(a.date, 0)})` : ''}` }));
 
   return {
-    s, c, gate, tip, health, off, isAir, drivers, wPlan, rPoints, selCorridor: sug.sel?.corridor, stays, nearby, priceNotes, ratesChecked: checkedText(s.vehicle === 'public' ? 'coach' : isAir ? 'fares' : 'hire'),
+    s, c, gate, tip, health, off, isAir, drivers, afterTrip, wPlan, rPoints, selCorridor: sug.sel?.corridor, stays, nearby, priceNotes, ratesChecked: checkedText(s.vehicle === 'public' ? 'coach' : isAir ? 'fares' : 'hire'),
     fxNote: fx.live ? `US$ at 1 USD = PKR ${fx.pkrPerUsd.toFixed(2)}${fx.updated ? ` (${fx.updated})` : ''}` : `US$ at about PKR ${fx.pkrPerUsd} (live rate unavailable)`,
     wiki: { loading: !wikiE || wikiE.status === 'loading', info: wikiE && wikiE.status === 'ok' ? wikiE.data : null },
     stepLabel: `${s.step + 1} / 6`,
@@ -282,7 +304,7 @@ export function buildView(s: AppState, api: Api) {
             : st.curated ? [{ name: st.name, note: st.note }] : [];
           const mine = trustedAt(st.lat, st.lon).map(h => ({ name: h.name, key: 't:' + h.id, trusted: true, note: [`${TIERS[h.tier].label}${h.price ? ` · PKR ${fmtN(h.price)} a night` : ''}${h.checked ? ` (checked ${shortDate(h.checked)})` : ''}`, h.note].filter(Boolean).join(' · '),
             checkUrl: check(`${h.name}, ${st.town}`, night, 1), mapUrl: mapsQ(`${h.name}, ${st.town}`), ...contact(h.phone),
-            rating: ratingOf('hotel', h.id), review: () => set({ sheet: 'review', reviewFor: { kind: 'hotel', id: h.id, name: h.name } }) }));
+            rating: ratingOf('hotel', h.id), id: h.id, review: rateOpen('hotel', h.id, h.name, night) }));
           const options = [...mine, ...picks.filter(h => !mine.some(m => m.name.toLowerCase() === h.name.toLowerCase())).slice(0, Math.max(2, 4 - mine.length))
             .map(h => ({ ...h, key: h.name, trusted: false, wa: '', tel: '', rating: null, review: null, checkUrl: check(`${h.name}, ${st.town}`, night, 1), mapUrl: mapsQ(`${h.name}, ${st.town}`) }))];
           return { ...st, range: `${TIERS[s.tier].label} · ${nr.text} (${nr.usd}) a night`, href: check(st.town, night, 1), options, loading: live.loading && !picks.length, source: live.list.length ? 'OpenStreetMap, via Geoapify' : '' };

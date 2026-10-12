@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { cloudEnabled } from '../cloud';
 import { css } from '../lib/css';
 import type { Api, View } from '../view';
 import { Notes } from './Onboarding';
@@ -8,13 +9,14 @@ const card = 'border-radius:30px;padding:18px 18px 16px;background:var(--card);b
 type Banner = { bg?: string; border?: string; tile?: string; icon?: string; title?: string; msg?: string };
 /** Star rating, review count, latest comments and a "Rate" link for a trusted hotel or driver. */
 function Ratings({ r, onRate }: { r: { avg: number; count: number; text: string; latest: { key: string; stars: number; comment: string; author: string; date: string }[] } | null; onRate: (() => void) | null }) {
-  if (!r || !onRate) return null;
+  if (!r) return null;
   return (
     <div style={css('margin-top:6px')}>
       <div style={css('display:flex;align-items:center;gap:8px;flex-wrap:wrap')}>
         <span aria-label={r.count ? `Rated ${r.avg} out of 5` : 'No reviews yet'} style={css('display:inline-flex;gap:1px;color:#F2A007;font-size:13px')}>{[1, 2, 3, 4, 5].map(i => <i key={i} className={`${r.count && i <= Math.round(r.avg) ? 'ph-fill' : 'ph-bold'} ph-star`} style={css(r.count && i <= Math.round(r.avg) ? '' : 'color:var(--line2)')} />)}</span>
         <span style={css('font-size:12px;font-weight:700;color:var(--mute)')}>{r.text}</span>
-        <button onClick={onRate} style={css('margin-left:auto;min-height:32px;padding:0 10px;border-radius:10px;border:1px solid var(--line2);background:var(--card);color:var(--ink);font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:5px')}><i className="ph-bold ph-star" />Rate</button>
+        {onRate ? <button onClick={onRate} style={css('margin-left:auto;min-height:32px;padding:0 10px;border-radius:10px;border:1px solid var(--line2);background:var(--card);color:var(--ink);font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:5px')}><i className="ph-bold ph-star" />Rate</button>
+        : <span style={css('margin-left:auto;font-size:11px;font-weight:700;color:var(--mute)')}>Rate after your stay</span>}
       </div>
       {r.latest.map(c => <div key={c.key} style={css('font-size:12px;font-weight:500;color:var(--ink2);line-height:1.45;margin-top:6px')}>“{c.comment}” <span style={css('color:var(--mute);font-weight:700')}>· {c.author}, {c.date} · {c.stars}★</span></div>)}
     </div>
@@ -120,6 +122,26 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
       </div>
 
       <div className="sc-flow" style={css('padding:4px 16px 150px;display:flex;flex-direction:column;gap:12px;pointer-events:auto;background:var(--bg)')}>
+        {v.afterTrip && cloudEnabled && (
+          <section aria-label="How was your trip?" style={css('border-radius:24px;padding:16px;background:rgba(46,229,157,.10);border:1px solid rgba(46,229,157,.4)')}>
+            <div style={css('display:flex;align-items:center;gap:10px')}>
+              <i className="ph-fill ph-suitcase-rolling" style={css('font-size:24px;color:var(--g);flex:none')} />
+              <div style={css('flex:1;min-width:0')}><h2 style={css('margin:0;font-size:16px;font-weight:800')}>Welcome back! How was your trip?</h2><div style={css('font-size:12px;font-weight:600;color:var(--mute);margin-top:2px')}>Your rating helps the next traveller choose.</div></div>
+            </div>
+            <div style={css('display:flex;flex-direction:column;gap:10px;margin-top:12px')}>
+              {v.afterTrip.items.map(x => (
+                <div key={x.key} style={css('display:flex;align-items:center;gap:8px;padding:10px;border-radius:14px;background:var(--card)')}>
+                  <i className={`ph-fill ${x.kind === 'hotel' ? 'ph-bed' : 'ph-jeep'}`} style={css('font-size:18px;color:var(--g);flex:none')} />
+                  <div style={css('flex:1;min-width:0')}><div style={css('font-size:14px;font-weight:800;line-height:1.3')}>{x.name}</div><div style={css('font-size:11px;font-weight:600;color:var(--mute)')}>{x.when}</div></div>
+                  <button onClick={x.rate} style={css('flex:none;height:36px;padding:0 12px;border-radius:12px;border:0;background:var(--cta);color:var(--onCta);font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:5px')}><i className="ph-fill ph-star" />Rate</button>
+                  <button onClick={x.skip} style={css('flex:none;height:36px;padding:0 10px;border-radius:12px;border:1px solid var(--line2);background:var(--fill);color:var(--ink2);font-size:12px;font-weight:700;cursor:pointer')}>Didn’t use</button>
+                </div>
+              ))}
+            </div>
+            <button onClick={v.afterTrip.dismiss} style={css('margin-top:8px;min-height:36px;padding:0 4px;border:0;background:none;color:var(--mute);font-size:12px;font-weight:700;cursor:pointer')}>Not now</button>
+          </section>
+        )}
+
         {v.gate.show && <BannerCard b={v.gate} />}
         {v.tip.show && <BannerCard b={v.tip} center><button onClick={v.tip.apply} style={css('flex:none;height:44px;padding:0 14px;border-radius:14px;border:0;background:var(--ink);color:var(--bg);font-size:13px;font-weight:800;cursor:pointer')}>{v.tip.cta}</button></BannerCard>}
 

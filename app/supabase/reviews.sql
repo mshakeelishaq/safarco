@@ -11,8 +11,11 @@ create table if not exists public.reviews (
   rating int not null check (rating between 1 and 5),
   comment text not null default '' check (char_length(comment) <= 600),
   status text not null default 'pending' check (status in ('pending', 'approved', 'hidden')),
+  stayed_on date,
   unique (user_id, item_kind, item_id)
 );
+-- Added later: the date of the stay or jeep trip being reviewed.
+alter table public.reviews add column if not exists stayed_on date;
 alter table public.reviews enable row level security;
 drop policy if exists "Read approved reviews" on public.reviews;
 create policy "Read approved reviews" on public.reviews for select to anon, authenticated

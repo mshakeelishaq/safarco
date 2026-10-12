@@ -97,7 +97,7 @@ export async function listFeedback(): Promise<FeedbackRow[]> {
 // ---- Reviews of trusted hotels and drivers (shown once an admin approves them) --------
 
 export type ReviewKind = 'hotel' | 'driver';
-export interface Review { id: number; created_at: string; item_kind: ReviewKind; item_id: string; rating: number; comment: string; author: string; status: 'pending' | 'approved' | 'hidden' }
+export interface Review { id: number; created_at: string; item_kind: ReviewKind; item_id: string; rating: number; comment: string; author: string; status: 'pending' | 'approved' | 'hidden'; stayed_on?: string | null }
 const REVIEW_COLS = 'id,created_at,item_kind,item_id,rating,comment,author,status';
 
 export async function loadReviews(): Promise<Review[] | null> {
@@ -107,16 +107,22 @@ export async function loadReviews(): Promise<Review[] | null> {
   return data as Review[];
 }
 /** Writes (or replaces) the signed-in traveller's review; it waits for the admin again. */
-export async function submitReview(kind: ReviewKind, itemId: string, rating: number, comment: string, author: string) {
+export async function submitReview(kind: ReviewKind, itemId: string, rating: number, comment: string, author: string, stayedOn: string) {
   if (!sb) throw new Error('Reviews are not set up');
-  const { error } = await sb.from('reviews').upsert({ item_kind: kind, item_id: itemId, rating, comment: comment.slice(0, 600), author: author.slice(0, 60), status: 'pending', created_at: new Date().toISOString() }, { onConflict: 'user_id,item_kind,item_id' });
+  const row = { item_kind: kind, item_id: itemId, rating, comment: comment.slice(0, 600), author: author.slice(0, 60), status: 'pending', created_at: new Date().toISOString(), stayed_on: stayedOn || null };
+  let { error } = await sb.from('reviews').upsert(row, { onConflict: 'user_id,item_kind,item_id' });
+  // Databases set up before the stay date existed: save the review without it.
+  if (error && /stayed_on/.test(error.message)) ({ error } = await sb.from('reviews').upsert({ ...row, stayed_on: undefined }, { onConflict: 'user_id,item_kind,item_id' }));
   if (error) throw error;
 }
 export async function listAllReviews(): Promise<Review[]> {
   if (!sb) return [];
-  const { data, error } = await sb.from('reviews').select(REVIEW_COLS).order('created_at', { ascending: false }).limit(500);
-  if (error) throw error;
-  return data as Review[];
+  const q = (cols: string) => sb!.from('reviews').select(cols).order('created_at', { ascending: false }).limit(500);
+  let r = await q(REVIEW_COLS + ',stayed_on');
+  if (r.error && /stayed_on/.test(r.error.message)) r = await q(REVIEW_COLS);
+  if (r.error) throw r.error;
+  const data = r.data;
+  return data as unknown as Review[];
 }
 export async function setReviewStatus(id: number, status: Review['status']) {
   if (!sb) return; const { error } = await sb.from('reviews').update({ status }).eq('id', id); if (error) throw error;

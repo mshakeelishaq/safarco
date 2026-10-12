@@ -237,7 +237,7 @@ export function Admin() {
               <span style={css(`font-size:12px;font-weight:800;color:${r.status === 'approved' ? 'var(--g)' : r.status === 'pending' ? 'var(--amb2)' : 'var(--mute)'}`)}>{r.status === 'pending' ? 'Waiting' : r.status === 'approved' ? 'Shown' : 'Hidden'}</span>
             </div>
             {r.comment && <div style={css('font-size:14px;margin-top:4px;line-height:1.45;white-space:pre-wrap')}>{r.comment}</div>}
-            <div style={css('font-size:12px;color:var(--mute);margin-top:4px')}>{r.author || 'Traveller'} · {new Date(r.created_at).toLocaleString('en-GB')}</div>
+            <div style={css('font-size:12px;color:var(--mute);margin-top:4px')}>{r.author || 'Traveller'}{r.stayed_on ? ` · stayed ${new Date(r.stayed_on + 'T00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}` : ''} · written {new Date(r.created_at).toLocaleString('en-GB')}{r.stayed_on && r.created_at.slice(0, 10) < r.stayed_on ? ' · written before the stay!' : ''}</div>
             <div style={css('display:flex;gap:8px;margin-top:8px;flex-wrap:wrap')}>
               {r.status !== 'approved' && <button onClick={() => act(() => setReviewStatus(r.id, 'approved'), (reviews || []).map(x => x.id === r.id ? { ...x, status: 'approved' } : x))} style={btn(true)}>Approve</button>}
               {r.status !== 'hidden' && <button onClick={() => act(() => setReviewStatus(r.id, 'hidden'), (reviews || []).map(x => x.id === r.id ? { ...x, status: 'hidden' } : x))} style={btn(false)}>Hide</button>}

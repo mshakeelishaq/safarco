@@ -2,6 +2,7 @@ import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { EditSheet } from './components/Sheets';
 import { FeedbackSheet, ReviewSheet, SaveSheet, SignInSheet, TripsSheet } from './components/Panels';
 import { cloudDelete, cloudEnabled, cloudSave, cloudTrips, currentUser, loadPriceList, loadReviews, onUserChange, sendFeedback, signInWithGoogle, signOut, submitReview, type User } from './cloud';
+import { markRated, ratedKey } from './rated';
 import { setReviews } from './reviews';
 import { applyPrices } from './prices';
 import { clearCurrent, cloudMerge, defaultName, deleteLocal, loadCurrent, localTrips, newId, saveCurrent, saveLocal, shareUrl, tripData, tripFromUrl, type SavedTrip } from './trips';
@@ -270,7 +271,8 @@ export function App() {
             onSignIn={google} onSignOut={() => signOut().then(() => set({ toast: 'Signed out. Trips stay on this device.' }))} onFeedback={() => set({ sheet: 'feedback' })} onClose={() => set({ sheet: 'none' })} />
           <FeedbackSheet open={s.sheet === 'feedback'} onSend={feedback} onClose={() => set({ sheet: 'none' })} />
           <ReviewSheet open={s.sheet === 'review'} target={s.reviewFor} user={user} onGoogle={google} onClose={() => set({ sheet: 'none' })}
-            onSend={(rating, comment) => s.reviewFor ? submitReview(s.reviewFor.kind, s.reviewFor.id, rating, comment, user?.name.split(' ')[0] || 'Traveller') : Promise.reject(new Error('Nothing to rate'))} />
+            onSend={(rating, comment) => { const r = s.reviewFor; if (!r) return Promise.reject(new Error('Nothing to rate'));
+              return submitReview(r.kind, r.id, rating, comment, user?.name.split(' ')[0] || 'Traveller', r.date).then(() => markRated(ratedKey(r.kind, r.id))); }} />
         </main>
       </div>
     </div>
