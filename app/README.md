@@ -16,6 +16,8 @@ npm test               # trip engine, parity with the design, server functions
 npm run build          # type-check and build to dist/
 ```
 
+Languages: English and Roman Urdu (switch on the welcome screen, the question screens, or **Edit trip → Language**). Text is written in English in the code inside `t()` and translated in `src/i18n/ur.ts`; `tests/i18n.test.ts` fails if a new text has no Roman Urdu.
+
 Themes: Paper (default), Daylight, Peach and Dark, under **Edit trip → Theme**, or open with `?theme=dark`. Add `?frame` to see the app inside the design's phone mock-up.
 
 ## Free services

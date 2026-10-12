@@ -1,7 +1,7 @@
 // Everything the screens display, derived from app state. Ported from the
 // design's renderVals(); the screens in components/ read from this.
 import { CONFIGS, EDGES, MODES, MON, MONTH_FULL, NODES, NODE_INFO, POPULAR, POP_DEST, SUGGEST_POOL, SUNRISE, SUNSET, TIERS, TIER_G, VEH, CAT, CAT2, GRADS, DESTS, STOP_KIND, type VehicleId } from './engine/data';
-import { MAX_DRIVE_H, airFor, babusarClosed, buildPlan, coachFare, costFor, freeDays, jeepMatch, jeepsFor, scheduledPlaces, seasonInfo, suggestions, trip, type Suggestion } from './engine/engine';
+import { MAX_DRIVE_H, airFor, babusarClosed, buildPlan, coachFare, costFor, freeDays, jeepMatch, jeepsFor, scheduledPlaces, seasonInfo, suggestions, trip, type Suggestion, resetTripCache } from './engine/engine';
 import { clock, dayLabel, dur, fmt, fmtN, isoAdd, isoOf, isoOff, kShort, mapsQ, mon } from './engine/format';
 import { LIVE, fxRate, placesKey, routeKey, type Spot } from './engine/live';
 import { sunTimes } from './engine/sun';
@@ -17,7 +17,7 @@ import { CITIES, CITY, CITY_DUP, DST, cityOr, placesFor, seasonFactor } from './
 import type { AppState, Patch } from './state';
 import { THEMES } from './state';
 import { tilesAlong } from './offline';
-import { t } from './i18n';
+import { LANGS, setLang, t } from './i18n';
 
 export interface Api {
   set: (p: Patch) => void;
@@ -152,7 +152,7 @@ export function buildView(s: AppState, api: Api) {
     const Dd = DST(s.corridor); if (Dd.generic) return null;
     const h = highlightIn(s.corridor, M), first = highlightsOf(s.corridor)[0], Mo = MONTH_FULL[M - 1];
     const extra = note(s.corridor);
-    if (h && !h.caution) { const ht = t(h.text); return { tone: 'good' as const, text: t('Great time to go: {what} ({months}).', { what: ht.charAt(0).toLowerCase() + ht.slice(1), months: monthsLabel(h.months) }), note: extra, alts: [], altLabel: '' }; }
+    if (h && !h.caution) { const ht = t(h.text); return { tone: 'good' as const, text: t('Great time to go: {what} ({months}).', { what: s.lang === 'ur' ? ht : ht.charAt(0).toLowerCase() + ht.slice(1), months: monthsLabel(h.months) }), note: extra, alts: [], altLabel: '' }; }
     if (h) return { tone: 'care' as const, text: t('{text} in {month}. {caution}', { text: t(h.text), month: Mo, caution: h.caution ? t(h.caution) : '' }), note: extra, alts: [], altLabel: '' };
     const off = (Dd.warn && Dd.warn[0].includes(M)) || (Dd.best && !Dd.best.includes(M));
     if (!off) return Dd.best ? { tone: 'good' as const, text: t('Good time to visit {name} (best {months}).', { name: Dd.name, months: monthsLabel(Dd.best) }), note: extra, alts: [], altLabel: '' } : null;
@@ -414,6 +414,8 @@ export function buildView(s: AppState, api: Api) {
         roads: Object.entries(roads).map(([name, r]) => ({ name, km: t('{km} km', { km: fmtN(Math.round(r.km / 5) * 5 || Math.round(r.km)) }), note: r.months ? (r.months.includes(M) ? t('Open in {month}', { month: MON[M - 1] }) : t('Closed in {month}', { month: MON[M - 1] })) : '', noteC: r.months && !r.months.includes(M) ? 'var(--cor)' : 'var(--g)', hasNote: !!r.months })) };
     })(),
     tierChips: (Object.entries(TIERS) as [AppState['tier'], typeof TIERS['standard']][]).map(([k, ti]) => { const on = s.tier === k; return { key: k, label: t(ti.label), onClick: () => set({ tier: k }), bg: on ? 'var(--line2)' : 'transparent', fg: on ? 'var(--ink)' : 'var(--mute)' }; }),
+    langChips: LANGS.map(l => { const on = s.lang === l.id; return { key: l.id, label: l.label, on, onClick: () => { setLang(l.id); resetTripCache(); set({ lang: l.id }); }, bg: on ? 'var(--line2)' : 'transparent', fg: on ? 'var(--ink)' : 'var(--mute)' }; }),
+    switchLang: () => { const next = s.lang === 'ur' ? 'en' : 'ur'; setLang(next); resetTripCache(); set({ lang: next }); },
     themeChips: THEMES.map(th => { const on = s.theme === th.id; return { key: th.id, label: t(th.label), onClick: () => set({ theme: th.id }), bg: on ? 'var(--line2)' : 'transparent', fg: on ? 'var(--ink)' : 'var(--mute)' }; }),
     steppers: [
       { key: 'a', label: t('Adults'), value: `${s.adults}`, dec: () => api.setPeople('adults', -1), inc: () => api.setPeople('adults', 1) },

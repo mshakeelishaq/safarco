@@ -46,6 +46,7 @@ export function Onboarding({ v, api }: { v: View; api: Api }) {
       <div className="sc-col" style={css('position:absolute;left:24px;right:24px;top:58px;display:flex;align-items:center;justify-content:space-between')}>
         <div style={css('font-family:var(--fontH);font-weight:700;font-size:22px;letter-spacing:-.02em;text-shadow:var(--tsh)')}>Safar<span style={css('background:var(--wm);-webkit-background-clip:text;background-clip:text;color:transparent')}>Co</span></div>
         <div style={css('display:flex;align-items:center;gap:8px;pointer-events:auto')}>
+          <button onClick={v.switchLang} aria-label={v.s.lang === 'ur' ? 'English' : 'Roman Urdu'} style={css('height:32px;padding:0 10px;border-radius:12px;border:0;background:var(--fill2);backdrop-filter:blur(10px);color:var(--ink);font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:5px')}><i className="ph-bold ph-translate" />{v.s.lang === 'ur' ? 'EN' : 'Urdu'}</button>
           <button onClick={() => set({ sheet: 'trips' })} style={css('height:32px;padding:0 11px;border-radius:12px;border:0;background:var(--fill2);backdrop-filter:blur(10px);color:var(--ink);font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:5px')}><i className="ph-fill ph-bookmarks-simple" />{t('My trips')}</button>
           <div style={css('padding:6px 11px;border-radius:12px;background:var(--fill2);backdrop-filter:blur(10px);font-size:12px;font-weight:700')}>{v.stepLabel}</div>
         </div>

@@ -269,7 +269,7 @@ export function App() {
           {s.toast && <div role="status" style={css('position:absolute;left:18px;right:18px;top:calc(56px + env(safe-area-inset-top));z-index:60;padding:12px 14px;border-radius:20px;background:var(--sheet);backdrop-filter:blur(20px);border:1px solid rgba(46,229,157,.35);color:var(--ink);font-size:13px;font-weight:700;display:flex;align-items:center;gap:10px;box-shadow:0 20px 40px -16px rgba(0,0,0,.5)')} className="sc-toast"><div style={css('width:30px;height:30px;flex:none;border-radius:10px;background:var(--cta);color:var(--onCta);display:flex;align-items:center;justify-content:center;font-size:16px')}><i className="ph-fill ph-check" /></div>{s.toast}</div>}
 
           <SaveSheet open={s.sheet === 'save'} isSaved={!!s.savedId} defaultName={(s.savedId && trips.find(t => t.id === s.savedId)?.name) || defaultName(tripData(s))} onSave={saveTrip} onClose={() => set({ sheet: 'none' })} />
-          <Welcome open={s.welcome} onStart={() => { try { localStorage.setItem(WELCOMED, '1'); } catch { /* storage blocked */ } set({ welcome: false }); }}
+          <Welcome open={s.welcome} langLabel={s.lang === 'ur' ? 'English' : 'Roman Urdu'} onLang={view.switchLang} onStart={() => { try { localStorage.setItem(WELCOMED, '1'); } catch { /* storage blocked */ } set({ welcome: false }); }}
             onGuide={() => { try { localStorage.setItem(WELCOMED, '1'); } catch { /* storage blocked */ } set({ welcome: false, guide: true }); }} />
           <SeasonGuide v={view.guide} open={s.guide} />
           <SignInSheet open={s.sheet === 'signin'} onGoogle={google} onClose={() => set({ sheet: 'none' })} />

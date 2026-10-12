@@ -86,7 +86,7 @@ function WxLegend({ v }: { v: View }) {
   const items: [string, string][] = [['#2EB67D', t('Clear')], ['#2F6FED', t('Rain')], ['#5BB8F5', t('Snow')], ['#8E8E93', t('Fog')], ['#F2A007', t('Take care')], ['#E5484D', t('Danger')]];
   return (
     <div style={css('margin:10px 6px 0')}>
-      <div style={css('font-size:11px;font-weight:800;color:var(--mute)')}>{v.wx.mapPts.length && v.wx.note.startsWith('Your dates') ? t('Weather on the way there (typical for your dates) · tap a dot for details') : t('Weather on the way there, at the time you pass · tap a dot for details')}</div>
+      <div style={css('font-size:11px;font-weight:800;color:var(--mute)')}>{v.wx.mapPts.length && v.wx.typicalOnly ? t('Weather on the way there (typical for your dates) · tap a dot for details') : t('Weather on the way there, at the time you pass · tap a dot for details')}</div>
       <div style={css('display:flex;gap:6px 12px;flex-wrap:wrap;margin-top:6px;font-size:11px;font-weight:700;color:var(--mute)')}>{items.map(([c, l]) => <span key={l} style={css('display:flex;align-items:center;gap:5px')}><span style={css(`width:10px;height:10px;border-radius:50%;background:${c}`)} />{l}</span>)}</div>
     </div>
   );

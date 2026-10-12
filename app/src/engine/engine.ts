@@ -45,7 +45,7 @@ function dayStops(ls: Leg[], fromName: string, toName: string, dep: number, suns
     const sp = l.km / Math.max(l.h, 0.01); let done = 0; road(l.road);
     stopsOn(l).filter(x => !(li === 0 && x[0] < 8) && !(li === ls.length - 1 && x[0] > l.km - 8)).forEach(([at, kind, label, note]) => {
       pend.h += (at - done) / sp; pend.km += at - done; done = at; mark(); flush(); const m = STOP_DUR[kind] || 15;
-      out.push({ time: clock(tm), kind, label, note: kind === 'food' ? `${mealName(tm)} · ${note}` : note, dur: t('{n} min stop', { n: m }) }); tm += m / 60; stopMin += m; road(l.road); mark();
+      out.push({ time: clock(tm), kind, label, note: kind === 'food' ? `${mealName(tm)} · ${t(note)}` : t(note), dur: t('{n} min stop', { n: m }) }); tm += m / 60; stopMin += m; road(l.road); mark();
     });
     pend.h += (l.km - done) / sp; pend.km += l.km - done; mark();
   });
@@ -171,7 +171,7 @@ function stayAt(node: string | null, key: string, tier: TierId, isDest: boolean)
   const [lat, lon] = isDest || !node ? [D.lat, D.lon] : NODES[node];
   if (!list) return { town, place, name: t('Hotels in {place}', { place: town }), note: t('Opens a Google Maps search'), tier: t('Search'), alts: '', href: mapsQ('hotels in ' + town), lat, lon, curated: false };
   const h = hotelFor(list, tier), alts = list.filter(x => x !== h).map(x => x[0]).join(' · ');
-  return { town, place, name: h[0], note: h[2], tier: h[1], alts: alts ? t('Also: {list}', { list: alts }) : '', href: mapsQ(h[0]), lat, lon, curated: true };
+  return { town, place, name: h[0], note: t(h[2]), tier: h[1], alts: alts ? t('Also: {list}', { list: alts }) : '', href: mapsQ(h[0]), lat, lon, curated: true };
 }
 
 export type DayKind = 'drive' | 'explore' | 'return' | 'fly';
@@ -186,9 +186,9 @@ function exploreDays(D: Dest, m: number, n: number): Omit<PlanDay, 'stay'>[] {
     const list = pl.slice(i * per, i * per + per);
     const stops: StopItem[] = list.length ? list.map((p, j) => {
       const jp = (D.jeeps || []).find(x => inM(m, x[4]) && jeepMatch(x, p));
-      return { time: SLOTS[Math.min(j, 3)], kind: 'pin' as const, label: p[0], note: `${p[1]} · ${p[2]}${jp ? ` · ${t('local jeep {price}, included', { price: fmt(jp[3]) })}` : ''}`, href: p[4] };
+      return { time: t(SLOTS[Math.min(j, 3)]), kind: 'pin' as const, label: p[0], note: `${t(p[1])} · ${t(p[2])}${jp ? ` · ${t('local jeep {price}, included', { price: fmt(jp[3]) })}` : ''}`, href: p[4] };
     }) : [{ time: t('All day'), kind: 'pin', label: t('Free day'), note: t('Rest, shop, or go back to a favourite spot') }];
-    stops.push({ time: t('Food'), kind: 'food', label: t('Eat local'), note: D.eat });
+    stops.push({ time: t('Food'), kind: 'food', label: t('Eat local'), note: D.eat ? t(D.eat) : D.eat });
     out.push({ kind: 'explore', title: list.length ? t('Explore {place}', { place: D.town }) : t('Free day in {place}', { place: D.town }), meta: list.length ? (list.length > 1 ? t('{n} places · local car or jeep', { n: list.length }) : t('{n} place · local car or jeep', { n: list.length })) : t('Nothing scheduled'), note: '', stops });
   }
   if (extra.length && out.length) out[out.length - 1].note = t('More with an extra day: {list}.', { list: extra.join(', ') });
@@ -225,14 +225,14 @@ export function buildPlan(s: TripState): Plan {
   const sunOn = (n: string, day: number) => { const [la, lo] = at(n); return sunTimes(la, lo, isoOff(s.startDate, day)); };
   let sunset = sunOn('DEST', 0).set;
   const nm = (n: string) => n === 'DEST' ? D.town : n === 'HOME' ? c.from : NODE_INFO[n][0];
-  const notes = (roads: string[]) => roads.map(r => ROAD_NOTE[r]).filter(Boolean).join(' ');
+  const notes = (roads: string[]) => roads.map(r => ROAD_NOTE[r]).filter(Boolean).map(n => t(n)).join(' ');
   const elderNote = (roads: string[], last: boolean) => s.elders && (roads.some(r => /Babusar/.test(r)) || (last && (D.ft || 0) >= 7000)) ? t('Elders: high altitude. Go slow, keep water and any BP or heart medicine handy.') : '';
   const days: PlanDay[] = [];
   const finish = (extra: Partial<Plan>): Plan => { days.forEach((d, i) => { d.num = i + 1; d.date = dayLabel(s.startDate, i); d.iso = isoOff(s.startDate, i); }); return { days, total: days.length, sunset, rec: 6, dep: 6, late: false, hasDrive: false, air: null, ...extra }; };
   if (s.vehicle === 'air') {
     const a = airFor(key, s.origin);
     if (a) {
-      const tn = D.airNote || t('Airport → hotel by taxi'), north = (D.ft || 0) >= 4000;
+      const tn = D.airNote ? t(D.airNote) : t('Airport → hotel by taxi'), north = (D.ft || 0) >= 4000;
       days.push({ kind: 'fly', title: t('{from} → {to} by air', { from: a.dep, to: a.arr }), meta: t('About 1–2 h flight · {note}', { note: tn }), note: [a.pp ? t('{from} → {airport} airport by coach first.', { from: c.from, airport: a.dep }) : '', north ? t('Northern flights are weather-dependent. Keep a buffer day.') : ''].filter(Boolean).join(' '),
         stops: [{ time: '6:00 am', kind: 'go', label: t('{airport} airport', { airport: a.dep }), note: t('Check in 90 minutes before departure') }, { time: '7:30 am', kind: 'plane', label: t('Fly to {place}', { place: a.arr }), note: north ? t('Scenic on a clear day') : '' }, { time: '9:30 am', kind: 'bed', label: t('Transfer to your stay'), note: tn }], stay: stayAt(null, key, s.tier, true) });
       exploreDays(D, m, Math.max(0, s.days - 2)).forEach(d => days.push({ ...d, stay: stayAt(null, key, s.tier, true) }));

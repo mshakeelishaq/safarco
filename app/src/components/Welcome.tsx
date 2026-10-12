@@ -15,12 +15,15 @@ const points = (): [string, string, string][] => [
   ['ph-wifi-slash', t('Ready for no signal'), t('Save the route map on your phone for valleys with no coverage.')]
 ];
 
-export function Welcome({ open, onStart, onGuide }: { open: boolean; onStart: () => void; onGuide: () => void }) {
+export function Welcome({ open, onStart, onGuide, langLabel, onLang }: { open: boolean; onStart: () => void; onGuide: () => void; langLabel: string; onLang: () => void }) {
   if (!open) return null;
   return (
     <div role="dialog" aria-modal="true" aria-label={t('Welcome to SafarCo')} style={css('position:absolute;inset:0;z-index:40;overflow-y:auto;scrollbar-width:none;background:radial-gradient(120% 70% at 50% 0%,#12809F 0%,#0B5F7C 50%,#08435A 100%);color:#fff')}>
       <div className="sc-flow" style={css('min-height:100%;box-sizing:border-box;display:flex;flex-direction:column;padding:calc(48px + env(safe-area-inset-top)) 24px calc(24px + env(safe-area-inset-bottom))')}>
+        <div style={css('display:flex;align-items:flex-start;justify-content:space-between;gap:12px')}>
         <img src="/icon.svg" alt="" width="76" height="76" style={css('border-radius:20px;box-shadow:0 20px 40px -16px rgba(0,0,0,.6)')} />
+        <button onClick={onLang} style={css('min-height:40px;padding:0 14px;border-radius:14px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.1);color:#fff;font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px')}><i className="ph-bold ph-translate" />{langLabel}</button>
+        </div>
         <h1 style={css('margin:22px 0 0;font-family:var(--fontH);font-weight:600;font-size:30px;line-height:1.15;letter-spacing:-.02em')}>{t('Want to travel, but not sure where you can go?')}</h1>
         <p style={css('margin:12px 0 0;font-size:16px;line-height:1.5;font-weight:500;opacity:.9')}>{t('SafarCo plans your trip across Pakistan around what you have: your budget, your days and who’s coming. You see where you can go and exactly what it takes, before you leave home.')}</p>
         <div style={css('display:flex;flex-direction:column;gap:14px;margin-top:24px')}>

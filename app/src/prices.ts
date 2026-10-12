@@ -3,6 +3,7 @@
 // it's stored in Supabase; each section records the date it was last checked.
 import { DESTS, EDGES, FARES, P, TIERS, VEH, type TierId } from './engine/data';
 import { resetTripCache } from './engine/engine';
+import { t } from './i18n';
 
 export const SECTIONS = {
   fuel: { label: 'Fuel', source: 'OGRA (ogra.org.pk)' },
@@ -14,6 +15,20 @@ export const SECTIONS = {
   jeeps: { label: 'Local jeep rates', source: 'Local jeep operators' }
 } as const;
 export type Section = keyof typeof SECTIONS;
+
+/** A section's label in the interface language (SECTIONS keeps the English, which is also what the admin sees). */
+export const sectionLabel = (section: Section) => {
+  switch (section) {
+    case 'fuel': return t('Fuel');
+    case 'tolls': return t('Motorway tolls');
+    case 'stays': return t('Hotel and meal rates');
+    case 'hire': return t('Car, 4x4 and coaster hire');
+    case 'coach': return t('Coach fares');
+    case 'fares': return t('Flight fares');
+    case 'jeeps': return t('Local jeep rates');
+    default: return SECTIONS[section as Section].label;
+  }
+};
 
 /** areas: places the alert applies to (see src/local.ts); empty means every trip. */
 export interface RoadAlert { title: string; message: string; date: string; until?: string; areas?: string[] }
@@ -106,11 +121,11 @@ export const isStale = (section: Section, now = new Date()) => { const a = check
 /** "checked 1 Oct 2026", "checked 1 Oct 2026, may have changed since" or "not checked yet". */
 export const checkedText = (section: Section, now = new Date()) => {
   const d = current.checked[section];
-  if (!d) return 'not checked yet';
+  if (!d) return t('not checked yet');
   const dt = new Date(d + 'T00:00');
-  if (isNaN(+dt)) return 'not checked yet';
+  if (isNaN(+dt)) return t('not checked yet');
   const day = dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-  return isStale(section, now) ? `checked ${day}, may have changed since` : `checked ${day}`;
+  return isStale(section, now) ? t('checked {date}, may have changed since', { date: day }) : t('checked {date}', { date: day });
 };
 
 /** Road alerts that haven't expired. */

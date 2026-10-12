@@ -54,6 +54,10 @@ export function EditSheet({ v, api }: { v: View; api: Api }) {
           <div style={css('display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:4px;border-radius:17px;background:var(--deep)')}>
             {v.themeChips.map(t => <button key={t.key} onClick={t.onClick} aria-pressed={v.s.theme === t.key} style={css(`height:44px;border-radius:13px;border:0;background:${t.bg};color:${t.fg};font-size:13px;font-weight:800;cursor:pointer;transition:all .25s`)}>{t.label}</button>)}
           </div>
+          <Label style="margin-top:14px">{t('Language')}</Label>
+          <div style={css('display:grid;grid-template-columns:repeat(2,1fr);gap:4px;padding:4px;border-radius:17px;background:var(--deep)')}>
+            {v.langChips.map(t => <button key={t.key} onClick={t.onClick} aria-pressed={t.on} style={css(`height:44px;border-radius:13px;border:0;background:${t.bg};color:${t.fg};font-size:13px;font-weight:800;cursor:pointer;transition:all .25s`)}>{t.label}</button>)}
+          </div>
         </div>
         <div style={css('display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:22px')}>
           <button onClick={() => api.set({ settings: false, sheet: 'trips' })} style={css('height:50px;border-radius:16px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px')}><i className="ph-fill ph-bookmarks-simple" />{t('My trips')}</button>
