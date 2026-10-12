@@ -290,7 +290,7 @@ export function costFor(o: TripState): Cost {
     if (!a) { ok = false; why = 'No airport'; minDays = 0; rows.push({ icon: 'ph-airplane-tilt', label: 'Flights', detail: t('No airport near {place}', { place: c.name }), val: 0 }); }
     else {
       minDays = 3; ok = o.days >= 3;
-      rows.push({ icon: 'ph-airplane-tilt', label: 'Flights', detail: `${a.dep} ⇄ ${a.arr} · ${t('{price} one way', { price: fmt(a.fare) })} × ${adults(AD)}${kidTxt('75%')}`, val: a.fare * 2 * (AD + K * 0.75) });
+      rows.push({ icon: 'ph-airplane-tilt', label: 'Flights', detail: `${a.dep} ⇄ ${a.arr} · ${t('about {price} one way (tentative)', { price: fmt(a.fare) })} × ${adults(AD)}${kidTxt('75%')}`, val: a.fare * 2 * (AD + K * 0.75) });
       if (a.pp) rows.push({ icon: 'ph-bus', label: 'To the airport', detail: t('{from} ⇄ {to} by coach · {price} return per person', { from: c.from, to: a.dep, price: fmt(a.pp) }), val: a.pp * P });
       const cars = Math.ceil(P / 4); rows.push({ icon: 'ph-steering-wheel', label: 'Car + driver there', detail: cars > 1 ? t('{n} cars × {days} days × {price}, fuel included', { n: cars, days: o.days, price: fmt(PR.localCar) }) : t('{n} car × {days} days × {price}, fuel included', { n: cars, days: o.days, price: fmt(PR.localCar) }), val: cars * o.days * PR.localCar });
     }

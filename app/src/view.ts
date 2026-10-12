@@ -219,7 +219,8 @@ export function buildView(s: AppState, api: Api) {
   const alertNotes = activeAlerts().filter(a => !a.areas?.length || onTrip(a.areas, tripLine, tripStops)).map(a => ({ icon: 'ph-megaphone', color: 'var(--cor)', text: a.date ? t('{alert} (posted {date})', { alert: `${a.title}${a.message ? `: ${a.message}` : ''}`, date: dayLabel(a.date, 0) }) : `${a.title}${a.message ? `: ${a.message}` : ''}` }));
 
   return {
-    s, c, gate, tip, health, off, isAir, drivers, afterTrip, guide, bestNow, tripSeason, wPlan, rPoints, selCorridor: sug.sel?.corridor, stays, nearby, priceNotes, ratesChecked: checkedText(s.vehicle === 'public' ? 'coach' : isAir ? 'fares' : 'hire'),
+    s, c, gate, tip, health, off, isAir, drivers, afterTrip, guide, bestNow, tripSeason, wPlan, rPoints, selCorridor: sug.sel?.corridor, stays, nearby, priceNotes, ratesNote: isAir ? t('Flight fares are tentative: tap a flight day to see live fares. Confirm with the airline before you book.')
+      : t('Prices {checked}. Confirm with the operator before you book.', { checked: checkedText(s.vehicle === 'public' ? 'coach' : 'hire') }),
     fxNote: fx.live ? (fx.updated ? t('US$ at 1 USD = PKR {rate} ({updated})', { rate: fx.pkrPerUsd.toFixed(2), updated: fx.updated }) : t('US$ at 1 USD = PKR {rate}', { rate: fx.pkrPerUsd.toFixed(2) })) : t('US$ at about PKR {rate} (live rate unavailable)', { rate: fx.pkrPerUsd }),
     wiki: { loading: !wikiE || wikiE.status === 'loading', info: wikiE && wikiE.status === 'ok' ? wikiE.data : null },
     stepLabel: `${s.step + 1} / 6`,
@@ -341,7 +342,7 @@ export function buildView(s: AppState, api: Api) {
           : s.depart == null ? t('Recommended {time}, so every driving day ends before sunset (the earliest is about {sunset}).', { time: clock(p.rec), sunset: clock(p.sunset) })
           : t('Every driving day ends before sunset (the earliest is about {sunset}).', { sunset: clock(p.sunset) }),
         days: p.days.map((d, i) => ({ ...d, flight: d.kind === 'fly' && p.air && d.iso ? (() => { const out = i === 0, from = out ? p.air!.dep : p.air!.arr, to = out ? p.air!.arr : p.air!.dep;
-          return { from, to, fare: t('About {fare} one way per adult · {checked}', { fare: pkrUsd(p.air!.fare), checked: checkedText('fares') }), href: flightSearchUrl(from, to, d.iso!, s.adults + s.elders, s.kids) }; })() : null, strip: rw.strips.get(i) || null, destWx: d.track ? null : rw.destDays.find(x => x.idx === i) || null, stay: d.stay && (() => {
+          return { from, to, fare: t('Tentative: about {fare} one way per adult', { fare: pkrUsd(p.air!.fare) }), href: flightSearchUrl(from, to, d.iso!, s.adults + s.elders, s.kids) }; })() : null, strip: rw.strips.get(i) || null, destWx: d.track ? null : rw.destDays.find(x => x.idx === i) || null, stay: d.stay && (() => {
           // Hotels for this night's town (live from OpenStreetMap), each linked to Booking.com for this exact night.
           const st = d.stay!, nr = nightRange(s.tier, sf), night = isoOff(s.startDate, i), live = spotsAt('hotels', st.lat, st.lon);
           const picks = live.list.length ? live.list.slice(0, 4).map(h => ({ name: h.name, note: h.km ? t('{type} · {km} km from centre', { type: t(h.type), km: Math.round(h.km * 10) / 10 }) : t(h.type) }))
@@ -372,7 +373,7 @@ export function buildView(s: AppState, api: Api) {
       ...(s.vehicle === 'rent4x4' ? [['ph-jeep', t('Rent a 4x4 + driver'), t('Prado / Land Cruiser · 6 seats · + PKR 2,500 driver · fuel extra'), t('PKR 35,000/day')]] : []),
       ...(s.vehicle === 'coaster' ? [['ph-van', t('Rent a coaster + driver'), t('22 seats · + PKR 3,000 driver · diesel extra'), t('PKR 35,000/day')]] : []),
       ...(s.vehicle === 'public' ? [['ph-bus', t('Coach {from} → {to}', { from: c.from, to: c.to }), t('One way per adult · kids half fare'), fmt(coachFare(c))]] : []),
-      ...(isAir ? [['ph-airplane-tilt', t('Flight {from} → {to}', { from: air!.dep, to: air!.arr }), t('One way per adult · kids 75% · weather-dependent'), fmt(air!.fare)], ['ph-steering-wheel', t('Car + driver at destination'), t('Fuel included'), t('PKR 15,000/day')]] : []),
+      ...(isAir ? [['ph-airplane-tilt', t('Flight {from} → {to}', { from: air!.dep, to: air!.arr }), t('Tentative · one way per adult · kids 75% · weather-dependent'), fmt(air!.fare)], ['ph-steering-wheel', t('Car + driver at destination'), t('Fuel included'), t('PKR 15,000/day')]] : []),
       ...(hasHub && s.vehicle !== 'suv' && s.vehicle !== 'rent4x4' ? [['ph-jeep', t('Jeep Raikot Bridge ⇄ Tato'), t('Return, per jeep, 5 seats'), 'PKR 8–10k']] : [])
     ].map(([icon, label, sub, amount]) => ({ icon, label, sub, amount })),
     hasJeeps: (c.jeeps || []).length > 0,

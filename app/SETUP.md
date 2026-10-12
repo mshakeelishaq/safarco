@@ -132,7 +132,7 @@ The anon key is meant to be public: it's built into the website. The database ru
 2. For each section, check the current prices from the source shown, type them in, and set **Checked on**. Fuel and tolls take 5 minutes:
    - **Fuel:** ogra.org.pk publishes petrol and diesel prices on the 1st and 16th of each month.
    - **Tolls:** nha.gov.pk publishes the motorway toll list.
-   - **Hotels, hire, coaches, flights and jeeps:** check a few typical prices on Booking.com, PIA or Airblue, and with local operators (a WhatsApp message to a rent-a-car office or jeep stand in Skardu or Hunza works well).
+   - **Hotels, hire, coaches and jeeps:** check a few typical prices on Booking.com and with local operators (a WhatsApp message to a rent-a-car office or jeep stand in Skardu or Hunza works well). Flights are optional: the app always shows them as tentative and links to live fares.
 3. Click **Save price list**. Every visitor then sees your prices with the date you checked them. Sections you haven't checked say **not checked yet**, so the app is always honest about it.
 4. **Road alerts:** add one when a pass or road closes (for example "Babusar Pass closed: snow"). Under **Places**, pick the pass, town or destination it affects, and it shows only on trips that go there, until the date you choose. With no places it shows on every trip.
 5. **Trusted hotels and drivers:** tap **+ Add hotel** or **+ Add driver**, fill in the name, place, price and WhatsApp number, then **Save price list**. Hotels show first, marked "Recommended by SafarCo", on every night spent in that place; drivers show on every trip that passes their place. Untick **Show in app** to hide one without deleting it. Always ask people before you publish their number.

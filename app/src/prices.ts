@@ -116,10 +116,13 @@ export const checkedAge = (section: Section, now = new Date()) => {
   const d = current.checked[section], dt = d ? new Date(d + 'T00:00') : null;
   return dt && !isNaN(+dt) ? Math.max(0, Math.floor((+now - +dt) / 864e5)) : null;
 };
-export const isStale = (section: Section, now = new Date()) => { const a = checkedAge(section, now); return a === null || a > FRESH_DAYS[section]; };
+/** Flight fares change by the day, so they are only ever shown as a rough guide and never flagged as out of date. */
+export const TENTATIVE: Section[] = ['fares'];
+export const isStale = (section: Section, now = new Date()) => { if (TENTATIVE.includes(section)) return false; const a = checkedAge(section, now); return a === null || a > FRESH_DAYS[section]; };
 
-/** "checked 1 Oct 2026", "checked 1 Oct 2026, may have changed since" or "not checked yet". */
+/** "checked 1 Oct 2026", "checked 1 Oct 2026, may have changed since", "not checked yet" or, for flights, "tentative". */
 export const checkedText = (section: Section, now = new Date()) => {
+  if (TENTATIVE.includes(section)) return t('tentative, check live fares before booking');
   const d = current.checked[section];
   if (!d) return t('not checked yet');
   const dt = new Date(d + 'T00:00');

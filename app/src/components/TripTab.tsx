@@ -350,7 +350,7 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
           </div>
           {v.rates.length > 0 && <>
             <h3 style={css('margin:20px 0 0;font-size:13px;font-weight:700;color:var(--mute)')}>{t('Rates for your transport')}</h3>
-            <div style={css('font-size:12px;color:var(--mute);font-weight:600;margin-top:4px;line-height:1.45')}>{t('Prices {checked}. Confirm with the operator before you book.', { checked: v.ratesChecked })}</div>
+            <div style={css('font-size:12px;color:var(--mute);font-weight:600;margin-top:4px;line-height:1.45')}>{v.ratesNote}</div>
             <div style={css('display:flex;flex-direction:column;gap:12px;margin-top:12px')}>
               {v.rates.map(r => (
                 <div key={r.label} style={css('display:flex;align-items:center;gap:12px')}>

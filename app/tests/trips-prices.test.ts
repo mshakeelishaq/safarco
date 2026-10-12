@@ -77,8 +77,14 @@ describe('price freshness', () => {
     expect(isStale('fuel', new Date('2026-10-30T12:00'))).toBe(true);
     expect(checkedText('fuel', new Date('2026-10-30T12:00'))).toBe('checked 1 Oct 2026, may have changed since');
     expect(isStale('tolls', new Date('2026-10-30T12:00'))).toBe(false);
-    expect(isStale('fares', now)).toBe(true);
+    expect(isStale('stays', now)).toBe(true);
     applyPrices(null);
+  });
+
+  it('shows flight fares as tentative, never as out of date', async () => {
+    const { checkedText, isStale } = await import('../src/prices');
+    expect(isStale('fares')).toBe(false);
+    expect(checkedText('fares')).toBe('tentative, check live fares before booking');
   });
 });
 

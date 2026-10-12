@@ -135,7 +135,8 @@ export function Admin() {
       <Num label="Mountain roads" value={list.coach.perKmMountain} onChange={n => upd(l => { l.coach.perKmMountain = n; })} />
     </section>
 
-    <section style={box}><h2 style={css('margin:0 0 4px;font-size:18px')}>Flights (one way, per adult)</h2><Checked list={list} k="fares" set={setList} />
+    <section style={box}><h2 style={css('margin:0 0 4px;font-size:18px')}>Flights (one way, per adult)</h2>
+      <p style={css('font-size:13px;line-height:1.5;margin:4px 0 10px;opacity:.75')}>Optional. Travellers always see these as <b>tentative</b>, with a link to live fares for their date, so you don't need to keep them up to date.</p>
       {Object.entries(list.fares).flatMap(([dest, f]) => fareAirports.filter(a => f[a] !== undefined).map(a => <Num key={dest + a} label={`${AIRPORTS[a][0]} → ${dest}`} value={f[a]} onChange={n => upd(l => { l.fares[dest][a] = n; })} />))}
     </section>
 
