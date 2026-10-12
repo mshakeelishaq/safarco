@@ -2,6 +2,7 @@
 // plans a trip there with dates moved into its best months.
 import { useEffect, useState } from 'react';
 import { css } from '../lib/css';
+import { t } from '../i18n';
 import type { View } from '../view';
 
 export function SeasonGuide({ v, open }: { v: View['guide']; open: boolean }) {
@@ -10,13 +11,13 @@ export function SeasonGuide({ v, open }: { v: View['guide']; open: boolean }) {
   if (!open) return null;
   const se = v.seasons.find(x => x.id === tab)!;
   return (
-    <div role="dialog" aria-modal="true" aria-label="Best places by season" style={css('position:absolute;inset:0;z-index:41;display:flex;flex-direction:column;background:var(--bg);color:var(--ink)')}>
+    <div role="dialog" aria-modal="true" aria-label={t('Best places by season')} style={css('position:absolute;inset:0;z-index:41;display:flex;flex-direction:column;background:var(--bg);color:var(--ink)')}>
       <div className="sc-flow" style={css('width:100%;box-sizing:border-box;padding:calc(20px + env(safe-area-inset-top)) 20px 10px')}>
         <div style={css('display:flex;align-items:center;gap:12px')}>
-          <div style={css('flex:1;min-width:0')}><h1 style={css('margin:0;font-family:var(--fontH);font-size:22px;font-weight:600;letter-spacing:-.02em')}>Where’s best, when?</h1><div style={css('font-size:13px;font-weight:600;color:var(--mute);margin-top:3px')}>Pick a season, then a place. Nearest to you first.</div></div>
-          <button onClick={v.close} aria-label="Close" style={css('width:44px;height:44px;flex:none;border-radius:15px;border:1px solid var(--line);background:var(--fill);color:var(--ink);font-size:17px;cursor:pointer')}><i className="ph-bold ph-x" /></button>
+          <div style={css('flex:1;min-width:0')}><h1 style={css('margin:0;font-family:var(--fontH);font-size:22px;font-weight:600;letter-spacing:-.02em')}>{t('Where’s best, when?')}</h1><div style={css('font-size:13px;font-weight:600;color:var(--mute);margin-top:3px')}>{t('Pick a season, then a place. Nearest to you first.')}</div></div>
+          <button onClick={v.close} aria-label={t('Close')} style={css('width:44px;height:44px;flex:none;border-radius:15px;border:1px solid var(--line);background:var(--fill);color:var(--ink);font-size:17px;cursor:pointer')}><i className="ph-bold ph-x" /></button>
         </div>
-        <div role="tablist" aria-label="Seasons" style={css('display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:14px')}>
+        <div role="tablist" aria-label={t('Seasons')} style={css('display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:14px')}>
           {v.seasons.map(x => {
             const on = x.id === tab;
             return <button key={x.id} role="tab" aria-selected={on} onClick={() => setTab(x.id)} style={css(`height:62px;border-radius:16px;border:1px solid ${on ? 'transparent' : 'var(--line2)'};background:${on ? x.color : 'var(--fill)'};color:${on ? '#fff' : 'var(--ink)'};cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:12px;font-weight:800`)}><i className={`ph-fill ${x.icon}`} style={css(`font-size:20px;color:${on ? '#fff' : x.color}`)} />{x.label}</button>;
@@ -25,7 +26,7 @@ export function SeasonGuide({ v, open }: { v: View['guide']; open: boolean }) {
       </div>
       <div style={css('flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain')}>
         <div className="sc-flow" style={css('box-sizing:border-box;padding:4px 20px calc(30px + env(safe-area-inset-bottom))')}>
-          <div style={css(`padding:12px 14px;border-radius:16px;background:var(--fill);border-left:4px solid ${se.color};font-size:13px;font-weight:600;line-height:1.5;color:var(--ink2)`)}><b>{se.label} ({se.months.map(m => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][m - 1]).join(', ')}):</b> {se.blurb}</div>
+          <div style={css(`padding:12px 14px;border-radius:16px;background:var(--fill);border-left:4px solid ${se.color};font-size:13px;font-weight:600;line-height:1.5;color:var(--ink2)`)}><b>{se.label} ({se.months.map(m => [t('Jan'), t('Feb'), t('Mar'), t('Apr'), t('May'), t('Jun'), t('Jul'), t('Aug'), t('Sep'), t('Oct'), t('Nov'), t('Dec')][m - 1]).join(', ')}):</b> {se.blurb}</div>
           <div style={css('display:flex;flex-direction:column;gap:10px;margin-top:12px')}>
             {se.picks.map(p => (
               <button key={p.key} onClick={p.onPick} style={css('display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:20px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-align:left;cursor:pointer')}>
@@ -40,7 +41,7 @@ export function SeasonGuide({ v, open }: { v: View['guide']; open: boolean }) {
               </button>
             ))}
           </div>
-          <div style={css('font-size:12px;font-weight:600;color:var(--mute);margin-top:14px;line-height:1.5')}>Tap a place to plan it: dates move to its best months. Weather changes year to year, so check the forecast and road status before you go.</div>
+          <div style={css('font-size:12px;font-weight:600;color:var(--mute);margin-top:14px;line-height:1.5')}>{t('Tap a place to plan it: dates move to its best months. Weather changes year to year, so check the forecast and road status before you go.')}</div>
         </div>
       </div>
     </div>

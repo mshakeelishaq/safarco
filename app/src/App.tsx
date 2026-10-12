@@ -6,6 +6,7 @@ import { SeasonGuide } from './components/SeasonGuide';
 import { cloudDelete, cloudEnabled, cloudSave, cloudTrips, currentUser, loadPriceList, loadReviews, onUserChange, sendFeedback, signInWithGoogle, signOut, submitReview, type User } from './cloud';
 import { markRated, ratedKey } from './rated';
 import { setReviews } from './reviews';
+import { t as tx } from './i18n';
 import { applyPrices } from './prices';
 import { clearCurrent, cloudMerge, defaultName, deleteLocal, loadCurrent, localTrips, newId, saveCurrent, saveLocal, shareUrl, tripData, tripFromUrl, type SavedTrip } from './trips';
 import { MapTab } from './components/MapTab';
@@ -34,7 +35,7 @@ export function App() {
   const [s, setS] = useState<AppState>(() => {
     const st = initialState(), off = savedOffline(), base: AppState = off ? { ...st, offline: 'ready', offlineMB: off.mb } : st;
     const shared = tripFromUrl();
-    if (shared) return { ...base, ...shared, screen: 'app', chosen: shared.corridor, toast: 'Shared trip opened. Tap Save to keep it.' };
+    if (shared) return { ...base, ...shared, screen: 'app', chosen: shared.corridor, toast: tx('Shared trip opened. Tap Save to keep it.') };
     const cur = loadCurrent();
     return cur ? { ...base, ...cur.data, screen: 'app', savedId: cur.savedId, chosen: cur.data.corridor } : { ...base, welcome: !seenWelcome() };
   });
@@ -123,7 +124,7 @@ export function App() {
       for (const t of localTrips().filter(x => !x.cloudId)) { try { saveLocal({ ...t, cloudId: await cloudSave(t) }); } catch { /* try again next time */ } }
       try { cloudMerge(await cloudTrips()); } catch { /* offline */ }
       setTrips(localTrips());
-      try { if (localStorage.getItem('safarco-after-signin')) { localStorage.removeItem('safarco-after-signin'); set({ toast: `Signed in as ${user.email}. Your trips are backed up.` }); } } catch { /* storage blocked */ }
+      try { if (localStorage.getItem('safarco-after-signin')) { localStorage.removeItem('safarco-after-signin'); set({ toast: tx('Signed in as {email}. Your trips are backed up.', { email: user.email }) }); } } catch { /* storage blocked */ }
     })();
   }, [user?.id]);
 
@@ -152,15 +153,15 @@ export function App() {
     let finished = false;
     const done = (p: Patch) => { if (!finished) { finished = true; set(p); } };
     const fail = (note: string) => done({ loc: 'failed', locNote: note });
-    later(12000, () => fail('GPS didn’t respond. Search for your city below.'));
-    if (!navigator.geolocation) return fail('This device has no GPS. Search for your city below.');
+    later(12000, () => fail(tx('GPS didn’t respond. Search for your city below.')));
+    if (!navigator.geolocation) return fail(tx('This device has no GPS. Search for your city below.'));
     navigator.geolocation.getCurrentPosition(p => {
       const { latitude: a, longitude: o } = p.coords;
-      if (!(a > 23.5 && a < 37.2 && o > 60.8 && o < 77.9)) return fail('You seem to be outside Pakistan. Search for your city below.');
-      const pick = (note?: string) => { const { city, d } = nearestCity(a, o); done({ loc: 'done', origin: city.n, oq: '', pickId: null, locNote: note || `Detected from GPS · ${Math.max(1, Math.round(d))} km from city centre` }); };
+      if (!(a > 23.5 && a < 37.2 && o > 60.8 && o < 77.9)) return fail(tx('You seem to be outside Pakistan. Search for your city below.'));
+      const pick = (note?: string) => { const { city, d } = nearestCity(a, o); done({ loc: 'done', origin: city.n, oq: '', pickId: null, locNote: note || tx('Detected from GPS · {km} km from city centre', { km: Math.max(1, Math.round(d)) }) }); };
       if (nearestCity(a, o).d < 8) return pick();
-      reverseGeo(a, o)!.then(() => pick('Detected from GPS · place name from OpenStreetMap'), () => pick());
-    }, err => err.code === err.PERMISSION_DENIED ? done({ loc: 'denied' }) : fail('Couldn’t get a GPS fix. Search for your city below.'), { timeout: 10000, maximumAge: 600000 });
+      reverseGeo(a, o)!.then(() => pick(tx('Detected from GPS · place name from OpenStreetMap')), () => pick());
+    }, err => err.code === err.PERMISSION_DENIED ? done({ loc: 'denied' }) : fail(tx('Couldn’t get a GPS fix. Search for your city below.')), { timeout: 10000, maximumAge: 600000 });
   }, [set, later]);
 
   const setPeople = useCallback((k: 'adults' | 'kids' | 'elders', d: number) => setS(p => {
@@ -188,28 +189,28 @@ export function App() {
   const saveTrip = (name: string, asNew: boolean) => {
     const st = stRef.current, old = !asNew && st.savedId ? trips.find(t => t.id === st.savedId) : undefined;
     const t: SavedTrip = { id: old?.id || newId(), name, data: tripData(st), savedAt: new Date().toISOString(), cloudId: old?.cloudId };
-    if (!saveLocal(t)) { set({ toast: 'Couldn’t save: this browser’s storage is full or blocked.' }); return; }
+    if (!saveLocal(t)) { set({ toast: tx('Couldn’t save: this browser’s storage is full or blocked.') }); return; }
     setTrips(localTrips());
     if (user) {
-      set({ savedId: t.id, sheet: 'none', toast: 'Trip saved to your account' });
-      cloudSave(t).then(cid => { saveLocal({ ...t, cloudId: cid }); setTrips(localTrips()); }, () => set({ toast: 'Saved on this phone. It will back up when you’re online.' }));
-    } else set({ savedId: t.id, sheet: cloudEnabled && !old ? 'signin' : 'none', toast: 'Trip saved on this phone' });
+      set({ savedId: t.id, sheet: 'none', toast: tx('Trip saved to your account') });
+      cloudSave(t).then(cid => { saveLocal({ ...t, cloudId: cid }); setTrips(localTrips()); }, () => set({ toast: tx('Saved on this phone. It will back up when you’re online.') }));
+    } else set({ savedId: t.id, sheet: cloudEnabled && !old ? 'signin' : 'none', toast: tx('Trip saved on this phone') });
   };
   const shareTrip = async (d = tripData(stRef.current), name = defaultName(d)) => {
     const url = shareUrl(d);
     try {
       if (navigator.share) { await navigator.share({ title: `SafarCo: ${name}`, text: `My trip plan: ${name}`, url }); return; }
-      await navigator.clipboard.writeText(url); set({ toast: 'Link copied. Paste it in WhatsApp or anywhere.' });
-    } catch (e) { if ((e as Error)?.name !== 'AbortError') set({ toast: 'Couldn’t share. Try again.' }); }
+      await navigator.clipboard.writeText(url); set({ toast: tx('Link copied. Paste it in WhatsApp or anywhere.') });
+    } catch (e) { if ((e as Error)?.name !== 'AbortError') set({ toast: tx('Couldn’t share. Try again.') }); }
   };
-  const openTrip = (t: SavedTrip) => set({ ...t.data, savedId: t.id, chosen: t.data.corridor, screen: 'app', tab: 'trip', sheet: 'none', settings: false, pickId: null, toast: `Opened “${t.name}”` });
+  const openTrip = (t: SavedTrip) => set({ ...t.data, savedId: t.id, chosen: t.data.corridor, screen: 'app', tab: 'trip', sheet: 'none', settings: false, pickId: null, toast: tx('Opened “{name}”', { name: t.name }) });
   const deleteTrip = (t: SavedTrip) => {
     deleteLocal(t.id); setTrips(localTrips());
-    if (t.cloudId && user) cloudDelete(t.cloudId).catch(() => set({ toast: 'Deleted here; couldn’t reach your account.' }));
+    if (t.cloudId && user) cloudDelete(t.cloudId).catch(() => set({ toast: tx('Deleted here; couldn’t reach your account.') }));
     if (stRef.current.savedId === t.id) set({ savedId: null });
   };
   const newTrip = () => { clearCurrent(); set({ screen: 'onboard', step: 0, sheet: 'none', settings: false, savedId: null }); };
-  const google = () => { try { localStorage.setItem('safarco-after-signin', '1'); } catch { /* storage blocked */ } signInWithGoogle().catch(() => set({ sheet: 'none', toast: 'Couldn’t open Google sign-in. Try again.' })); };
+  const google = () => { try { localStorage.setItem('safarco-after-signin', '1'); } catch { /* storage blocked */ } signInWithGoogle().catch(() => set({ sheet: 'none', toast: tx('Couldn’t open Google sign-in. Try again.') })); };
   const feedback = (message: string, contact: string) => {
     if (cloudEnabled) return sendFeedback(message, contact, location.pathname + (stRef.current.screen === 'app' ? ` · ${defaultName(tripData(stRef.current))}` : ''));
     const to = import.meta.env.VITE_FEEDBACK_EMAIL as string | undefined;
@@ -273,7 +274,7 @@ export function App() {
           <SeasonGuide v={view.guide} open={s.guide} />
           <SignInSheet open={s.sheet === 'signin'} onGoogle={google} onClose={() => set({ sheet: 'none' })} />
           <TripsSheet open={s.sheet === 'trips'} trips={trips} user={user} currentId={s.savedId} onOpen={openTrip} onDelete={deleteTrip} onShare={t => shareTrip(t.data, t.name)} onNew={newTrip}
-            onSignIn={google} onSignOut={() => signOut().then(() => set({ toast: 'Signed out. Trips stay on this device.' }))} onFeedback={() => set({ sheet: 'feedback' })} onAbout={() => set({ sheet: 'none', welcome: true })} onGuide={view.guide.open} onClose={() => set({ sheet: 'none' })} />
+            onSignIn={google} onSignOut={() => signOut().then(() => set({ toast: tx('Signed out. Trips stay on this device.') }))} onFeedback={() => set({ sheet: 'feedback' })} onAbout={() => set({ sheet: 'none', welcome: true })} onGuide={view.guide.open} onClose={() => set({ sheet: 'none' })} />
           <FeedbackSheet open={s.sheet === 'feedback'} onSend={feedback} onClose={() => set({ sheet: 'none' })} />
           <ReviewSheet open={s.sheet === 'review'} target={s.reviewFor} user={user} onGoogle={google} onClose={() => set({ sheet: 'none' })}
             onSend={(rating, comment) => { const r = s.reviewFor; if (!r) return Promise.reject(new Error('Nothing to rate'));

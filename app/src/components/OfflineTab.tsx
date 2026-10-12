@@ -1,4 +1,5 @@
 import { css } from '../lib/css';
+import { t } from '../i18n';
 import type { Api, View } from '../view';
 
 export function OfflineTab({ v, api }: { v: View; api: Api }) {
@@ -8,7 +9,7 @@ export function OfflineTab({ v, api }: { v: View; api: Api }) {
       <div style={css('height:250px;position:relative;pointer-events:none')}>
         <div className="sc-col" style={css('position:absolute;left:22px;right:22px;top:58px;text-shadow:var(--tsh)')}>
           <div style={css('font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--amb2)')}>{c.from} → {c.to}</div>
-          <h1 style={css('margin:6px 0 0;font-family:var(--fontH);font-weight:600;font-size:26px;letter-spacing:-.02em')}>Offline survival</h1>
+          <h1 style={css('margin:6px 0 0;font-family:var(--fontH);font-weight:600;font-size:26px;letter-spacing:-.02em')}>{t('Offline survival')}</h1>
         </div>
       </div>
       <div className="sc-flow" style={css('padding:4px 16px 150px;display:flex;flex-direction:column;gap:14px;pointer-events:auto;background:var(--bg)')}>
@@ -24,7 +25,7 @@ export function OfflineTab({ v, api }: { v: View; api: Api }) {
           <button onClick={api.toggleOffline} disabled={v.s.offline === 'downloading'} style={css(`margin-top:18px;width:100%;height:54px;border-radius:18px;border:${off.btnBorder};background:${off.btnBg};color:${off.btnFg};font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:${off.btnShadow}`)}><i className={`ph-bold ${off.btnIcon}`} />{off.btnLabel}</button>
         </section>
 
-        <h2 style={css('font-size:14px;font-weight:700;color:var(--mute);margin:8px 4px 0')}>Emergency</h2>
+        <h2 style={css('font-size:14px;font-weight:700;color:var(--mute);margin:8px 4px 0')}>{t('Emergency')}</h2>
         <div style={css('display:grid;grid-template-columns:1fr 1fr;gap:10px')}>
           {v.helplines.map(h => (
             <a key={h.num} href={h.href} style={css('display:flex;align-items:center;gap:12px;padding:14px;border-radius:22px;background:linear-gradient(160deg,rgba(255,107,91,.18),rgba(255,107,91,.05));border:1px solid rgba(255,107,91,.3);text-decoration:none;color:var(--ink)')}>
@@ -34,7 +35,7 @@ export function OfflineTab({ v, api }: { v: View; api: Api }) {
           ))}
         </div>
 
-        <h2 style={css('font-size:14px;font-weight:700;color:var(--mute);margin:8px 4px 0')}>Stays in {c.town}</h2>
+        <h2 style={css('font-size:14px;font-weight:700;color:var(--mute);margin:8px 4px 0')}>{t('Stays in {town}', { town: c.town })}</h2>
         {v.hotels.map(h => (
           <div key={h.name} style={css('border-radius:26px;padding:16px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;gap:12px')}>
             <div style={css('display:flex;align-items:center;gap:12px')}>
@@ -43,8 +44,8 @@ export function OfflineTab({ v, api }: { v: View; api: Api }) {
               <div style={css(`flex:none;font-size:11px;font-weight:800;padding:4px 8px;border-radius:8px;background:var(--fill);color:${h.tierC}`)}>{h.tier}</div>
             </div>
             <div style={css('display:grid;grid-template-columns:1fr 1fr;gap:8px')}>
-              <a href={h.mapUrl} target="_blank" rel="noopener" style={css('height:46px;border-radius:15px;background:var(--fill);border:1px solid var(--line);color:var(--ink);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none')}><i className="ph-fill ph-map-pin" style={css('color:var(--g)')} />Reviews<i className="ph-bold ph-arrow-up-right" /></a>
-              <a href={h.checkUrl} target="_blank" rel="noopener" style={css('height:46px;border-radius:15px;background:var(--fill);border:1px solid var(--line);color:var(--ink);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none')}><i className="ph-fill ph-tag" style={css('color:var(--g)')} />Check prices<i className="ph-bold ph-arrow-up-right" /></a>
+              <a href={h.mapUrl} target="_blank" rel="noopener" style={css('height:46px;border-radius:15px;background:var(--fill);border:1px solid var(--line);color:var(--ink);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none')}><i className="ph-fill ph-map-pin" style={css('color:var(--g)')} />{t('Reviews')}<i className="ph-bold ph-arrow-up-right" /></a>
+              <a href={h.checkUrl} target="_blank" rel="noopener" style={css('height:46px;border-radius:15px;background:var(--fill);border:1px solid var(--line);color:var(--ink);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none')}><i className="ph-fill ph-tag" style={css('color:var(--g)')} />{t('Check prices')}<i className="ph-bold ph-arrow-up-right" /></a>
             </div>
           </div>
         ))}
