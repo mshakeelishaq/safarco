@@ -228,6 +228,9 @@
 .ph-fill.ph-person-simple-walk:before {
   content: "\e73a";
 }
+.ph-fill.ph-phone:before {
+  content: "\e3b8";
+}
 .ph-fill.ph-phone-call:before {
   content: "\e3ba";
 }
@@ -311,6 +314,9 @@
 }
 .ph-fill.ph-waves:before {
   content: "\e6de";
+}
+.ph-fill.ph-whatsapp-logo:before {
+  content: "\e5d0";
 }
 .ph-fill.ph-wifi-high:before {
   content: "\e4ea";
@@ -556,6 +562,9 @@
 .ph-bold.ph-person-simple-walk:before {
   content: "\e73a";
 }
+.ph-bold.ph-phone:before {
+  content: "\e3b8";
+}
 .ph-bold.ph-phone-call:before {
   content: "\e3ba";
 }
@@ -639,6 +648,9 @@
 }
 .ph-bold.ph-waves:before {
   content: "\e6de";
+}
+.ph-bold.ph-whatsapp-logo:before {
+  content: "\e5d0";
 }
 .ph-bold.ph-wifi-high:before {
   content: "\e4ea";
@@ -1214,6 +1226,14 @@
   content: "\e73b";
   margin-left: -1em;
 }
+.ph-duotone.ph-phone:before {
+  content: "\e3b8";
+  opacity: 0.2;
+}
+.ph-duotone.ph-phone:after {
+  content: "\e3b9";
+  margin-left: -1em;
+}
 .ph-duotone.ph-phone-call:before {
   content: "\e3ba";
   opacity: 0.2;
@@ -1436,6 +1456,14 @@
 }
 .ph-duotone.ph-waves:after {
   content: "\e6df";
+  margin-left: -1em;
+}
+.ph-duotone.ph-whatsapp-logo:before {
+  content: "\e5d0";
+  opacity: 0.2;
+}
+.ph-duotone.ph-whatsapp-logo:after {
+  content: "\e5d1";
   margin-left: -1em;
 }
 .ph-duotone.ph-wifi-high:before {

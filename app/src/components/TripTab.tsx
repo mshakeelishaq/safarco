@@ -230,7 +230,18 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
                       </div>
                       {d.stay.loading && <div style={css('font-size:12px;font-weight:600;color:var(--mute);margin-top:10px')}>Finding hotels…</div>}
                       <div style={css('display:flex;flex-direction:column;gap:8px;margin-top:10px')}>
-                        {d.stay.options.map(h => (
+                        {d.stay.options.map(h => h.trusted ? (
+                          <div key={h.key} style={css('padding:10px;border-radius:14px;background:rgba(46,229,157,.08);border:1px solid rgba(46,229,157,.35)')}>
+                            <div style={css('display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:800;color:var(--g);letter-spacing:.04em;text-transform:uppercase')}><i className="ph-fill ph-seal-check" />Recommended by SafarCo</div>
+                            <div style={css('font-size:14px;font-weight:800;line-height:1.3;margin-top:2px')}>{h.name}</div>
+                            <div style={css('font-size:12px;color:var(--mute);font-weight:600;margin-top:1px;line-height:1.4')}>{h.note}</div>
+                            <div style={css('display:flex;gap:6px;margin-top:8px')}>
+                              {h.wa && <a href={h.wa} target="_blank" rel="noopener" style={css('flex:1;height:38px;border-radius:12px;background:#25D366;color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none')}><i className="ph-fill ph-whatsapp-logo" style={css('font-size:17px')} />WhatsApp</a>}
+                              <a href={h.mapUrl} target="_blank" rel="noopener" aria-label={`${h.name} on Google Maps`} style={css('flex:none;width:38px;height:38px;border-radius:12px;background:var(--fill);border:1px solid var(--line);color:var(--ink2);display:flex;align-items:center;justify-content:center;font-size:16px')}><i className="ph-fill ph-map-pin" /></a>
+                              <a href={h.checkUrl} target="_blank" rel="noopener" style={css('flex:1;height:38px;border-radius:12px;background:var(--fill);border:1px solid var(--line2);color:var(--ink);font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;text-decoration:none;white-space:nowrap')}>Check prices</a>
+                            </div>
+                          </div>
+                        ) : (
                           <div key={h.key} style={css('display:flex;align-items:center;gap:8px')}>
                             <div style={css('flex:1;min-width:0')}><div style={css('font-size:13px;font-weight:700;line-height:1.3')}>{h.name}</div><div style={css('font-size:11px;color:var(--mute);font-weight:600;margin-top:1px')}>{h.note}</div></div>
                             <a href={h.mapUrl} target="_blank" rel="noopener" aria-label={`${h.name} on Google Maps`} style={css('flex:none;width:38px;height:38px;border-radius:12px;background:var(--fill);border:1px solid var(--line);color:var(--ink2);display:flex;align-items:center;justify-content:center;font-size:16px')}><i className="ph-fill ph-map-pin" /></a>
@@ -247,6 +258,26 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
             ); })}
           </ol>
         </section>
+
+        {v.drivers.length > 0 && (
+          <Fold icon="ph-jeep" iconColor="var(--amb2)" title="Trusted drivers and jeeps" summary={`${v.drivers.length} on your route`}>
+            <div style={css('display:flex;flex-direction:column;gap:12px')}>
+              {v.drivers.map(x => (
+                <div key={x.key} style={css('display:flex;align-items:center;gap:10px')}>
+                  <div style={css('flex:1;min-width:0')}>
+                    <div style={css('display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:800;color:var(--g);letter-spacing:.04em;text-transform:uppercase')}><i className="ph-fill ph-seal-check" />Recommended by SafarCo</div>
+                    <div style={css('font-size:14px;font-weight:800;line-height:1.3')}>{x.name} <span style={css('font-weight:600;color:var(--mute);font-size:12px')}>· {x.area}</span></div>
+                    <div style={css('font-size:12px;color:var(--ink2);font-weight:600;margin-top:1px')}>{x.vehicle}{x.rate ? ` · ${x.rate}` : ''}</div>
+                    {x.note && <div style={css('font-size:12px;color:var(--mute);font-weight:500;margin-top:1px;line-height:1.4')}>{x.note}</div>}
+                  </div>
+                  {x.tel && <a href={x.tel} aria-label={`Call ${x.name}`} style={css('flex:none;width:40px;height:40px;border-radius:13px;background:var(--fill);border:1px solid var(--line);color:var(--ink);display:flex;align-items:center;justify-content:center;font-size:18px')}><i className="ph-fill ph-phone" /></a>}
+                  {x.wa && <a href={x.wa} target="_blank" rel="noopener" aria-label={`WhatsApp ${x.name}`} style={css('flex:none;width:40px;height:40px;border-radius:13px;background:#25D366;color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px')}><i className="ph-fill ph-whatsapp-logo" /></a>}
+                </div>
+              ))}
+            </div>
+            <div style={css('font-size:11px;font-weight:600;color:var(--mute);margin-top:12px;line-height:1.45')}>Drivers SafarCo knows. Agree the price and route before you set off.</div>
+          </Fold>
+        )}
 
         <Fold icon="ph-wallet" title="Budget breakdown" summary={`PKR ${v.totalNum}`} summaryColor="var(--ink)">
           <div style={css('display:flex;flex-direction:column;gap:12px')}>

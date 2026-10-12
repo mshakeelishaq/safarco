@@ -8,7 +8,8 @@ import { sunTimes } from './engine/sun';
 import { checkPricesUrl, flightSearchUrl, nightRange, pkrUsd, usd } from './money';
 import { routePoints, weatherPlan } from './weather/route';
 import { weatherView } from './weather/view';
-import { SECTIONS, activeAlerts, checkedText, isStale, type Section } from './prices';
+import { SECTIONS, activeAlerts, checkedText, isStale, prices, type Section } from './prices';
+import { areaOf, nearPoint, onTrip, telLink, waLink } from './local';
 import { CITIES, CITY, CITY_DUP, DST, cityOr, placesFor, seasonFactor } from './engine/places';
 import type { AppState, Patch } from './state';
 import { THEMES } from './state';
@@ -122,6 +123,16 @@ export function buildView(s: AppState, api: Api) {
   const rooms = s.rooms === 'shared' ? Math.ceil(s.groupSize / 4) : Math.max(1, Math.ceil(AD / 2));
   const spotsAt = (kind: 'sights' | 'hotels', lat: number, lon: number) => { const e = LIVE.places[placesKey(kind, lat, lon)]; return { loading: !e || e.status === 'loading', list: e && e.status === 'ok' ? e.data : [] as Spot[] }; };
   const check = (q: string, checkin: string, n: number) => checkPricesUrl(q, checkin, n, AD, s.kids, rooms);
+
+  // The admin's trusted hotels, drivers and road alerts, kept to the places this trip passes.
+  const tripLine: [number, number][] = s.vehicle === 'air' ? [] : routeCoords;
+  const tripStops = [{ lat: D.lat, lon: D.lon }, ...plan.days.flatMap(d => d.stay ? [{ lat: d.stay.lat, lon: d.stay.lon }] : [])];
+  const shortDate = (iso: string) => { const d = new Date(iso + 'T00:00'); return isNaN(+d) ? '' : d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }); };
+  const contact = (phone: string) => ({ wa: waLink(phone), tel: telLink(phone) });
+  const drivers = prices().drivers.filter(x => x.active && onTrip([x.area], tripLine, tripStops)).map(x => ({
+    key: x.id, name: x.name, area: areaOf(x.area)?.name || '', vehicle: `${x.vehicle}${x.seats ? ` · ${x.seats} seats` : ''}`,
+    rate: x.rate ? `PKR ${fmtN(x.rate)} (${usd(x.rate)})${x.checked ? ` · checked ${shortDate(x.checked)}` : ''}` : '', note: x.note, ...contact(x.phone) }));
+  const trustedAt = (lat: number, lon: number) => prices().hotels.filter(h => h.active && nearPoint(h.area, lat, lon, 15));
   const tierRanges = (['backpacker', 'standard', 'premium'] as const).map(t => ({ key: t, label: TIERS[t].label, on: s.tier === t, ...nightRange(t, sf) }));
   const destHotels = spotsAt('hotels', D.lat, D.lon), destSights = spotsAt('sights', D.lat, D.lon);
   const nightsAtDest = plan.days.filter(d => d.stay && d.stay.town === D.town).length || 1;
@@ -143,10 +154,10 @@ export function buildView(s: AppState, api: Api) {
   const used: Section[] = [...(own ? ['fuel', 'tolls'] as Section[] : []), 'stays', ...(['rentcar', 'rent4x4', 'coaster'].includes(s.vehicle) || isAir ? ['hire'] as Section[] : []),
     ...(s.vehicle === 'public' ? ['coach'] as Section[] : []), ...(isAir ? ['fares'] as Section[] : []), ...(rows.some(r => /jeep/i.test(r.label)) ? ['jeeps'] as Section[] : [])];
   const priceNotes = used.map(k => ({ key: k, label: SECTIONS[k].label, source: SECTIONS[k].source, checked: checkedText(k), ok: !isStale(k) }));
-  const alertNotes = activeAlerts().map(a => ({ icon: 'ph-megaphone', color: 'var(--cor)', text: `${a.title}${a.message ? `: ${a.message}` : ''}${a.date ? ` (posted ${dayLabel(a.date, 0)})` : ''}` }));
+  const alertNotes = activeAlerts().filter(a => !a.areas?.length || onTrip(a.areas, tripLine, tripStops)).map(a => ({ icon: 'ph-megaphone', color: 'var(--cor)', text: `${a.title}${a.message ? `: ${a.message}` : ''}${a.date ? ` (posted ${dayLabel(a.date, 0)})` : ''}` }));
 
   return {
-    s, c, gate, tip, health, off, isAir, wPlan, rPoints, selCorridor: sug.sel?.corridor, stays, nearby, priceNotes, ratesChecked: checkedText(s.vehicle === 'public' ? 'coach' : isAir ? 'fares' : 'hire'),
+    s, c, gate, tip, health, off, isAir, drivers, wPlan, rPoints, selCorridor: sug.sel?.corridor, stays, nearby, priceNotes, ratesChecked: checkedText(s.vehicle === 'public' ? 'coach' : isAir ? 'fares' : 'hire'),
     fxNote: fx.live ? `US$ at 1 USD = PKR ${fx.pkrPerUsd.toFixed(2)}${fx.updated ? ` (${fx.updated})` : ''}` : `US$ at about PKR ${fx.pkrPerUsd} (live rate unavailable)`,
     wiki: { loading: !wikiE || wikiE.status === 'loading', info: wikiE && wikiE.status === 'ok' ? wikiE.data : null },
     stepLabel: `${s.step + 1} / 6`,
@@ -267,8 +278,11 @@ export function buildView(s: AppState, api: Api) {
           const st = d.stay!, nr = nightRange(s.tier, sf), night = isoOff(s.startDate, i), live = spotsAt('hotels', st.lat, st.lon);
           const picks = live.list.length ? live.list.slice(0, 4).map(h => ({ name: h.name, note: `${h.type}${h.km ? ` · ${Math.round(h.km * 10) / 10} km from centre` : ''}` }))
             : st.curated ? [{ name: st.name, note: st.note }] : [];
-          const options = picks.map(h => ({ ...h, key: h.name, checkUrl: check(`${h.name}, ${st.town}`, night, 1), mapUrl: mapsQ(`${h.name}, ${st.town}`) }));
-          return { ...st, range: `${TIERS[s.tier].label} · ${nr.text} (${nr.usd}) a night`, href: check(st.town, night, 1), options, loading: live.loading && !options.length, source: live.list.length ? 'OpenStreetMap, via Geoapify' : '' };
+          const mine = trustedAt(st.lat, st.lon).map(h => ({ name: h.name, key: 't:' + h.id, trusted: true, note: [`${TIERS[h.tier].label}${h.price ? ` · PKR ${fmtN(h.price)} a night` : ''}${h.checked ? ` (checked ${shortDate(h.checked)})` : ''}`, h.note].filter(Boolean).join(' · '),
+            checkUrl: check(`${h.name}, ${st.town}`, night, 1), mapUrl: mapsQ(`${h.name}, ${st.town}`), ...contact(h.phone) }));
+          const options = [...mine, ...picks.filter(h => !mine.some(m => m.name.toLowerCase() === h.name.toLowerCase())).slice(0, Math.max(2, 4 - mine.length))
+            .map(h => ({ ...h, key: h.name, trusted: false, wa: '', tel: '', checkUrl: check(`${h.name}, ${st.town}`, night, 1), mapUrl: mapsQ(`${h.name}, ${st.town}`) }))];
+          return { ...st, range: `${TIERS[s.tier].label} · ${nr.text} (${nr.usd}) a night`, href: check(st.town, night, 1), options, loading: live.loading && !picks.length, source: live.list.length ? 'OpenStreetMap, via Geoapify' : '' };
         })(), stops: (d.stops || []).map(t => ({ ...t, icon: STOP_KIND[t.kind][0], color: STOP_KIND[t.kind][1] })), tile: K[d.kind][0], kindLabel: K[d.kind][1], lineOp: i === p.days.length - 1 ? 0 : 1 })) };
     })(),
     rows: rows.map(r => ({ ...r, amount: fmtN(r.val), amountUsd: usd(r.val), color: CAT[r.label] || 'var(--sky)', grad: `linear-gradient(135deg,${CAT[r.label] || 'var(--sky)'},${CAT2[r.label] || '#3B8DFF'})` })),

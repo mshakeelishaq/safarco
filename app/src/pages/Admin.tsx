@@ -1,16 +1,32 @@
-// /admin: edit the price list and road alerts, and read feedback.
+// /admin: edit the price list, trusted hotels and drivers, and road alerts, and read feedback.
 // Only emails listed in the Supabase "admins" table can save (enforced by the database).
 import { useEffect, useState } from 'react';
 import { cloudEnabled, currentUser, isAdmin, listFeedback, loadPriceList, onUserChange, savePriceList, signInWithGoogle, signOut, type FeedbackRow, type User } from '../cloud';
 import { AIRPORTS } from '../engine/data';
 import { css } from '../lib/css';
 import { RESEARCHED_ON, withResearched } from '../researched';
-import { DEFAULT_PRICES, FRESH_DAYS, SECTIONS, applyPrices, jeepTrips, tollRoads, type PriceList, type Section } from '../prices';
+import { AREAS, areaOf, waLink } from '../local';
+import { DEFAULT_PRICES, FRESH_DAYS, SECTIONS, applyPrices, jeepTrips, rid, tollRoads, type PriceList, type Section } from '../prices';
 
 const today = () => new Date().toISOString().slice(0, 10);
 const box = css('border-radius:20px;padding:18px;background:var(--card);border:1px solid var(--line);margin-top:16px');
 const field = css('width:120px;box-sizing:border-box;height:40px;border-radius:12px;border:1px solid var(--line2);background:var(--fill);padding:0 10px;font-size:15px;font-weight:700;color:var(--ink);text-align:right');
 const btn = (p: boolean) => css(`height:44px;padding:0 16px;border-radius:14px;border:${p ? '0' : '1px solid var(--line2)'};background:${p ? 'var(--cta)' : 'var(--fill)'};color:${p ? 'var(--onCta)' : 'var(--ink)'};font-size:14px;font-weight:800;cursor:pointer`);
+
+const text = css('width:100%;box-sizing:border-box;height:40px;border-radius:12px;border:1px solid var(--line2);background:var(--fill);padding:0 10px;font-size:15px;font-weight:600;color:var(--ink)');
+const lbl = css('display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:700;color:var(--mute)');
+const row2 = css('display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px');
+
+/** Pick a destination, town or pass. */
+function AreaSelect({ value, onChange, placeholder }: { value: string; onChange: (id: string) => void; placeholder: string }) {
+  const groups = ['Destinations', 'Towns', 'Passes'] as const;
+  return (
+    <select value={value} onChange={e => onChange(e.target.value)} style={text}>
+      <option value="">{placeholder}</option>
+      {groups.map(g => <optgroup key={g} label={g}>{AREAS.filter(a => a.group === g).map(a => <option key={a.id} value={a.id}>{a.name}</option>)}</optgroup>)}
+    </select>
+  );
+}
 
 function Num({ label, value, onChange }: { label: string; value: number; onChange: (n: number) => void }) {
   return (
@@ -54,6 +70,8 @@ export function Admin() {
     if (!list) return;
     const bad = JSON.stringify(list).includes('null');
     if (bad) { setStatus('Some boxes are empty. Fill them in before saving.'); return; }
+    const half = [...list.hotels.map(h => ['Hotel', h.name, h.area]), ...list.drivers.map(x => ['Driver', x.name, x.area])].find(([, n, a]) => !n.trim() || !a);
+    if (half) { setStatus(`${half[0]} “${half[1] || 'without a name'}” needs a name and a place.`); return; }
     setStatus('Saving…');
     try { await savePriceList(list); applyPrices(list); setStatus('Saved. Visitors get the new prices next time they open SafarCo.'); }
     catch (e) { setStatus('Couldn’t save: ' + ((e as Error).message || 'unknown error')); }
@@ -122,8 +140,62 @@ export function Admin() {
       {jeepTrips().map(j => <Num key={j.key} label={j.label} value={list.jeeps[j.key]} onChange={n => upd(l => { l.jeeps[j.key] = n; })} />)}
     </section>
 
+    <section style={box}><h2 style={css('margin:0 0 4px;font-size:18px')}>Trusted hotels</h2>
+      <p style={css('font-size:13px;color:var(--mute);margin:4px 0 10px')}>Hotels you vouch for. They show first, marked “Recommended by SafarCo”, on every night spent in that place, with a WhatsApp button. Ask the owner before you publish their number.</p>
+      {list.hotels.map((h, i) => (
+        <div key={h.id} style={css(`display:grid;gap:8px;padding:12px 0;border-bottom:1px solid var(--line);opacity:${h.active ? 1 : .55}`)}>
+          <div style={row2}>
+            <label style={lbl}>Name<input value={h.name} onChange={e => upd(l => { l.hotels[i].name = e.target.value; })} style={text} /></label>
+            <label style={lbl}>Place<AreaSelect value={h.area} placeholder="Choose a place" onChange={id => upd(l => { l.hotels[i].area = id; })} /></label>
+          </div>
+          <div style={row2}>
+            <label style={lbl}>Level<select value={h.tier} onChange={e => upd(l => { l.hotels[i].tier = e.target.value as typeof h.tier; })} style={text}><option value="backpacker">Backpacker</option><option value="standard">Standard</option><option value="premium">Premium</option></select></label>
+            <label style={lbl}>Price a night (PKR)<input type="number" min={0} value={h.price || ''} onChange={e => upd(l => { l.hotels[i].price = +e.target.value || 0; })} style={text} /></label>
+            <label style={lbl}>WhatsApp / phone<input inputMode="tel" placeholder="0300 1234567" value={h.phone} onChange={e => upd(l => { l.hotels[i].phone = e.target.value; })} style={text} /></label>
+          </div>
+          <label style={lbl}>Note (optional)<input placeholder="Heated rooms, parking, family-friendly" value={h.note} onChange={e => upd(l => { l.hotels[i].note = e.target.value; })} style={text} /></label>
+          <div style={css('display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px;font-weight:600;color:var(--mute)')}>
+            Price checked <input type="date" value={h.checked} onChange={e => upd(l => { l.hotels[i].checked = e.target.value; })} />
+            <button onClick={() => upd(l => { l.hotels[i].checked = today(); })} style={btn(false)}>Today</button>
+            <label style={css('display:flex;gap:6px;align-items:center')}><input type="checkbox" checked={h.active} onChange={e => upd(l => { l.hotels[i].active = e.target.checked; })} />Show in app</label>
+            {h.phone && !waLink(h.phone) && <span style={css('color:var(--cor)')}>Check the number</span>}
+            <button onClick={() => upd(l => { l.hotels.splice(i, 1); })} style={btn(false)}>Delete</button>
+          </div>
+        </div>
+      ))}
+      <button onClick={() => upd(l => { l.hotels.push({ id: rid(), name: '', area: '', tier: 'standard', price: 0, phone: '', note: '', checked: today(), active: true }); })} style={{ ...btn(false), marginTop: 10 }}>+ Add hotel</button>
+    </section>
+
+    <section style={box}><h2 style={css('margin:0 0 4px;font-size:18px')}>Trusted drivers and jeeps</h2>
+      <p style={css('font-size:13px;color:var(--mute);margin:4px 0 10px')}>Drivers you vouch for. They show on every trip that passes their place, with Call and WhatsApp buttons. Ask each driver before you publish their number.</p>
+      {list.drivers.map((x, i) => (
+        <div key={x.id} style={css(`display:grid;gap:8px;padding:12px 0;border-bottom:1px solid var(--line);opacity:${x.active ? 1 : .55}`)}>
+          <div style={row2}>
+            <label style={lbl}>Name<input value={x.name} onChange={e => upd(l => { l.drivers[i].name = e.target.value; })} style={text} /></label>
+            <label style={lbl}>Where they work<AreaSelect value={x.area} placeholder="Choose a place" onChange={id => upd(l => { l.drivers[i].area = id; })} /></label>
+          </div>
+          <div style={row2}>
+            <label style={lbl}>Vehicle<input list="vehicles" placeholder="Jeep" value={x.vehicle} onChange={e => upd(l => { l.drivers[i].vehicle = e.target.value; })} style={text} /></label>
+            <label style={lbl}>Seats<input type="number" min={0} value={x.seats || ''} onChange={e => upd(l => { l.drivers[i].seats = +e.target.value || 0; })} style={text} /></label>
+            <label style={lbl}>Usual rate (PKR)<input type="number" min={0} value={x.rate || ''} onChange={e => upd(l => { l.drivers[i].rate = +e.target.value || 0; })} style={text} /></label>
+            <label style={lbl}>WhatsApp / phone<input inputMode="tel" placeholder="0300 1234567" value={x.phone} onChange={e => upd(l => { l.drivers[i].phone = e.target.value; })} style={text} /></label>
+          </div>
+          <label style={lbl}>Note (optional)<input placeholder="Raikot Bridge to Tato, return. Speaks English." value={x.note} onChange={e => upd(l => { l.drivers[i].note = e.target.value; })} style={text} /></label>
+          <div style={css('display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px;font-weight:600;color:var(--mute)')}>
+            Rate checked <input type="date" value={x.checked} onChange={e => upd(l => { l.drivers[i].checked = e.target.value; })} />
+            <button onClick={() => upd(l => { l.drivers[i].checked = today(); })} style={btn(false)}>Today</button>
+            <label style={css('display:flex;gap:6px;align-items:center')}><input type="checkbox" checked={x.active} onChange={e => upd(l => { l.drivers[i].active = e.target.checked; })} />Show in app</label>
+            {x.phone && !waLink(x.phone) && <span style={css('color:var(--cor)')}>Check the number</span>}
+            <button onClick={() => upd(l => { l.drivers.splice(i, 1); })} style={btn(false)}>Delete</button>
+          </div>
+        </div>
+      ))}
+      <datalist id="vehicles"><option value="Jeep" /><option value="Land Cruiser" /><option value="Prado" /><option value="Car" /><option value="Coaster" /><option value="Hiace" /></datalist>
+      <button onClick={() => upd(l => { l.drivers.push({ id: rid(), name: '', area: '', vehicle: 'Jeep', seats: 0, rate: 0, phone: '', note: '', checked: today(), active: true }); })} style={{ ...btn(false), marginTop: 10 }}>+ Add driver</button>
+    </section>
+
     <section style={box}><h2 style={css('margin:0 0 4px;font-size:18px')}>Road alerts</h2>
-      <p style={css('font-size:13px;color:var(--mute);margin:4px 0 10px')}>Shown at the top of every trip’s “Dates &amp; season” card until the “Show until” date. Example: “Babusar Pass closed: snow, reopening expected 10 June”.</p>
+      <p style={css('font-size:13px;color:var(--mute);margin:4px 0 10px')}>Shown on trips until the “Show until” date. Choose the places it affects (for example Babusar Top) and it only shows on trips that pass them; with no places it shows on every trip. Example: “Babusar Pass closed: snow, reopening expected 10 June”.</p>
       {list.alerts.map((a, i) => (
         <div key={i} style={css('display:grid;gap:8px;padding:10px 0;border-bottom:1px solid var(--line)')}>
           <input placeholder="Title" value={a.title} onChange={e => upd(l => { l.alerts[i].title = e.target.value; })} style={{ ...field, width: '100%', textAlign: 'left' }} />
@@ -133,9 +205,14 @@ export function Admin() {
             Show until <input type="date" value={a.until || ''} onChange={e => upd(l => { l.alerts[i].until = e.target.value || undefined; })} />
             <button onClick={() => upd(l => { l.alerts.splice(i, 1); })} style={btn(false)}>Remove</button>
           </div>
+          <div style={css('display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:13px;font-weight:600;color:var(--mute)')}>
+            Places: {(a.areas || []).length === 0 && <span>every trip</span>}
+            {(a.areas || []).map(id => <button key={id} onClick={() => upd(l => { l.alerts[i].areas = (l.alerts[i].areas || []).filter(x => x !== id); })} style={css('height:32px;padding:0 10px;border-radius:10px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);font-weight:700;cursor:pointer')}>{areaOf(id)?.name || id} ✕</button>)}
+            <div style={css('min-width:180px')}><AreaSelect value="" placeholder="+ Add a place" onChange={id => id && upd(l => { const cur = l.alerts[i].areas || []; if (!cur.includes(id)) l.alerts[i].areas = [...cur, id]; })} /></div>
+          </div>
         </div>
       ))}
-      <button onClick={() => upd(l => { l.alerts.push({ title: '', message: '', date: today() }); })} style={{ ...btn(false), marginTop: 10 }}>+ Add alert</button>
+      <button onClick={() => upd(l => { l.alerts.push({ title: '', message: '', date: today(), areas: [] }); })} style={{ ...btn(false), marginTop: 10 }}>+ Add alert</button>
     </section>
 
     <div style={css('position:sticky;bottom:0;padding:14px 0;background:var(--bg);display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:16px;border-top:1px solid var(--line)')}>
