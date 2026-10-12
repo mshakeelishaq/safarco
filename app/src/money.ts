@@ -16,6 +16,10 @@ export function nightRange(tier: TierId, season: number) {
 const AID = (import.meta.env.VITE_BOOKING_AID as string | undefined)?.trim();
 
 /** Booking.com search for a town (or a hotel in it) on the trip's dates, showing live prices. */
+/** Google Flights search for one flight, so travellers see today's real fares from every airline. */
+export const flightSearchUrl = (from: string, to: string, iso: string, adults: number, kids: number) =>
+  `https://www.google.com/travel/flights?hl=en&curr=PKR&q=${encodeURIComponent(`One way flights from ${from} to ${to} on ${iso} for ${adults} adult${adults > 1 ? 's' : ''}${kids ? ` and ${kids} child${kids > 1 ? 'ren' : ''}` : ''}`)}`;
+
 export function checkPricesUrl(q: string, checkin: string, nights: number, adults: number, kids: number, rooms: number) {
   const p = new URLSearchParams({ ss: `${q}, Pakistan`, checkin, checkout: isoOff(checkin, Math.max(1, nights)), group_adults: String(adults), group_children: String(kids), no_rooms: String(Math.max(1, rooms)) });
   if (AID && /^\d+$/.test(AID)) p.set('aid', AID);

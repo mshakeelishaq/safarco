@@ -5,7 +5,7 @@ import { MAX_DRIVE_H, airFor, babusarClosed, buildPlan, coachFare, costFor, free
 import { clock, dayLabel, dur, fmt, fmtN, isoAdd, isoOf, isoOff, kShort, mapsQ, mon } from './engine/format';
 import { LIVE, fxRate, placesKey, routeKey, type Spot } from './engine/live';
 import { sunTimes } from './engine/sun';
-import { checkPricesUrl, nightRange, usd } from './money';
+import { checkPricesUrl, flightSearchUrl, nightRange, pkrUsd, usd } from './money';
 import { routePoints, weatherPlan } from './weather/route';
 import { weatherView } from './weather/view';
 import { SECTIONS, activeAlerts, checkedText, isStale, type Section } from './prices';
@@ -261,7 +261,8 @@ export function buildView(s: AppState, api: Api) {
       return { summary: `${p.total} days · ${p.total - 1} nights`, via: p.air ? `Flights ${p.air.dep} ⇄ ${p.air.arr} · car and driver at the destination` : `${c.kmStr} km each way by road · ${c.via}`,
         hasDep: !p.air && p.hasDrive, depChips, wxDepart: rw.depart && s.depart !== rw.depart.dep ? { ...rw.depart, label: clock(rw.depart.dep), apply: () => set({ depart: rw.depart!.dep }) } : null, depNoteC: p.late ? 'var(--amb)' : 'var(--mute)',
         depNote: p.late ? `Some driving days end after sunset (about ${clock(p.sunset)}). ${p.dep > p.rec ? `Leave by ${clock(p.rec)}.` : 'Consider an extra night stop.'}` : s.depart == null ? `Recommended ${clock(p.rec)}, so every driving day ends before sunset (the earliest is about ${clock(p.sunset)}).` : `Every driving day ends before sunset (the earliest is about ${clock(p.sunset)}).`,
-        days: p.days.map((d, i) => ({ ...d, strip: rw.strips.get(i) || null, destWx: d.track ? null : rw.destDays.find(x => x.idx === i) || null, stay: d.stay && (() => {
+        days: p.days.map((d, i) => ({ ...d, flight: d.kind === 'fly' && p.air && d.iso ? (() => { const out = i === 0, from = out ? p.air!.dep : p.air!.arr, to = out ? p.air!.arr : p.air!.dep;
+          return { from, to, fare: `About ${pkrUsd(p.air!.fare)} one way per adult · ${checkedText('fares')}`, href: flightSearchUrl(from, to, d.iso!, s.adults + s.elders, s.kids) }; })() : null, strip: rw.strips.get(i) || null, destWx: d.track ? null : rw.destDays.find(x => x.idx === i) || null, stay: d.stay && (() => {
           const st = d.stay!, nr = nightRange(s.tier, sf), near = spotsAt('hotels', st.lat, st.lon).list.filter(h => h.name !== st.name).slice(0, 3).map(h => h.name);
           return { ...st, range: `${TIERS[s.tier].label} · ${nr.text} (${nr.usd}) a night`, href: check(st.curated ? `${st.name}, ${st.town}` : st.town, isoOff(s.startDate, i), 1), nearby: near.length ? `Nearby on OpenStreetMap: ${near.join(' · ')}` : st.alts };
         })(), stops: (d.stops || []).map(t => ({ ...t, icon: STOP_KIND[t.kind][0], color: STOP_KIND[t.kind][1] })), tile: K[d.kind][0], kindLabel: K[d.kind][1], lineOp: i === p.days.length - 1 ? 0 : 1 })) };

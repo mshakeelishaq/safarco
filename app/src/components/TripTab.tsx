@@ -221,6 +221,18 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
                       ))}
                     </div>
                   )}
+                  {d.flight && (
+                    <a href={d.flight.href} target="_blank" rel="noopener" style={css('display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;border-radius:16px;background:var(--deep);border:1px solid var(--line);text-decoration:none;color:var(--ink)')}>
+                      <i className="ph-fill ph-airplane-tilt" style={css('font-size:20px;color:var(--g);flex:none')} />
+                      <span style={css('flex:1;min-width:0;display:flex;flex-direction:column')}>
+                        <span style={css('font-size:11px;font-weight:700;color:var(--mute)')}>Flight</span>
+                        <span style={css('font-size:14px;font-weight:800;margin-top:2px')}>{d.flight.from} → {d.flight.to}</span>
+                        <span style={css('font-size:12px;color:var(--mute);font-weight:500;margin-top:1px')}>{d.flight.fare}</span>
+                        <span style={css('font-size:12px;color:var(--g);font-weight:700;margin-top:3px')}>Check live fares for this day</span>
+                      </span>
+                      <i className="ph-bold ph-arrow-up-right" style={css('font-size:15px;color:var(--mute);flex:none')} />
+                    </a>
+                  )}
                   {d.stay && <>
                     <a href={d.stay.href} target="_blank" rel="noopener" style={css('display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;border-radius:16px;background:var(--deep);border:1px solid var(--line);text-decoration:none;color:var(--ink)')}>
                       <i className="ph-fill ph-bed" style={css('font-size:20px;color:var(--g);flex:none')} />
