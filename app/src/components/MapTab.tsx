@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { LIVE, routeKey } from '../engine/live';
 import { cityOr } from '../engine/places';
 import { css } from '../lib/css';
+import { t } from '../i18n';
 import { DEM_TILES, MAP_STYLE } from '../mapConfig';
 import type { Api, View } from '../view';
 
@@ -76,16 +77,16 @@ function LiveMap({ v, onFail }: { v: View; onFail: () => void }) {
   };
   useEffect(update);
 
-  return <div ref={el} role="application" aria-label="Route map" style={css('position:relative;height:440px;border-radius:20px;overflow:hidden;background:var(--fill)')} />;
+  return <div ref={el} role="application" aria-label={t('Route map')} style={css('position:relative;height:440px;border-radius:20px;overflow:hidden;background:var(--fill)')} />;
 }
 
 /** What the weather colours on the route mean. */
 function WxLegend({ v }: { v: View }) {
   if (!v.wx.mapPts.length) return null;
-  const items: [string, string][] = [['#2EB67D', 'Clear'], ['#2F6FED', 'Rain'], ['#5BB8F5', 'Snow'], ['#8E8E93', 'Fog'], ['#F2A007', 'Take care'], ['#E5484D', 'Danger']];
+  const items: [string, string][] = [['#2EB67D', t('Clear')], ['#2F6FED', t('Rain')], ['#5BB8F5', t('Snow')], ['#8E8E93', t('Fog')], ['#F2A007', t('Take care')], ['#E5484D', t('Danger')]];
   return (
     <div style={css('margin:10px 6px 0')}>
-      <div style={css('font-size:11px;font-weight:800;color:var(--mute)')}>Weather on the way there{v.wx.mapPts.length && v.wx.note.startsWith('Your dates') ? ' (typical for your dates)' : ', at the time you pass'} · tap a dot for details</div>
+      <div style={css('font-size:11px;font-weight:800;color:var(--mute)')}>{v.wx.mapPts.length && v.wx.note.startsWith('Your dates') ? t('Weather on the way there (typical for your dates) · tap a dot for details') : t('Weather on the way there, at the time you pass · tap a dot for details')}</div>
       <div style={css('display:flex;gap:6px 12px;flex-wrap:wrap;margin-top:6px;font-size:11px;font-weight:700;color:var(--mute)')}>{items.map(([c, l]) => <span key={l} style={css('display:flex;align-items:center;gap:5px')}><span style={css(`width:10px;height:10px;border-radius:50%;background:${c}`)} />{l}</span>)}</div>
     </div>
   );
@@ -116,9 +117,9 @@ function DrawnMap({ v }: { v: View }) {
       </div>
     </div>
     <div style={css('display:flex;gap:14px;flex-wrap:wrap;margin:14px 6px 0;font-size:11px;font-weight:700;color:var(--mute)')}>
-      <span style={css('display:flex;align-items:center;gap:6px')}><span style={css('width:16px;height:3px;border-radius:2px;background:#FFC060')} />Your route</span>
-      <span style={css('display:flex;align-items:center;gap:6px')}><span style={css('width:16px;height:2px;background:var(--fill2)')} />Other roads</span>
-      <span style={css('display:flex;align-items:center;gap:6px')}><span style={css('width:16px;height:0;border-top:2px dashed #FF6B5B')} />Closed this month</span>
+      <span style={css('display:flex;align-items:center;gap:6px')}><span style={css('width:16px;height:3px;border-radius:2px;background:#FFC060')} />{t('Your route')}</span>
+      <span style={css('display:flex;align-items:center;gap:6px')}><span style={css('width:16px;height:2px;background:var(--fill2)')} />{t('Other roads')}</span>
+      <span style={css('display:flex;align-items:center;gap:6px')}><span style={css('width:16px;height:0;border-top:2px dashed #FF6B5B')} />{t('Closed this month')}</span>
     </div>
     <WxLegend v={v} />
   </>;
@@ -131,7 +132,7 @@ export function MapTab({ v, api }: { v: View; api: Api }) {
       <div style={css('height:250px;position:relative;pointer-events:none')}>
         <div className="sc-col" style={css('position:absolute;left:22px;right:22px;top:58px;text-shadow:var(--tsh)')}>
           <div style={css('font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--amb2)')}>{c.from} → {c.to}</div>
-          <h1 style={css('margin:6px 0 0;font-family:var(--fontH);font-weight:600;font-size:26px;letter-spacing:-.02em')}>Route map</h1>
+          <h1 style={css('margin:6px 0 0;font-family:var(--fontH);font-weight:600;font-size:26px;letter-spacing:-.02em')}>{t('Route map')}</h1>
           <div style={css('font-size:13px;font-weight:700;color:var(--ink2);margin-top:8px;line-height:1.45')}>{rm.stat}</div>
         </div>
       </div>
@@ -139,12 +140,12 @@ export function MapTab({ v, api }: { v: View; api: Api }) {
         <div style={css('border-radius:30px;padding:16px 12px 22px;background:var(--sheet);border:1px solid var(--line);overflow:hidden')}>
           {s.mapFail ? <DrawnMap v={v} /> : <>
             <LiveMap v={v} onFail={() => api.set({ mapFail: true })} />
-            <div style={css('display:flex;gap:8px 14px;flex-wrap:wrap;margin:12px 6px 0;font-size:11px;font-weight:700;color:var(--mute)')}><span style={css('display:flex;align-items:center;gap:6px')}><span style={css('width:16px;height:4px;border-radius:2px;background:var(--sky)')} />{v.mapRouteLabel}</span><span>Drag to pan · two fingers or the compass to tilt</span></div>
+            <div style={css('display:flex;gap:8px 14px;flex-wrap:wrap;margin:12px 6px 0;font-size:11px;font-weight:700;color:var(--mute)')}><span style={css('display:flex;align-items:center;gap:6px')}><span style={css('width:16px;height:4px;border-radius:2px;background:var(--sky)')} />{v.mapRouteLabel}</span><span>{t('Drag to pan · two fingers or the compass to tilt')}</span></div>
             <WxLegend v={v} />
           </>}
         </div>
         <section style={css('border-radius:30px;padding:18px;background:var(--card);border:1px solid var(--line)')}>
-          <h2 style={css('margin:0;font-size:14px;font-weight:700;color:var(--mute)')}>Where you sleep</h2>
+          <h2 style={css('margin:0;font-size:14px;font-weight:700;color:var(--mute)')}>{t('Where you sleep')}</h2>
           <div style={css('display:flex;flex-direction:column;gap:12px;margin-top:14px')}>
             {rm.nights.map(n => (
               <div key={n.key} style={css('display:flex;align-items:center;gap:12px')}>
@@ -156,7 +157,7 @@ export function MapTab({ v, api }: { v: View; api: Api }) {
         </section>
         {!rm.isAir && (
           <section style={css('border-radius:30px;padding:18px;background:var(--card);border:1px solid var(--line)')}>
-            <h2 style={css('margin:0;font-size:14px;font-weight:700;color:var(--mute)')}>Roads on this route</h2>
+            <h2 style={css('margin:0;font-size:14px;font-weight:700;color:var(--mute)')}>{t('Roads on this route')}</h2>
             <div style={css('display:flex;flex-direction:column;gap:10px;margin-top:14px')}>
               {rm.roads.map(r => (
                 <div key={r.name} style={css('display:flex;align-items:center;gap:10px')}>
