@@ -243,14 +243,15 @@ export function App() {
           {s.screen === 'onboard' && <Onboarding v={view} api={api} />}
 
           {s.screen === 'app' && <>
-            <div ref={scrollRef} onScroll={onScroll} style={css('position:absolute;inset:0;z-index:5;overflow-y:auto;scrollbar-width:none;pointer-events:none')}>
+            <div ref={scrollRef} onScroll={onScroll} style={css('position:absolute;inset:0;z-index:5;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;pointer-events:none')}>
               {s.tab === 'trip' && <TripTab v={view} api={api} />}
               {s.tab === 'map' && <MapTab v={view} api={api} />}
               {s.tab === 'offline' && <OfflineTab v={view} api={api} />}
             </div>
 
+            {s.tab === 'trip' && <div aria-hidden style={css('position:absolute;left:0;right:0;bottom:0;height:calc(70px + env(safe-area-inset-bottom));z-index:11;pointer-events:none;background:linear-gradient(180deg,transparent,var(--bg) 55%)')} />}
             <nav aria-label="Sections" className="sc-nav" style={css('position:absolute;left:18px;right:18px;bottom:calc(24px + env(safe-area-inset-bottom));z-index:12;display:flex;align-items:center;gap:12px')}>
-              <div style={css('flex:1;height:64px;border-radius:24px;background:var(--sheet);backdrop-filter:blur(20px) saturate(1.4);border:1px solid var(--line);display:flex;align-items:center;padding:6px;gap:6px;box-shadow:0 20px 40px -16px rgba(0,0,0,.7)')}>
+              <div style={css('flex:1;height:64px;border-radius:24px;background:var(--sheet);backdrop-filter:blur(20px) saturate(1.4);border:1px solid var(--line);display:flex;align-items:center;padding:6px;gap:6px;box-shadow:0 12px 30px -14px rgba(0,0,0,.35)')}>
                 {view.tabs.map(t => <button key={t.key} onClick={t.onClick} aria-current={s.tab === t.key ? 'page' : undefined} style={css(`flex:1;height:52px;border-radius:19px;border:0;background:${t.bg};color:${t.fg};display:flex;align-items:center;justify-content:center;gap:5px;font-size:13px;font-weight:800;cursor:pointer;transition:all .25s`)}><i className={`ph-fill ${t.icon}`} style={css('font-size:19px')} />{t.label}</button>)}
               </div>
             </nav>

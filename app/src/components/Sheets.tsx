@@ -5,7 +5,7 @@ import { DateInput, RoomOpts } from './Onboarding';
 const Label = ({ children, style = '' }: { children: React.ReactNode; style?: string }) =>
   <div style={css('font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);' + style)}>{children}</div>;
 
-export const sheet = (h: number, open: boolean) => css(`position:absolute;left:0;right:0;bottom:0;height:${h}px;z-index:20;background:linear-gradient(180deg,var(--sheet),var(--sheet));backdrop-filter:blur(24px);border-radius:36px 36px 0 0;border-top:1px solid var(--line);box-shadow:0 -30px 60px -20px rgba(0,0,0,.6);transform:${open ? 'translateY(0)' : 'translateY(105%)'};transition:transform .5s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column`);
+export const sheet = (h: number, open: boolean) => css(`position:absolute;left:0;right:0;bottom:0;height:${h}px;z-index:20;background:linear-gradient(180deg,var(--sheet),var(--sheet));backdrop-filter:blur(24px);border-radius:36px 36px 0 0;border-top:1px solid var(--line);box-shadow:${open ? '0 -30px 60px -20px rgba(0,0,0,.6)' : 'none'};visibility:${open ? 'visible' : 'hidden'};transform:${open ? 'translateY(0)' : 'translateY(105%)'};transition:transform .5s cubic-bezier(.2,.8,.2,1),visibility 0s linear ${open ? '0s' : '.5s'},box-shadow 0s linear ${open ? '0s' : '.5s'};display:flex;flex-direction:column`);
 export const scrim = (open: boolean) => css(`position:absolute;inset:0;z-index:18;background:var(--scrim);opacity:${open ? 1 : 0};pointer-events:${open ? 'auto' : 'none'};transition:opacity .35s`);
 export const Grip = () => <div style={css('width:40px;height:5px;border-radius:3px;background:var(--fill2);margin:10px auto 0')} />;
 
