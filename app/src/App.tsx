@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { EditSheet } from './components/Sheets';
 import { FeedbackSheet, ReviewSheet, SaveSheet, SignInSheet, TripsSheet } from './components/Panels';
+import { WELCOMED, Welcome, seenWelcome } from './components/Welcome';
 import { cloudDelete, cloudEnabled, cloudSave, cloudTrips, currentUser, loadPriceList, loadReviews, onUserChange, sendFeedback, signInWithGoogle, signOut, submitReview, type User } from './cloud';
 import { markRated, ratedKey } from './rated';
 import { setReviews } from './reviews';
@@ -34,7 +35,7 @@ export function App() {
     const shared = tripFromUrl();
     if (shared) return { ...base, ...shared, screen: 'app', chosen: shared.corridor, toast: 'Shared trip opened. Tap Save to keep it.' };
     const cur = loadCurrent();
-    return cur ? { ...base, ...cur.data, screen: 'app', savedId: cur.savedId, chosen: cur.data.corridor } : base;
+    return cur ? { ...base, ...cur.data, screen: 'app', savedId: cur.savedId, chosen: cur.data.corridor } : { ...base, welcome: !seenWelcome() };
   });
   const [trips, setTrips] = useState<SavedTrip[]>(() => localTrips());
   const [user, setUser] = useState<User | null>(null);
@@ -266,9 +267,10 @@ export function App() {
           {s.toast && <div role="status" style={css('position:absolute;left:18px;right:18px;top:calc(56px + env(safe-area-inset-top));z-index:60;padding:12px 14px;border-radius:20px;background:var(--sheet);backdrop-filter:blur(20px);border:1px solid rgba(46,229,157,.35);color:var(--ink);font-size:13px;font-weight:700;display:flex;align-items:center;gap:10px;box-shadow:0 20px 40px -16px rgba(0,0,0,.5)')} className="sc-toast"><div style={css('width:30px;height:30px;flex:none;border-radius:10px;background:var(--cta);color:var(--onCta);display:flex;align-items:center;justify-content:center;font-size:16px')}><i className="ph-fill ph-check" /></div>{s.toast}</div>}
 
           <SaveSheet open={s.sheet === 'save'} isSaved={!!s.savedId} defaultName={(s.savedId && trips.find(t => t.id === s.savedId)?.name) || defaultName(tripData(s))} onSave={saveTrip} onClose={() => set({ sheet: 'none' })} />
+          <Welcome open={s.welcome} onStart={() => { try { localStorage.setItem(WELCOMED, '1'); } catch { /* storage blocked */ } set({ welcome: false }); }} />
           <SignInSheet open={s.sheet === 'signin'} onGoogle={google} onClose={() => set({ sheet: 'none' })} />
           <TripsSheet open={s.sheet === 'trips'} trips={trips} user={user} currentId={s.savedId} onOpen={openTrip} onDelete={deleteTrip} onShare={t => shareTrip(t.data, t.name)} onNew={newTrip}
-            onSignIn={google} onSignOut={() => signOut().then(() => set({ toast: 'Signed out. Trips stay on this device.' }))} onFeedback={() => set({ sheet: 'feedback' })} onClose={() => set({ sheet: 'none' })} />
+            onSignIn={google} onSignOut={() => signOut().then(() => set({ toast: 'Signed out. Trips stay on this device.' }))} onFeedback={() => set({ sheet: 'feedback' })} onAbout={() => set({ sheet: 'none', welcome: true })} onClose={() => set({ sheet: 'none' })} />
           <FeedbackSheet open={s.sheet === 'feedback'} onSend={feedback} onClose={() => set({ sheet: 'none' })} />
           <ReviewSheet open={s.sheet === 'review'} target={s.reviewFor} user={user} onGoogle={google} onClose={() => set({ sheet: 'none' })}
             onSend={(rating, comment) => { const r = s.reviewFor; if (!r) return Promise.reject(new Error('Nothing to rate'));
