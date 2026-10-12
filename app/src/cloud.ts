@@ -9,8 +9,9 @@ import { createClient, type Session, type SupabaseClient } from '@supabase/supab
 import type { PriceList } from './prices';
 import type { SavedTrip } from './trips';
 
-const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+// Tolerate the Data API address (…/rest/v1/) being pasted instead of the Project URL.
+const url = (import.meta.env.VITE_SUPABASE_URL as string | undefined)?.trim().replace(/\/rest\/v1\/?$/, '').replace(/\/+$/, '');
+const key = (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined)?.trim();
 export const sb: SupabaseClient | null = url && key ? createClient(url, key, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: 'pkce' } }) : null;
 export const cloudEnabled = !!sb;
 
