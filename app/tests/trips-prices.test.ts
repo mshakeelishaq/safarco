@@ -67,3 +67,17 @@ describe('researched prices', () => {
     expect(DEFAULT_PRICES.checked.fuel).toBe('');
   });
 });
+
+describe('price freshness', () => {
+  it('flags prices that are older than they usually stay right', async () => {
+    const { applyPrices, checkedText, isStale } = await import('../src/prices');
+    applyPrices({ checked: { fuel: '2026-10-01', tolls: '2026-10-01', stays: '', hire: '', coach: '', fares: '', jeeps: '' } });
+    const now = new Date('2026-10-12T12:00');
+    expect(checkedText('fuel', now)).toBe('checked 1 Oct 2026');
+    expect(isStale('fuel', new Date('2026-10-30T12:00'))).toBe(true);
+    expect(checkedText('fuel', new Date('2026-10-30T12:00'))).toBe('checked 1 Oct 2026, may have changed since');
+    expect(isStale('tolls', new Date('2026-10-30T12:00'))).toBe(false);
+    expect(isStale('fares', now)).toBe(true);
+    applyPrices(null);
+  });
+});

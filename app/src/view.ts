@@ -8,7 +8,7 @@ import { sunTimes } from './engine/sun';
 import { checkPricesUrl, nightRange, usd } from './money';
 import { routePoints, weatherPlan } from './weather/route';
 import { weatherView } from './weather/view';
-import { SECTIONS, activeAlerts, checkedText, type Section } from './prices';
+import { SECTIONS, activeAlerts, checkedText, isStale, type Section } from './prices';
 import { CITIES, CITY, CITY_DUP, DST, cityOr, placesFor, seasonFactor } from './engine/places';
 import type { AppState, Patch } from './state';
 import { THEMES } from './state';
@@ -142,7 +142,7 @@ export function buildView(s: AppState, api: Api) {
   const own = ['sedan', 'suv', 'bike', 'rentcar', 'rent4x4', 'coaster'].includes(s.vehicle);
   const used: Section[] = [...(own ? ['fuel', 'tolls'] as Section[] : []), 'stays', ...(['rentcar', 'rent4x4', 'coaster'].includes(s.vehicle) || isAir ? ['hire'] as Section[] : []),
     ...(s.vehicle === 'public' ? ['coach'] as Section[] : []), ...(isAir ? ['fares'] as Section[] : []), ...(rows.some(r => /jeep/i.test(r.label)) ? ['jeeps'] as Section[] : [])];
-  const priceNotes = used.map(k => ({ key: k, label: SECTIONS[k].label, source: SECTIONS[k].source, checked: checkedText(k), ok: checkedText(k) !== 'not checked yet' }));
+  const priceNotes = used.map(k => ({ key: k, label: SECTIONS[k].label, source: SECTIONS[k].source, checked: checkedText(k), ok: !isStale(k) }));
   const alertNotes = activeAlerts().map(a => ({ icon: 'ph-megaphone', color: 'var(--cor)', text: `${a.title}${a.message ? `: ${a.message}` : ''}${a.date ? ` (posted ${dayLabel(a.date, 0)})` : ''}` }));
 
   return {

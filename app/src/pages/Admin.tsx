@@ -5,7 +5,7 @@ import { cloudEnabled, currentUser, isAdmin, listFeedback, loadPriceList, onUser
 import { AIRPORTS } from '../engine/data';
 import { css } from '../lib/css';
 import { RESEARCHED_ON, withResearched } from '../researched';
-import { DEFAULT_PRICES, SECTIONS, applyPrices, jeepTrips, tollRoads, type PriceList, type Section } from '../prices';
+import { DEFAULT_PRICES, FRESH_DAYS, SECTIONS, applyPrices, jeepTrips, tollRoads, type PriceList, type Section } from '../prices';
 
 const today = () => new Date().toISOString().slice(0, 10);
 const box = css('border-radius:20px;padding:18px;background:var(--card);border:1px solid var(--line);margin-top:16px');
@@ -21,6 +21,10 @@ function Num({ label, value, onChange }: { label: string; value: number; onChang
   );
 }
 
+const ageOf = (d: string) => Math.floor((Date.now() - +new Date(d + 'T00:00')) / 864e5);
+/** True when a section was never checked or is older than it usually stays right. */
+const due = (list: PriceList, k: Section) => { const d = list.checked[k]; return !d || isNaN(+new Date(d + 'T00:00')) || ageOf(d) > FRESH_DAYS[k]; };
+
 function Checked({ list, k, set }: { list: PriceList; k: Section; set: (l: PriceList) => void }) {
   const v = list.checked[k];
   return (
@@ -29,6 +33,7 @@ function Checked({ list, k, set }: { list: PriceList; k: Section; set: (l: Price
       <input type="date" value={v} onChange={e => set({ ...list, checked: { ...list.checked, [k]: e.target.value } })} style={css('height:36px;border-radius:10px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);padding:0 8px')} />
       <button onClick={() => set({ ...list, checked: { ...list.checked, [k]: today() } })} style={css('height:36px;padding:0 12px;border-radius:10px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);font-weight:700;cursor:pointer')}>Today</button>
       <span>· Source: {SECTIONS[k].source}</span>
+      {due(list, k) && <span style={css('color:var(--cor);font-weight:800')}>· Needs checking ({v ? `last checked ${ageOf(v)} days ago, ` : ''}check every {FRESH_DAYS[k]} days)</span>}
     </div>
   );
 }
@@ -75,6 +80,9 @@ export function Admin() {
   return wrap(<>
     <p style={css('color:var(--mute);margin:0')}>Signed in as {user.email} · <button onClick={() => signOut()} style={css('border:0;background:none;color:var(--g);font-weight:700;cursor:pointer;padding:0')}>Sign out</button></p>
     <p style={css('font-size:14px;line-height:1.55')}>Update a section when you check its prices, and set <b>Checked on</b> to that day. All prices are in PKR. Visitors see the checked date next to each price.</p>
+    {(() => { const late = (Object.keys(SECTIONS) as Section[]).filter(k => due(list, k)); return late.length
+      ? <p role="status" style={css('margin:12px 0 0;padding:12px 14px;border-radius:14px;background:var(--fill);border:1px solid var(--cor);font-size:14px;font-weight:700;line-height:1.5')}>Needs checking: {late.map(k => SECTIONS[k].label).join(', ')}. Visitors see these as “not checked yet” or “may have changed”.</p>
+      : <p role="status" style={css('margin:12px 0 0;font-size:14px;font-weight:700;color:var(--g)')}>All prices are up to date.</p>; })()}
     <section style={box}><h2 style={css('margin:0 0 4px;font-size:18px')}>Prices researched online</h2>
       <p style={css('font-size:14px;line-height:1.55;margin:4px 0 10px')}>Fills in fuel, tolls, hotels, hire and coach fares found online on {new Date(RESEARCHED_ON + 'T00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} (OGRA and NHA notices, operator websites and booking sites), and marks those sections checked on that day. Flights and most jeep trips had no recent source, so they stay as they are. Look over the figures, then tap <b>Save price list</b>.</p>
       <button onClick={() => { setList(withResearched(list)); setStatus('Filled in. Review, then tap Save price list.'); }} style={btn(false)}>Fill in researched prices</button>

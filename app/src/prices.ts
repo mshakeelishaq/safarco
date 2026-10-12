@@ -79,12 +79,24 @@ export function applyPrices(saved: Partial<PriceList> | null | undefined) {
   return list;
 }
 
-/** "checked 1 Oct 2026" or "not checked yet". */
-export const checkedText = (section: Section) => {
+/** How long each section's prices usually hold: fuel changes twice a month, tolls about once a year. */
+export const FRESH_DAYS: Record<Section, number> = { fuel: 16, tolls: 200, stays: 100, hire: 100, coach: 100, fares: 45, jeeps: 120 };
+
+/** Days since the section was checked, or null if never. */
+export const checkedAge = (section: Section, now = new Date()) => {
+  const d = current.checked[section], dt = d ? new Date(d + 'T00:00') : null;
+  return dt && !isNaN(+dt) ? Math.max(0, Math.floor((+now - +dt) / 864e5)) : null;
+};
+export const isStale = (section: Section, now = new Date()) => { const a = checkedAge(section, now); return a === null || a > FRESH_DAYS[section]; };
+
+/** "checked 1 Oct 2026", "checked 1 Oct 2026, may have changed since" or "not checked yet". */
+export const checkedText = (section: Section, now = new Date()) => {
   const d = current.checked[section];
   if (!d) return 'not checked yet';
   const dt = new Date(d + 'T00:00');
-  return isNaN(+dt) ? 'not checked yet' : `checked ${dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+  if (isNaN(+dt)) return 'not checked yet';
+  const day = dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  return isStale(section, now) ? `checked ${day}, may have changed since` : `checked ${day}`;
 };
 
 /** Road alerts that haven't expired. */
