@@ -286,32 +286,6 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
           <div style={css('font-size:10px;font-weight:600;color:var(--mute);margin-top:14px')}>{v.fxNote} · <a href="https://www.exchangerate-api.com" target="_blank" rel="noopener" style={css('color:inherit')}>Rates by Exchange Rate API</a></div>
         </Fold>
 
-        <Fold icon="ph-bed" title="Where to stay" summary={v.stays.list.length ? `${v.stays.list.length} places in ${v.stays.town}` : v.stays.town}>
-          <div style={css('font-size:12px;color:var(--mute);font-weight:600;line-height:1.45')}>Typical prices a night in {v.stays.month}. Tap Check prices for real rates on your dates.</div>
-          <div style={css('display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:12px')}>
-            {v.stays.ranges.map(r => (
-              <div key={r.key} style={css(`padding:10px 8px;border-radius:16px;background:${r.on ? 'rgba(46,229,157,.12)' : 'var(--fill)'};border:1px solid ${r.on ? 'rgba(46,229,157,.45)' : 'transparent'}`)}>
-                <div style={css('font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--mute)')}>{r.label}</div>
-                <div style={css('font-size:12px;font-weight:800;margin-top:4px;font-variant-numeric:tabular-nums;line-height:1.3')}>{r.text}</div>
-                <div style={css('font-size:11px;font-weight:600;color:var(--mute);margin-top:2px;font-variant-numeric:tabular-nums')}>{r.usd}</div>
-              </div>
-            ))}
-          </div>
-          {v.stays.loading && <div style={css('font-size:13px;font-weight:600;color:var(--mute);margin-top:14px')}>Finding places to stay…</div>}
-          <div style={css('display:flex;flex-direction:column;gap:10px;margin-top:14px')}>
-            {v.stays.list.map(h => (
-              <div key={h.key} style={css('display:flex;align-items:center;gap:10px')}>
-                <i className="ph-fill ph-bed" style={css('font-size:20px;color:var(--g);flex:none')} />
-                <div style={css('flex:1;min-width:0')}><div style={css('font-size:14px;font-weight:700')}>{h.name}</div><div style={css('font-size:12px;color:var(--mute);font-weight:500;margin-top:1px')}>{h.note}</div></div>
-                <a href={h.mapUrl} target="_blank" rel="noopener" aria-label={`${h.name} on Google Maps`} style={css('flex:none;width:40px;height:40px;border-radius:13px;background:var(--fill);border:1px solid var(--line);color:var(--ink2);display:flex;align-items:center;justify-content:center;font-size:17px')}><i className="ph-fill ph-map-pin" /></a>
-                <a href={h.checkUrl} target="_blank" rel="noopener" style={css('flex:none;height:40px;padding:0 12px;border-radius:13px;background:var(--fill);border:1px solid var(--line2);color:var(--ink);font-size:12px;font-weight:800;display:flex;align-items:center;text-decoration:none;white-space:nowrap')}>Check prices</a>
-              </div>
-            ))}
-          </div>
-          <a href={v.stays.searchUrl} target="_blank" rel="noopener" style={css('margin-top:14px;height:46px;border-radius:15px;background:var(--fill);border:1px solid var(--line);color:var(--ink);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none')}><i className="ph-fill ph-tag" style={css('color:var(--g)')} />See all stays and prices in {v.stays.town}<i className="ph-bold ph-arrow-up-right" /></a>
-          {v.stays.source && <div style={css('font-size:10px;font-weight:600;color:var(--mute);margin-top:8px')}>Places: {v.stays.source}{v.stays.source === 'OpenStreetMap' ? ' contributors, via Geoapify' : ''}. Prices on Booking.com.</div>}
-        </Fold>
-
         <Fold icon="ph-cloud-sun" iconColor="var(--sky)" title={`Weather in ${c.town}`} summary={v.wx.destLoading ? 'Loading…' : glance.wx?.range}>
           {v.wx.destSummary && <div style={css('font-size:13px;font-weight:600;color:var(--ink2);line-height:1.45')}>{v.wx.destSummary}</div>}
           <div style={css('display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:12px -16px 0;padding:0 16px 2px')}>
