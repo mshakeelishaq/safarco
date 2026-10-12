@@ -11,6 +11,8 @@ const fail = (status: number, error: string) => new Response(JSON.stringify({ er
 const PROV = (s?: string) => !s ? 'Pakistan' : /Islamabad/.test(s) ? 'Capital' : /Azad|Kashmir/.test(s) ? 'Azad Kashmir' : /Gilgit/.test(s) ? 'Gilgit-Baltistan'
   : /Khyber/.test(s) ? 'Khyber Pakhtunkhwa' : /Baloch/.test(s) ? 'Balochistan' : /Sindh/.test(s) ? 'Sindh' : /Punjab/.test(s) ? 'Punjab' : s;
 const inPk = (lat: number, lon: number) => lat > 23.5 && lat < 37.2 && lon > 60.8 && lon < 77.9;
+// Admin areas come back as "Model Town Tehsil" or "Lahore District": people know the town name.
+const clean = (s: unknown) => String(s || '').replace(/\s+(Tehsil|Tahsil|District|City District|Division)$/i, '').trim();
 const uniq = (list: Place[]) => list.filter((p, i) => p.name && list.findIndex(x => x.name === p.name) === i);
 
 async function geoapify(key: string, q: string | null, lat: number, lon: number): Promise<Place[]> {
@@ -19,7 +21,7 @@ async function geoapify(key: string, q: string | null, lat: number, lon: number)
     : `https://api.geoapify.com/v1/geocode/reverse?lat=${lat}&lon=${lon}&type=city&lang=en&format=json&apiKey=${key}`;
   const r = await fetch(url); if (!r.ok) throw new Error('geoapify ' + r.status);
   const j = await r.json();
-  return (j.results || []).map((x: any) => ({ name: String(x.name || x.city || x.town || x.village || x.county || '').trim(), prov: PROV(x.state), lat: +x.lat, lon: +x.lon }));
+  return (j.results || []).map((x: any) => ({ name: clean(q ? x.name || x.city || x.town || x.village || x.county : x.city || x.town || x.village || x.name || x.county), prov: PROV(x.state), lat: +x.lat, lon: +x.lon }));
 }
 
 async function nominatim(q: string | null, lat: number, lon: number): Promise<Place[]> {
@@ -28,7 +30,7 @@ async function nominatim(q: string | null, lat: number, lon: number): Promise<Pl
     : `https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=12&addressdetails=1&accept-language=en&lat=${lat}&lon=${lon}`;
   const r = await fetch(url, { headers: { 'User-Agent': `SafarCo trip planner (${process.env.CONTACT_EMAIL || 'contact not set'})` } }); if (!r.ok) throw new Error('nominatim ' + r.status);
   const j = await r.json(), rows = Array.isArray(j) ? j : [j];
-  return rows.map((x: any) => { const a = x.address || {}; return { name: String(x.name || a.city || a.town || a.village || a.county || '').trim(), prov: PROV(a.state), lat: +x.lat, lon: +x.lon }; });
+  return rows.map((x: any) => { const a = x.address || {}; return { name: clean(q ? x.name || a.city || a.town || a.village || a.county : a.city || a.town || a.village || x.name || a.county), prov: PROV(a.state), lat: +x.lat, lon: +x.lon }; });
 }
 
 export async function GET(request: Request) {

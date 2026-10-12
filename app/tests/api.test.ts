@@ -39,6 +39,12 @@ describe('/api/places', () => {
     expect((await r.json()).spots).toEqual([{ name: 'Shangrila Resort', lat: 35.42, lon: 75.5, km: 12.3, type: 'Hotel', address: 'Kachura', website: undefined }]);
     expect(calls[0].url).toContain('apiKey=geo-key');
   });
+
+  it('prefers the English name when OpenStreetMap has one', async () => {
+    reply({ features: [{ properties: { name: 'شاردا پیٹھ', name_international: { en: 'Sharada Peeth' }, lat: 34.79, lon: 74.19, distance: 15000, categories: ['tourism.sights'] } }] });
+    const r = await get(places, '/api/places?kind=sights&lat=34.83&lon=74.35');
+    expect((await r.json()).spots[0].name).toBe('Sharada Peeth');
+  });
 });
 
 describe('/api/geocode', () => {
@@ -46,5 +52,13 @@ describe('/api/geocode', () => {
     reply({ results: [{ name: 'Sukkur', state: 'Sindh', lat: 27.7, lon: 68.86 }, { name: 'Sukkur Street', state: 'London', lat: 51.5, lon: -0.1 }] });
     const r = await get(geocode, '/api/geocode?q=Sukkur');
     expect((await r.json()).places).toEqual([{ name: 'Sukkur', prov: 'Sindh', lat: 27.7, lon: 68.86 }]);
+  });
+
+  it('names the town, not the admin area, for a GPS position', async () => {
+    reply({ results: [{ name: 'Model Town Tehsil', city: 'Lahore', state: 'Punjab', lat: 31.48, lon: 74.32 }] });
+    const r = await get(geocode, '/api/geocode?lat=31.48&lon=74.32');
+    expect((await r.json()).places[0].name).toBe('Lahore');
+    reply({ results: [{ name: 'Model Town Tehsil', state: 'Punjab', lat: 31.48, lon: 74.32 }] });
+    expect((await (await get(geocode, '/api/geocode?lat=31.49&lon=74.32')).json()).places[0].name).toBe('Model Town');
   });
 });

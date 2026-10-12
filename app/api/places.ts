@@ -35,7 +35,7 @@ export async function GET(request: Request) {
     const j = await r.json();
     const spots: Spot[] = (j.features || []).map((f: any) => {
       const p = f.properties || {};
-      return { name: String(p.name || '').trim(), lat: +p.lat, lon: +p.lon, km: Math.round((p.distance || 0) / 100) / 10, type: typeOf(p.categories), address: String(p.address_line2 || p.formatted || ''), website: p.website || p.datasource?.raw?.website };
+      return { name: String(p.name_international?.en || p.datasource?.raw?.['name:en'] || p.name || '').trim(), lat: +p.lat, lon: +p.lon, km: Math.round((p.distance || 0) / 100) / 10, type: typeOf(p.categories), address: String(p.address_line2 || p.formatted || ''), website: p.website || p.datasource?.raw?.website };
     }).filter((s: Spot) => s.name && !/^\d+$/.test(s.name));
     return ok(spots.filter((s, i) => spots.findIndex(x => x.name === s.name) === i).slice(0, 20));
   }
