@@ -30,9 +30,9 @@ export function App() {
   const [s, setS] = useState<AppState>(() => {
     const st = initialState(), off = savedOffline(), base: AppState = off ? { ...st, offline: 'ready', offlineMB: off.mb } : st;
     const shared = tripFromUrl();
-    if (shared) return { ...base, ...shared, screen: 'app', toast: 'Shared trip opened. Tap Save to keep it.' };
+    if (shared) return { ...base, ...shared, screen: 'app', chosen: shared.corridor, toast: 'Shared trip opened. Tap Save to keep it.' };
     const cur = loadCurrent();
-    return cur ? { ...base, ...cur.data, screen: 'app', savedId: cur.savedId } : base;
+    return cur ? { ...base, ...cur.data, screen: 'app', savedId: cur.savedId, chosen: cur.data.corridor } : base;
   });
   const [trips, setTrips] = useState<SavedTrip[]>(() => localTrips());
   const [user, setUser] = useState<User | null>(null);
@@ -196,7 +196,7 @@ export function App() {
       await navigator.clipboard.writeText(url); set({ toast: 'Link copied. Paste it in WhatsApp or anywhere.' });
     } catch (e) { if ((e as Error)?.name !== 'AbortError') set({ toast: 'Couldn’t share. Try again.' }); }
   };
-  const openTrip = (t: SavedTrip) => set({ ...t.data, savedId: t.id, screen: 'app', tab: 'trip', sheet: 'none', settings: false, pickId: null, toast: `Opened “${t.name}”` });
+  const openTrip = (t: SavedTrip) => set({ ...t.data, savedId: t.id, chosen: t.data.corridor, screen: 'app', tab: 'trip', sheet: 'none', settings: false, pickId: null, toast: `Opened “${t.name}”` });
   const deleteTrip = (t: SavedTrip) => {
     deleteLocal(t.id); setTrips(localTrips());
     if (t.cloudId && user) cloudDelete(t.cloudId).catch(() => set({ toast: 'Deleted here; couldn’t reach your account.' }));

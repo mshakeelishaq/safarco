@@ -17,6 +17,8 @@ export interface AppState extends TripState {
   toast: string | null;
   /** Data saver: no 3D scene, for slow phones and networks. */
   lite: boolean;
+  /** The destination this trip was built for: its chip stays while other chips are tried. */
+  chosen: string | null;
 }
 
 const prefersLite = () => {
@@ -39,7 +41,7 @@ export const initialState = (): AppState => ({
   vehicle: 'sedan', tier: 'standard', groupSize: 2, adults: 2, kids: 0, elders: 0, rooms: 'separate', days: 4, cap: 120000,
   corridor: 'hunza', tab: 'trip', settings: false, flash: null,
   offline: 'off', progress: 0, offlineMB: 0, offlineErr: '', mapFail: false, theme: savedTheme(),
-  sheet: 'none', savedId: null, toast: null, lite: prefersLite()
+  sheet: 'none', savedId: null, toast: null, lite: prefersLite(), chosen: null
 });
 
 export type Patch = Partial<AppState>;

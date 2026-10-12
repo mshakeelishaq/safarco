@@ -246,11 +246,11 @@ export function buildView(s: AppState, api: Api) {
     next: () => {
       if (!canNext) return;
       if (s.step < 5) set({ step: s.step + 1, pickId: null });
-      else { const g = sug.sel; if (g) set({ screen: 'app', tab: 'trip', corridor: g.corridor, dest: g.corridor, vehicle: g.vehicle, tier: g.tier }); }
+      else { const g = sug.sel; if (g) set({ screen: 'app', tab: 'trip', chosen: g.corridor, corridor: g.corridor, dest: g.corridor, vehicle: g.vehicle, tier: g.tier }); }
     },
     nextLabel: s.step < 5 ? 'Continue' : 'Build this trip',
     restart: () => api.newTrip(),
-    corridorChips: [s.corridor, ...POP_DEST.filter(k => k !== s.corridor && DST(k).name !== s.origin)].slice(0, 6).map(k => {
+    corridorChips: [...new Set([s.chosen || s.corridor, s.corridor, ...POP_DEST.filter(k => DST(k).name !== s.origin)])].slice(0, 6).map(k => {
       const on = s.corridor === k, v = DST(k);
       return { key: k, label: v.name, onClick: () => set({ corridor: k, dest: k }), bg: on ? 'var(--cta)' : 'var(--fill2)', fg: on ? 'var(--onCta)' : 'var(--ink)', border: on ? 'transparent' : 'var(--line2)', shadow: on ? '0 10px 24px -10px rgba(46,229,157,.8)' : 'none' };
     }),
