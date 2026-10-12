@@ -51,7 +51,7 @@ export function Onboarding({ v, api }: { v: View; api: Api }) {
           <div style={css('padding:6px 11px;border-radius:12px;background:var(--fill2);backdrop-filter:blur(10px);font-size:12px;font-weight:700')}>{v.stepLabel}</div>
         </div>
       </div>
-      <div className="sc-col" style={css('position:absolute;left:24px;right:24px;top:100px;display:grid;grid-template-columns:repeat(6,1fr);gap:6px')}>
+      <div className="sc-col" style={css('position:absolute;left:24px;right:24px;top:100px;display:grid;grid-template-columns:repeat(7,1fr);gap:6px')}>
         {v.stepBars.map((b, i) => <div key={i} style={css(`height:4px;border-radius:2px;background:${b.bg};box-shadow:${b.glow};transition:all .4s`)} />)}
       </div>
       <div className="sc-colp" style={css('position:absolute;left:0;right:0;top:var(--ob-top,262px);bottom:0;padding:26px 22px calc(30px + env(safe-area-inset-bottom));display:flex;flex-direction:column;pointer-events:auto;background:linear-gradient(180deg,var(--bg0) 0,var(--bg) 44px)')}>
@@ -59,7 +59,22 @@ export function Onboarding({ v, api }: { v: View; api: Api }) {
         <div style={css('font-size:14px;color:var(--mute);margin-top:8px;font-weight:500;line-height:1.4')}>{v.ob.sub}</div>
         <div style={css('flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;margin:16px -22px 12px;padding:2px 22px 8px;perspective:900px')}>
 
-          {s.step === 0 && <>
+          {s.step === 0 && (
+            <div role="radiogroup" aria-label={t('What do you want to see?')} style={css('display:flex;flex-direction:column;gap:10px')}>
+              {v.wishOpts.map(w => (
+                <button key={w.key} role="radio" aria-checked={w.on} onClick={w.onClick} style={css(`display:flex;align-items:stretch;gap:0;padding:0;border-radius:22px;overflow:hidden;border:2px solid ${w.on ? 'var(--g)' : 'var(--line2)'};background:var(--fill);color:var(--ink);text-align:left;cursor:pointer;box-shadow:${w.on ? '0 14px 30px -16px rgba(46,229,157,.8)' : 'none'};transform:${w.on ? 'scale(1.01)' : 'none'};transition:all .25s`)}>
+                  <span style={css(`width:74px;flex:none;background:${w.grad};display:flex;align-items:center;justify-content:center;font-size:32px;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.35)`)}><i className={`ph-fill ${w.icon}`} /></span>
+                  <span style={css('flex:1;min-width:0;padding:11px 12px')}>
+                    <span style={css('display:flex;align-items:center;justify-content:space-between;gap:8px')}><span style={css('font-size:16px;font-weight:800')}>{w.label}</span>{w.on && <i className="ph-fill ph-check-circle" style={css('font-size:20px;color:var(--g);flex:none')} />}</span>
+                    <span style={css('display:block;font-size:12px;font-weight:600;color:var(--ink2);line-height:1.4;margin-top:2px')}>{w.tagline}</span>
+                    {w.when && <span style={css('display:block;font-size:11px;font-weight:800;color:var(--mute);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis')}>{w.when}{w.places ? ` · ${w.places}` : ''}</span>}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {s.step === 1 && <>
             <button onClick={() => { if (s.loc !== 'locating') set({ loc: 'ask' }); }} style={css(`width:100%;display:flex;align-items:center;gap:14px;min-height:68px;padding:10px 14px;border-radius:22px;border:1px solid ${v.locBtn.border};background:var(--fill);color:var(--ink);text-align:left;cursor:pointer;transition:border-color .3s`)}>
               <div style={css(`width:46px;height:46px;flex:none;border-radius:15px;background:${v.locBtn.tile};display:flex;align-items:center;justify-content:center;color:#fff;font-size:23px;box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 -3px 0 rgba(0,0,0,.18)`)}>{s.loc === 'locating' ? <Spinner /> : <i className={`ph-fill ${v.locBtn.icon}`} />}</div>
               <div style={css('flex:1;min-width:0')}><div style={css('font-size:16px;font-weight:800')}>{v.locBtn.title}</div><div style={css('font-size:12px;color:var(--mute);margin-top:2px;font-weight:600')}>{v.locBtn.sub}</div></div>
@@ -79,7 +94,7 @@ export function Onboarding({ v, api }: { v: View; api: Api }) {
             {v.noCity && <div style={css('padding:16px 12px;font-size:14px;color:var(--mute);font-weight:600;line-height:1.45')}>{t('No city found. Try the nearest district city, or use your current location.')}</div>}
           </>}
 
-          {s.step === 1 && <>
+          {s.step === 2 && <>
             <div style={css('display:flex;flex-direction:column;gap:10px')}>
               {v.modeOpts.map(o => (
                 <button key={o.id} onClick={o.onClick} aria-pressed={o.checkOp === 1} style={css(`display:flex;align-items:center;gap:14px;min-height:66px;padding:10px 14px;border-radius:22px;border:1.5px solid transparent;background:${o.bg};text-align:left;cursor:pointer;color:var(--ink);transform:${o.transform};box-shadow:${o.shadow};transition:all .4s cubic-bezier(.2,.8,.2,1)`)}>
@@ -89,7 +104,14 @@ export function Onboarding({ v, api }: { v: View; api: Api }) {
                 </button>
               ))}
             </div>
-            {v.bestNow.picks.length > 0 && (
+            {v.wishPicks && v.wishPicks.picks.length > 0 ? (
+              <div style={css('margin-top:16px;padding:12px 0 12px 14px;border-radius:20px;background:var(--fill);border:1px solid var(--line)')}>
+                <div style={css('font-size:13px;font-weight:800;padding-right:12px')}>{v.wishPicks.label}</div>
+                <div style={css('display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-top:8px;padding-right:14px')}>
+                  {v.wishPicks.picks.map(p => <button key={p.key} onClick={p.onClick} aria-pressed={p.on} style={css(`flex:none;height:38px;padding:0 12px;border-radius:12px;border:1px solid ${p.on ? 'transparent' : 'var(--line2)'};background:${p.on ? 'var(--cta)' : 'var(--card)'};color:${p.on ? 'var(--onCta)' : 'var(--ink)'};font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap`)}><i className={`ph-fill ${p.icon}`} style={css(`color:${p.on ? 'inherit' : p.color}`)} />{p.name}</button>)}
+                </div>
+              </div>
+            ) : v.bestNow.picks.length > 0 && (
               <div style={css('margin-top:16px;padding:12px 0 12px 14px;border-radius:20px;background:var(--fill);border:1px solid var(--line)')}>
                 <div style={css('display:flex;align-items:center;gap:8px;padding-right:12px')}>
                   <div style={css('flex:1;min-width:0;font-size:13px;font-weight:800')}>{t('Best in {month}', { month: v.bestNow.month })}</div>
@@ -117,7 +139,7 @@ export function Onboarding({ v, api }: { v: View; api: Api }) {
             </>}
           </>}
 
-          {s.step === 2 && <>
+          {s.step === 3 && <>
             <SectionLabel style="margin:0 4px 8px">{t('Month')}</SectionLabel>
             <div style={css('display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -22px;padding:0 22px 4px')}>
               {v.monthChips.map(m => <button key={m.key} onClick={m.onClick} style={css(`flex:none;width:58px;height:56px;border-radius:16px;border:1px solid ${m.border};background:${m.bg};color:${m.fg};cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;transition:all .2s`)}><span style={css('font-size:14px;font-weight:800')}>{m.label}</span><span style={css('font-size:10px;font-weight:700;opacity:.7')}>{m.sub}</span></button>)}
@@ -136,6 +158,7 @@ export function Onboarding({ v, api }: { v: View; api: Api }) {
               {v.dayPresets.map(p => <button key={p.key} onClick={p.onClick} style={css(`height:44px;border-radius:14px;border:1px solid ${p.border};background:${p.bg};color:${p.fg};font-size:13px;font-weight:800;cursor:pointer;transition:all .2s`)}>{p.label}</button>)}
             </div>
             <div style={css('text-align:center;font-size:13px;font-weight:800;color:var(--amb2);margin-top:12px')}>{v.dateRange}</div>
+            {v.wishNote && <WishNote n={v.wishNote} />}
             <div style={css(`display:flex;align-items:center;gap:12px;margin-top:14px;padding:12px 14px;border-radius:20px;background:${v.dayHint.bg};border:1px solid ${v.dayHint.border}`)}>
               <div style={css(`width:38px;height:38px;flex:none;border-radius:12px;background:${v.dayHint.tile};display:flex;align-items:center;justify-content:center;color:#fff;font-size:19px`)}><i className={`ph-fill ${v.dayHint.icon}`} /></div>
               <div style={css('font-size:13px;font-weight:600;line-height:1.45;color:var(--ink2)')}>{v.dayHint.text}</div>
@@ -145,7 +168,7 @@ export function Onboarding({ v, api }: { v: View; api: Api }) {
             </div>
           </>}
 
-          {s.step === 3 && <>
+          {s.step === 4 && <>
             <div style={css('margin-top:0;padding:4px 12px 4px 14px;border-radius:20px;background:var(--fill);border:1px solid var(--line)')}>
               {v.people.map(p => (
                 <div key={p.key} style={css('display:flex;align-items:center;gap:10px;min-height:60px')}>
@@ -171,7 +194,7 @@ export function Onboarding({ v, api }: { v: View; api: Api }) {
             {v.hasFamilyNote && <div style={css('font-size:12px;color:var(--amb2);font-weight:600;margin:10px 4px 0;line-height:1.45')}>{v.familyNote}</div>}
           </>}
 
-          {s.step === 4 && <>
+          {s.step === 5 && <>
             <div style={css('display:flex;align-items:baseline;gap:8px')}><span style={css('font-size:15px;font-weight:800;color:var(--mute)')}>PKR</span><span style={css('font-family:var(--fontH);font-weight:600;font-size:42px;letter-spacing:-.03em;font-variant-numeric:tabular-nums;background:var(--ng2);-webkit-background-clip:text;background-clip:text;color:transparent')}>{v.capBig}</span><span style={css('font-size:15px;font-weight:800;color:var(--mute);font-variant-numeric:tabular-nums')}>{v.capUsd}</span></div>
             <div style={css('font-size:13px;color:var(--mute);font-weight:600')}>{v.capPer}</div>
             <Slider v={v} set={set} />
@@ -184,7 +207,7 @@ export function Onboarding({ v, api }: { v: View; api: Api }) {
             </div>
           </>}
 
-          {s.step === 5 && <>
+          {s.step === 6 && <>
             <div style={css('display:flex;align-items:baseline;justify-content:space-between;gap:8px')}><div style={css('display:flex;align-items:baseline;gap:6px')}><span style={css('font-size:13px;font-weight:800;color:var(--mute)')}>PKR</span><span style={css('font-family:var(--fontH);font-weight:600;font-size:26px;letter-spacing:-.02em;font-variant-numeric:tabular-nums')}>{v.capBig}</span><span style={css('font-size:12px;font-weight:700;color:var(--mute)')}>{v.capUsd}</span></div><span style={css('font-size:12px;font-weight:700;color:var(--mute)')}>{v.tripMeta}</span></div>
             <Slider v={v} set={set} />
             <div style={css('display:flex;flex-direction:column;gap:10px;margin-top:8px')}>
@@ -225,5 +248,20 @@ export const DateInput = ({ v, set }: { v: View; set: Api['set'] }) =>
 export const RoomOpts = ({ v, compact }: { v: View; compact?: boolean }) => (
   <div style={css('display:grid;grid-template-columns:1fr 1fr;gap:8px')}>
     {v.roomOpts.map(r => <button key={r.key} onClick={r.onClick} aria-pressed={r.bg === 'var(--cta)'} style={css(`min-height:${compact ? 56 : 60}px;padding:${compact ? '8px' : '10px'} 12px;border-radius:${compact ? 16 : 18}px;border:1px solid ${r.border};background:${r.bg};color:${r.fg};text-align:left;cursor:pointer;transition:all .25s`)}><div style={css(`font-size:${compact ? 13 : 14}px;font-weight:800`)}>{r.label}</div><div style={css('font-size:11px;font-weight:600;opacity:.75;margin-top:2px')}>{r.sub}</div></button>)}
+  </div>
+);
+
+/** Whether the dates (and place) fit what the traveller wants to see, with one-tap fixes. */
+export const WishNote = ({ n }: { n: NonNullable<View['wishNote']> }) => (
+  <div style={css(`margin-top:12px;padding:12px 14px;border-radius:20px;background:${n.good ? 'rgba(46,229,157,.1)' : 'rgba(255,181,71,.13)'};border:1px solid ${n.good ? 'rgba(46,229,157,.35)' : 'rgba(255,181,71,.45)'}`)}>
+    <div style={css('display:flex;gap:10px;align-items:flex-start')}>
+      <i className={`ph-fill ${n.icon}`} style={css(`font-size:22px;color:${n.color};flex:none;margin-top:1px`)} />
+      <div style={css('flex:1;min-width:0;font-size:13px;font-weight:700;line-height:1.45;color:var(--ink)')}>{n.text}</div>
+    </div>
+    {n.fix && <button onClick={n.fix.apply} style={css('margin:10px 0 0 32px;height:38px;padding:0 14px;border-radius:12px;border:0;background:var(--ink);color:var(--bg);font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px')}><i className="ph-bold ph-calendar-check" />{n.fix.label}</button>}
+    {n.place && <div style={css('margin:10px 0 0 32px')}>
+      <div style={css('font-size:12px;font-weight:700;color:var(--ink2)')}>{n.place}</div>
+      <div style={css('display:flex;gap:6px;flex-wrap:wrap;margin-top:6px')}>{n.alts.map(a => <button key={a.key} onClick={a.onClick} style={css('height:34px;padding:0 12px;border-radius:11px;border:1px solid var(--line2);background:var(--card);color:var(--ink);font-size:12px;font-weight:800;cursor:pointer')}>{a.name}</button>)}</div>
+    </div>}
   </div>
 );

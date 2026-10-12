@@ -29,7 +29,7 @@ describe('Roman Urdu', () => {
   });
   it('switches the screens’ text and back', () => {
     const api = { set: () => {} } as unknown as Api;
-    const s = { ...initialState(), screen: 'app' as const, origin: 'Lahore', mode: 'know' as const, dest: 'hunza', corridor: 'hunza', startDate: '2027-10-12', days: 8 };
+    const s = { ...initialState(), step: 1, screen: 'app' as const, origin: 'Lahore', mode: 'know' as const, dest: 'hunza', corridor: 'hunza', startDate: '2027-10-12', days: 8 };
     expect(buildView(s, api).ob.title).toBe('Which city do you live in?');
     setLang('ur');
     expect(t('Start planning')).toBe('Planning shuru karein');

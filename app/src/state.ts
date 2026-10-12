@@ -1,5 +1,6 @@
 import type { TripState } from './engine/engine';
 import type { Have } from './engine/data';
+import type { WishId } from './engine/seasons';
 import { isoAdd } from './engine/format';
 import { lang as currentLang, type Lang } from './i18n';
 
@@ -30,6 +31,8 @@ export interface AppState extends TripState {
   /** The destination this trip was built for: its chip stays while other chips are tried. */
   chosen: string | null;
   have: Have;
+  /** What they want to see, from the first question; null until answered. */
+  wish: WishId | null;
   /** When the "getting your plan ready" screen opened (ms), or null when it isn't showing. */
   building: number | null;
   /** The day whose full page is open, or null. */
@@ -65,7 +68,7 @@ export const initialState = (): AppState => ({
   corridor: 'hunza', tab: 'trip', settings: false, flash: null,
   offline: 'off', progress: 0, offlineMB: 0, offlineErr: '', mapFail: false, theme: savedTheme(),
   sheet: 'none', savedId: null, toast: null, lite: prefersLite(), chosen: null, reviewFor: null, welcome: false, guide: false, lang: currentLang(),
-  have: 'any', building: null, dayOpen: null, edits: NO_EDITS
+  have: 'any', wish: null, building: null, dayOpen: null, edits: NO_EDITS
 });
 
 export type Patch = Partial<AppState>;

@@ -11,7 +11,7 @@ import { weatherView } from './weather/view';
 import { SECTIONS, activeAlerts, checkedText, isStale, prices, type Section } from './prices';
 import { areaOf, nearPoint, onTrip, telLink, waLink } from './local';
 import { ratingOf } from './reviews';
-import { SEASONS, highlightIn, highlightsOf, iconFor, monthsLabel, nextStartIn, seasonOf, seasonPicks } from './engine/seasons';
+import { SEASONS, WISHES, highlightIn, highlightsOf, iconFor, monthsLabel, nextStartIn, seasonOf, seasonPicks, wishOf, wishPlaces } from './engine/seasons';
 import { isRated, markRated, ratedKey } from './rated';
 import { CITIES, CITY, CITY_DUP, DST, cityOr, placesFor, seasonFactor } from './engine/places';
 import type { AppState, Patch } from './state';
@@ -88,10 +88,11 @@ export function buildView(s: AppState, api: Api) {
     if (up.length && s.cap - total > s.cap * .15) { const o = up[up.length - 1]; tip = { show: true, ...good, title: t('{amount} to spare', { amount: fmt(s.cap - total) }), msg: t('Upgrade to {name} ({vehicle}, {tier} stays) for {amount}.', { name: t(o.name), vehicle: t(VEH[o.vehicle].short), tier: t(TIERS[o.tier].label).toLowerCase(), amount: fmt(o.total) }), cta: t('Upgrade'), apply: applyCfg(o) }; }
   }
 
-  const canNext = s.step === 0 ? !!s.origin : s.step === 1 ? !!s.mode : true;
+  const canNext = s.step === 0 ? !!s.wish : s.step === 1 ? !!s.origin : s.step === 2 ? !!s.mode : true;
   const chip = (on: boolean) => ({ bg: on ? 'var(--cta)' : 'var(--fill)', fg: on ? 'var(--onCta)' : 'var(--ink2)', border: on ? 'transparent' : 'var(--line2)' });
   const fitCount = s.mode === 'know' ? 0 : sug.list.filter(fitsS).length;
   const obTitles = [
+    { title: t('What do you want to see?'), sub: t('Pick the trip you dream of. SafarCo suggests the best months and places for it.') },
     { title: t('Which city do you live in?'), sub: t('Your trip starts here. Distance, fuel, tolls and travel time are calculated from it.') },
     { title: t('Where do you want to go?'), sub: t('From {origin}. Search any city or tourist spot, or let SafarCo suggest one.', { origin: s.origin || 'Islamabad' }) },
     { title: t('When are you going?'), sub: t('Tentative dates are fine. Roads, season and prices change with the month.') },
@@ -101,7 +102,7 @@ export function buildView(s: AppState, api: Api) {
 
   const geoOf = (q: string) => LIVE.geo[q.trim().toLowerCase()];
   const destRows = (() => {
-    if (s.step !== 1 || s.mode !== 'know') return [];
+    if (s.step !== 2 || s.mode !== 'know') return [];
     const q = s.dq.trim().toLowerCase(), o = s.origin || 'Islamabad';
     let ids: string[];
     if (!q) ids = POP_DEST.slice();
@@ -156,7 +157,7 @@ export function buildView(s: AppState, api: Api) {
   const goTo = (id: string, months: number[]) => {
     const keep = months.includes(mon(s)) && s.startDate >= isoAdd(1);
     const date = keep ? s.startDate : nextStartIn(months);
-    if (s.screen === 'onboard') set({ guide: false, mode: 'know', dest: id, corridor: id, pickId: null, startDate: date, step: Math.max(s.step, 2) });
+    if (s.screen === 'onboard') set({ guide: false, mode: 'know', dest: id, corridor: id, pickId: null, startDate: date, step: Math.max(s.step, 3) });
     else set({ guide: false, dest: id, corridor: id, chosen: id, pickId: null, startDate: date, toast: t('Planning {name} for {month}', { name: DST(id).name, month: MONTH_FULL[+date.slice(5, 7) - 1] }) });
   };
   const guide = {
@@ -260,6 +261,29 @@ export function buildView(s: AppState, api: Api) {
   const priceNotes = used.map(k => ({ key: k, label: t(SECTIONS[k].label), source: t(SECTIONS[k].source), checked: checkedText(k), ok: !isStale(k) }));
   const alertNotes = activeAlerts().filter(a => !a.areas?.length || onTrip(a.areas, tripLine, tripStops)).map(a => ({ icon: 'ph-megaphone', color: 'var(--cor)', text: a.date ? t('{alert} (posted {date})', { alert: `${a.title}${a.message ? `: ${a.message}` : ''}`, date: dayLabel(a.date, 0) }) : `${a.title}${a.message ? `: ${a.message}` : ''}` }));
 
+  // "What do you want to see?": the first question, then a check that the dates and place fit the wish.
+  const W = wishOf(s.wish), lowerEn = (x: string) => s.lang === 'ur' ? x : x.charAt(0).toLowerCase() + x.slice(1);
+  const wishOpts = [...WISHES.map(w => ({ key: w.id, icon: w.icon, grad: w.grad, label: t(w.label), tagline: t(w.tagline), when: t('Best: {months}', { months: monthsLabel(w.months) }),
+      places: wishPlaces(w.id).filter(p => !p.h.caution).slice(0, 3).map(p => p.name).join(' · '), on: s.wish === w.id,
+      onClick: () => set({ wish: w.id, pickId: null, startDate: w.months.includes(M) && s.startDate >= isoAdd(3) ? s.startDate : nextStartIn(w.months) }) })),
+    { key: 'any', icon: 'ph-compass', grad: 'linear-gradient(160deg,#9AA5B1,#5F6B78)', label: t('Show me everything'), tagline: t('Not sure yet? See what’s best for your dates.'), when: '', places: '', on: s.wish === 'any', onClick: () => set({ wish: 'any', pickId: null }) }];
+  const wishPicks = W ? { label: t('Best for {wish}', { wish: lowerEn(t(W.label)) }), picks: wishPlaces(W.id).filter(p => DST(p.id).name !== s.origin).slice(0, 10)
+    .map(p => ({ key: p.id, name: p.name, icon: W.icon, color: W.color, on: s.dest === p.id && s.mode === 'know', onClick: () => set({ mode: 'know', dest: p.id, corridor: p.id, pickId: null }) })) } : null;
+  const wishNote = (() => {
+    if (!W) return null;
+    const placeOk = wishPlaces(W.id).some(p => p.id === s.corridor), when = W.months.includes(M);
+    const alts = placeOk ? [] : wishPlaces(W.id).filter(p => !p.h.caution && DST(p.id).name !== s.origin).sort((a, b) => kmFrom(a.id) - kmFrom(b.id)).slice(0, 3)
+      .map(p => ({ key: p.id, name: p.name, onClick: () => set({ dest: p.id, corridor: p.id, pickId: null, ...(s.screen === 'app' ? { chosen: p.id } : { mode: 'know' as const }) }) }));
+    const nm = nextStartIn(W.months), nmLabel = MONTH_FULL[+nm.slice(5, 7) - 1];
+    return {
+      good: when && placeOk, icon: W.icon, color: W.color,
+      text: when ? t('Your wish: {wish}. {month} is a great time for it.', { wish: t(W.label), month: MONTH_FULL[M - 1] })
+        : t('Your wish: {wish}. {month} is {season}, so you may not see it. Best months: {months}.', { wish: t(W.label), month: MONTH_FULL[M - 1], season: t(seasonOf(M).label).toLowerCase(), months: monthsLabel(W.months) }),
+      fix: when ? null : { label: t('Move to {month}', { month: nmLabel }), apply: () => set({ startDate: nm, pickId: null }) },
+      place: placeOk || (s.screen === 'onboard' && s.mode !== 'know') ? '' : t('{name} isn’t known for {wish}. Try:', { name: DST(s.corridor).name, wish: lowerEn(t(W.label)) }), alts
+    };
+  })();
+
   // "How will you travel?": what the traveller already has.
   const travelOpts = ([['any', 'ph-sparkle', t('Suggest the best way'), t('Coach, hired car or flight')], ['car', 'ph-car-profile', t('Our own car'), t('Sedan or hatchback')],
     ['suv', 'ph-jeep', t('Own SUV / 4x4'), t('Prado, Fortuner, Land Cruiser')], ['bike', 'ph-motorcycle', t('Motorbike'), t('Our own bike')]] as const).map(([k, icon, label, sub]) => {
@@ -304,14 +328,14 @@ export function buildView(s: AppState, api: Api) {
   const editCount = edits.picks.length + edits.drops.length;
 
   return {
-    travelOpts, buildSteps, buildTips, budget, dayPage, totalShort: kShort(total), openDay: (i: number) => set({ dayOpen: i }), vehIcon: VEH[s.vehicle].icon,
+    wishOpts, wishPicks, wishNote, travelOpts, buildSteps, buildTips, budget, dayPage, totalShort: kShort(total), openDay: (i: number) => set({ dayOpen: i }), vehIcon: VEH[s.vehicle].icon,
     editNote: editCount ? { text: editCount > 1 ? t('{n} changes to the places', { n: editCount }) : t('1 change to the places'), undo: () => set({ edits: NO_EDITS }) } : null,
     s, c, gate, tip, health, off, isAir, fuelPoints, fuelPins, drivers, afterTrip, guide, bestNow, tripSeason, wPlan, rPoints, selCorridor: sug.sel?.corridor, stays, nearby, priceNotes, ratesNote: isAir ? t('Flight fares are tentative: tap a flight day to see live fares. Confirm with the airline before you book.')
       : t('Prices {checked}. Confirm with the operator before you book.', { checked: checkedText(s.vehicle === 'public' ? 'coach' : 'hire') }),
     fxNote: fx.live ? (fx.updated ? t('US$ at 1 USD = PKR {rate} ({updated})', { rate: fx.pkrPerUsd.toFixed(2), updated: fx.updated }) : t('US$ at 1 USD = PKR {rate}', { rate: fx.pkrPerUsd.toFixed(2) })) : t('US$ at about PKR {rate} (live rate unavailable)', { rate: fx.pkrPerUsd }),
     wiki: { loading: !wikiE || wikiE.status === 'loading', info: wikiE && wikiE.status === 'ok' ? wikiE.data : null },
-    stepLabel: `${s.step + 1} / 6`,
-    stepBars: [0, 1, 2, 3, 4, 5].map(i => ({ bg: i <= s.step ? 'var(--bar)' : 'var(--line2)', glow: i <= s.step ? 'var(--barGlow)' : 'none' })),
+    stepLabel: `${s.step + 1} / 7`,
+    stepBars: [0, 1, 2, 3, 4, 5, 6].map(i => ({ bg: i <= s.step ? 'var(--bar)' : 'var(--line2)', glow: i <= s.step ? 'var(--barGlow)' : 'none' })),
     ob: obTitles[s.step],
     cityCount: CITIES.length,
     listLabel: s.oq ? (geoOf(s.oq)?.status === 'loading' ? t('Matching places · searching all of Pakistan…') : t('Matching places')) : t('Popular cities'),
@@ -410,10 +434,10 @@ export function buildView(s: AppState, api: Api) {
     back: () => set({ step: s.step - 1 }),
     next: () => {
       if (!canNext) return;
-      if (s.step < 5) set({ step: s.step + 1, pickId: null });
+      if (s.step < 6) set({ step: s.step + 1, pickId: null });
       else { const g = sug.sel; if (g) set({ screen: 'app', tab: 'trip', chosen: g.corridor, corridor: g.corridor, dest: g.corridor, vehicle: g.vehicle, tier: g.tier, building: Date.now(), dayOpen: null }); }
     },
-    nextLabel: s.step < 5 ? t('Continue') : t('Build this trip'),
+    nextLabel: s.step < 6 ? t('Continue') : t('Build this trip'),
     restart: () => api.newTrip(),
     corridorChips: [...new Set([s.chosen || s.corridor, s.corridor, ...POP_DEST.filter(k => DST(k).name !== s.origin)])].slice(0, 6).map(k => {
       const on = s.corridor === k, v = DST(k);

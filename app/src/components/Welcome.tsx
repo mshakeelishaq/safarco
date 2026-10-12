@@ -15,14 +15,24 @@ const points = (): [string, string, string][] => [
   ['ph-wifi-slash', t('Ready for no signal'), t('Save the route map on your phone for valleys with no coverage.')]
 ];
 
-export function Welcome({ open, onStart, onGuide, langLabel, onLang }: { open: boolean; onStart: () => void; onGuide: () => void; langLabel: string; onLang: () => void }) {
+export function Welcome({ open, onStart, onGuide, lang, onLang }: { open: boolean; onStart: () => void; onGuide: () => void; lang: string; onLang: (l: 'en' | 'ur') => void }) {
   if (!open) return null;
   return (
     <div role="dialog" aria-modal="true" aria-label={t('Welcome to SafarCo')} style={css('position:absolute;inset:0;z-index:40;overflow-y:auto;scrollbar-width:none;background:radial-gradient(120% 70% at 50% 0%,#12809F 0%,#0B5F7C 50%,#08435A 100%);color:#fff')}>
       <div className="sc-flow" style={css('min-height:100%;box-sizing:border-box;display:flex;flex-direction:column;padding:calc(48px + env(safe-area-inset-top)) 24px calc(24px + env(safe-area-inset-bottom))')}>
-        <div style={css('display:flex;align-items:flex-start;justify-content:space-between;gap:12px')}>
         <img src="/icon.svg" alt="" width="76" height="76" style={css('border-radius:20px;box-shadow:0 20px 40px -16px rgba(0,0,0,.6)')} />
-        <button onClick={onLang} style={css('min-height:40px;padding:0 14px;border-radius:14px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.1);color:#fff;font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px')}><i className="ph-bold ph-translate" />{langLabel}</button>
+        {/* Language first, in both languages, so everyone can read the choice. */}
+        <div role="radiogroup" aria-label="Choose your language · Apni zabaan chunein" style={css('margin-top:22px')}>
+          <div style={css('font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;opacity:.8;display:flex;align-items:center;gap:6px')}><i className="ph-bold ph-translate" />Choose your language · Apni zabaan chunein</div>
+          <div style={css('display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px')}>
+            {([['en', 'English', 'Plan your trip'], ['ur', 'Roman Urdu', 'Apna safar plan karein']] as const).map(([id, label, sample]) => {
+              const on = lang === id;
+              return <button key={id} role="radio" aria-checked={on} onClick={() => onLang(id)} style={css(`min-height:64px;padding:10px 14px;border-radius:18px;border:2px solid ${on ? '#FFC75F' : 'rgba(255,255,255,.3)'};background:${on ? 'rgba(255,199,95,.18)' : 'rgba(255,255,255,.08)'};color:#fff;text-align:left;cursor:pointer;transition:all .2s`)}>
+                <span style={css('display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:15px;font-weight:800')}>{label}{on && <i className="ph-fill ph-check-circle" style={css('color:#FFC75F;font-size:18px')} />}</span>
+                <span style={css('display:block;font-size:12px;font-weight:600;opacity:.8;margin-top:2px')}>{sample}</span>
+              </button>;
+            })}
+          </div>
         </div>
         <h1 style={css('margin:22px 0 0;font-family:var(--fontH);font-weight:600;font-size:30px;line-height:1.15;letter-spacing:-.02em')}>{t('Want to travel, but not sure where you can go?')}</h1>
         <p style={css('margin:12px 0 0;font-size:16px;line-height:1.5;font-weight:500;opacity:.9')}>{t('SafarCo plans your trip across Pakistan around what you have: your budget, your days and who’s coming. You see where you can go and exactly what it takes, before you leave home.')}</p>

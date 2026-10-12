@@ -18,6 +18,8 @@ npm run build          # type-check and build to dist/
 
 Languages: English and Roman Urdu (switch on the welcome screen, the question screens, or **Edit trip → Language**). Text is written in English in the code inside `t()` and translated in `src/i18n/ur.ts`; `tests/i18n.test.ts` fails if a new text has no Roman Urdu.
 
+Planning starts with the language (on the welcome screen) and **"What do you want to see?"**: green valleys, blossom, autumn colours, snowfall or the sea (`WISHES` in `src/engine/seasons.ts`, places found from each destination's highlights). The wish sets suggested months, puts its places first, and the dates step and trip summary say when the dates or place don't fit it, with one-tap fixes.
+
 Trip screens: **Plan** (summary, the route day by day; each day opens its own page where places can be added or removed, saved with the trip, `src/edits.ts`), **Map**, **Budget** (where the money goes, other ways to do the trip) and **Prepare** (things to know, packing list, offline maps, emergency numbers, trusted drivers). A new plan opens with a short "getting your plan ready" screen while live roads, weather, hotels and fuel load (`src/components/Building.tsx`, at most 10 s). The travellers question also asks how they travel (own car, SUV, bike, or let SafarCo suggest); with their own vehicle, only that vehicle is planned and jeep-only last stretches are flagged.
 
 Themes: Paper (default), Daylight, Peach and Dark, under **Edit trip → Theme**, or open with `?theme=dark`. Add `?frame` to see the app inside the design's phone mock-up.

@@ -4,7 +4,7 @@ import { IG_HANDLE, IG_MESSAGE, IG_PROFILE } from '../contact';
 import { css } from '../lib/css';
 import { t } from '../i18n';
 import type { Api, View } from '../view';
-import { Notes } from './Onboarding';
+import { Notes, WishNote } from './Onboarding';
 
 const card = 'border-radius:30px;padding:18px 18px 16px;background:var(--card);border:1px solid var(--line)';
 
@@ -199,6 +199,7 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
                 <button onClick={v.guide.open} style={css('margin-top:6px;min-height:32px;padding:0;border:0;background:none;color:var(--g);font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:4px')}><i className="ph-fill ph-leaf" />{t('Best places by season')}</button>
               </div>
             ); })()}
+            {v.wishNote && !v.wishNote.good && <WishNote n={v.wishNote} />}
             {glance.warnings.length > 0 && <button onClick={() => set({ tab: 'prepare' })} style={css('display:flex;flex-direction:column;gap:6px;margin-top:12px;padding:0;border:0;background:none;color:var(--ink);text-align:left;cursor:pointer;width:100%')}>
               {glance.warnings.slice(0, 2).map(w => <span key={w} style={css('display:flex;gap:8px;align-items:flex-start;font-size:13px;font-weight:700;line-height:1.4;color:var(--cor)')}><i className="ph-fill ph-warning" style={css('margin-top:2px;flex:none')} />{w}</span>)}
               <span style={css('font-size:12px;font-weight:800;color:var(--g);display:flex;align-items:center;gap:4px')}>{glance.warnings.length > 2 ? t('{n} more things to know in Prepare', { n: glance.warnings.length - 2 }) : t('Precautions in Prepare')}<i className="ph-bold ph-caret-right" /></span>

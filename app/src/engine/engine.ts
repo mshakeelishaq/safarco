@@ -8,6 +8,7 @@ import { clock, dayLabel, dur, fmt, fmtN, hav, inM, isoOff, mapsQ, mon } from '.
 import { sunTimes } from './sun';
 import { t } from '../i18n';
 import { LIVE, routeKey } from './live';
+import { wishPlaces, type WishId } from './seasons';
 import { DST, cityOr, placesFor, rangeTxt, seasonFactor, type Dest } from './places';
 
 export interface TripState {
@@ -15,6 +16,8 @@ export interface TripState {
   vehicle: VehicleId; tier: TierId; adults: number; kids: number; elders: number; groupSize: number; rooms: 'separate' | 'shared'; cap: number;
   /** The traveller's own transport, if any; 'any' (or unset) lets SafarCo pick. */
   have?: Have;
+  /** What they want to see (green valleys, blossom…): its places come first in suggestions. */
+  wish?: WishId | null;
 }
 
 /** Trip styles to compare: the traveller's own vehicle only, or every style SafarCo knows. */
@@ -356,7 +359,8 @@ export function suggestions(s: TripState & { pickId: string | null }) {
   } else {
     list = SUGGEST_POOL.filter(k => DST(k).name !== s.origin).map(k => { const all = priced(k), fit = all.filter(fits); return fit.length ? fit[fit.length - 1] : all[0]; });
     const inS = (x: Suggestion) => { const b = DST(x.corridor).best; return !b || b.includes(mon(s)) ? 1 : 0; };
-    list.sort((a, b) => (+fits(b) - +fits(a)) || (inS(b) - inS(a)) || (+b.ok - +a.ok) || (fits(a) ? b.total - a.total : a.total - b.total)); list = list.slice(0, 8);
+    const wished = new Set(s.wish && s.wish !== 'any' ? wishPlaces(s.wish).map(p => p.id) : []), inW = (x: Suggestion) => wished.has(x.corridor) ? 1 : 0;
+    list.sort((a, b) => (+fits(b) - +fits(a)) || (inW(b) - inW(a)) || (inS(b) - inS(a)) || (+b.ok - +a.ok) || (fits(a) ? b.total - a.total : a.total - b.total)); list = list.slice(0, 8);
     list.forEach((x, i) => { x.best = i === 0 && fits(x); });
   }
   const okDesc = list.filter(x => x.ok), cheapestOk = s.mode === 'know' ? okDesc[okDesc.length - 1] : okDesc.slice().sort((a, b) => a.total - b.total)[0];

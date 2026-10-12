@@ -144,6 +144,9 @@
 .ph-fill.ph-coffee:before {
   content: "\e1c2";
 }
+.ph-fill.ph-compass:before {
+  content: "\e1c8";
+}
 .ph-fill.ph-confetti:before {
   content: "\e81a";
 }
@@ -326,6 +329,9 @@
 }
 .ph-fill.ph-trash:before {
   content: "\e4a6";
+}
+.ph-fill.ph-tree-evergreen:before {
+  content: "\e6dc";
 }
 .ph-fill.ph-trend-down:before {
   content: "\e4ac";
@@ -520,6 +526,9 @@
 .ph-bold.ph-coffee:before {
   content: "\e1c2";
 }
+.ph-bold.ph-compass:before {
+  content: "\e1c8";
+}
 .ph-bold.ph-confetti:before {
   content: "\e81a";
 }
@@ -702,6 +711,9 @@
 }
 .ph-bold.ph-trash:before {
   content: "\e4a6";
+}
+.ph-bold.ph-tree-evergreen:before {
+  content: "\e6dc";
 }
 .ph-bold.ph-trend-down:before {
   content: "\e4ac";
@@ -1084,6 +1096,14 @@
 }
 .ph-duotone.ph-coffee:after {
   content: "\e1c3";
+  margin-left: -1em;
+}
+.ph-duotone.ph-compass:before {
+  content: "\e1c8";
+  opacity: 0.2;
+}
+.ph-duotone.ph-compass:after {
+  content: "\e1c9";
   margin-left: -1em;
 }
 .ph-duotone.ph-confetti:before {
@@ -1572,6 +1592,14 @@
 }
 .ph-duotone.ph-trash:after {
   content: "\e4a7";
+  margin-left: -1em;
+}
+.ph-duotone.ph-tree-evergreen:before {
+  content: "\e6dc";
+  opacity: 0.2;
+}
+.ph-duotone.ph-tree-evergreen:after {
+  content: "\e6dd";
   margin-left: -1em;
 }
 .ph-duotone.ph-trend-down:before {
