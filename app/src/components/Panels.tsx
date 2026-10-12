@@ -6,6 +6,7 @@ import { DST } from '../engine/places';
 import { dayLabel } from '../engine/format';
 import { css } from '../lib/css';
 import type { SavedTrip } from '../trips';
+import { IG_HANDLE, IG_MESSAGE, IG_PROFILE } from '../contact';
 import { Grip, scrim, sheet } from './Sheets';
 
 const btn = (primary: boolean) => css(`height:50px;padding:0 18px;border-radius:16px;border:${primary ? '0' : '1px solid var(--line2)'};background:${primary ? 'var(--cta)' : 'var(--fill)'};color:${primary ? 'var(--onCta)' : 'var(--ink)'};font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;width:100%`);
@@ -100,12 +101,13 @@ export function TripsSheet({ open, trips, user, currentId, onOpen, onDelete, onS
             : <><div style={css('font-size:13px;font-weight:600;color:var(--ink2);margin:0 4px 10px;line-height:1.45')}>Sign in to keep trips on all your devices.</div><GoogleButton onClick={onSignIn} /></>}
         </div>
       )}
+      <a href={IG_MESSAGE} target="_blank" rel="noopener" style={css('margin-top:18px;height:50px;border-radius:16px;background:linear-gradient(90deg,#F58529,#DD2A7B 45%,#8134AF 75%,#515BD4);color:#fff;font-size:15px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none')}><i className="ph-bold ph-instagram-logo" style={css('font-size:20px')} />Contact us on Instagram</a>
       <div style={css('display:flex;justify-content:center;gap:16px;margin-top:18px;font-size:12px;font-weight:700')}>
         <button onClick={onFeedback} style={css('padding:8px;border:0;background:none;color:var(--g);font-size:12px;font-weight:700;cursor:pointer')}>Send feedback</button>
         <a href="/privacy" style={css('padding:8px;text-decoration:none')}>Privacy</a>
         <a href="/terms" style={css('padding:8px;text-decoration:none')}>Terms</a>
       </div>
-      <div style={css('text-align:center;font-size:12px;font-weight:700;color:var(--mute);margin-top:4px')}><a href="https://www.instagram.com/shakeelnaturegraphy/" target="_blank" rel="noopener" style={css('display:inline-flex;align-items:center;gap:5px;color:inherit;text-decoration:none')}><i className="ph-bold ph-instagram-logo" />© shakeelnaturegraphy</a></div>
+      <div style={css('text-align:center;font-size:12px;font-weight:700;color:var(--mute);margin-top:4px')}><a href={IG_PROFILE} target="_blank" rel="noopener" style={css('display:inline-flex;align-items:center;gap:5px;color:inherit;text-decoration:none')}><i className="ph-bold ph-instagram-logo" />© {IG_HANDLE}</a></div>
     </Panel>
   );
 }
@@ -124,6 +126,7 @@ export function FeedbackSheet({ open, onSend, onClose }: { open: boolean; onSend
         <input id="fb-contact" value={contact} onChange={e => setContact(e.target.value)} maxLength={200} placeholder="So we can reply" style={input} className="focus-g" />
         {state === 'error' && <div role="alert" style={css('font-size:13px;font-weight:700;color:var(--cor);margin-top:10px')}>Couldn’t send. Check your connection and try again.</div>}
         <div style={css('margin-top:16px')}><button disabled={!msg.trim() || state === 'sending'} onClick={() => { setState('sending'); onSend(msg.trim(), contact.trim()).then(() => { setState('sent'); setMsg(''); setContact(''); }, () => setState('error')); }} style={{ ...btn(true), opacity: msg.trim() ? 1 : .5 }}><i className="ph-fill ph-paper-plane-right" />{state === 'sending' ? 'Sending…' : 'Send'}</button></div>
+              <a href={IG_MESSAGE} target="_blank" rel="noopener" style={css('display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;margin-top:8px;font-size:13px;font-weight:800;color:var(--g);text-decoration:none')}><i className="ph-bold ph-instagram-logo" />Or message us on Instagram</a>
       </>}
     </Panel>
   );

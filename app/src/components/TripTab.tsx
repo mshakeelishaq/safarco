@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { cloudEnabled } from '../cloud';
+import { IG_HANDLE, IG_MESSAGE, IG_PROFILE } from '../contact';
 import { css } from '../lib/css';
 import type { Api, View } from '../view';
 import { Notes } from './Onboarding';
@@ -453,7 +454,7 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
             ))}
           </div>
         </Fold>
-        <div style={css('font-size:11px;font-weight:600;color:var(--mute);line-height:1.5;padding:0 6px')}>Mountain roads, passes and prices change quickly. Check road status with local police or NHA before you leave. <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="https://www.instagram.com/shakeelnaturegraphy/" target="_blank" rel="noopener" style={css('display:inline-flex;align-items:center;gap:5px;color:inherit;text-decoration:none')}><i className="ph-bold ph-instagram-logo" />© shakeelnaturegraphy</a></div>
+        <div style={css('font-size:11px;font-weight:600;color:var(--mute);line-height:1.5;padding:0 6px')}>Mountain roads, passes and prices change quickly. Check road status with local police or NHA before you leave. <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href={IG_MESSAGE} target="_blank" rel="noopener" style={css('font-weight:800;color:var(--g)')}>Contact us</a> · <a href={IG_PROFILE} target="_blank" rel="noopener" style={css('display:inline-flex;align-items:center;gap:5px;color:inherit;text-decoration:none')}><i className="ph-bold ph-instagram-logo" />© {IG_HANDLE}</a></div>
       </div>
     </div>
   );
