@@ -267,6 +267,9 @@
 .ph-fill.ph-square:before {
   content: "\e45e";
 }
+.ph-fill.ph-star:before {
+  content: "\e46a";
+}
 .ph-fill.ph-steering-wheel:before {
   content: "\e9ac";
 }
@@ -600,6 +603,9 @@
 }
 .ph-bold.ph-square:before {
   content: "\e45e";
+}
+.ph-bold.ph-star:before {
+  content: "\e46a";
 }
 .ph-bold.ph-steering-wheel:before {
   content: "\e9ac";
@@ -1328,6 +1334,14 @@
 }
 .ph-duotone.ph-square:after {
   content: "\e45f";
+  margin-left: -1em;
+}
+.ph-duotone.ph-star:before {
+  content: "\e46a";
+  opacity: 0.2;
+}
+.ph-duotone.ph-star:after {
+  content: "\e46b";
   margin-left: -1em;
 }
 .ph-duotone.ph-steering-wheel:before {

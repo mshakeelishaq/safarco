@@ -10,6 +10,7 @@ import { routePoints, weatherPlan } from './weather/route';
 import { weatherView } from './weather/view';
 import { SECTIONS, activeAlerts, checkedText, isStale, prices, type Section } from './prices';
 import { areaOf, nearPoint, onTrip, telLink, waLink } from './local';
+import { ratingOf } from './reviews';
 import { CITIES, CITY, CITY_DUP, DST, cityOr, placesFor, seasonFactor } from './engine/places';
 import type { AppState, Patch } from './state';
 import { THEMES } from './state';
@@ -131,7 +132,8 @@ export function buildView(s: AppState, api: Api) {
   const contact = (phone: string) => ({ wa: waLink(phone), tel: telLink(phone) });
   const drivers = prices().drivers.filter(x => x.active && onTrip([x.area], tripLine, tripStops)).map(x => ({
     key: x.id, name: x.name, area: areaOf(x.area)?.name || '', vehicle: `${x.vehicle}${x.seats ? ` · ${x.seats} seats` : ''}`,
-    rate: x.rate ? `PKR ${fmtN(x.rate)} (${usd(x.rate)})${x.checked ? ` · checked ${shortDate(x.checked)}` : ''}` : '', note: x.note, ...contact(x.phone) }));
+    rate: x.rate ? `PKR ${fmtN(x.rate)} (${usd(x.rate)})${x.checked ? ` · checked ${shortDate(x.checked)}` : ''}` : '', note: x.note, ...contact(x.phone),
+    rating: ratingOf('driver', x.id), review: () => set({ sheet: 'review', reviewFor: { kind: 'driver', id: x.id, name: x.name } }) }));
   const trustedAt = (lat: number, lon: number) => prices().hotels.filter(h => h.active && nearPoint(h.area, lat, lon, 15));
   const tierRanges = (['backpacker', 'standard', 'premium'] as const).map(t => ({ key: t, label: TIERS[t].label, on: s.tier === t, ...nightRange(t, sf) }));
   const destHotels = spotsAt('hotels', D.lat, D.lon), destSights = spotsAt('sights', D.lat, D.lon);
@@ -279,9 +281,10 @@ export function buildView(s: AppState, api: Api) {
           const picks = live.list.length ? live.list.slice(0, 4).map(h => ({ name: h.name, note: `${h.type}${h.km ? ` · ${Math.round(h.km * 10) / 10} km from centre` : ''}` }))
             : st.curated ? [{ name: st.name, note: st.note }] : [];
           const mine = trustedAt(st.lat, st.lon).map(h => ({ name: h.name, key: 't:' + h.id, trusted: true, note: [`${TIERS[h.tier].label}${h.price ? ` · PKR ${fmtN(h.price)} a night` : ''}${h.checked ? ` (checked ${shortDate(h.checked)})` : ''}`, h.note].filter(Boolean).join(' · '),
-            checkUrl: check(`${h.name}, ${st.town}`, night, 1), mapUrl: mapsQ(`${h.name}, ${st.town}`), ...contact(h.phone) }));
+            checkUrl: check(`${h.name}, ${st.town}`, night, 1), mapUrl: mapsQ(`${h.name}, ${st.town}`), ...contact(h.phone),
+            rating: ratingOf('hotel', h.id), review: () => set({ sheet: 'review', reviewFor: { kind: 'hotel', id: h.id, name: h.name } }) }));
           const options = [...mine, ...picks.filter(h => !mine.some(m => m.name.toLowerCase() === h.name.toLowerCase())).slice(0, Math.max(2, 4 - mine.length))
-            .map(h => ({ ...h, key: h.name, trusted: false, wa: '', tel: '', checkUrl: check(`${h.name}, ${st.town}`, night, 1), mapUrl: mapsQ(`${h.name}, ${st.town}`) }))];
+            .map(h => ({ ...h, key: h.name, trusted: false, wa: '', tel: '', rating: null, review: null, checkUrl: check(`${h.name}, ${st.town}`, night, 1), mapUrl: mapsQ(`${h.name}, ${st.town}`) }))];
           return { ...st, range: `${TIERS[s.tier].label} · ${nr.text} (${nr.usd}) a night`, href: check(st.town, night, 1), options, loading: live.loading && !picks.length, source: live.list.length ? 'OpenStreetMap, via Geoapify' : '' };
         })(), stops: (d.stops || []).map(t => ({ ...t, icon: STOP_KIND[t.kind][0], color: STOP_KIND[t.kind][1] })), tile: K[d.kind][0], kindLabel: K[d.kind][1], lineOp: i === p.days.length - 1 ? 0 : 1 })) };
     })(),

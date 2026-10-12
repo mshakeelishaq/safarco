@@ -1,4 +1,4 @@
-// Supabase: Google sign-in, trips saved to an account, the admin price list and feedback.
+// Supabase: Google sign-in, trips saved to an account, the admin price list, reviews and feedback.
 // Everything here is optional. Without VITE_SUPABASE_URL the app keeps trips on the
 // device only and uses the built-in price list.
 //
@@ -92,4 +92,35 @@ export async function listFeedback(): Promise<FeedbackRow[]> {
   const { data, error } = await sb.from('feedback').select('id,created_at,message,contact,page').order('created_at', { ascending: false }).limit(200);
   if (error) throw error;
   return data as FeedbackRow[];
+}
+
+// ---- Reviews of trusted hotels and drivers (shown once an admin approves them) --------
+
+export type ReviewKind = 'hotel' | 'driver';
+export interface Review { id: number; created_at: string; item_kind: ReviewKind; item_id: string; rating: number; comment: string; author: string; status: 'pending' | 'approved' | 'hidden' }
+const REVIEW_COLS = 'id,created_at,item_kind,item_id,rating,comment,author,status';
+
+export async function loadReviews(): Promise<Review[] | null> {
+  if (!sb) return null;
+  const { data, error } = await sb.from('reviews').select(REVIEW_COLS).eq('status', 'approved').order('created_at', { ascending: false }).limit(3000);
+  if (error) throw error;
+  return data as Review[];
+}
+/** Writes (or replaces) the signed-in traveller's review; it waits for the admin again. */
+export async function submitReview(kind: ReviewKind, itemId: string, rating: number, comment: string, author: string) {
+  if (!sb) throw new Error('Reviews are not set up');
+  const { error } = await sb.from('reviews').upsert({ item_kind: kind, item_id: itemId, rating, comment: comment.slice(0, 600), author: author.slice(0, 60), status: 'pending', created_at: new Date().toISOString() }, { onConflict: 'user_id,item_kind,item_id' });
+  if (error) throw error;
+}
+export async function listAllReviews(): Promise<Review[]> {
+  if (!sb) return [];
+  const { data, error } = await sb.from('reviews').select(REVIEW_COLS).order('created_at', { ascending: false }).limit(500);
+  if (error) throw error;
+  return data as Review[];
+}
+export async function setReviewStatus(id: number, status: Review['status']) {
+  if (!sb) return; const { error } = await sb.from('reviews').update({ status }).eq('id', id); if (error) throw error;
+}
+export async function deleteReview(id: number) {
+  if (!sb) return; const { error } = await sb.from('reviews').delete().eq('id', id); if (error) throw error;
 }

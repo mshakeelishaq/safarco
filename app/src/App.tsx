@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { EditSheet } from './components/Sheets';
-import { FeedbackSheet, SaveSheet, SignInSheet, TripsSheet } from './components/Panels';
-import { cloudDelete, cloudEnabled, cloudSave, cloudTrips, currentUser, loadPriceList, onUserChange, sendFeedback, signInWithGoogle, signOut, type User } from './cloud';
+import { FeedbackSheet, ReviewSheet, SaveSheet, SignInSheet, TripsSheet } from './components/Panels';
+import { cloudDelete, cloudEnabled, cloudSave, cloudTrips, currentUser, loadPriceList, loadReviews, onUserChange, sendFeedback, signInWithGoogle, signOut, submitReview, type User } from './cloud';
+import { setReviews } from './reviews';
 import { applyPrices } from './prices';
 import { clearCurrent, cloudMerge, defaultName, deleteLocal, loadCurrent, localTrips, newId, saveCurrent, saveLocal, shareUrl, tripData, tripFromUrl, type SavedTrip } from './trips';
 import { MapTab } from './components/MapTab';
@@ -80,9 +81,11 @@ export function App() {
     fxFetch().then(e => { if (e.status === 'ok') try { localStorage.setItem('safarco-fx', JSON.stringify({ at: Date.now(), data: e.data })); } catch { /* storage blocked */ } });
   }, []);
 
-  // Prices: the admin's checked list (cached on the device), else the built-in one.
+  // Prices and approved reviews: the admin's lists (cached on the device), else the built-in ones.
   useEffect(() => {
     try { const c = JSON.parse(localStorage.getItem('safarco-prices') || 'null'); if (c) { applyPrices(c); bump(); } } catch { /* storage blocked */ }
+    try { const r = JSON.parse(localStorage.getItem('safarco-reviews') || 'null'); if (r) setReviews(r); } catch { /* storage blocked */ }
+    loadReviews().then(r => { if (!r) return; setReviews(r); bump(); try { localStorage.setItem('safarco-reviews', JSON.stringify(r)); } catch { /* storage blocked */ } }).catch(() => {});
     loadPriceList().then(v => { if (!v) return; applyPrices(v); bump(); try { localStorage.setItem('safarco-prices', JSON.stringify(v)); } catch { /* storage blocked */ } }).catch(() => {});
   }, []);
 
@@ -266,6 +269,8 @@ export function App() {
           <TripsSheet open={s.sheet === 'trips'} trips={trips} user={user} currentId={s.savedId} onOpen={openTrip} onDelete={deleteTrip} onShare={t => shareTrip(t.data, t.name)} onNew={newTrip}
             onSignIn={google} onSignOut={() => signOut().then(() => set({ toast: 'Signed out. Trips stay on this device.' }))} onFeedback={() => set({ sheet: 'feedback' })} onClose={() => set({ sheet: 'none' })} />
           <FeedbackSheet open={s.sheet === 'feedback'} onSend={feedback} onClose={() => set({ sheet: 'none' })} />
+          <ReviewSheet open={s.sheet === 'review'} target={s.reviewFor} user={user} onGoogle={google} onClose={() => set({ sheet: 'none' })}
+            onSend={(rating, comment) => s.reviewFor ? submitReview(s.reviewFor.kind, s.reviewFor.id, rating, comment, user?.name.split(' ')[0] || 'Traveller') : Promise.reject(new Error('Nothing to rate'))} />
         </main>
       </div>
     </div>

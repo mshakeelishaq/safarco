@@ -11,7 +11,9 @@ export interface AppState extends TripState {
   flash: 'budget' | null; offline: 'off' | 'downloading' | 'ready'; progress: number;
   offlineMB: number; offlineErr: string; mapFail: boolean; theme: Theme;
   /** Which bottom sheet is open besides Edit trip. */
-  sheet: 'none' | 'trips' | 'save' | 'signin' | 'feedback';
+  sheet: 'none' | 'trips' | 'save' | 'signin' | 'feedback' | 'review';
+  /** The trusted hotel or driver being rated in the review sheet. */
+  reviewFor: { kind: 'hotel' | 'driver'; id: string; name: string } | null;
   /** The saved trip being edited, if any (changes save to it automatically). */
   savedId: string | null;
   toast: string | null;
@@ -41,7 +43,7 @@ export const initialState = (): AppState => ({
   vehicle: 'sedan', tier: 'standard', groupSize: 2, adults: 2, kids: 0, elders: 0, rooms: 'separate', days: 4, cap: 120000,
   corridor: 'hunza', tab: 'trip', settings: false, flash: null,
   offline: 'off', progress: 0, offlineMB: 0, offlineErr: '', mapFail: false, theme: savedTheme(),
-  sheet: 'none', savedId: null, toast: null, lite: prefersLite(), chosen: null
+  sheet: 'none', savedId: null, toast: null, lite: prefersLite(), chosen: null, reviewFor: null
 });
 
 export type Patch = Partial<AppState>;

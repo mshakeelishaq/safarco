@@ -1,7 +1,7 @@
 // /admin: edit the price list, trusted hotels and drivers, and road alerts, and read feedback.
 // Only emails listed in the Supabase "admins" table can save (enforced by the database).
 import { useEffect, useState } from 'react';
-import { cloudEnabled, currentUser, isAdmin, listFeedback, loadPriceList, onUserChange, savePriceList, signInWithGoogle, signOut, type FeedbackRow, type User } from '../cloud';
+import { cloudEnabled, currentUser, deleteReview, isAdmin, listAllReviews, listFeedback, loadPriceList, onUserChange, savePriceList, setReviewStatus, signInWithGoogle, signOut, type FeedbackRow, type Review, type User } from '../cloud';
 import { AIRPORTS } from '../engine/data';
 import { css } from '../lib/css';
 import { RESEARCHED_ON, withResearched } from '../researched';
@@ -57,6 +57,7 @@ function Checked({ list, k, set }: { list: PriceList; k: Section; set: (l: Price
 export function Admin() {
   const [user, setUser] = useState<User | null>(null), [admin, setAdmin] = useState<boolean | null>(null);
   const [list, setList] = useState<PriceList | null>(null), [status, setStatus] = useState(''), [fb, setFb] = useState<FeedbackRow[]>([]);
+  const [reviews, setRv] = useState<Review[] | null>(null), [rvErr, setRvErr] = useState('');
 
   useEffect(() => { currentUser().then(setUser); return onUserChange(setUser); }, []);
   useEffect(() => {
@@ -64,6 +65,7 @@ export function Admin() {
     isAdmin().then(setAdmin);
     loadPriceList().then(v => setList(JSON.parse(JSON.stringify(applyPrices(v))))).catch(() => setList(JSON.parse(JSON.stringify(DEFAULT_PRICES))));
     listFeedback().then(setFb).catch(() => {});
+    listAllReviews().then(setRv).catch(() => setRvErr('Reviews aren’t set up yet: run supabase/reviews.sql in Supabase (see SETUP.md).'));
   }, [user?.id]);
 
   const save = async () => {
@@ -219,6 +221,32 @@ export function Admin() {
       <button onClick={save} style={btn(true)}>Save price list</button>
       <span role="status" style={css('font-size:14px;font-weight:600')}>{status}</span>
     </div>
+
+    <section style={box}><h2 style={css('margin:0 0 4px;font-size:18px')}>Reviews of hotels and drivers{reviews ? ` (${reviews.filter(r => r.status === 'pending').length} waiting)` : ''}</h2>
+      <p style={css('font-size:13px;color:var(--mute);margin:4px 0 10px')}>Travellers’ reviews show in the app only after you approve them. Hide anything rude, fake or with personal details.</p>
+      {rvErr && <p style={css('font-size:13px;font-weight:700;color:var(--cor);margin:0')}>{rvErr}</p>}
+      {reviews && !reviews.length && <p style={css('color:var(--mute);margin:0')}>No reviews yet.</p>}
+      {(reviews || []).slice().sort((a, b) => +(b.status === 'pending') - +(a.status === 'pending')).map(r => {
+        const item = r.item_kind === 'hotel' ? list.hotels.find(h => h.id === r.item_id) : list.drivers.find(x => x.id === r.item_id);
+        const act = (f: () => Promise<void>, next: Review[]) => f().then(() => setRv(next)).catch(e => setStatus('Couldn’t update the review: ' + ((e as Error).message || 'unknown error')));
+        return (
+          <div key={r.id} style={css(`padding:10px 0;border-bottom:1px solid var(--line);opacity:${r.status === 'hidden' ? .55 : 1}`)}>
+            <div style={css('display:flex;gap:8px;align-items:baseline;flex-wrap:wrap')}>
+              <b>{item?.name || '(deleted ' + r.item_kind + ')'}</b>
+              <span style={css('color:#F2A007;font-weight:800')}>{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</span>
+              <span style={css(`font-size:12px;font-weight:800;color:${r.status === 'approved' ? 'var(--g)' : r.status === 'pending' ? 'var(--amb2)' : 'var(--mute)'}`)}>{r.status === 'pending' ? 'Waiting' : r.status === 'approved' ? 'Shown' : 'Hidden'}</span>
+            </div>
+            {r.comment && <div style={css('font-size:14px;margin-top:4px;line-height:1.45;white-space:pre-wrap')}>{r.comment}</div>}
+            <div style={css('font-size:12px;color:var(--mute);margin-top:4px')}>{r.author || 'Traveller'} · {new Date(r.created_at).toLocaleString('en-GB')}</div>
+            <div style={css('display:flex;gap:8px;margin-top:8px;flex-wrap:wrap')}>
+              {r.status !== 'approved' && <button onClick={() => act(() => setReviewStatus(r.id, 'approved'), (reviews || []).map(x => x.id === r.id ? { ...x, status: 'approved' } : x))} style={btn(true)}>Approve</button>}
+              {r.status !== 'hidden' && <button onClick={() => act(() => setReviewStatus(r.id, 'hidden'), (reviews || []).map(x => x.id === r.id ? { ...x, status: 'hidden' } : x))} style={btn(false)}>Hide</button>}
+              <button onClick={() => { if (confirm('Delete this review for good?')) act(() => deleteReview(r.id), (reviews || []).filter(x => x.id !== r.id)); }} style={btn(false)}>Delete</button>
+            </div>
+          </div>
+        );
+      })}
+    </section>
 
     <section style={box}><h2 style={css('margin:0 0 10px;font-size:18px')}>Feedback ({fb.length})</h2>
       {!fb.length && <p style={css('color:var(--mute);margin:0')}>No feedback yet.</p>}

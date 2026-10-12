@@ -136,7 +136,8 @@ The anon key is meant to be public: it's built into the website. The database ru
 3. Click **Save price list**. Every visitor then sees your prices with the date you checked them. Sections you haven't checked say **not checked yet**, so the app is always honest about it.
 4. **Road alerts:** add one when a pass or road closes (for example "Babusar Pass closed: snow"). Under **Places**, pick the pass, town or destination it affects, and it shows only on trips that go there, until the date you choose. With no places it shows on every trip.
 5. **Trusted hotels and drivers:** tap **+ Add hotel** or **+ Add driver**, fill in the name, place, price and WhatsApp number, then **Save price list**. Hotels show first, marked "Recommended by SafarCo", on every night spent in that place; drivers show on every trip that passes their place. Untick **Show in app** to hide one without deleting it. Always ask people before you publish their number.
-6. **Feedback** from users appears at the bottom of the same page.
+6. **Reviews of your hotels and drivers:** once, paste the file `app/supabase/reviews.sql` from your GitHub repository into Supabase → **SQL Editor** → **New query** → **Run** (it should say "Success"). Travellers who are signed in can then tap **Rate** on a recommended hotel or driver. New reviews wait under **Reviews of hotels and drivers** on /admin: tap **Approve** to show one, **Hide** to keep it out, or **Delete**.
+7. **Feedback** from users appears at the bottom of the same page.
 
 Good habit: update fuel twice a month, and everything else at the start of each season (March, June, September, December).
 

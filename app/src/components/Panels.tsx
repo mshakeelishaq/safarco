@@ -127,3 +127,35 @@ export function FeedbackSheet({ open, onSend, onClose }: { open: boolean; onSend
     </Panel>
   );
 }
+
+export function ReviewSheet({ open, target, user, onGoogle, onSend, onClose }: {
+  open: boolean; target: { kind: 'hotel' | 'driver'; name: string } | null; user: User | null;
+  onGoogle: () => void; onSend: (rating: number, comment: string) => Promise<void>; onClose: () => void;
+}) {
+  const [stars, setStars] = useState(0), [text, setText] = useState(''), [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle'), [busy, setBusy] = useState(false);
+  useEffect(() => { if (open) { setState('idle'); setStars(0); setText(''); setBusy(false); } }, [open, target?.name]);
+  const what = target?.kind === 'driver' ? 'driver' : 'stay';
+  return (
+    <Panel open={open} onClose={onClose} height={500} title={target ? `Rate ${target.name}` : 'Rate'} sub={`Your review helps other travellers. SafarCo checks every review before it shows.`}>
+      {!cloudEnabled ? <div style={css('font-size:14px;font-weight:600;color:var(--mute);padding:12px 4px')}>Reviews aren’t set up yet.</div>
+      : !user ? (
+        <div style={css('display:flex;flex-direction:column;gap:12px;margin-top:6px')}>
+          <div style={css('font-size:14px;font-weight:600;line-height:1.5;color:var(--ink2)')}>Sign in with Google to leave a review. Only your first name is shown with it.</div>
+          <GoogleButton busy={busy} onClick={() => { setBusy(true); onGoogle(); }} />
+          <button onClick={onClose} style={btn(false)}>Not now</button>
+        </div>
+      ) : state === 'sent' ? (
+        <div style={css('padding:30px 6px;text-align:center')}><i className="ph-fill ph-check-circle" style={css('font-size:44px;color:var(--g)')} /><div style={css('font-size:16px;font-weight:800;margin-top:10px')}>Thank you!</div><div style={css('font-size:13px;color:var(--mute);font-weight:600;margin-top:4px')}>Your review shows once SafarCo has checked it.</div><div style={css('margin-top:18px')}><button onClick={onClose} style={btn(true)}>Done</button></div></div>
+      ) : <>
+        <div style={css('font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin:6px 4px 8px')}>How was your {what}?</div>
+        <div role="radiogroup" aria-label="Stars" style={css('display:flex;gap:6px')}>
+          {[1, 2, 3, 4, 5].map(i => <button key={i} role="radio" aria-checked={stars === i} aria-label={`${i} star${i > 1 ? 's' : ''}`} onClick={() => setStars(i)} style={css(`width:52px;height:52px;border-radius:16px;border:1px solid var(--line2);background:var(--fill);font-size:26px;cursor:pointer;color:${i <= stars ? '#F2A007' : 'var(--line2)'}`)}><i className={`${i <= stars ? 'ph-fill' : 'ph-bold'} ph-star`} /></button>)}
+        </div>
+        <label htmlFor="rv-text" style={css('display:block;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin:16px 4px 8px')}>What should others know? (optional)</label>
+        <textarea id="rv-text" value={text} onChange={e => setText(e.target.value)} maxLength={600} rows={4} placeholder={target?.kind === 'driver' ? 'e.g. Safe driver, on time, fair price' : 'e.g. Clean rooms, hot water, friendly staff'} style={css('width:100%;box-sizing:border-box;border-radius:16px;border:1px solid var(--line2);background:var(--fill);padding:12px 14px;font:600 15px/1.45 var(--font);color:var(--ink);outline:none;resize:vertical')} className="focus-g" />
+        {state === 'error' && <div role="alert" style={css('font-size:13px;font-weight:700;color:var(--cor);margin-top:10px')}>Couldn’t send. Check your connection and try again.</div>}
+        <div style={css('margin-top:16px')}><button disabled={!stars || state === 'sending'} onClick={() => { setState('sending'); onSend(stars, text.trim()).then(() => setState('sent'), () => setState('error')); }} style={{ ...btn(true), opacity: stars ? 1 : .5 }}><i className="ph-fill ph-paper-plane-right" />{state === 'sending' ? 'Sending…' : 'Send review'}</button></div>
+      </>}
+    </Panel>
+  );
+}
