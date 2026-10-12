@@ -189,6 +189,9 @@
 .ph-fill.ph-lightning:before {
   content: "\e2de";
 }
+.ph-fill.ph-list-bullets:before {
+  content: "\e2f2";
+}
 .ph-fill.ph-lock-simple:before {
   content: "\e308";
 }
@@ -528,6 +531,9 @@
 }
 .ph-bold.ph-lightning:before {
   content: "\e2de";
+}
+.ph-bold.ph-list-bullets:before {
+  content: "\e2f2";
 }
 .ph-bold.ph-lock-simple:before {
   content: "\e308";
@@ -1132,6 +1138,14 @@
 }
 .ph-duotone.ph-lightning:after {
   content: "\e2df";
+  margin-left: -1em;
+}
+.ph-duotone.ph-list-bullets:before {
+  content: "\e2f2";
+  opacity: 0.2;
+}
+.ph-duotone.ph-list-bullets:after {
+  content: "\e2f3";
   margin-left: -1em;
 }
 .ph-duotone.ph-lock-simple:before {
