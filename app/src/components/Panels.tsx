@@ -67,9 +67,9 @@ export function SignInSheet({ open, onGoogle, onClose }: { open: boolean; onGoog
   );
 }
 
-export function TripsSheet({ open, trips, user, currentId, onOpen, onDelete, onShare, onNew, onSignIn, onSignOut, onFeedback, onAbout, onClose }: {
+export function TripsSheet({ open, trips, user, currentId, onOpen, onDelete, onShare, onNew, onSignIn, onSignOut, onFeedback, onAbout, onGuide, onClose }: {
   open: boolean; trips: SavedTrip[]; user: User | null; currentId: string | null;
-  onOpen: (t: SavedTrip) => void; onDelete: (t: SavedTrip) => void; onShare: (t: SavedTrip) => void; onNew: () => void; onSignIn: () => void; onSignOut: () => void; onFeedback: () => void; onAbout: () => void; onClose: () => void;
+  onOpen: (t: SavedTrip) => void; onDelete: (t: SavedTrip) => void; onShare: (t: SavedTrip) => void; onNew: () => void; onSignIn: () => void; onSignOut: () => void; onFeedback: () => void; onAbout: () => void; onGuide: () => void; onClose: () => void;
 }) {
   const [confirm, setConfirm] = useState<string | null>(null);
   return (
@@ -103,6 +103,7 @@ export function TripsSheet({ open, trips, user, currentId, onOpen, onDelete, onS
       )}
       <a href={IG_MESSAGE} target="_blank" rel="noopener" style={css('margin-top:18px;height:50px;border-radius:16px;background:linear-gradient(90deg,#F58529,#DD2A7B 45%,#8134AF 75%,#515BD4);color:#fff;font-size:15px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none')}><i className="ph-bold ph-instagram-logo" style={css('font-size:20px')} />Contact us on Instagram</a>
       <div style={css('display:flex;flex-wrap:wrap;justify-content:center;gap:2px 10px;margin-top:18px;font-size:12px;font-weight:700')}>
+        <button onClick={onGuide} style={css('padding:8px;border:0;background:none;color:var(--g);font-size:12px;font-weight:700;cursor:pointer')}>Best time to go</button>
         <button onClick={onAbout} style={css('padding:8px;border:0;background:none;color:var(--g);font-size:12px;font-weight:700;cursor:pointer')}>About SafarCo</button>
         <button onClick={onFeedback} style={css('padding:8px;border:0;background:none;color:var(--g);font-size:12px;font-weight:700;cursor:pointer')}>Send feedback</button>
         <a href="/privacy" style={css('padding:8px;text-decoration:none')}>Privacy</a>

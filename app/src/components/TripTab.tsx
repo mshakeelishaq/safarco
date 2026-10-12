@@ -60,7 +60,8 @@ function dayQuick(d: PlanDay) {
 /** What the summary card and folded rows need: weather range and the warnings worth seeing first. */
 function tripGlance(v: View) {
   const dd = v.wx.destDays, warnings: string[] = [];
-  v.seasonNotes.filter(n => n.color === 'var(--cor)').forEach(n => warnings.push(n.text));
+  // The season badge already explains an off-season month, so skip the destination's own season warning here.
+  v.seasonNotes.filter(n => n.color === 'var(--cor)' && !(v.tripSeason && n.icon === 'ph-warning')).forEach(n => warnings.push(n.text));
   v.plan.days.forEach((d, i) => { const f = d.strip?.flags.find(x => x.level === 'danger'); if (f) warnings.push(`Day ${i + 1}: ${f.text}`); });
   v.wx.aq.rows.filter(r => r.bad).slice(0, 1).forEach(r => warnings.push(`Unhealthy air in ${r.place}: carry N95 masks`));
   const lo = dd.map(d => d.lo).filter((x): x is number => x != null), hi = dd.map(d => d.hi).filter((x): x is number => x != null);
@@ -163,6 +164,20 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
             <span style={css('padding:6px 10px;border-radius:10px;background:var(--fill);font-size:12px;font-weight:700;display:flex;align-items:center;gap:5px')}><i className="ph-fill ph-calendar-check" />{plan.summary}</span>
             {glance.wx && <span style={css('padding:6px 10px;border-radius:10px;background:var(--fill);font-size:12px;font-weight:700;display:flex;align-items:center;gap:5px')}><i className={`ph-duotone ${glance.wx.icon}`} style={css(`color:${glance.wx.color}`)} />{glance.wx.text}</span>}
           </div>
+          {v.tripSeason && (() => { const t = v.tripSeason, c = t.tone === 'good' ? 'var(--g)' : t.tone === 'care' ? 'var(--amb2)' : 'var(--cor)';
+            return (
+              <div style={css(`margin-top:12px;padding:10px 12px;border-radius:14px;background:var(--fill);border-left:4px solid ${c}`)}>
+                <div style={css(`display:flex;gap:8px;align-items:flex-start;font-size:13px;font-weight:700;line-height:1.45;color:${t.tone === 'good' ? 'var(--ink)' : c}`)}><i className={`ph-fill ${t.tone === 'good' ? 'ph-calendar-check' : t.tone === 'care' ? 'ph-snowflake' : 'ph-calendar-x'}`} style={css(`margin-top:2px;flex:none;color:${c}`)} />{t.text}</div>
+                {t.note && <div style={css('font-size:12px;font-weight:700;color:var(--g);margin-top:4px;line-height:1.4')}>{t.note}</div>}
+                {t.alts.length > 0 && <div style={css('margin-top:8px')}>
+                  <div style={css('font-size:12px;font-weight:800;color:var(--mute)')}>{t.altLabel}</div>
+                  <div style={css('display:flex;flex-direction:column;gap:6px;margin-top:6px')}>
+                    {t.alts.map(a => <button key={a.key} onClick={a.onClick} style={css('display:flex;align-items:center;gap:8px;min-height:40px;padding:6px 10px;border-radius:12px;border:1px solid var(--line2);background:var(--card);color:var(--ink);text-align:left;cursor:pointer')}><span style={css('flex:1;min-width:0;font-size:13px;line-height:1.35')}><b>{a.name}</b> <span style={css('color:var(--mute);font-weight:600')}>· {a.text}</span></span><i className="ph-bold ph-caret-right" style={css('flex:none;color:var(--mute)')} /></button>)}
+                  </div>
+                </div>}
+                <button onClick={v.guide.open} style={css('margin-top:6px;min-height:32px;padding:0;border:0;background:none;color:var(--g);font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:4px')}><i className="ph-fill ph-leaf" />Best places by season</button>
+              </div>
+            ); })()}
           {glance.warnings.length > 0 && <div style={css('display:flex;flex-direction:column;gap:6px;margin-top:12px')}>
             {glance.warnings.slice(0, 3).map(w => <div key={w} style={css('display:flex;gap:8px;align-items:flex-start;font-size:13px;font-weight:700;line-height:1.4;color:var(--cor)')}><i className="ph-fill ph-warning" style={css('margin-top:2px;flex:none')} />{w}</div>)}
             {glance.warnings.length > 3 && <div style={css('font-size:12px;font-weight:700;color:var(--mute)')}>+{glance.warnings.length - 3} more in the plan below</div>}

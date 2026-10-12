@@ -11,6 +11,7 @@ import { weatherView } from './weather/view';
 import { SECTIONS, activeAlerts, checkedText, isStale, prices, type Section } from './prices';
 import { areaOf, nearPoint, onTrip, telLink, waLink } from './local';
 import { ratingOf } from './reviews';
+import { SEASONS, highlightIn, highlightsOf, iconFor, monthsLabel, nextStartIn, seasonOf, seasonPicks } from './engine/seasons';
 import { isRated, markRated, ratedKey } from './rated';
 import { CITIES, CITY, CITY_DUP, DST, cityOr, placesFor, seasonFactor } from './engine/places';
 import type { AppState, Patch } from './state';
@@ -126,6 +127,38 @@ export function buildView(s: AppState, api: Api) {
   const spotsAt = (kind: 'sights' | 'hotels', lat: number, lon: number) => { const e = LIVE.places[placesKey(kind, lat, lon)]; return { loading: !e || e.status === 'loading', list: e && e.status === 'ok' ? e.data : [] as Spot[] }; };
   const check = (q: string, checkin: string, n: number) => checkPricesUrl(q, checkin, n, AD, s.kids, rooms);
 
+  // Season guide: the best places by season, what's best in the trip's month, and this trip's season.
+  const note = (id: string) => prices().seasonNotes[id] || '';
+  const kmFrom = (id: string) => trip(id, s.origin, M).km;
+  const goTo = (id: string, months: number[]) => {
+    const keep = months.includes(mon(s)) && s.startDate >= isoAdd(1);
+    const date = keep ? s.startDate : nextStartIn(months);
+    if (s.screen === 'onboard') set({ guide: false, mode: 'know', dest: id, corridor: id, pickId: null, startDate: date, step: Math.max(s.step, 2) });
+    else set({ guide: false, dest: id, corridor: id, chosen: id, pickId: null, startDate: date, toast: `Planning ${DST(id).name} for ${MONTH_FULL[+date.slice(5, 7) - 1]}` });
+  };
+  const guide = {
+    initial: seasonOf(M).id,
+    seasons: SEASONS.map(se => ({ ...se, picks: seasonPicks(se.id).filter(p => DST(p.id).name !== s.origin).sort((a, b) => +!!a.h.caution - +!!b.h.caution || kmFrom(a.id) - kmFrom(b.id))
+      .map(p => ({ key: p.id + se.id, name: p.name, region: p.region, text: p.h.text, ...iconFor(p.h), when: monthsLabel(p.h.months), caution: p.h.caution || '', note: note(p.id), km: `${fmtN(kmFrom(p.id))} km`, onPick: () => goTo(p.id, p.h.months) })) })),
+    open: () => set({ guide: true, sheet: 'none', settings: false }), close: () => set({ guide: false })
+  };
+  const bestNow = { month: MONTH_FULL[M - 1], picks: DESTS.filter(d => DST(d.id).name !== s.origin).flatMap(d => { const h = highlightIn(d.id, M); return h ? [{ id: d.id, name: d.name, h }] : []; })
+    .sort((a, b) => +!!a.h.caution - +!!b.h.caution || kmFrom(a.id) - kmFrom(b.id)).slice(0, 10)
+    .map(p => ({ key: p.id, name: p.name, ...iconFor(p.h), caution: !!p.h.caution, on: s.dest === p.id && s.mode === 'know', onClick: () => set({ mode: 'know', dest: p.id, corridor: p.id, pickId: null }) })) };
+  const tripSeason = (() => {
+    const Dd = DST(s.corridor); if (Dd.generic) return null;
+    const h = highlightIn(s.corridor, M), first = highlightsOf(s.corridor)[0], Mo = MONTH_FULL[M - 1];
+    const extra = note(s.corridor);
+    if (h && !h.caution) return { tone: 'good' as const, text: `Great time to go: ${h.text.charAt(0).toLowerCase() + h.text.slice(1)} (${monthsLabel(h.months)}).`, note: extra, alts: [], altLabel: '' };
+    if (h) return { tone: 'care' as const, text: `${h.text} in ${Mo}. ${h.caution}`, note: extra, alts: [], altLabel: '' };
+    const off = (Dd.warn && Dd.warn[0].includes(M)) || (Dd.best && !Dd.best.includes(M));
+    if (!off) return Dd.best ? { tone: 'good' as const, text: `Good time to visit ${Dd.name} (best ${monthsLabel(Dd.best)}).`, note: extra, alts: [], altLabel: '' } : null;
+    const alts = DESTS.filter(d => d.id !== s.corridor && DST(d.id).name !== s.origin).flatMap(d => { const x = highlightIn(d.id, M); return x && !x.caution ? [{ id: d.id, name: d.name, text: x.text }] : []; })
+      .sort((a, b) => kmFrom(a.id) - kmFrom(b.id)).slice(0, 3).map(a => ({ key: a.id, name: a.name, text: a.text, onClick: () => set({ dest: a.id, corridor: a.id, chosen: a.id, pickId: null }) }));
+    const bestWhen = highlightsOf(s.corridor).filter(x => !x.caution).map(x => monthsLabel(x.months)).join(', ') || monthsLabel(Dd.best || []);
+    return { tone: 'off' as const, text: `${Mo} isn’t a good time for ${Dd.name}.${Dd.warn && Dd.warn[0].includes(M) ? ' ' + Dd.warn[1] : ''} Best: ${bestWhen}.`, note: extra, alts, altLabel: `In ${Mo}, try:` };
+  })();
+
   // The admin's trusted hotels, drivers and road alerts, kept to the places this trip passes.
   const tripLine: [number, number][] = s.vehicle === 'air' ? [] : routeCoords;
   const tripStops = [{ lat: D.lat, lon: D.lon }, ...plan.days.flatMap(d => d.stay ? [{ lat: d.stay.lat, lon: d.stay.lon }] : [])];
@@ -181,7 +214,7 @@ export function buildView(s: AppState, api: Api) {
   const alertNotes = activeAlerts().filter(a => !a.areas?.length || onTrip(a.areas, tripLine, tripStops)).map(a => ({ icon: 'ph-megaphone', color: 'var(--cor)', text: `${a.title}${a.message ? `: ${a.message}` : ''}${a.date ? ` (posted ${dayLabel(a.date, 0)})` : ''}` }));
 
   return {
-    s, c, gate, tip, health, off, isAir, drivers, afterTrip, wPlan, rPoints, selCorridor: sug.sel?.corridor, stays, nearby, priceNotes, ratesChecked: checkedText(s.vehicle === 'public' ? 'coach' : isAir ? 'fares' : 'hire'),
+    s, c, gate, tip, health, off, isAir, drivers, afterTrip, guide, bestNow, tripSeason, wPlan, rPoints, selCorridor: sug.sel?.corridor, stays, nearby, priceNotes, ratesChecked: checkedText(s.vehicle === 'public' ? 'coach' : isAir ? 'fares' : 'hire'),
     fxNote: fx.live ? `US$ at 1 USD = PKR ${fx.pkrPerUsd.toFixed(2)}${fx.updated ? ` (${fx.updated})` : ''}` : `US$ at about PKR ${fx.pkrPerUsd} (live rate unavailable)`,
     wiki: { loading: !wikiE || wikiE.status === 'loading', info: wikiE && wikiE.status === 'ok' ? wikiE.data : null },
     stepLabel: `${s.step + 1} / 6`,

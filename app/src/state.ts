@@ -16,6 +16,8 @@ export interface AppState extends TripState {
   reviewFor: { kind: 'hotel' | 'driver'; id: string; name: string; date: string } | null;
   /** The welcome screen explaining what SafarCo is for. */
   welcome: boolean;
+  /** The season guide: best places by season. */
+  guide: boolean;
   /** The saved trip being edited, if any (changes save to it automatically). */
   savedId: string | null;
   toast: string | null;
@@ -45,7 +47,7 @@ export const initialState = (): AppState => ({
   vehicle: 'sedan', tier: 'standard', groupSize: 2, adults: 2, kids: 0, elders: 0, rooms: 'separate', days: 4, cap: 120000,
   corridor: 'hunza', tab: 'trip', settings: false, flash: null,
   offline: 'off', progress: 0, offlineMB: 0, offlineErr: '', mapFail: false, theme: savedTheme(),
-  sheet: 'none', savedId: null, toast: null, lite: prefersLite(), chosen: null, reviewFor: null, welcome: false
+  sheet: 'none', savedId: null, toast: null, lite: prefersLite(), chosen: null, reviewFor: null, welcome: false, guide: false
 });
 
 export type Patch = Partial<AppState>;

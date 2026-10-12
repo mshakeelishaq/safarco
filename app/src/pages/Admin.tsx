@@ -2,7 +2,8 @@
 // Only emails listed in the Supabase "admins" table can save (enforced by the database).
 import { useEffect, useState } from 'react';
 import { cloudEnabled, currentUser, deleteReview, isAdmin, listAllReviews, listFeedback, loadPriceList, onUserChange, savePriceList, setReviewStatus, signInWithGoogle, signOut, type FeedbackRow, type Review, type User } from '../cloud';
-import { AIRPORTS } from '../engine/data';
+import { AIRPORTS, DESTS } from '../engine/data';
+import { highlightsOf, monthsLabel } from '../engine/seasons';
 import { css } from '../lib/css';
 import { RESEARCHED_ON, withResearched } from '../researched';
 import { AREAS, areaOf, waLink } from '../local';
@@ -194,6 +195,16 @@ export function Admin() {
       ))}
       <datalist id="vehicles"><option value="Jeep" /><option value="Land Cruiser" /><option value="Prado" /><option value="Car" /><option value="Coaster" /><option value="Hiace" /></datalist>
       <button onClick={() => upd(l => { l.drivers.push({ id: rid(), name: '', area: '', vehicle: 'Jeep', seats: 0, rate: 0, phone: '', note: '', checked: today(), active: true }); })} style={{ ...btn(false), marginTop: 10 }}>+ Add driver</button>
+    </section>
+
+    <section style={box}><h2 style={css('margin:0 0 4px;font-size:18px')}>Season guide notes</h2>
+      <p style={css('font-size:13px;color:var(--mute);margin:4px 0 10px')}>Add a short update for a place and it shows in the season guide and on trips there, e.g. “Cherry blossom came early this year: go in the first week of April”. Leave empty for none.</p>
+      {DESTS.map(d => (
+        <label key={d.id} style={lbl}>
+          <span><b style={css('color:var(--ink)')}>{d.name}</b> · {highlightsOf(d.id).map(h => `${monthsLabel(h.months)}: ${h.text}`).join(' · ') || 'no season highlights'}</span>
+          <input value={list.seasonNotes[d.id] || ''} maxLength={200} placeholder="No update" onChange={e => upd(l => { if (e.target.value) l.seasonNotes[d.id] = e.target.value; else delete l.seasonNotes[d.id]; })} style={{ ...text, marginBottom: 10 }} />
+        </label>
+      ))}
     </section>
 
     <section style={box}><h2 style={css('margin:0 0 4px;font-size:18px')}>Road alerts</h2>

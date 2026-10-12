@@ -13,7 +13,7 @@ const POINTS: [string, string, string][] = [
   ['ph-wifi-slash', 'Ready for no signal', 'Save the route map on your phone for valleys with no coverage.']
 ];
 
-export function Welcome({ open, onStart }: { open: boolean; onStart: () => void }) {
+export function Welcome({ open, onStart, onGuide }: { open: boolean; onStart: () => void; onGuide: () => void }) {
   if (!open) return null;
   return (
     <div role="dialog" aria-modal="true" aria-label="Welcome to SafarCo" style={css('position:absolute;inset:0;z-index:40;overflow-y:auto;scrollbar-width:none;background:radial-gradient(120% 70% at 50% 0%,#12809F 0%,#0B5F7C 50%,#08435A 100%);color:#fff')}>
@@ -33,6 +33,7 @@ export function Welcome({ open, onStart }: { open: boolean; onStart: () => void 
         <div style={css('flex:1;min-height:16px')} />
         <div style={css('position:sticky;bottom:calc(-24px - env(safe-area-inset-bottom));margin:0 -24px calc(-24px - env(safe-area-inset-bottom));padding:16px 24px calc(16px + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(8,67,90,0),#08435A 30%)')}>
         <button onClick={onStart} style={css('width:100%;height:56px;border-radius:18px;border:0;background:#FFC75F;color:#2A1A00;font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 16px 32px -14px rgba(255,199,95,.8)')}>Start planning<i className="ph-bold ph-arrow-right" /></button>
+        <button onClick={onGuide} style={css('width:100%;margin-top:8px;height:46px;border-radius:16px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.08);color:#fff;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px')}><i className="ph-fill ph-leaf" />Where’s best this season?</button>
         <div style={css('margin-top:10px;text-align:center;font-size:12px;font-weight:600;opacity:.75')}>Free for everyone. No sign-up needed.</div>
         </div>
       </div>

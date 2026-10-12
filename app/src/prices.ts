@@ -33,6 +33,8 @@ export interface PriceList {
   alerts: RoadAlert[];
   hotels: TrustedHotel[];
   drivers: TrustedDriver[];
+  /** Admin's notes per destination for the season guide, e.g. "Cherry blossom early this year". */
+  seasonNotes: Record<string, string>;
 }
 
 const edgeKey = (e: (typeof EDGES)[number]) => `${e[0]}-${e[1]}`;
@@ -49,7 +51,7 @@ export const DEFAULT_PRICES: PriceList = (() => ({
   coach: { perKmFlat: P.coachFlat, perKmMountain: P.coachMtn },
   fares: JSON.parse(JSON.stringify(FARES)),
   jeeps: { ...Object.fromEntries(DESTS.flatMap(d => (d.jeeps || []).map(j => [j[0], j[3]]))), raikot: P.raikotJeep },
-  alerts: [], hotels: [], drivers: []
+  alerts: [], hotels: [], drivers: [], seasonNotes: {}
 }))();
 
 let current: PriceList = DEFAULT_PRICES;
@@ -73,6 +75,7 @@ export function applyPrices(saved: Partial<PriceList> | null | undefined) {
     jeeps: Object.fromEntries(Object.entries(d.jeeps).map(([k, v]) => [k, num(s.jeeps?.[k], v)])),
     alerts: Array.isArray(s.alerts) ? s.alerts.filter(a => a && a.title).map(a => ({ title: String(a.title).slice(0, 80), message: String(a.message || '').slice(0, 300), date: String(a.date || ''), until: a.until ? String(a.until) : undefined, areas: Array.isArray(a.areas) ? a.areas.map(String).slice(0, 20) : [] })) : [],
     hotels: Array.isArray(s.hotels) ? s.hotels.filter(h => h && h.name && h.area).slice(0, 500).map(h => ({ id: str(h.id, 40) || rid(), name: str(h.name, 80), area: str(h.area, 60), tier: (['backpacker', 'standard', 'premium'] as TierId[]).includes(h.tier) ? h.tier : 'standard', price: num(h.price, 0), phone: str(h.phone, 30), note: str(h.note, 200), checked: str(h.checked, 10), active: h.active !== false })) : [],
+    seasonNotes: s.seasonNotes && typeof s.seasonNotes === 'object' ? Object.fromEntries(Object.entries(s.seasonNotes).map(([k, v]) => [str(k, 40), str(v, 200)]).filter(([k, v]) => k && v).slice(0, 100)) : {},
     drivers: Array.isArray(s.drivers) ? s.drivers.filter(x => x && x.name && x.area).slice(0, 500).map(x => ({ id: str(x.id, 40) || rid(), name: str(x.name, 80), area: str(x.area, 60), vehicle: str(x.vehicle, 40) || 'Jeep', seats: num(x.seats, 0), rate: num(x.rate, 0), phone: str(x.phone, 30), note: str(x.note, 200), checked: str(x.checked, 10), active: x.active !== false })) : []
   };
   current = list;

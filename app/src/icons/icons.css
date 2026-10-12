@@ -144,6 +144,9 @@
 .ph-fill.ph-coffee:before {
   content: "\e1c2";
 }
+.ph-fill.ph-confetti:before {
+  content: "\e81a";
+}
 .ph-fill.ph-copy:before {
   content: "\e1ca";
 }
@@ -165,6 +168,9 @@
 .ph-fill.ph-flag-banner:before {
   content: "\e622";
 }
+.ph-fill.ph-flower:before {
+  content: "\e75e";
+}
 .ph-fill.ph-fork-knife:before {
   content: "\e262";
 }
@@ -185,6 +191,9 @@
 }
 .ph-fill.ph-jeep:before {
   content: "\e2d4";
+}
+.ph-fill.ph-leaf:before {
+  content: "\e2da";
 }
 .ph-fill.ph-letter-circle-p:before {
   content: "\ec08";
@@ -305,6 +314,9 @@
 }
 .ph-fill.ph-trend-up:before {
   content: "\e4ae";
+}
+.ph-fill.ph-umbrella-simple:before {
+  content: "\e686";
 }
 .ph-fill.ph-user:before {
   content: "\e4c2";
@@ -490,6 +502,9 @@
 .ph-bold.ph-coffee:before {
   content: "\e1c2";
 }
+.ph-bold.ph-confetti:before {
+  content: "\e81a";
+}
 .ph-bold.ph-copy:before {
   content: "\e1ca";
 }
@@ -511,6 +526,9 @@
 .ph-bold.ph-flag-banner:before {
   content: "\e622";
 }
+.ph-bold.ph-flower:before {
+  content: "\e75e";
+}
 .ph-bold.ph-fork-knife:before {
   content: "\e262";
 }
@@ -531,6 +549,9 @@
 }
 .ph-bold.ph-jeep:before {
   content: "\e2d4";
+}
+.ph-bold.ph-leaf:before {
+  content: "\e2da";
 }
 .ph-bold.ph-letter-circle-p:before {
   content: "\ec08";
@@ -651,6 +672,9 @@
 }
 .ph-bold.ph-trend-up:before {
   content: "\e4ae";
+}
+.ph-bold.ph-umbrella-simple:before {
+  content: "\e686";
 }
 .ph-bold.ph-user:before {
   content: "\e4c2";
@@ -1026,6 +1050,14 @@
   content: "\e1c3";
   margin-left: -1em;
 }
+.ph-duotone.ph-confetti:before {
+  content: "\e81a";
+  opacity: 0.2;
+}
+.ph-duotone.ph-confetti:after {
+  content: "\e81b";
+  margin-left: -1em;
+}
 .ph-duotone.ph-copy:before {
   content: "\e1ca";
   opacity: 0.2;
@@ -1082,6 +1114,14 @@
   content: "\e623";
   margin-left: -1em;
 }
+.ph-duotone.ph-flower:before {
+  content: "\e75e";
+  opacity: 0.2;
+}
+.ph-duotone.ph-flower:after {
+  content: "\e75f";
+  margin-left: -1em;
+}
 .ph-duotone.ph-fork-knife:before {
   content: "\e262";
   opacity: 0.2;
@@ -1136,6 +1176,14 @@
 }
 .ph-duotone.ph-jeep:after {
   content: "\e2d5";
+  margin-left: -1em;
+}
+.ph-duotone.ph-leaf:before {
+  content: "\e2da";
+  opacity: 0.2;
+}
+.ph-duotone.ph-leaf:after {
+  content: "\e2db";
   margin-left: -1em;
 }
 .ph-duotone.ph-letter-circle-p:before {
@@ -1456,6 +1504,14 @@
 }
 .ph-duotone.ph-trend-up:after {
   content: "\e4af";
+  margin-left: -1em;
+}
+.ph-duotone.ph-umbrella-simple:before {
+  content: "\e686";
+  opacity: 0.2;
+}
+.ph-duotone.ph-umbrella-simple:after {
+  content: "\e687";
   margin-left: -1em;
 }
 .ph-duotone.ph-user:before {

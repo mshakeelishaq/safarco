@@ -87,6 +87,17 @@ export function Onboarding({ v, api }: { v: View; api: Api }) {
                 </button>
               ))}
             </div>
+            {v.bestNow.picks.length > 0 && (
+              <div style={css('margin-top:16px;padding:12px 0 12px 14px;border-radius:20px;background:var(--fill);border:1px solid var(--line)')}>
+                <div style={css('display:flex;align-items:center;gap:8px;padding-right:12px')}>
+                  <div style={css('flex:1;min-width:0;font-size:13px;font-weight:800')}>Best in {v.bestNow.month}</div>
+                  <button onClick={v.guide.open} style={css('flex:none;min-height:32px;padding:0 4px;border:0;background:none;color:var(--g);font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:4px')}>All seasons<i className="ph-bold ph-caret-right" /></button>
+                </div>
+                <div style={css('display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-top:8px;padding-right:14px')}>
+                  {v.bestNow.picks.map(p => <button key={p.key} onClick={p.onClick} aria-pressed={p.on} style={css(`flex:none;height:38px;padding:0 12px;border-radius:12px;border:1px solid ${p.on ? 'transparent' : 'var(--line2)'};background:${p.on ? 'var(--cta)' : 'var(--card)'};color:${p.on ? 'var(--onCta)' : 'var(--ink)'};font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap`)}><i className={`ph-fill ${p.icon}`} style={css(`color:${p.on ? 'inherit' : p.color}`)} />{p.name}</button>)}
+                </div>
+              </div>
+            )}
             {s.mode === 'know' && <>
               <div style={css('margin-top:14px')}><SearchBox value={s.dq} onChange={dq => set({ dq })} onClear={() => set({ dq: '' })} placeholder="Search any place, e.g. Neelum, Ziarat" label="Search destination" focus="focus-amb" /></div>
               <SectionLabel style="margin:16px 4px 6px">{v.destListLabel}</SectionLabel>
