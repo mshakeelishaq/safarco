@@ -52,3 +52,18 @@ describe('price list', () => {
     expect(l.stays).toEqual(DEFAULT_PRICES.stays);
   });
 });
+
+describe('researched prices', () => {
+  it('fill every field they name and mark only their sections checked', async () => {
+    const { DEFAULT_PRICES, tollRoads } = await import('../src/prices');
+    const { withResearched, RESEARCHED, RESEARCHED_ON } = await import('../src/researched');
+    const l = withResearched(DEFAULT_PRICES);
+    for (const k of Object.keys(RESEARCHED.tolls!)) expect(tollRoads().map(t => t.key)).toContain(k);
+    for (const k of Object.keys(RESEARCHED.jeeps!)) expect(Object.keys(DEFAULT_PRICES.jeeps)).toContain(k);
+    expect(l.fuel.petrol).toBe(398.3);
+    expect(l.tolls['LHR-ISB']).toBe(1430);
+    expect(l.checked.fuel).toBe(RESEARCHED_ON);
+    expect(l.checked.fares).toBe('');
+    expect(DEFAULT_PRICES.checked.fuel).toBe('');
+  });
+});

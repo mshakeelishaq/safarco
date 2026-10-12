@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { cloudEnabled, currentUser, isAdmin, listFeedback, loadPriceList, onUserChange, savePriceList, signInWithGoogle, signOut, type FeedbackRow, type User } from '../cloud';
 import { AIRPORTS } from '../engine/data';
 import { css } from '../lib/css';
+import { RESEARCHED_ON, withResearched } from '../researched';
 import { DEFAULT_PRICES, SECTIONS, applyPrices, jeepTrips, tollRoads, type PriceList, type Section } from '../prices';
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -74,6 +75,10 @@ export function Admin() {
   return wrap(<>
     <p style={css('color:var(--mute);margin:0')}>Signed in as {user.email} · <button onClick={() => signOut()} style={css('border:0;background:none;color:var(--g);font-weight:700;cursor:pointer;padding:0')}>Sign out</button></p>
     <p style={css('font-size:14px;line-height:1.55')}>Update a section when you check its prices, and set <b>Checked on</b> to that day. All prices are in PKR. Visitors see the checked date next to each price.</p>
+    <section style={box}><h2 style={css('margin:0 0 4px;font-size:18px')}>Prices researched online</h2>
+      <p style={css('font-size:14px;line-height:1.55;margin:4px 0 10px')}>Fills in fuel, tolls, hotels, hire and coach fares found online on {new Date(RESEARCHED_ON + 'T00:00').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} (OGRA and NHA notices, operator websites and booking sites), and marks those sections checked on that day. Flights and most jeep trips had no recent source, so they stay as they are. Look over the figures, then tap <b>Save price list</b>.</p>
+      <button onClick={() => { setList(withResearched(list)); setStatus('Filled in. Review, then tap Save price list.'); }} style={btn(false)}>Fill in researched prices</button>
+    </section>
 
     <section style={box}><h2 style={css('margin:0 0 4px;font-size:18px')}>Fuel (per litre)</h2><Checked list={list} k="fuel" set={setList} />
       <Num label="Petrol" value={list.fuel.petrol} onChange={n => upd(l => { l.fuel.petrol = n; })} />
