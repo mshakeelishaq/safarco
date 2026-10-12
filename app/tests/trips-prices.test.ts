@@ -81,3 +81,13 @@ describe('price freshness', () => {
     applyPrices(null);
   });
 });
+
+describe('flight search link', () => {
+  it('opens Google Flights for the route, date and travellers, in rupees', async () => {
+    const { flightSearchUrl } = await import('../src/money');
+    const u = new URL(flightSearchUrl('Islamabad', 'Skardu', '2026-11-02', 2, 1));
+    expect(u.hostname).toBe('www.google.com');
+    expect(u.searchParams.get('curr')).toBe('PKR');
+    expect(u.searchParams.get('q')).toBe('One way flights from Islamabad to Skardu on 2026-11-02 for 2 adults and 1 child');
+  });
+});
