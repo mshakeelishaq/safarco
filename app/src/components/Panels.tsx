@@ -105,6 +105,7 @@ export function TripsSheet({ open, trips, user, currentId, onOpen, onDelete, onS
         <a href="/privacy" style={css('padding:8px;text-decoration:none')}>Privacy</a>
         <a href="/terms" style={css('padding:8px;text-decoration:none')}>Terms</a>
       </div>
+      <div style={css('text-align:center;font-size:12px;font-weight:700;color:var(--mute);margin-top:4px')}><a href="https://www.instagram.com/shakeelnaturegraphy/" target="_blank" rel="noopener" style={css('display:inline-flex;align-items:center;gap:5px;color:inherit;text-decoration:none')}><i className="ph-bold ph-instagram-logo" />© shakeelnaturegraphy</a></div>
     </Panel>
   );
 }

@@ -7,15 +7,93 @@
   <meta name="description" content="Plan road trips across Pakistan: routes, day-by-day stops, budgets, weather and offline maps.">
   <title>SafarCo</title>
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="icon" href="/icon-192.png" sizes="192x192" type="image/png">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="SafarCo">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <link rel="manifest" href="/manifest.webmanifest">
+  <style>
+    #splash { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
+      padding: env(safe-area-inset-top) 24px calc(24px + env(safe-area-inset-bottom)); box-sizing: border-box;
+      background: radial-gradient(120% 80% at 50% 30%, #12809F 0%, #0B5F7C 55%, #08435A 100%); color: #fff;
+      font-family: Georgia, 'Times New Roman', serif; transition: opacity .45s ease, transform .45s ease; }
+    #splash.sp-hide { opacity: 0; transform: scale(1.04); pointer-events: none; }
+    #splash .sp-card { width: min(62vw, 260px); aspect-ratio: 1; border-radius: 22%; overflow: hidden; box-shadow: 0 30px 60px -20px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.12);
+      animation: sp-pop .7s cubic-bezier(.2,.9,.3,1.3) both; }
+    #splash .sp-art { display: block; width: 100%; height: 100%; }
+    #splash .sp-name { margin-top: 26px; font-size: 38px; font-weight: 700; letter-spacing: -.01em; animation: sp-up .6s .15s ease-out both; }
+    #splash .sp-tag { margin-top: 6px; font-size: 15px; opacity: .85; text-align: center; animation: sp-up .6s .25s ease-out both; }
+    #splash .sp-bar { margin-top: 26px; width: 140px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.2); overflow: hidden; }
+    #splash .sp-bar i { display: block; width: 40%; height: 100%; border-radius: 2px; background: #FFC75F; animation: sp-load 1.2s ease-in-out infinite; }
+    #splash .sp-credit { position: absolute; bottom: calc(22px + env(safe-area-inset-bottom)); display: inline-flex; align-items: center; gap: 7px; min-height: 44px; padding: 0 12px;
+      color: rgba(255,255,255,.88); font: 600 13px/1 system-ui, -apple-system, sans-serif; text-decoration: none; letter-spacing: .01em; }
+    @keyframes sp-pop { from { opacity: 0; transform: scale(.8) translateY(10px); } }
+    @keyframes sp-up { from { opacity: 0; transform: translateY(10px); } }
+    @keyframes sp-load { 0% { transform: translateX(-110%); } 100% { transform: translateX(260%); } }
+    @media (prefers-reduced-motion: reduce) { #splash *, #splash { animation: none !important; transition: none !important; } }
+  </style>
 </head>
 <body>
   <div id="root"></div>
+  <div id="splash" role="status" aria-label="Loading SafarCo">
+    <div class="sp-card"><svg class="sp-art" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A car driving up a mountain road">
+  <defs>
+    <linearGradient id="sp-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0B6F93"/><stop offset=".55" stop-color="#2FA7C2"/><stop offset=".8" stop-color="#9FD6D8"/><stop offset="1" stop-color="#FFD9A0"/>
+    </linearGradient>
+    <linearGradient id="sp-far" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7DB7CA"/><stop offset="1" stop-color="#5D9CB3"/></linearGradient>
+    <linearGradient id="sp-near" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2E7C93"/><stop offset="1" stop-color="#1D5F74"/></linearGradient>
+    <linearGradient id="sp-valley" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2FA27B"/><stop offset="1" stop-color="#17795C"/></linearGradient>
+    <radialGradient id="sp-sun" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFE9B0"/><stop offset=".6" stop-color="#FFC75F"/><stop offset="1" stop-color="#FFC75F" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#sp-sky)"/>
+  <circle cx="352" cy="214" r="92" fill="url(#sp-sun)" opacity=".85"/>
+  <circle cx="352" cy="214" r="46" fill="#FFE3A3"/>
+  <path d="M-20 318 L70 236 L128 280 L214 168 L300 262 L368 214 L532 330 V512 H-20Z" fill="url(#sp-far)"/>
+  <path d="M214 168 L240 202 L226 198 L214 214 L200 200 L190 199Z" fill="#F4FBFC"/>
+  <path d="M-20 372 L118 222 L196 300 L262 248 L380 372Z" fill="url(#sp-near)"/>
+  <path d="M118 222 L146 252 L130 248 L118 262 L106 250 L94 249Z" fill="#F4FBFC"/>
+  <path d="M220 400 L352 262 L450 350 L532 300 V420Z" fill="#256F86"/>
+  <path d="M352 262 L374 282 L362 280 L352 292 L342 282 L332 283Z" fill="#F4FBFC"/>
+  <path d="M-20 392 C 120 350, 380 350, 532 384 V532 H-20Z" fill="url(#sp-valley)"/>
+  <path d="M168 540 C 176 470, 330 468, 318 428" fill="none" stroke="#E2C48A" stroke-width="48" stroke-linecap="round" transform="translate(0 3)"/>
+  <path d="M318 428 C 308 396, 238 404, 250 378" fill="none" stroke="#E2C48A" stroke-width="34" stroke-linecap="round" transform="translate(0 3)"/>
+  <path d="M250 378 C 258 362, 292 360, 304 355" fill="none" stroke="#E2C48A" stroke-width="22" stroke-linecap="round" transform="translate(0 3)"/>
+  <path d="M168 540 C 176 470, 330 468, 318 428" fill="none" stroke="#F7EBD0" stroke-width="46" stroke-linecap="round"/>
+  <path d="M318 428 C 308 396, 238 404, 250 378" fill="none" stroke="#F7EBD0" stroke-width="32" stroke-linecap="round"/>
+  <path d="M250 378 C 258 362, 292 360, 304 355" fill="none" stroke="#F7EBD0" stroke-width="20" stroke-linecap="round"/>
+  <path d="M168 540 C 176 470, 330 468, 318 428" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-dasharray="14 14" stroke-linecap="round"/>
+  <path d="M318 428 C 308 396, 238 404, 250 378" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-dasharray="10 10" stroke-linecap="round"/>
+  <path d="M250 378 C 258 362, 292 360, 304 355" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-dasharray="6 7" stroke-linecap="round"/>
+  <g>
+    <animateMotion dur="3.2s" repeatCount="indefinite" path="M168 540 C 176 470, 330 468, 318 428 C 308 396, 238 404, 250 378 C 258 362, 292 360, 304 355" keyPoints="0;1;1" keyTimes="0;.86;1" calcMode="linear"/>
+    <g><animateTransform attributeName="transform" type="scale" values="1.25;.4;.4" keyTimes="0;.86;1" dur="3.2s" repeatCount="indefinite"/>
+      <g><animateTransform attributeName="transform" type="scale" values="1 1;-1 1;1 1" keyTimes="0;.48;.72" calcMode="discrete" dur="3.2s" repeatCount="indefinite"/>
+        <g transform="translate(0 -6)">
+    <rect x="-34" y="-20" width="68" height="26" rx="9" fill="#FF6B4A"/>
+    <path d="M-20 -20 L-12 -36 H14 L24 -20Z" fill="#FF6B4A"/>
+    <path d="M-14 -22 L-8 -32 H0 V-22Z M4 -22 V-32 H12 L18 -22Z" fill="#CFEFF6"/>
+    <circle cx="-18" cy="8" r="9" fill="#21313A"/><circle cx="18" cy="8" r="9" fill="#21313A"/>
+    <circle cx="-18" cy="8" r="3.5" fill="#B9C6CC"/><circle cx="18" cy="8" r="3.5" fill="#B9C6CC"/>
+    <rect x="28" y="-14" width="7" height="6" rx="2" fill="#FFE3A3"/>
+  
+        </g>
+      </g>
+    </g>
+    <animate attributeName="opacity" values="1;1;0;0" keyTimes="0;.8;.88;1" dur="3.2s" repeatCount="indefinite"/>
+  </g>
+  <g fill="#FFFFFF" opacity=".9"><ellipse cx="0" cy="0" rx="34" ry="11"/><ellipse cx="18" cy="-8" rx="20" ry="11"/>
+    <animateTransform attributeName="transform" type="translate" values="-60 120;560 96" dur="14s" repeatCount="indefinite"/></g>
+  <g fill="#FFFFFF" opacity=".7"><ellipse cx="0" cy="0" rx="26" ry="8"/><ellipse cx="12" cy="-6" rx="14" ry="8"/>
+    <animateTransform attributeName="transform" type="translate" values="-200 70;560 60" dur="19s" repeatCount="indefinite"/></g>
+</svg></div>
+    <div class="sp-name">SafarCo</div>
+    <div class="sp-tag">Your road trip across Pakistan, planned</div>
+    <div class="sp-bar"><i></i></div>
+    <a class="sp-credit" href="https://www.instagram.com/shakeelnaturegraphy/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 2.2c3.2 0 3.6 0 4.8.1 1.2.1 1.8.2 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.4 1 .4 2.2.1 1.3.1 1.6.1 4.8s0 3.6-.1 4.8c-.1 1.2-.2 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .4-2.2.4-1.3.1-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.1-1.8-.2-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.4-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.8c.1-1.2.2-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.4 2.2-.4C8.4 2.2 8.8 2.2 12 2.2zm0 1.8c-3.1 0-3.5 0-4.7.1-1.1.1-1.7.2-2.1.4-.5.2-.9.4-1.3.8-.4.4-.6.8-.8 1.3-.2.4-.3 1-.4 2.1C2.6 9.9 2.6 10.3 2.6 12s0 2.1.1 3.3c.1 1.1.2 1.7.4 2.1.2.5.4.9.8 1.3.4.4.8.6 1.3.8.4.2 1 .3 2.1.4 1.2.1 1.6.1 4.7.1s3.5 0 4.7-.1c1.1-.1 1.7-.2 2.1-.4.5-.2.9-.4 1.3-.8.4-.4.6-.8.8-1.3.2-.4.3-1 .4-2.1.1-1.2.1-1.6.1-3.3s0-2.1-.1-3.3c-.1-1.1-.2-1.7-.4-2.1-.2-.5-.4-.9-.8-1.3-.4-.4-.8-.6-1.3-.8-.4-.2-1-.3-2.1-.4C15.5 4 15.1 4 12 4zm0 3.1a4.9 4.9 0 1 1 0 9.8 4.9 4.9 0 0 1 0-9.8zm0 8a3.1 3.1 0 1 0 0-6.2 3.1 3.1 0 0 0 0 6.2zm6.2-8.3a1.1 1.1 0 1 1-2.3 0 1.1 1.1 0 0 1 2.3 0z"/></svg><span>© shakeelnaturegraphy</span></a>
+  </div>
   <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>

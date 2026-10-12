@@ -180,6 +180,9 @@
 .ph-fill.ph-hourglass:before {
   content: "\e2b2";
 }
+.ph-fill.ph-instagram-logo:before {
+  content: "\e2d0";
+}
 .ph-fill.ph-jeep:before {
   content: "\e2d4";
 }
@@ -522,6 +525,9 @@
 }
 .ph-bold.ph-hourglass:before {
   content: "\e2b2";
+}
+.ph-bold.ph-instagram-logo:before {
+  content: "\e2d0";
 }
 .ph-bold.ph-jeep:before {
   content: "\e2d4";
@@ -1114,6 +1120,14 @@
 }
 .ph-duotone.ph-hourglass:after {
   content: "\e2b3";
+  margin-left: -1em;
+}
+.ph-duotone.ph-instagram-logo:before {
+  content: "\e2d0";
+  opacity: 0.2;
+}
+.ph-duotone.ph-instagram-logo:after {
+  content: "\e2d1";
   margin-left: -1em;
 }
 .ph-duotone.ph-jeep:before {

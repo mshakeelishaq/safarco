@@ -35,3 +35,15 @@ if (import.meta.env.PROD) {
   addEventListener('unhandledrejection', e => report(String(e.reason?.message || e.reason), e.reason?.stack));
   if ('serviceWorker' in navigator) addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(() => { /* offline support unavailable */ }); });
 }
+
+// The splash in index.html shows while the app loads: the full drive on the first open of a
+// visit, a short one after that, and none on the admin and legal pages.
+const splash = document.getElementById('splash');
+if (splash) {
+  let seen = false;
+  try { seen = sessionStorage.getItem('safarco-splash') === '1'; sessionStorage.setItem('safarco-splash', '1'); } catch { /* storage blocked */ }
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const min = Page !== App ? 0 : seen || still ? 500 : 2400;
+  const hide = () => { splash.classList.add('sp-hide'); setTimeout(() => splash.remove(), 500); };
+  setTimeout(hide, Math.max(0, min - performance.now()));
+}
