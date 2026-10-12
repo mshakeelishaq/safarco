@@ -6,18 +6,16 @@ import { Notes } from './Onboarding';
 const card = 'border-radius:30px;padding:18px 18px 16px;background:var(--card);border:1px solid var(--line)';
 
 type Banner = { bg?: string; border?: string; tile?: string; icon?: string; title?: string; msg?: string };
-/** A card that shows one line (title and a short summary) until tapped. */
+/** A card with a title row (icon, title, short summary) and its content. */
 function Fold({ icon, iconColor, title, summary, summaryColor, children, label }: { icon: string; iconColor?: string; title: string; summary?: React.ReactNode; summaryColor?: string; children: React.ReactNode; label?: string }) {
-  const [open, setOpen] = useState(false);
   return (
-    <section aria-label={label || title} style={css('border-radius:24px;background:var(--card);border:1px solid var(--line);overflow:hidden')}>
-      <button onClick={() => setOpen(!open)} aria-expanded={open} style={css('width:100%;min-height:58px;display:flex;align-items:center;gap:12px;padding:12px 16px;border:0;background:none;color:var(--ink);text-align:left;cursor:pointer')}>
-        <i className={`ph-fill ${icon}`} style={css(`font-size:20px;color:${iconColor || 'var(--g)'};flex:none`)} />
-        <span style={css('flex:1;min-width:0;font-size:15px;font-weight:800')}>{title}</span>
-        {summary != null && <span style={css(`flex:none;max-width:48%;font-size:13px;font-weight:700;color:${summaryColor || 'var(--mute)'};text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis`)}>{summary}</span>}
-        <i className="ph-bold ph-caret-down" style={css(`font-size:14px;color:var(--mute);flex:none;transition:transform .2s;transform:rotate(${open ? 180 : 0}deg)`)} />
-      </button>
-      {open && <div style={css('padding:0 16px 16px')}>{children}</div>}
+    <section aria-label={label || title} style={css('border-radius:24px;background:var(--card);border:1px solid var(--line);padding:14px 16px 16px')}>
+      <div style={css('display:flex;align-items:center;gap:10px;margin-bottom:12px')}>
+        <i className={`ph-fill ${icon}`} style={css(`font-size:19px;color:${iconColor || 'var(--g)'};flex:none`)} />
+        <h2 style={css('flex:1;min-width:0;margin:0;font-size:15px;font-weight:800')}>{title}</h2>
+        {summary != null && <span style={css(`flex:none;max-width:50%;font-size:12px;font-weight:700;color:${summaryColor || 'var(--mute)'};text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis`)}>{summary}</span>}
+      </div>
+      {children}
     </section>
   );
 }
@@ -221,19 +219,29 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
                       <i className="ph-bold ph-arrow-up-right" style={css('font-size:15px;color:var(--mute);flex:none')} />
                     </a>
                   )}
-                  {d.stay && <>
-                    <a href={d.stay.href} target="_blank" rel="noopener" style={css('display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;border-radius:16px;background:var(--card);border:1px solid var(--line);text-decoration:none;color:var(--ink)')}>
-                      <i className="ph-fill ph-bed" style={css('font-size:20px;color:var(--g);flex:none')} />
-                      <span style={css('flex:1;min-width:0;display:flex;flex-direction:column')}>
-                        <span style={css('font-size:11px;font-weight:700;color:var(--mute)')}>Night in {d.stay.place}</span>
-                        <span style={css('font-size:14px;font-weight:800;margin-top:2px')}>{d.stay.name}</span>
-                        <span style={css('font-size:12px;color:var(--mute);font-weight:500;margin-top:1px')}>{d.stay.range}</span>
-                        <span style={css('font-size:12px;color:var(--g);font-weight:700;margin-top:3px')}>Check prices for this night</span>
-                      </span>
-                      <i className="ph-bold ph-arrow-up-right" style={css('font-size:15px;color:var(--mute);flex:none')} />
-                    </a>
-                    {d.stay.nearby && <div style={css('font-size:11px;color:var(--mute);font-weight:600;margin-top:6px;line-height:1.4')}>{d.stay.nearby}</div>}
-                  </>}
+                  {d.stay && (
+                    <div style={css('margin-top:12px;padding:12px;border-radius:16px;background:var(--card);border:1px solid var(--line)')}>
+                      <div style={css('display:flex;align-items:center;gap:10px')}>
+                        <i className="ph-fill ph-bed" style={css('font-size:20px;color:var(--g);flex:none')} />
+                        <div style={css('flex:1;min-width:0')}>
+                          <div style={css('font-size:14px;font-weight:800')}>Night in {d.stay.place}</div>
+                          <div style={css('font-size:12px;color:var(--mute);font-weight:600;margin-top:1px')}>{d.stay.range}</div>
+                        </div>
+                      </div>
+                      {d.stay.loading && <div style={css('font-size:12px;font-weight:600;color:var(--mute);margin-top:10px')}>Finding hotels…</div>}
+                      <div style={css('display:flex;flex-direction:column;gap:8px;margin-top:10px')}>
+                        {d.stay.options.map(h => (
+                          <div key={h.key} style={css('display:flex;align-items:center;gap:8px')}>
+                            <div style={css('flex:1;min-width:0')}><div style={css('font-size:13px;font-weight:700;line-height:1.3')}>{h.name}</div><div style={css('font-size:11px;color:var(--mute);font-weight:600;margin-top:1px')}>{h.note}</div></div>
+                            <a href={h.mapUrl} target="_blank" rel="noopener" aria-label={`${h.name} on Google Maps`} style={css('flex:none;width:38px;height:38px;border-radius:12px;background:var(--fill);border:1px solid var(--line);color:var(--ink2);display:flex;align-items:center;justify-content:center;font-size:16px')}><i className="ph-fill ph-map-pin" /></a>
+                            <a href={h.checkUrl} target="_blank" rel="noopener" style={css('flex:none;height:38px;padding:0 10px;border-radius:12px;background:var(--fill);border:1px solid var(--line2);color:var(--ink);font-size:12px;font-weight:800;display:flex;align-items:center;text-decoration:none;white-space:nowrap')}>Check prices</a>
+                          </div>
+                        ))}
+                      </div>
+                      <a href={d.stay.href} target="_blank" rel="noopener" style={css('display:flex;align-items:center;gap:6px;min-height:36px;margin-top:6px;font-size:12px;font-weight:800;color:var(--g);text-decoration:none')}><i className="ph-fill ph-tag" />See all stays in {d.stay.town} for this night<i className="ph-bold ph-arrow-up-right" /></a>
+                      {d.stay.source && <div style={css('font-size:10px;font-weight:600;color:var(--mute)')}>Places: {d.stay.source}. Prices on Booking.com.</div>}
+                    </div>
+                  )}
                 </div>}
               </li>
             ); })}

@@ -263,8 +263,12 @@ export function buildView(s: AppState, api: Api) {
         depNote: p.late ? `Some driving days end after sunset (about ${clock(p.sunset)}). ${p.dep > p.rec ? `Leave by ${clock(p.rec)}.` : 'Consider an extra night stop.'}` : s.depart == null ? `Recommended ${clock(p.rec)}, so every driving day ends before sunset (the earliest is about ${clock(p.sunset)}).` : `Every driving day ends before sunset (the earliest is about ${clock(p.sunset)}).`,
         days: p.days.map((d, i) => ({ ...d, flight: d.kind === 'fly' && p.air && d.iso ? (() => { const out = i === 0, from = out ? p.air!.dep : p.air!.arr, to = out ? p.air!.arr : p.air!.dep;
           return { from, to, fare: `About ${pkrUsd(p.air!.fare)} one way per adult · ${checkedText('fares')}`, href: flightSearchUrl(from, to, d.iso!, s.adults + s.elders, s.kids) }; })() : null, strip: rw.strips.get(i) || null, destWx: d.track ? null : rw.destDays.find(x => x.idx === i) || null, stay: d.stay && (() => {
-          const st = d.stay!, nr = nightRange(s.tier, sf), near = spotsAt('hotels', st.lat, st.lon).list.filter(h => h.name !== st.name).slice(0, 3).map(h => h.name);
-          return { ...st, range: `${TIERS[s.tier].label} · ${nr.text} (${nr.usd}) a night`, href: check(st.curated ? `${st.name}, ${st.town}` : st.town, isoOff(s.startDate, i), 1), nearby: near.length ? `Nearby on OpenStreetMap: ${near.join(' · ')}` : st.alts };
+          // Hotels for this night's town (live from OpenStreetMap), each linked to Booking.com for this exact night.
+          const st = d.stay!, nr = nightRange(s.tier, sf), night = isoOff(s.startDate, i), live = spotsAt('hotels', st.lat, st.lon);
+          const picks = live.list.length ? live.list.slice(0, 4).map(h => ({ name: h.name, note: `${h.type}${h.km ? ` · ${Math.round(h.km * 10) / 10} km from centre` : ''}` }))
+            : st.curated ? [{ name: st.name, note: st.note }] : [];
+          const options = picks.map(h => ({ ...h, key: h.name, checkUrl: check(`${h.name}, ${st.town}`, night, 1), mapUrl: mapsQ(`${h.name}, ${st.town}`) }));
+          return { ...st, range: `${TIERS[s.tier].label} · ${nr.text} (${nr.usd}) a night`, href: check(st.town, night, 1), options, loading: live.loading && !options.length, source: live.list.length ? 'OpenStreetMap, via Geoapify' : '' };
         })(), stops: (d.stops || []).map(t => ({ ...t, icon: STOP_KIND[t.kind][0], color: STOP_KIND[t.kind][1] })), tile: K[d.kind][0], kindLabel: K[d.kind][1], lineOp: i === p.days.length - 1 ? 0 : 1 })) };
     })(),
     rows: rows.map(r => ({ ...r, amount: fmtN(r.val), amountUsd: usd(r.val), color: CAT[r.label] || 'var(--sky)', grad: `linear-gradient(135deg,${CAT[r.label] || 'var(--sky)'},${CAT2[r.label] || '#3B8DFF'})` })),
