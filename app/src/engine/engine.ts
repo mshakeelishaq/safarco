@@ -290,8 +290,15 @@ export function seasonInfo(s: TripState, key: string): Note[] {
   if (s.vehicle !== 'air') {
     const now = trip(key, s.origin, m), open = trip(key, s.origin, 7);
     const shut = [...new Set(open.legs.filter(l => l.months && !l.months.includes(m)).map(l => l.road))], seas = [...new Set(now.legs.filter(l => l.months).map(l => l.road))];
-    if (shut.length) notes.push({ icon: 'ph-road-horizon', color: 'var(--cor)', text: t('{roads} closed in {month}. The route goes another way: {km} km and about {time} longer each way.', { roads: shut.join(', '), month: Mo, km: fmtN(Math.max(0, now.km - open.km)), time: dur(Math.max(0, now.hours - open.hours)) }) });
-    else if (seas.length) notes.push({ icon: 'ph-road-horizon', color: 'var(--sky)', text: t('{roads} open in {month}. Cross high passes before the afternoon.', { roads: seas.join(', '), month: Mo }) });
+    // Say when the closed road is open, so "closed in November" isn't read as the months it's shut.
+    const openTxt = shut.map(r => { const l = open.legs.find(x => x.road === r && x.months); return l ? t('{road} (open {from} to {to})', { road: r, from: MONTH_FULL[l.months![0] - 1], to: MONTH_FULL[l.months![l.months!.length - 1] - 1] }) : r; });
+    if (shut.length) notes.push({ icon: 'ph-road-horizon', color: 'var(--cor)', text: t('{roads} is closed in {month}. The route goes another way: {km} km and about {time} longer each way.', { roads: openTxt.join(', '), month: Mo, km: fmtN(Math.max(0, now.km - open.km)), time: dur(Math.max(0, now.hours - open.hours)) }) });
+    else if (seas.length) {
+      // First and last open month: snow can still close the pass.
+      const edge = seas.filter(r => { const l = now.legs.find(x => x.road === r && x.months); return l && (l.months![0] === m || l.months![l.months!.length - 1] === m); });
+      notes.push(edge.length ? { icon: 'ph-road-horizon', color: 'var(--amb)', text: t('{roads} usually opens or closes around {month}: snow can close it. Check before you go; the KKH via Besham is the other way.', { roads: edge.join(', '), month: Mo }) }
+        : { icon: 'ph-road-horizon', color: 'var(--sky)', text: t('{roads} open in {month}. Cross high passes before the afternoon.', { roads: seas.join(', '), month: Mo }) });
+    }
   }
   const f = seasonFactor(D, m);
   if (f > 1) notes.push({ icon: 'ph-trend-up', color: 'var(--amb)', text: t('Peak season: hotel rates about {pct}% higher. Book early.', { pct: Math.round((f - 1) * 100) }) });

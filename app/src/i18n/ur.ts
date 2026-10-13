@@ -1390,4 +1390,8 @@ export const UR: Record<string, string> = {
   "Suggested {time}": "Tajweez: {time}",
   "You arrive after sunset with this time. Leave by {time}.": "Is waqt se aap ghuroob ke baad pohanchenge. {time} tak nikal jayein.",
   "New guide from research, not checked by SafarCo yet. Check opening times and roads locally.": "Tehqeeq se bani nayi guide, SafarCo ne abhi check nahin ki. Khulne ke auqaat aur sadkein maqami tor par maloom kar lein.",
+  "{roads} is closed in {month}. The route goes another way: {km} km and about {time} longer each way.": "{roads} {month} mein band hai. Raasta doosri taraf se hai: har taraf {km} km aur taqreeban {time} zyada.",
+  "Crosses Babusar Top at 13,690 ft. Usually open from mid-June to October; snow closes it the rest of the year.": "13,690 ft par Babusar Top se guzarta hai. Aam tor par June ke wast se October tak khula; baqi saal barf se band.",
+  "{road} (open {from} to {to})": "{road} ({from} se {to} tak khula)",
+  "{roads} usually opens or closes around {month}: snow can close it. Check before you go; the KKH via Besham is the other way.": "{roads} aam tor par {month} ke aas paas khulta ya band hota hai: barf se band ho sakta hai. Jaane se pehle maloom karein; doosra raasta Besham se KKH hai.",
 };
