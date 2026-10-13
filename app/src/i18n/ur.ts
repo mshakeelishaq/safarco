@@ -1329,4 +1329,13 @@ export const UR: Record<string, string> = {
   "I have a spending limit": "Meri kharch ki hadd hai",
   "None": "Koi nahin",
   "In season now": "Abhi mausam hai",
+  "Autumn gold in Shigar, Khaplu and Ghowari, and the Kachura lakes": "Shigar, Khaplu aur Ghowari mein khizaan ka sona, aur Kachura ki jheelein",
+  "Apricot blossom in Khaplu and the Barah valley": "Khaplu aur Barah wadi mein khubani ke phool",
+  "Golden fields along the Shyok and the tall golden poplars of Ghowari": "Shyok ke kinare sunehre khet aur Ghowari ke oonche sunehre safede",
+  "Deep snow in the Kumrat forest": "Kumrat ke jangal mein gehri barf",
+  "The road past Thal is usually snowbound: go with a local jeep and check before you go.": "Thal se aage sadak aksar barf se band hoti hai: maqami jeep ke saath jaayein aur pehle maloom kar lein.",
+  "White sand dunes by the airport, best at sunset": "Airport ke paas safed ret ke teele, ghuroob-e-aftab par behtareen",
+  "Tall poplars, golden in autumn, and Khaplu Palace": "Oonche safede, khizaan mein sunehre, aur Khaplu Mahal",
+  "Clear water ponds and streams, apricot blossom in April": "Saaf paani ke talaab aur naale, April mein khubani ke phool",
+  "Tall pines and poplars, golden in late October": "Oonche cheer aur safede, October ke aakhir mein sunehre",
 };

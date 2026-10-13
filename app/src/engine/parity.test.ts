@@ -14,6 +14,8 @@ const base: TripState = {
 };
 const origins = ['Lahore', 'Karachi', 'Islamabad', 'Peshawar', 'Multan', 'Quetta', 'Gilgit'];
 const dests = ['hunza', 'skardu', 'naran', 'fairy', 'neelum', 'chitral', 'shogran', 'kumrat', 'gwadar', 'ziarat', 'city:Sukkur'];
+// Places added since the prototype (Skardu: Katpana desert, Ghowari and Khaplu) give more explore days.
+const newPlaces = new Set(['skardu']);
 const cases: [string, string, number][] = [];
 for (const o of origins) for (const d of dests) for (const m of [1, 7]) cases.push([o, d, m]);
 
@@ -25,7 +27,7 @@ describe('parity with the v7 prototype engine', () => {
     for (const vehicle of ['sedan', 'public', 'air', 'coaster'] as const) {
       const s = { ...base, origin, dest, corridor: dest, startDate, vehicle, kids: 1, groupSize: 3 };
       expect(costFor(s).total).toBeCloseTo(orig.costFor(s).total, 6);
-      expect(buildPlan(s).days.map(d => d.title)).toEqual(orig.buildPlan(s).days.map((d: { title: string }) => d.title));
+      if (!newPlaces.has(dest)) expect(buildPlan(s).days.map(d => d.title)).toEqual(orig.buildPlan(s).days.map((d: { title: string }) => d.title));
     }
   });
 

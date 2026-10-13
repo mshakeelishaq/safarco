@@ -19,8 +19,8 @@ export interface Highlight { months: number[]; season: SeasonId; text: string; c
 const H = (months: number[], season: SeasonId, text: string, caution?: string): Highlight => ({ months, season, text, caution });
 export const HIGHLIGHTS: Record<string, Highlight[]> = {
   hunza: [H([4], 'spring', 'Cherry and apricot blossom under snowy peaks'), H([6, 7, 8], 'summer', 'Long days, Attabad Lake and Khunjerab Pass open'), H([10], 'autumn', 'Golden poplars and clear views of Rakaposhi'), H([11], 'autumn', 'Last of the autumn gold', 'Cold nights, and Khunjerab Pass closes at the end of November.')],
-  skardu: [H([4], 'spring', 'Apricot blossom in Shigar and Skardu'), H([7, 8], 'summer', 'Deosai Plains in flower and open'), H([10], 'autumn', 'Autumn colours in Shigar and Khaplu')],
-  khaplu: [H([4], 'spring', 'Blossom around the old palace'), H([10], 'autumn', 'Golden fields along the Shyok')],
+  skardu: [H([4], 'spring', 'Apricot blossom in Shigar and Skardu'), H([7, 8], 'summer', 'Deosai Plains in flower and open'), H([10, 11], 'autumn', 'Autumn gold in Shigar, Khaplu and Ghowari, and the Kachura lakes')],
+  khaplu: [H([4], 'spring', 'Apricot blossom in Khaplu and the Barah valley'), H([10, 11], 'autumn', 'Golden fields along the Shyok and the tall golden poplars of Ghowari')],
   passu: [H([4], 'spring', 'Blossom in Gojal'), H([10], 'autumn', 'Golden poplars under the Passu Cones'), H([11], 'autumn', 'Late autumn in Gojal', 'Very cold nights and many guesthouses closing.')],
   phander: [H([6, 7, 8], 'summer', 'Trout lakes and the Shandur polo festival (early July)'), H([10], 'autumn', 'The golden valley of Ghizer')],
   naltar: [H([6, 7, 8, 9], 'summer', 'Naltar’s coloured lakes and pine forest'), H([1, 2], 'winter', 'Skiing and deep snow', 'The jeep road can close after heavy snow: check before you go.')],
@@ -28,9 +28,9 @@ export const HIGHLIGHTS: Record<string, Highlight[]> = {
   rama: [H([7, 8], 'summer', 'Rama Meadows and Deosai in flower')],
   naran: [H([6, 7, 8], 'summer', 'Lake Saif-ul-Malook, Lalazar and Babusar Pass open')],
   shogran: [H([5, 6, 7, 8, 9], 'summer', 'Siri Paye meadows in green and the Kiwai waterfall')],
-  kalam: [H([6, 7, 8], 'summer', 'Mahodand Lake and the Ushu forest'), H([12, 1], 'winter', 'Snow in Kalam town', 'Snow often blocks the road above Bahrain: check before you go.')],
+  kalam: [H([6, 7, 8], 'summer', 'Mahodand Lake and the Ushu forest'), H([12, 1, 2], 'winter', 'Snow in Kalam town', 'Snow often blocks the road above Bahrain: check before you go.')],
   malam: [H([12, 1, 2], 'winter', 'Snow and the ski slopes'), H([6, 7, 8], 'summer', 'Chairlift rides and cool air')],
-  kumrat: [H([6, 7, 8], 'summer', 'Pine forest and the river at Kumrat')],
+  kumrat: [H([6, 7, 8], 'summer', 'Pine forest and the river at Kumrat'), H([12, 1, 2], 'winter', 'Deep snow in the Kumrat forest', 'The road past Thal is usually snowbound: go with a local jeep and check before you go.')],
   neelum: [H([5, 6, 7, 8, 9], 'summer', 'Green valley, Arang Kel and Ratti Gali Lake'), H([10], 'autumn', 'Autumn colours along the river'), H([12, 1, 2], 'winter', 'Snowfall in lower Neelum (Keran, Sharda)', 'Roads beyond Sharda close with snow.')],
   kalash: [H([5], 'spring', 'Joshi spring festival (mid-May)'), H([6, 7, 8], 'summer', 'Green valleys and the Uchal harvest festival (August)')],
   chitral: [H([5, 6, 7, 8, 9], 'summer', 'Tirich Mir views and the Kalash valleys nearby')],
@@ -122,9 +122,15 @@ export function wishKind(h: Highlight): WishId | null {
 }
 
 /** Places to see a wish, the easy ones (no caution) first. */
+/** Where most people go for each wish, in that order; other places follow. */
+const TOP: Partial<Record<WishId, string[]>> = {
+  snow: ['malam', 'neelum', 'murree', 'nathia', 'kalam', 'kumrat'],
+  autumn: ['hunza', 'skardu', 'khaplu', 'passu', 'phander', 'neelum']
+};
 export function wishPlaces(id: WishId) {
+  const top = TOP[id] || [], rank = (k: string) => top.includes(k) ? top.indexOf(k) : top.length;
   return DESTS.flatMap(d => {
     const h = highlightsOf(d.id).filter(x => wishKinds(x).includes(id)).sort((a, b) => +!!a.caution - +!!b.caution)[0];
     return h ? [{ id: d.id, name: d.name, h }] : [];
-  }).sort((a, b) => +!!a.h.caution - +!!b.h.caution);
+  }).sort((a, b) => rank(a.id) - rank(b.id) || +!!a.h.caution - +!!b.h.caution);
 }

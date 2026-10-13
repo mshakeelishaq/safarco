@@ -301,7 +301,7 @@ export function buildView(s: AppState, api: Api) {
   // What's in season now comes first, then what comes next through the year.
   const nowM = new Date().getMonth() + 1, monthsTo = (ms: number[]) => Math.min(...ms.map(m => (m - nowM + 12) % 12));
   const wishOpts = [...WISHES.slice().sort((a, b) => monthsTo(a.months) - monthsTo(b.months)).map(w => ({ key: w.id, now: w.months.includes(nowM), icon: w.icon, grad: w.grad, label: t(w.label), tagline: t(w.tagline), when: t('Best: {months}', { months: monthsLabel(w.months) }),
-      places: wishPlaces(w.id).filter(p => !p.h.caution).slice(0, 3).map(p => p.name).join(' · '), on: s.wish === w.id,
+      places: wishPlaces(w.id).slice(0, 4).map(p => p.name).join(' · '), on: s.wish === w.id,
       onClick: () => set({ wish: w.id, pickId: null, startDate: w.months.includes(M) && s.startDate >= isoAdd(3) ? s.startDate : nextStartIn(w.months) }) })),
     { key: 'any', now: false, icon: 'ph-compass', grad: 'linear-gradient(160deg,#9AA5B1,#5F6B78)', label: t('Show me everything'), tagline: t('Not sure yet? See what’s best for your dates.'), when: '', places: '', on: s.wish === 'any', onClick: () => set({ wish: 'any', pickId: null }) }];
   const wishPicks = W ? { label: t('Best for {wish}', { wish: lowerEn(t(W.label)) }), picks: wishPlaces(W.id).filter(p => DST(p.id).name !== s.origin).slice(0, 10)
