@@ -1361,4 +1361,10 @@ export const UR: Record<string, string> = {
   "Near Manthokha": "Manthokha ke qareeb",
   "Near Shigar": "Shigar ke qareeb",
   "A long day there and back. Or stay a night: add Khaplu to the trip.": "Aana jaana lamba din hai. Ya aik raat ruk jaayein: Khaplu ko safar mein shamil karein.",
+  "Soq Valley is seen on the same visit as the Kachura lakes.": "Soq wadi Kachura jheelon ke saath hi dekhi jaati hai.",
+  "Back by Sarfaranga desert before sunset, then Skardu.": "Wapsi par ghuroob se pehle Sarfaranga registan, phir Skardu.",
+  "Katpana desert is usually done with Kharpocho Fort. Deserts are best early morning or before sunset.": "Katpana registan aam tor par Kharpocho Qila ke saath dekha jaata hai. Registan subah savere ya ghuroob se pehle behtareen hain.",
+  "With the Kachura lakes": "Kachura jheelon ke saath",
+  "In Skardu town · short climb": "Skardu shehar mein · thodi chadhai",
+  "Hilltop fort above the town and the Indus": "Shehar aur Sindh darya ke upar pahari qila",
 };
