@@ -23,7 +23,9 @@ APP = Path(__file__).resolve().parent.parent
 OUT = APP / 'src' / 'engine' / 'imported.ts'
 MON = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
 PK = (23.5, 37.2, 60.8, 77.9)  # lat min/max, lon min/max
-CURATED_DAYS = {'skardu', 'khaplu'}  # day plans the owner gave; never replaced by an import
+CURATED_DAYS = {'skardu', 'khaplu'}
+# Proposed destinations that are already places in another guide (Machlu is seen from Khaplu).
+NOT_DESTS = {'machlu': 'khaplu'}  # day plans the owner gave; never replaced by an import
 # What the owner has told us; an import never overrides these.
 OWNER_BEST = {'skardu': [4, 5, 6, 7, 8, 9, 10, 11], 'khaplu': [4, 5, 6, 7, 8, 9, 10, 11]}
 ACCESS = {'car': 'car', 'car (rough road)': 'rough', '4x4': '4x4', 'local jeep only': 'jeep', 'walk / hike': 'walk', 'boat': 'boat', 'chairlift': 'chairlift'}
@@ -158,7 +160,7 @@ def main():
     for r in place_rows:
         if s(r[0]) and s(r[0]) not in dests and s(r[1]):
             name_to_id[norm(r[1])] = s(r[0])
-    new_dests = {}
+    new_dests, skipped_ids = {}, set()
     for r in rows('New destinations'):
         name = s(r[0])
         if not name or name.lower().startswith('destination name') or name.startswith('(example'):
@@ -166,6 +168,9 @@ def main():
         did = name_to_id.get(norm(name)) or next((v for k, v in name_to_id.items() if same(k, name, .8)), None) or slug(name)
         if did in dests:
             note(name, f'Already a destination in the app ({dests[did]["name"]}); not added twice.')
+            continue
+        if did in NOT_DESTS:
+            note(name, f'Not added as a destination: it is already a place on the {dests[NOT_DESTS[did]]["name"]} trip.'); skipped_ids.add(did)
             continue
         base = s(r[2]) or name
         c = coords(r[3], r[4], '')
@@ -192,7 +197,7 @@ def main():
                           'places': [], 'days': None}
 
     # ------------------------------------------------------------ places
-    info, by_dest, skipped_ids = {}, {}, set()
+    info, by_dest = {}, {}
     def base_of(did):
         d = dests.get(did) or new_dests.get(did)
         return (d['lat'], d['lon']) if d else None
