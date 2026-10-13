@@ -61,7 +61,11 @@ export const routeKey = (originName: string, destId: string) => `${originName}|$
 export const routeUrl = (o: { lat: number; lon: number }, D: { lat: number; lon: number }) => `/api/route?from=${o.lon.toFixed(3)},${o.lat.toFixed(3)}&to=${D.lon.toFixed(3)},${D.lat.toFixed(3)}`;
 /** Road distance and shape from OpenRouteService (via /api/route). */
 export function routeFetch(o: { n: string; lat: number; lon: number }, D: Dest) {
-  return liveFetch('route', routeKey(o.n, D.id), routeUrl(o, D), (j: RouteData): RouteData => j);
+  // A reply without a road line or distance counts as a failure, so the app falls back to its road table.
+  return liveFetch('route', routeKey(o.n, D.id), routeUrl(o, D), (j: RouteData): RouteData => {
+    if (!j || !Array.isArray(j.coords) || j.coords.length < 2 || !(j.km > 0)) throw new Error('No road in the reply');
+    return j;
+  });
 }
 
 export type PlaceKind = 'sights' | 'hotels' | 'fuel';
@@ -69,7 +73,7 @@ export const placesKey = (kind: PlaceKind, lat: number, lon: number) => `${kind}
 export const placesUrl = (kind: PlaceKind, lat: number, lon: number) => `/api/places?kind=${kind}&lat=${lat.toFixed(2)}&lon=${lon.toFixed(2)}`;
 /** Sights, places to stay or fuel stations near a point (Geoapify via /api/places). */
 export function placesFetch(kind: PlaceKind, lat: number, lon: number) {
-  return liveFetch('places', placesKey(kind, lat, lon), placesUrl(kind, lat, lon), (j: { spots?: Spot[] }) => j.spots || []);
+  return liveFetch('places', placesKey(kind, lat, lon), placesUrl(kind, lat, lon), (j: { spots?: Spot[] }) => Array.isArray(j?.spots) ? j.spots : []);
 }
 
 /** Destination summary from Wikivoyage, falling back to Wikipedia. No key needed. */

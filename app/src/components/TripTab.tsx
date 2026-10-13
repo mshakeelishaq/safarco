@@ -116,7 +116,7 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
   const { s, c, plan } = v, { set } = api;
   const openSettings = () => set({ settings: true });
   const glance = tripGlance(v);
-  const img = v.wiki.info?.image;
+  const img = v.photo?.src || v.wiki.info?.image;
   return (
     <div data-screen-label="Trip plan">
       <div style={css('height:318px;position:relative;pointer-events:none')}>
@@ -167,8 +167,9 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
         {v.tip.show && <BannerCard b={v.tip} center><button onClick={v.tip.apply} style={css('flex:none;height:44px;padding:0 14px;border-radius:14px;border:0;background:var(--ink);color:var(--bg);font-size:13px;font-weight:800;cursor:pointer')}>{v.tip.cta}</button></BannerCard>}
 
         <section aria-label={t('Trip at a glance')} style={css(`border-radius:30px;overflow:hidden;background:var(--card);border:1px solid var(--line);box-shadow:${v.budgetShadow};transition:box-shadow .4s`)}>
-          <div style={css(`position:relative;height:${img ? 150 : 96}px;background:${img ? 'var(--fill)' : 'linear-gradient(135deg,#2EE59D,#19C2B8 55%,#3B8DFF)'}`)}>
+          <div style={css(`position:relative;height:${img ? (v.photo ? 190 : 150) : 96}px;background:${img ? 'var(--fill)' : 'linear-gradient(135deg,#2EE59D,#19C2B8 55%,#3B8DFF)'}`)}>
             {img && <img src={img} alt="" loading="lazy" style={css('display:block;width:100%;height:100%;object-fit:cover')} />}
+            {v.photo && <a href={IG_PROFILE} target="_blank" rel="noopener" style={css('position:absolute;top:8px;right:8px;z-index:1;display:flex;align-items:center;gap:4px;padding:4px 8px;border-radius:9px;background:rgba(0,0,0,.4);color:#fff;font-size:10px;font-weight:700;text-decoration:none')}><i className="ph-bold ph-instagram-logo" />{IG_HANDLE}</a>}
             {img && <div style={css('position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 30%,rgba(0,0,0,.6))')} />}
             <div style={css('position:absolute;left:16px;right:16px;bottom:12px;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.4)')}>
               <div style={css('font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;opacity:.9')}>{c.region}</div>

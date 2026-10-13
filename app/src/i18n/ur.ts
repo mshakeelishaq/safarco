@@ -1154,4 +1154,5 @@ export const UR: Record<string, string> = {
   "Sea and sunsets": "Samandar aur ghuroob-e-aftab",
   "Karachi coast": "Karachi ka sahil",
   "Waterfalls": "Aabshaar",
+  "Autumn light": "Khizan ki roshni",
 };

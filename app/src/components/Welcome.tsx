@@ -10,10 +10,13 @@ import { WISHES, wishPlaces, type WishId } from '../engine/seasons';
 export const WELCOMED = 'safarco-welcomed';
 export const seenWelcome = () => { try { return localStorage.getItem(WELCOMED) === '1'; } catch { return true; } };
 
-interface Photo { src: string; icon: string; caption: string; place: string; pos: string; months: number[] }
+/** `months`: when the photo leads the slideshow. `only`: shown only in those months (extra photos of the season). */
+interface Photo { src: string; icon: string; caption: string; place: string; pos: string; months: number[]; only?: boolean }
 // A function so the captions are translated at render time (the language can change).
 const photos = (): Photo[] => [
   { src: '/photos/autumn-hunza.webp', icon: 'ph-leaf', caption: t('Autumn gold'), place: t('Hunza, under Rakaposhi'), pos: '52% 50%', months: [10, 11] },
+  { src: '/photos/hunza-orchards.webp', icon: 'ph-leaf', caption: t('Autumn colours'), place: 'Hunza', pos: '50% 50%', months: [10, 11], only: true },
+  { src: '/photos/altit-fort.webp', icon: 'ph-castle-turret', caption: t('Autumn light'), place: 'Altit Fort, Hunza', pos: '62% 50%', months: [10, 11], only: true },
   { src: '/photos/snowfall.webp', icon: 'ph-snowflake', caption: t('Snowfall'), place: t('The northern valleys'), pos: '45% 50%', months: [12, 1, 2] },
   { src: '/photos/blossom.webp', icon: 'ph-flower', caption: t('Blossom season'), place: 'Gilgit-Baltistan', pos: '50% 55%', months: [3, 4] },
   { src: '/photos/green-valley.webp', icon: 'ph-tree-evergreen', caption: t('Lush green valleys'), place: t('The northern valleys'), pos: '45% 50%', months: [5, 6, 7, 8, 9] },
@@ -26,10 +29,10 @@ const SLIDE_MS = 6000;
 const chip = 'display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:12px;background:rgba(255,255,255,.14);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-size:12px;font-weight:700;white-space:nowrap';
 
 export function Welcome({ open, onStart, onGuide, onWish, lang, onLang }: { open: boolean; onStart: () => void; onGuide: () => void; onWish: (id: WishId) => void; lang: string; onLang: (l: 'en' | 'ur') => void }) {
-  const list = photos(), month = new Date().getMonth() + 1;
-  // Start with the photo for this time of year; then cycle through the rest.
-  const first = Math.max(0, list.findIndex(p => p.months.includes(month)));
-  const [i, setI] = useState(first), [seen, setSeen] = useState<number[]>([first]);
+  // This season's photos first, then the rest; extra photos of a season only in that season.
+  const month = new Date().getMonth() + 1, all = photos().filter(p => !p.only || p.months.includes(month));
+  const list = [...all.filter(p => p.months.includes(month)), ...all.filter(p => !p.months.includes(month))];
+  const [i, setI] = useState(0), [seen, setSeen] = useState<number[]>([0]);
   useEffect(() => {
     if (!open) return;
     const id = setInterval(() => setI(x => (x + 1) % list.length), SLIDE_MS);

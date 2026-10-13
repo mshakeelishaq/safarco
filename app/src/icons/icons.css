@@ -96,6 +96,9 @@
 .ph-fill.ph-caret-right:before {
   content: "\e13a";
 }
+.ph-fill.ph-castle-turret:before {
+  content: "\e9d0";
+}
 .ph-fill.ph-cell-signal-high:before {
   content: "\e144";
 }
@@ -483,6 +486,9 @@
 }
 .ph-bold.ph-caret-right:before {
   content: "\e13a";
+}
+.ph-bold.ph-castle-turret:before {
+  content: "\e9d0";
 }
 .ph-bold.ph-cell-signal-high:before {
   content: "\e144";
@@ -980,6 +986,14 @@
 }
 .ph-duotone.ph-caret-right:after {
   content: "\e13b";
+  margin-left: -1em;
+}
+.ph-duotone.ph-castle-turret:before {
+  content: "\e9d0";
+  opacity: 0.2;
+}
+.ph-duotone.ph-castle-turret:after {
+  content: "\e9d1";
   margin-left: -1em;
 }
 .ph-duotone.ph-cell-signal-high:before {
