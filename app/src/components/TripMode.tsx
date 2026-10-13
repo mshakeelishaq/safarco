@@ -166,7 +166,7 @@ export function ExpenseSheet({ v, open, onClose }: { v: View; open: boolean; onC
   const n = Math.round(+amount.replace(/[^\d.]/g, ''));
   const save = () => { if (!(n > 0)) return; e.add({ amount: n, cat, note: note.trim(), payer: payer || e.people[0] }); setAmount(''); setNote(''); };
   return (
-    <Panel open={open} onClose={onClose} title={t('Add an expense')} height={78}>
+    <Panel open={open} onClose={onClose} title={t('Add an expense')} height={560}>
       <input value={amount} onChange={x => setAmount(x.target.value)} inputMode="numeric" placeholder={t('Amount in PKR')} aria-label={t('Amount in PKR')} style={input} />
       <div style={css('display:flex;gap:6px;flex-wrap:wrap;margin-top:12px')}>{EXPENSE_CATS.map(c => <button key={c} onClick={() => setCat(c)} aria-pressed={cat === c} style={pill(cat === c)}>{t(c === 'Jeeps' ? 'Local jeeps' : c)}</button>)}</div>
       <input value={note} onChange={x => setNote(x.target.value)} placeholder={t('What for? (optional)')} aria-label={t('What for? (optional)')} style={{ ...input, marginTop: 12 }} />
@@ -187,7 +187,7 @@ export function ExpenseSheet({ v, open, onClose }: { v: View; open: boolean; onC
 export function SosSheet({ v, open, onClose }: { v: View; open: boolean; onClose: () => void }) {
   const here = v.s.here, hospital = here ? `https://www.google.com/maps/search/hospital/@${here.lat.toFixed(4)},${here.lon.toFixed(4)},12z` : 'https://www.google.com/maps/search/hospital+near+me';
   return (
-    <Panel open={open} onClose={onClose} title={t('Emergency')} sub={t('Stay calm. Call first, then send your location.')} height={82}>
+    <Panel open={open} onClose={onClose} title={t('Emergency')} sub={t('Stay calm. Call first, then send your location.')} height={640}>
       <div style={css('display:grid;grid-template-columns:1fr 1fr;gap:8px')}>
         {v.helplines.map(h => <a key={h.num} href={h.href} style={css('display:flex;align-items:center;gap:10px;padding:12px;border-radius:18px;background:linear-gradient(160deg,rgba(255,107,91,.2),rgba(255,107,91,.06));border:1px solid rgba(255,107,91,.35);text-decoration:none;color:var(--ink)')}><i className="ph-fill ph-phone-call" style={css('font-size:22px;color:#E5484D')} /><span><span style={css('display:block;font-size:18px;font-weight:800')}>{h.num}</span><span style={css('display:block;font-size:12px;font-weight:600;color:var(--ink2)')}>{h.label}</span></span></a>)}
       </div>
@@ -216,7 +216,7 @@ export function ShareSheet({ open, onClose, live, signedIn, cloud, following, bu
     </button>
   );
   return (
-    <Panel open={open} onClose={onClose} title={t('Share')} height={74}>
+    <Panel open={open} onClose={onClose} title={t('Share')} height={520}>
       <div style={css('display:flex;flex-direction:column;gap:10px')}>
         {opt('ph-users-three', 'linear-gradient(160deg,#2EE59D,#0FA678)', t('Family: follow our trip'), live ? (following ? t('Your live link is on. Family see your check-ins.') : t('A page for family: the plan, where you are today, and your check-ins.')) : t('A page for family with the plan and where you are each day.'), onFamily, 'family')}
         {opt('ph-instagram-logo', 'linear-gradient(160deg,#F58529,#DD2A7B 55%,#8134AF)', t('Trip card for Instagram'), t('A picture of your trip for stories and WhatsApp status.'), onCard, 'card')}

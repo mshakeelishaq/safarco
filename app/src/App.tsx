@@ -44,9 +44,9 @@ const framed = (() => { try { return new URLSearchParams(location.search).has('f
 export function App() {
   const [s, setS] = useState<AppState>(() => {
     const st = initialState(), off = savedOffline(), base: AppState = off ? { ...st, offline: 'ready', offlineMB: off.mb } : st;
-    const shared = tripFromUrl();
-    if (shared) return { ...base, ...shared, screen: 'app', chosen: shared.corridor, toast: tx('Shared trip opened. Tap Save to keep it.') };
-    const cur = loadCurrent();
+    const shared = tripFromUrl(), cur = loadCurrent();
+    // The address bar carries the trip being viewed; reopening this device's own trip keeps it as it was.
+    if (shared && !(cur && JSON.stringify(cur.data) === JSON.stringify(shared))) return { ...base, ...shared, screen: 'app', chosen: shared.corridor, toast: tx('Shared trip opened. Tap Save to keep it.') };
     return cur ? { ...base, ...cur.data, screen: 'app', savedId: cur.savedId, chosen: cur.data.corridor } : { ...base, welcome: !seenWelcome() };
   });
   const [trips, setTrips] = useState<SavedTrip[]>(() => localTrips());
@@ -105,12 +105,13 @@ export function App() {
     loadPriceList().then(v => { if (!v) return; applyPrices(v); bump(); try { localStorage.setItem('safarco-prices', JSON.stringify(v)); } catch { /* storage blocked */ } }).catch(() => {});
   }, []);
 
-  // A shared link opens once; then the address goes back to normal.
-  useEffect(() => { if (new URLSearchParams(location.search).has('trip')) history.replaceState(null, '', '/'); }, []);
 
   // Keep the trip being planned, so closing the app or reloading doesn't lose it.
   const tripKey = s.screen === 'app' ? JSON.stringify(tripData(s)) : '';
   useEffect(() => {
+    // The address bar always opens this trip, so copying it shares the plan, not just the app.
+    const url = tripKey ? shareUrl(JSON.parse(tripKey)) : '';
+    try { history.replaceState(null, '', url && url.length < 4200 ? url.slice(location.origin.length) : '/'); } catch { /* not allowed here */ }
     if (!tripKey) return;
     const d = JSON.parse(tripKey);
     saveCurrent(d, s.savedId);
