@@ -78,7 +78,9 @@ export function App() {
     placesFetch('sights', D.lat, D.lon);
     placesFetch('hotels', D.lat, D.lon);
     nightNodes.forEach(n => { placesFetch('hotels', NODES[n][0], NODES[n][1]); placesFetch('sights', NODES[n][0], NODES[n][1]); });
-  }, [s.screen, s.corridor, nightNodes.join()]);
+    // Every other place on a circuit.
+    (s.extra || []).forEach(k => { const X = DST(k); placesFetch('hotels', X.lat, X.lon); placesFetch('sights', X.lat, X.lon); });
+  }, [s.screen, s.corridor, nightNodes.join(), (s.extra || []).join()]);
 
   // Cities without a hand-written guide get their day plans from live sights.
   const sights = LIVE.places[placesKey('sights', DST(s.corridor).lat, DST(s.corridor).lon)];
@@ -269,8 +271,8 @@ export function App() {
     try {
       const places = [...new Set(v.plan.days.flatMap(d => d.stops.filter(x => x.kind === 'pin' && x.label !== tx('Free day')).map(x => x.label)))];
       const blob = await drawCard({
-        photo: v.cardPhoto, kicker: `${v.c.from} → ${D.name}`, title: D.name, when: `${MONTH_FULL[m - 1]} ${st.startDate.slice(0, 4)} · ${tx('{n} days', { n: v.plan.days.length })}`,
-        stats: [{ value: v.isAir ? tx('By air') : tx('{km} km', { km: v.c.kmStr }), label: v.isAir ? '' : tx('each way') }, { value: String(v.plan.days.length), label: tx('days') }, { value: String(places.length), label: tx('places') }],
+        photo: v.cardPhoto, kicker: `${v.c.from} → ${v.c.to}`, title: v.c.loop ? v.tripPlaces.list.map(x => x.name).join(' · ') : D.name, when: `${MONTH_FULL[m - 1]} ${st.startDate.slice(0, 4)} · ${tx('{n} days', { n: v.plan.days.length })}`,
+        stats: [{ value: v.isAir ? tx('By air') : tx('{km} km', { km: v.c.kmStr }), label: v.isAir ? '' : v.c.loop ? tx('round trip') : tx('each way') }, { value: String(v.plan.days.length), label: tx('days') }, { value: String(places.length), label: tx('places') }],
         places, placesLabel: tx('Places').toUpperCase(), route: v.cardRoute, footer: tx('Planned with SafarCo · safarco.vercel.app'), credit: tx('Photo © {handle}', { handle: 'shakeelnaturegraphy' })
       });
       const how = await shareCard(blob, `safarco-${D.id}.jpg`, tx('My trip to {place}, planned with SafarCo', { place: D.name }));

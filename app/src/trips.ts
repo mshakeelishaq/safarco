@@ -9,10 +9,10 @@ const DEST_IDS = new Set(DESTS.map(d => d.id));
 
 /** The parts of the app state that describe a trip. */
 export type TripData = Pick<TripState, 'origin' | 'mode' | 'dest' | 'corridor' | 'startDate' | 'days' | 'depart' | 'vehicle' | 'tier' | 'adults' | 'kids' | 'elders' | 'groupSize' | 'rooms' | 'cap'>
-  & { places?: { n: string; p: string; lat: number; lon: number }[]; have?: TripState['have']; wish?: TripState['wish']; edits?: PlanEdits };
+  & { places?: { n: string; p: string; lat: number; lon: number }[]; have?: TripState['have']; wish?: TripState['wish']; extra?: string[]; edits?: PlanEdits };
 export interface SavedTrip { id: string; name: string; data: TripData; savedAt: string; cloudId?: string }
 
-const KEYS: Exclude<keyof TripData, 'places'>[] = ['origin', 'mode', 'dest', 'corridor', 'startDate', 'days', 'depart', 'vehicle', 'tier', 'adults', 'kids', 'elders', 'groupSize', 'rooms', 'cap', 'have', 'wish', 'edits'];
+const KEYS: Exclude<keyof TripData, 'places'>[] = ['origin', 'mode', 'dest', 'corridor', 'startDate', 'days', 'depart', 'vehicle', 'tier', 'adults', 'kids', 'elders', 'groupSize', 'rooms', 'cap', 'have', 'wish', 'extra', 'edits'];
 const LIST = 'safarco-trips', CURRENT = 'safarco-current';
 
 /** Trip fields from app state, plus any searched places the trip needs (they aren't built in). */
@@ -57,7 +57,8 @@ export function cleanTrip(raw: unknown): TripData | null {
     tier: (TIERS.includes(r.tier as string) ? r.tier : 'standard') as TripData['tier'],
     adults, kids, elders, groupSize: adults + kids + elders, rooms: r.rooms === 'shared' ? 'shared' : 'separate', cap: int(r.cap, 20000, 5000000, 120000),
     have: (['car', 'suv', 'bike'].includes(r.have as string) ? r.have : 'any') as TripData['have'],
-    wish: (['green', 'water', 'blossom', 'autumn', 'snow', 'beach', 'any'].includes(r.wish as string) ? r.wish : null) as TripData['wish'], edits: cleanEdits(r.edits)
+    wish: (['green', 'water', 'blossom', 'autumn', 'snow', 'beach', 'any'].includes(r.wish as string) ? r.wish : null) as TripData['wish'],
+    extra: (Array.isArray(r.extra) ? r.extra : []).filter((k: unknown): k is string => typeof k === 'string' && DEST_IDS.has(k) && k !== corridor).slice(0, 3), edits: cleanEdits(r.edits)
   };
 }
 

@@ -7,7 +7,7 @@ import type { PlanEdits } from './state';
 import { t } from './i18n';
 
 /** Which plan a set of edits belongs to: same start, destination, length and way of travel. */
-export const planKey = (s: { origin: string | null; corridor: string; days: number; vehicle: string }) => `${s.origin}|${s.corridor}|${s.days}|${s.vehicle === 'air' ? 'air' : 'road'}`;
+export const planKey = (s: { origin: string | null; corridor: string; days: number; vehicle: string; extra?: string[] }) => `${s.origin}|${s.corridor}|${s.days}|${s.vehicle === 'air' ? 'air' : 'road'}${s.extra?.length ? '|' + s.extra.join(',') : ''}`;
 export const dropKey = (day: number, label: string) => `${day}|${label}`;
 
 /** "6:30 am" → 6.5 */

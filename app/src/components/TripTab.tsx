@@ -4,7 +4,7 @@ import { IG_HANDLE, IG_MESSAGE, IG_PROFILE } from '../contact';
 import { css } from '../lib/css';
 import { t } from '../i18n';
 import type { Api, View } from '../view';
-import { Notes, WishNote } from './Onboarding';
+import { Notes, TripPlaces, WishNote } from './Onboarding';
 import { LockChip, MemoriesCard, TodayCard } from './TripMode';
 
 const card = 'border-radius:30px;padding:18px 18px 16px;background:var(--card);border:1px solid var(--line)';
@@ -186,7 +186,7 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
             </div>
             <div style={css('display:flex;gap:8px;margin-top:12px')}>
               <div style={css(tile)}><i className="ph-fill ph-calendar-check" style={css('font-size:17px;color:var(--g)')} /><div style={css('font-size:16px;font-weight:800;margin-top:4px')}>{t('{n} days', { n: plan.days.length })}</div><div style={css('font-size:11px;font-weight:600;color:var(--mute)')}>{t('{n} nights', { n: Math.max(0, plan.days.length - 1) })}</div></div>
-              <div style={css(tile)}><i className={`ph-fill ${v.isAir ? 'ph-airplane-tilt' : 'ph-path'}`} style={css('font-size:17px;color:var(--sky)')} /><div style={css('font-size:16px;font-weight:800;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis')}>{v.isAir ? t('By air') : t('{km} km', { km: c.kmStr })}</div><div style={css('font-size:11px;font-weight:600;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis')}>{v.isAir ? v.pillB : t('each way')}</div></div>
+              <div style={css(tile)}><i className={`ph-fill ${v.isAir ? 'ph-airplane-tilt' : 'ph-path'}`} style={css('font-size:17px;color:var(--sky)')} /><div style={css('font-size:16px;font-weight:800;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis')}>{v.isAir ? t('By air') : t('{km} km', { km: c.kmStr })}</div><div style={css('font-size:11px;font-weight:600;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis')}>{v.isAir ? v.pillB : v.c.loop ? t('round trip') : t('each way')}</div></div>
               <button onClick={() => set({ tab: 'budget' })} style={css(tile + ';cursor:pointer')}><i className="ph-fill ph-wallet" style={css(`font-size:17px;color:${v.health.fg}`)} /><div style={css('font-size:16px;font-weight:800;margin-top:4px;white-space:nowrap;font-variant-numeric:tabular-nums')}>{v.totalShort}</div><div style={css(`font-size:11px;font-weight:700;color:${v.health.fg}`)}>{v.health.label}</div></button>
             </div>
             {v.tripSeason && (() => { const ts = v.tripSeason, c = ts.tone === 'good' ? 'var(--g)' : ts.tone === 'care' ? 'var(--amb2)' : 'var(--cor)';
@@ -204,6 +204,7 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
               </div>
             ); })()}
             {v.wishNote && !v.wishNote.good && <WishNote n={v.wishNote} />}
+            {!v.isAir && <div style={css('margin-top:12px')}><TripPlaces v={v} /></div>}
             <LockChip v={v} api={api} />
             {glance.warnings.length > 0 && <button onClick={() => set({ tab: 'prepare' })} style={css('display:flex;flex-direction:column;gap:6px;margin-top:12px;padding:0;border:0;background:none;color:var(--ink);text-align:left;cursor:pointer;width:100%')}>
               {glance.warnings.slice(0, 2).map(w => <span key={w} style={css('display:flex;gap:8px;align-items:flex-start;font-size:13px;font-weight:700;line-height:1.4;color:var(--cor)')}><i className="ph-fill ph-warning" style={css('margin-top:2px;flex:none')} />{w}</span>)}

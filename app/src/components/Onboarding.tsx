@@ -136,6 +136,7 @@ export function Onboarding({ v, api }: { v: View; api: Api }) {
                 ))}
               </div>
               {v.noDest && <div style={css('padding:16px 12px;font-size:14px;color:var(--mute);font-weight:600;line-height:1.45')}>{t('No place found. Try the nearest town or district city.')}</div>}
+              <div style={css('margin-top:12px')}><TripPlaces v={v} /></div>
             </>}
           </>}
 
@@ -269,3 +270,29 @@ export const WishNote = ({ n }: { n: NonNullable<View['wishNote']> }) => (
     </div>}
   </div>
 );
+
+/** The places on this trip: the main one plus more nearby, in the order SafarCo drives them. */
+export const TripPlaces = ({ v }: { v: View }) => {
+  const p = v.tripPlaces;
+  return (
+    <div style={css('padding:12px 14px;border-radius:20px;background:var(--fill);border:1px solid var(--line)')}>
+      <div style={css('font-size:13px;font-weight:800')}>{t('Places on this trip')}</div>
+      <div style={css('display:flex;gap:6px;flex-wrap:wrap;margin-top:8px')}>
+        {p.list.map((x, i) => <span key={x.key} style={css(`display:inline-flex;align-items:center;gap:4px;height:36px;padding:0 ${x.remove ? 4 : 12}px 0 12px;border-radius:12px;background:var(--cta);color:var(--onCta);font-size:13px;font-weight:800`)}>
+          {p.list.length > 1 && <span style={css('opacity:.75')}>{i + 1}.</span>}{x.name}
+          {x.remove && <button onClick={x.remove} aria-label={t('Remove {name}', { name: x.name })} style={css('width:28px;height:28px;border:0;background:none;color:inherit;cursor:pointer;font-size:13px')}><i className="ph-bold ph-x" /></button>}
+        </span>)}
+      </div>
+      {p.note && <div style={css('font-size:12px;font-weight:700;color:var(--ink2);margin-top:8px;line-height:1.45')}>{p.note}</div>}
+      {p.options.length > 0 && <>
+        <div style={css('font-size:12px;font-weight:800;color:var(--mute);margin-top:10px')}>{t('Add another place nearby')}</div>
+        <div style={css('display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-top:6px;padding-bottom:2px')}>
+          {p.options.map(o => <button key={o.key} onClick={o.onClick} style={css(`flex:none;display:flex;flex-direction:column;align-items:flex-start;min-height:44px;padding:6px 12px;border-radius:12px;border:1px solid ${o.wish ? 'rgba(46,229,157,.5)' : 'var(--line2)'};background:var(--card);color:var(--ink);cursor:pointer;text-align:left`)}>
+            <span style={css('font-size:13px;font-weight:800;white-space:nowrap')}>+ {o.name}</span><span style={css('font-size:11px;font-weight:600;color:var(--mute);white-space:nowrap')}>{o.sub}</span>
+          </button>)}
+        </div>
+      </>}
+      {p.air && <div style={css('font-size:12px;font-weight:600;color:var(--mute);margin-top:8px')}>{t('Flights cover one place. Drive or hire a car to add more.')}</div>}
+    </div>
+  );
+};

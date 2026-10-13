@@ -18,6 +18,8 @@ export interface TripState {
   have?: Have;
   /** What they want to see (green valleys, blossom…): its places come first in suggestions. */
   wish?: WishId | null;
+  /** More places on the same trip (a circuit), besides the main destination `corridor`. */
+  extra?: string[];
 }
 
 /** Trip styles to compare: the traveller's own vehicle only, or every style SafarCo knows. */
@@ -121,7 +123,7 @@ export function airFor(key: string, origin: string | null): AirOption | null {
 const legStopH = (l: Leg) => stopsOn(l).reduce((a, x) => a + (STOP_DUR[x[1]] || 15), 0) / 60;
 /** Fewest driving days so each day fits ≤10 h at the wheel and ends before the daylight window W closes. */
 function splitDays(legs: Leg[], W: number) {
-  const n = legs.length, canCut = (i: number) => !['RKT', 'DEST', 'HOME'].includes(legs[i].b), pre = [0], preS = [0];
+  const n = legs.length, canCut = (i: number) => !['RKT', 'DEST', 'HOME'].includes(legs[i].b) && !legs[i].b.startsWith('@'), pre = [0], preS = [0];
   legs.forEach((l, i) => { pre.push(pre[i] + l.h); preS.push(preS[i] + legStopH(l)); });
   const drive = (i: number, j: number) => pre[j + 1] - pre[i], span = (i: number, j: number) => drive(i, j) + preS[j + 1] - preS[i];
   const ok = (i: number, j: number) => i === j || (drive(i, j) <= MAX_DRIVE_H + 0.5 && span(i, j) <= W);
@@ -152,9 +154,12 @@ export const resetTripCache = () => { for (const k in TRIP_CACHE) delete TRIP_CA
 LIVE.routeHooks.add(resetTripCache);
 
 /** Road trip from `origin` to destination `key` in `month`, using the road table, corrected by the live OSRM distance when close. */
-export function trip(key: string, origin: string | null, month = 7): Trip {
-  const ck = `${key}|${origin}|${month}`; if (TRIP_CACHE[ck]) return TRIP_CACHE[ck];
-  const D = DST(key), o = cityOr(origin);
+export function trip(key: string, origin: string | null, month = 7): Trip { return tripFrom(key, cityOr(origin), month); }
+
+/** Road trip to destination `key` from any point `o` (a city, or another destination on a circuit). */
+export function tripFrom(key: string, o: { n: string; lat: number; lon: number }, month = 7): Trip {
+  const ck = `${key}|${o.n}|${month}`; if (TRIP_CACHE[ck]) return TRIP_CACHE[ck];
+  const D = DST(key);
   const oc = attachTo(o.lat, o.lon, false), dc = D.node ? [{ n: D.node, local: 0, mtn: MTN_NODES.has(D.node) }] : attachTo(D.lat, D.lon, (D.ft ?? D.ftEst ?? 0) > 3000);
   let best: { st: typeof oc[number]; d: typeof dc[number]; tot: number } | null = null;
   dc.forEach(d => { const { dist } = shortest(d.n, month); oc.forEach(st => { if (dist[st.n] === undefined) return; const tot = st.local + dist[st.n] + d.local; if (!best || tot < best.tot) best = { st, d, tot }; }); });
@@ -235,8 +240,9 @@ export function seasonInfo(s: TripState, key: string): Note[] {
   return notes;
 }
 
-export interface Plan { days: PlanDay[]; total: number; sunset: number; rec: number; dep: number; late: boolean; hasDrive: boolean; air: AirOption | null }
+export interface Plan { days: PlanDay[]; total: number; sunset: number; rec: number; dep: number; late: boolean; hasDrive: boolean; air: AirOption | null; /** A circuit: the days go round a loop, not out and back. */ loop?: boolean }
 export function buildPlan(s: TripState): Plan {
+  const L = circuit(s); if (L) return buildCircuitPlan(s, L);
   const key = s.corridor, D = DST(key), m = mon(s), c = trip(key, s.origin, m), legs = c.legs, o = cityOr(s.origin);
   const at = (n: string): [number, number] => n === 'HOME' ? [o.lat, o.lon] : n === 'DEST' ? [D.lat, D.lon] : NODES[n];
   // Real sunset where each driving day ends, on that day's date.
@@ -296,9 +302,11 @@ export const coachFare = (c: Trip) => Math.round((c.flatKm * PR.coachFlat + c.mt
 
 export function costFor(o: TripState): Cost {
   const A = o.adults ?? o.groupSize ?? 2, K = o.kids || 0, E = o.elders || 0, P = A + K + E, AD = A + E;
-  const M = mon(o), c = trip(o.corridor, o.origin, M), sf = seasonFactor(c, M), sfTxt = sf > 1 ? ` · ${t('peak +{pct}%', { pct: Math.round((sf - 1) * 100) })}` : sf < 1 ? ` · ${t('off-season −{pct}%', { pct: Math.round((1 - sf) * 100) })}` : '';
-  const v = VEH[o.vehicle], tr = TIERS[o.tier], rt = c.km * 2, rows: CostRow[] = [], nights = Math.max(1, o.days - 1);
-  let ok = o.days >= c.minDays, minDays = c.minDays, why = '';
+  const M = mon(o), c = trip(o.corridor, o.origin, M), L = circuit(o), sf = seasonFactor(c, M), sfTxt = sf > 1 ? ` · ${t('peak +{pct}%', { pct: Math.round((sf - 1) * 100) })}` : sf < 1 ? ` · ${t('off-season −{pct}%', { pct: Math.round((1 - sf) * 100) })}` : '';
+  // A circuit goes round once; a single place is there and back.
+  const flatKm = L ? L.flatKm : c.flatKm * 2, mtnKm = L ? L.mtnKm : c.mtnKm * 2, tollList = L ? L.tolls : c.tolls.concat(c.tolls);
+  const v = VEH[o.vehicle], tr = TIERS[o.tier], rt = L ? L.km : c.km * 2, rows: CostRow[] = [], nights = Math.max(1, o.days - 1);
+  let ok = o.days >= (L ? L.minDays : c.minDays), minDays = L ? L.minDays : c.minDays, why = '';
   const kidTxt = (pct: string) => K ? ` + ${K > 1 ? t('{n} kids at {pct}', { n: K, pct }) : t('{n} kid at {pct}', { n: K, pct })}` : '';
   const adults = (n: number) => n > 1 ? t('{n} adults', { n }) : t('{n} adult', { n });
   const jeeps = (n: number) => n > 1 ? t('{n} jeeps', { n }) : t('{n} jeep', { n });
@@ -313,15 +321,15 @@ export function costFor(o: TripState): Cost {
       const cars = Math.ceil(P / 4); rows.push({ icon: 'ph-steering-wheel', label: 'Car + driver there', detail: cars > 1 ? t('{n} cars × {days} days × {price}, fuel included', { n: cars, days: o.days, price: fmt(PR.localCar) }) : t('{n} car × {days} days × {price}, fuel included', { n: cars, days: o.days, price: fmt(PR.localCar) }), val: cars * o.days * PR.localCar });
     }
   } else if (o.vehicle === 'public') {
-    const fare = coachFare(c);
-    rows.push({ icon: 'ph-bus', label: 'Transport', detail: `${t('Coach {price} each way', { price: fmt(fare) })} × ${adults(AD)}${kidTxt(t('half fare'))}`, val: fare * 2 * (AD + K * 0.5) });
+    const fare = L ? coachFare({ flatKm, mtnKm } as Trip) : coachFare(c);
+    rows.push({ icon: 'ph-bus', label: 'Transport', detail: L ? `${t('Coaches {price} for the whole route', { price: fmt(fare) })} × ${adults(AD)}${kidTxt(t('half fare'))}` : `${t('Coach {price} each way', { price: fmt(fare) })} × ${adults(AD)}${kidTxt(t('half fare'))}`, val: fare * (L ? 1 : 2) * (AD + K * 0.5) });
   } else {
-    const units = Math.max(1, Math.ceil(P / (v.cap || 4))), per = 2 * (c.flatKm / (v.mileage || 1) + c.mtnKm / (v.mtn || 1)), price = v.diesel ? PR.diesel : PR.petrol, bike = o.vehicle === 'bike';
+    const units = Math.max(1, Math.ceil(P / (v.cap || 4))), per = flatKm / (v.mileage || 1) + mtnKm / (v.mtn || 1), price = v.diesel ? PR.diesel : PR.petrol, bike = o.vehicle === 'bike';
     if (v.rate) rows.push({ icon: v.icon, label: 'Rental', detail: t('{n} × {vehicle} · ({rate} + {allow} driver) × {days} days', { n: units, vehicle: v.short, rate: fmt(v.rate), allow: fmtN(v.allow || 0), days: o.days }), val: units * (v.rate + (v.allow || 0)) * o.days });
     rows.push({ icon: 'ph-gas-pump', label: 'Fuel', detail: `${fmtN(rt)} km · ${units > 1 ? `${bike ? t('{n} bikes', { n: units }) : t('{n} vehicles', { n: units })} × ` : ''}${v.diesel ? t('{litres} L diesel at {flat} / {mtn} km/L', { litres: fmtN(per), flat: String(v.mileage), mtn: String(v.mtn) }) : t('{litres} L petrol at {flat} / {mtn} km/L', { litres: fmtN(per), flat: String(v.mileage), mtn: String(v.mtn) })}`, val: per * units * price });
-    const tollSum = c.tolls.reduce((a, b) => a + b[1], 0) * 2 * units * (v.tollX || 1);
+    const tollSum = tollList.reduce((a, b) => a + b[1], 0) * units * (v.tollX || 1);
     if (o.vehicle === 'bike') rows.push({ icon: 'ph-road-horizon', label: 'Tolls', detail: `${t('Motorways closed to bikes')} · GT Road / N-5`, val: 0 });
-    else rows.push({ icon: 'ph-road-horizon', label: 'Tolls', detail: (c.tolls.length ? c.tolls.map(x => x[0]).join(' + ') : t('No tolled roads')) + ` · ${t('return')}${units > 1 ? ` × ${units}` : ''}${v.tollX ? ` · ${t('coaster rate')}` : ''}`, val: tollSum });
+    else rows.push({ icon: 'ph-road-horizon', label: 'Tolls', detail: (tollList.length ? [...new Set(tollList.map(x => x[0]))].join(' + ') : t('No tolled roads')) + ` · ${L ? t('whole route') : t('return')}${units > 1 ? ` × ${units}` : ''}${v.tollX ? ` · ${t('coaster rate')}` : ''}`, val: tollSum });
   }
   if (o.rooms === 'shared') {
     const r = Math.ceil(P / 4);
@@ -331,16 +339,19 @@ export function costFor(o: TripState): Cost {
     rows.push({ icon: 'ph-bed', label: 'Stay', detail: `${r > 1 ? t('{n} doubles', { n: r }) : t('{n} double', { n: r })}${extra ? ` + ${extra > 1 ? t('{n} extra beds', { n: extra }) : t('{n} extra bed', { n: extra })}` : ''} × ${nightsTxt} · ${tr.label}${sfTxt}`, val: (r * tr.night + extra * tr.night * 0.2) * nights * sf });
   }
   rows.push({ icon: 'ph-fork-knife', label: 'Meals', detail: `${adults(AD)}${kidTxt('60%')} × ${t('{n} days', { n: o.days })}`, val: tr.meal * o.days * (AD + K * 0.6) });
-  if (c.hub !== undefined && o.vehicle !== 'suv' && o.vehicle !== 'rent4x4') { const j = jeepsFor(P); rows.push({ icon: 'ph-jeep', label: 'Local jeep', detail: `Raikot Bridge ⇄ Tato · ${jeeps(j)} × ${fmt(PR.raikotJeep)}`, val: j * PR.raikotJeep }); }
+  if ((L ? L.order.some(k => DST(k).hub !== undefined) : c.hub !== undefined) && o.vehicle !== 'suv' && o.vehicle !== 'rent4x4') { const j = jeepsFor(P); rows.push({ icon: 'ph-jeep', label: 'Local jeep', detail: `Raikot Bridge ⇄ Tato · ${jeeps(j)} × ${fmt(PR.raikotJeep)}`, val: j * PR.raikotJeep }); }
   const add = plannedJeeps(o, c, M);
   if (add.length) { const j = jeepsFor(P); rows.push({ icon: 'ph-jeep', label: 'Jeep trips', detail: `${add.map(x => x[1]).join(', ')} · ${jeeps(j)}`, val: add.reduce((a, x) => a + x[3], 0) * j }); }
+  if (o.vehicle === 'air' && (o.extra || []).length) { ok = false; why = 'Flights are for one place'; }
   return { rows, total: rows.reduce((a, r) => a + r.val, 0), ok, minDays, why };
 }
 
 /** Free days at the destination once driving (or flying) days are taken out. */
-export const freeDays = (o: TripState, c: Trip) => o.vehicle === 'air' && airFor(o.corridor, o.origin) ? Math.max(0, o.days - 2) : Math.max(0, o.days - 2 * c.legDays);
+export const freeDays = (o: TripState, c: Trip) => { const L = circuit(o); return L ? Math.max(0, o.days - L.legDays) : o.vehicle === 'air' && airFor(o.corridor, o.origin) ? Math.max(0, o.days - 2) : Math.max(0, o.days - 2 * c.legDays); };
 /** Local jeep trips needed for places that are in the plan this month. */
 export function plannedJeeps(o: TripState, c: Trip, M: number): Jeep[] {
+  const L = circuit(o);
+  if (L) { const alloc = circuitAlloc(o, L); return L.order.flatMap((k, i) => { const D = DST(k), sched = scheduledPlaces(D, M, alloc[i]); return (D.jeeps || []).filter(x => inM(M, x[4]) && sched.some(p => jeepMatch(x, p))); }); }
   const sched = scheduledPlaces(c, M, freeDays(o, c));
   return (c.jeeps || []).filter(x => inM(M, x[4]) && sched.some(p => jeepMatch(x, p)));
 }
@@ -348,7 +359,7 @@ export function plannedJeeps(o: TripState, c: Trip, M: number): Jeep[] {
 export interface Suggestion extends TripConfig { corridor: string; key: string; total: number; ok: boolean; minDays: number; why: string; best?: boolean }
 /** Options for the suggestions step: trip styles for one destination, or the best style per destination. */
 export function suggestions(s: TripState & { pickId: string | null }) {
-  const cost = (corridor: string, cf: TripConfig): Suggestion => { const r = costFor({ ...s, corridor, vehicle: cf.vehicle, tier: cf.tier }); return { ...cf, corridor, key: corridor + ':' + cf.id, total: r.total, ok: r.ok, minDays: r.minDays, why: r.why }; };
+  const cost = (corridor: string, cf: TripConfig): Suggestion => { const r = costFor({ ...s, corridor, vehicle: cf.vehicle, tier: cf.tier, extra: s.mode === 'know' ? s.extra : [] }); return { ...cf, corridor, key: corridor + ':' + cf.id, total: r.total, ok: r.ok, minDays: r.minDays, why: r.why }; };
   const cfgs = configsFor(s);
   const priced = (k: string) => cfgs.map(cf => cost(k, cf)).filter(x => !x.why).sort((a, b) => a.total - b.total);
   const fits = (x: Suggestion) => x.ok && x.total <= s.cap;
@@ -371,3 +382,102 @@ export function suggestions(s: TripState & { pickId: string | null }) {
   return { list, sel };
 }
 
+
+// ---- Circuits: more than one place on a trip (Naran, Hunza and Skardu together) ----------
+
+/** One stretch of a circuit: from home or a place to the next place, or back home. */
+export interface Hop { to: string; legs: Leg[]; km: number; flatKm: number; mtnKm: number; hours: number; tolls: [string, number][]; days: number }
+export interface Circuit { order: string[]; hops: Hop[]; km: number; flatKm: number; mtnKm: number; hours: number; tolls: [string, number][]; legDays: number; minDays: number }
+const CIRCUITS: Record<string, Circuit | null> = {};
+LIVE.routeHooks.add(() => { for (const k in CIRCUITS) delete CIRCUITS[k]; });
+
+/** Where a destination is, as a starting point for the next stretch. */
+const pointOf = (k: string) => { const D = DST(k); return { n: '@' + k, lat: D.lat, lon: D.lon }; };
+const W_OF = (m: number) => Math.min(12, SUNSET[m - 1] - 0.5 - 5);
+
+/** A stretch's legs, with the start and end named for the circuit ('@hunza', 'HOME'). */
+function hopLegs(tr: Trip, from: string, to: string, reverse = false): Leg[] {
+  const name = (n: string) => n === 'HOME' ? from : n === 'DEST' ? to : n;
+  const ls = tr.legs.map(l => ({ ...l, a: name(l.a), b: name(l.b) }));
+  return reverse ? ls.slice().reverse().map(l => ({ ...l, a: l.b, b: l.a })) : ls;
+}
+function hopOf(legs: Leg[], to: string, m: number): Hop {
+  const flat = legs.filter(l => !l.mtn).reduce((a, l) => a + l.km, 0), mtn = legs.filter(l => l.mtn).reduce((a, l) => a + l.km, 0);
+  const tolls: [string, number][] = []; legs.forEach(l => { const e = EDGES.find(e => (e[0] === l.a && e[1] === l.b) || (e[0] === l.b && e[1] === l.a)); if (e && e[4]) tolls.push([e[6], e[4]]); });
+  return { to, legs, km: flat + mtn, flatKm: flat, mtnKm: mtn, hours: legs.reduce((a, l) => a + l.h, 0), tolls, days: splitDays(legs, W_OF(m)).L };
+}
+
+/** The circuit for a trip with more than one place: the shortest order, each stretch, and home. Null for one place. */
+export function circuit(s: TripState): Circuit | null {
+  const extra = (s.extra || []).filter((k, i, a) => k && k !== s.corridor && a.indexOf(k) === i).slice(0, 3);
+  if (!extra.length || s.vehicle === 'air') return null;
+  const m = mon(s), ck = `${s.origin}|${s.corridor}|${extra.join(',')}|${m}`; if (ck in CIRCUITS) return CIRCUITS[ck];
+  const places = [s.corridor, ...extra], home = cityOr(s.origin);
+  const out = (k: string) => trip(k, s.origin, m), between = (a: string, b: string) => tripFrom(b, pointOf(a), m);
+  // Try every order (at most 4 places, 24 orders) and keep the shortest loop.
+  const perms = (xs: string[]): string[][] => xs.length <= 1 ? [xs] : xs.flatMap((x, i) => perms([...xs.slice(0, i), ...xs.slice(i + 1)]).map(p => [x, ...p]));
+  const loopKm = (o: string[]) => out(o[0]).km + o.slice(1).reduce((a, k, i) => a + between(o[i], k).km, 0) + out(o[o.length - 1]).km;
+  // Equal loops: visit the nearest place first (Naran on the way up, not on the way back).
+  const score = (o: string[]) => loopKm(o) + out(o[0]).km * 0.02;
+  const order = perms(places).reduce((best, o) => score(o) < score(best) ? o : best);
+  const hops: Hop[] = [hopOf(hopLegs(out(order[0]), 'HOME', '@' + order[0]), order[0], m)];
+  for (let i = 1; i < order.length; i++) hops.push(hopOf(hopLegs(between(order[i - 1], order[i]), '@' + order[i - 1], '@' + order[i]), order[i], m));
+  hops.push(hopOf(hopLegs(out(order[order.length - 1]), 'HOME', '@' + order[order.length - 1], true), 'HOME', m));
+  void home;
+  const sum = (f: (h: Hop) => number) => hops.reduce((a, h) => a + f(h), 0), legDays = sum(h => h.days);
+  return (CIRCUITS[ck] = { order, hops, km: Math.round(sum(h => h.km) / 5) * 5, flatKm: sum(h => h.flatKm), mtnKm: sum(h => h.mtnKm), hours: sum(h => h.hours), tolls: hops.flatMap(h => h.tolls), legDays, minDays: legDays + 1 });
+}
+
+/** Free days at each place on a circuit: everyone gets one if there are enough, the rest go to places with more to see. */
+export function circuitAlloc(s: TripState, L: Circuit) {
+  let free = Math.max(0, s.days - L.legDays);
+  const m = mon(s), w = L.order.map(k => Math.max(1, placesFor(DST(k), m).length)), out = L.order.map(() => 0);
+  for (let i = 0; i < out.length && free > 0; i++) { out[i]++; free--; }
+  while (free > 0) { const i = w.map((x, j) => x / (out[j] + 1)).reduce((b, x, j, a) => x > a[b] ? j : b, 0); out[i]++; free--; }
+  return out;
+}
+
+/** Day by day for a circuit: drive to each place, explore it, drive on, and home by the shortest way. */
+function buildCircuitPlan(s: TripState, L: Circuit): Plan {
+  const m = mon(s), o = cityOr(s.origin), alloc = circuitAlloc(s, L);
+  const at = (n: string): [number, number] => n === 'HOME' ? [o.lat, o.lon] : n.startsWith('@') ? [DST(n.slice(1)).lat, DST(n.slice(1)).lon] : NODES[n];
+  const nm = (n: string) => n === 'HOME' ? o.n : n.startsWith('@') ? DST(n.slice(1)).town : NODE_INFO[n][0];
+  const notes = (roads: string[]) => roads.map(r => ROAD_NOTE[r]).filter(Boolean).map(n => t(n)).join(' ');
+  const coordsOf = (ls: Leg[]): [number, number][] => [at(ls[0].a), ...ls.map(l => at(l.b))];
+  // Each stretch split into driving days.
+  const segsOf = (h: Hop) => {
+    const sp = splitDays(h.legs, W_OF(m)), bounds = [-1, ...sp.cuts, h.legs.length - 1];
+    return bounds.slice(0, -1).map((b, i) => { const ls = h.legs.slice(b + 1, bounds[i + 1] + 1); return { ls, roads: [...new Set(ls.map(l => l.road))], from: nm(ls[0].a), to: nm(ls[ls.length - 1].b), end: ls[ls.length - 1].b }; });
+  };
+  type Seg = ReturnType<typeof segsOf>[number];
+  const days: PlanDay[] = [], driving: { seg: Seg; kind: DayKind; day: number; stayKey: string | null }[] = [];
+  // First pass: which day each drive falls on, so sunsets and the departure time can be worked out.
+  let dayNo = 0;
+  L.hops.forEach((h, hi) => {
+    const segs = segsOf(h), last = hi === L.hops.length - 1;
+    segs.forEach((g, gi) => driving.push({ seg: g, kind: last ? 'return' : 'drive', day: dayNo + gi, stayKey: gi === segs.length - 1 ? (last ? null : h.to) : '' }));
+    dayNo += segs.length + (last ? 0 : alloc[hi]);
+  });
+  const sunAt = (n: string, d: number) => { const [la, lo] = at(n); return sunTimes(la, lo, isoOff(s.startDate, d)); };
+  const spans = driving.map(x => ({ span: dayStops(x.seg.ls, '', '', 6, 30).arrive - 6, set: sunAt(x.seg.end, x.day).set }));
+  const rec = Math.max(4.5, Math.min(8, Math.floor(Math.min(...spans.map(x => x.set - 0.5 - x.span)) * 2) / 2)), dep = s.depart ?? rec;
+  let late = false, sunset = 24;
+  const meta = (r: ReturnType<typeof dayStops>) => t('{km} km · {drive} driving + {stops} stops', { km: fmtN(r.km < 20 ? r.km : Math.round(r.km / 5) * 5), drive: dur(r.driveH), stops: dur(r.stopMin / 60) });
+  let k = 0;
+  L.hops.forEach((h, hi) => {
+    const last = hi === L.hops.length - 1, segs = segsOf(h);
+    segs.forEach((g, gi) => {
+      const x = driving[k++], sun = sunAt(g.end, x.day), r = dayStops(g.ls, g.from, g.to, dep, sun.set); late = late || r.late; sunset = Math.min(sunset, sun.set);
+      const arrives = gi === segs.length - 1;
+      // Nights: at the next place when a stretch ends there, else in the town where the day's drive stops.
+      const stay = arrives ? (last ? null : stayAt(null, h.to, s.tier, true)) : stayAt(g.end, s.corridor, s.tier, false);
+      days.push({ kind: x.kind, title: `${g.from} → ${g.to}`, meta: meta(r), stops: r.items, note: notes(g.roads), stay, track: { legs: g.ls, coords: coordsOf(g.ls), marks: r.marks, dep, sunset: sun.set, sunrise: sun.rise } });
+    });
+    if (last) return;
+    const D = DST(h.to);
+    if (!alloc[hi] && days.length) { const pl = placesFor(D, m)[0]; if (pl) days[days.length - 1].stops.push({ time: t('Evening'), kind: 'pin', label: pl[0], note: `${pl[1]} · ${pl[2]}`, href: pl[4] }); }
+    exploreDays(D, m, alloc[hi]).forEach(d => days.push({ ...d, stay: stayAt(null, h.to, s.tier, true) }));
+  });
+  days.forEach((d, i) => { d.num = i + 1; d.date = dayLabel(s.startDate, i); d.iso = isoOff(s.startDate, i); });
+  return { days, total: days.length, sunset, rec, dep, late, hasDrive: true, air: null, loop: true };
+}
