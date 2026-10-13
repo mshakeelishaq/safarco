@@ -1351,4 +1351,5 @@ export const UR: Record<string, string> = {
   "Near Skardu": "Skardu ke qareeb",
   "Pine forest, meadows and streams, best June to September": "Cheer ka jangal, sabza zaar aur naale, June se September behtareen",
   "By jeep or 4x4 · half day": "Jeep ya 4x4 se · aadha din",
+  "{places}: hire a local jeep and driver, even with your own 4x4, unless you know these roads and have driven them before.": "{places}: maqami jeep aur driver hire karein, chahe aap ki apni 4x4 ho, jab tak aap ye raaste jaante na hon aur pehle chala na chuke hon.",
 };

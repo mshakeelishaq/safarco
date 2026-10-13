@@ -1,7 +1,7 @@
 // Everything the screens display, derived from app state. Ported from the
 // design's renderVals(); the screens in components/ read from this.
 import { HAVE_VEHICLE, EDGES, MODES, MON, MONTH_FULL, NODES, NODE_INFO, POPULAR, POP_DEST, SUGGEST_POOL, SUNRISE, SUNSET, TIERS, TIER_G, VEH, CAT, CAT2, GRADS, DESTS, STOP_KIND, type VehicleId } from './engine/data';
-import { MAX_DRIVE_H, circuit, tripFrom, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
+import { MAX_DRIVE_H, plannedJeeps, circuit, tripFrom, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
 import { clock, dayLabel, dur, fmt, fmtN, isoAdd, isoOf, isoOff, kShort, mapsQ, mon } from './engine/format';
 import { LIVE, fxRate, placesKey, routeKey, type Spot } from './engine/live';
 import { sunTimes } from './engine/sun';
@@ -294,6 +294,9 @@ export function buildView(s: AppState, api: Api) {
   const used: Section[] = [...(own ? ['fuel', 'tolls'] as Section[] : []), 'stays', ...(['rentcar', 'rent4x4', 'coaster'].includes(s.vehicle) || isAir ? ['hire'] as Section[] : []),
     ...(s.vehicle === 'public' ? ['coach'] as Section[] : []), ...(isAir ? ['fares'] as Section[] : []), ...(rows.some(r => /jeep/i.test(r.label)) ? ['jeeps'] as Section[] : [])];
   const priceNotes = used.map(k => ({ key: k, label: t(SECTIONS[k].label), source: t(SECTIONS[k].source), checked: checkedText(k), ok: !isStale(k) }));
+  // Jeep tracks (Deosai, Basho…): locals know them, so hire a jeep even with your own 4x4.
+  const jeepTrips = s.vehicle === 'air' ? [] : plannedJeeps(s, c0, M);
+  const jeepNote = jeepTrips.length ? [{ icon: 'ph-jeep', color: 'var(--amb)', text: t('{places}: hire a local jeep and driver, even with your own 4x4, unless you know these roads and have driven them before.', { places: jeepTrips.map(j => t(j[1])).join(', ') }) }] : [];
   const alertNotes = activeAlerts().filter(a => !a.areas?.length || onTrip(a.areas, tripLine, tripStops)).map(a => ({ icon: 'ph-megaphone', color: 'var(--cor)', text: a.date ? t('{alert} (posted {date})', { alert: `${a.title}${a.message ? `: ${a.message}` : ''}`, date: dayLabel(a.date, 0) }) : `${a.title}${a.message ? `: ${a.message}` : ''}` }));
 
   // "What do you want to see?": the first question, then a check that the dates and place fit the wish.
@@ -472,7 +475,7 @@ export function buildView(s: AppState, api: Api) {
       if (lv && !lv.ignored) return [{ icon: 'ph-check-circle', color: 'var(--g)', text: t('Distance checked with OpenRouteService: {km} km. Drive times use mountain and town speeds, so they are longer than map apps show.', { km: fmtN(r.data.km) }) }];
       return [{ icon: 'ph-warning', color: 'var(--cor)', text: t('OpenRouteService’s fastest road is {km} km; this plan is {planKm} km. It may use a road closed in {month}. Check before you leave.', { km: fmtN(r.data.km), planKm: c.kmStr, month: MON[M - 1] }) }];
     })(),
-    seasonNotes: [...alertNotes, ...seasonInfo(s, s.corridor)],
+    seasonNotes: [...alertNotes, ...seasonInfo(s, s.corridor), ...jeepNote],
     dayHint: (() => {
       const o = s.origin || 'Islamabad', okS = { tile: 'linear-gradient(135deg,#2EE59D,#0FA678)', bg: 'rgba(46,229,157,.1)', border: 'rgba(46,229,157,.3)' }, badS = { tile: 'linear-gradient(135deg,#FF8A6B,#FF4F7B)', bg: 'rgba(255,107,91,.12)', border: 'rgba(255,107,91,.4)' };
       if (s.mode === 'know' && L) {
