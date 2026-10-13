@@ -488,10 +488,6 @@ export function buildView(s: AppState, api: Api) {
     },
     nextLabel: s.step < 6 ? t('Continue') : t('Build this trip'),
     restart: () => api.newTrip(),
-    corridorChips: [...new Set([s.chosen || s.corridor, s.corridor, ...POP_DEST.filter(k => DST(k).name !== s.origin)])].slice(0, 6).map(k => {
-      const on = s.corridor === k, v = DST(k);
-      return { key: k, label: v.name, onClick: () => set({ corridor: k, dest: k, ...(k !== s.corridor ? { extra: [] } : {}) }), bg: on ? 'var(--cta)' : 'var(--fill2)', fg: on ? 'var(--onCta)' : 'var(--ink)', border: on ? 'transparent' : 'var(--line2)', shadow: on ? '0 10px 24px -10px rgba(46,229,157,.8)' : 'none' };
-    }),
     budgetShadow: ring('budget'),     capPct: Math.round(pct * 100), totalNum: fmtN(total), totalUsd: usd(total), perPersonStr: `${fmt(total / s.groupSize)} (${usd(total / s.groupSize)})`, capStr: fmt(s.cap), barPct: Math.min(pct, 1) * 100,
     plan: (() => {
       const p = plan, K: Record<string, [string, string]> = { drive: ['linear-gradient(135deg,#2EE59D,#0FA678)', t('Drive')], explore: ['linear-gradient(135deg,#9B7BFF,#5B6CFF)', t('Explore')], return: ['linear-gradient(135deg,#FFB547,#FF7A3D)', t('Return')], fly: ['linear-gradient(135deg,#6FD3FF,#3B8DFF)', t('Fly')] };

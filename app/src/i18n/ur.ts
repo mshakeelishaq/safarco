@@ -1308,4 +1308,5 @@ export const UR: Record<string, string> = {
   "{km} km round trip · {via}": "aana jaana {km} km · {via}",
   "{km} km round trip · {time} driving · {n} driving days": "aana jaana {km} km · {time} drive · {n} driving din",
   "Flights are for one place": "Flight sirf aik jagah ke liye",
+  "Add to this trip:": "Is safar mein shamil karein:",
 };

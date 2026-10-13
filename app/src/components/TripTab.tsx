@@ -138,9 +138,13 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
           </div>
           <button onClick={openSettings} style={css('pointer-events:auto;margin-top:8px;padding:0;border:0;background:none;color:var(--ink2);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;text-align:left;min-height:28px')}><i className="ph-fill ph-users-three" />{v.tripSummary}<i className="ph-bold ph-pencil-simple" style={css('font-size:12px')} /></button>
         </div>
-        <div className="sc-colp" style={css('position:absolute;left:0;right:0;bottom:4px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:4px 22px 8px;pointer-events:auto')}>
-          {v.corridorChips.map(ch => <button key={ch.key} onClick={ch.onClick} aria-pressed={ch.key === s.corridor} style={css(`flex:none;height:40px;padding:0 15px;border-radius:14px;white-space:nowrap;border:1px solid ${ch.border};background:${ch.bg};color:${ch.fg};backdrop-filter:blur(12px);font-size:13px;font-weight:800;cursor:pointer;box-shadow:${ch.shadow};transition:all .25s`)}>{ch.label}</button>)}
-        </div>
+        {/* Nearby places to add to this trip (a circuit), not other destinations to switch to. */}
+        {v.tripPlaces.options.length > 0 && (
+          <div className="sc-colp" style={css('position:absolute;left:0;right:0;bottom:4px;display:flex;align-items:center;gap:8px;overflow-x:auto;scrollbar-width:none;padding:4px 22px 8px;pointer-events:auto')}>
+            <span style={css('flex:none;font-size:12px;font-weight:800;color:var(--ink2);text-shadow:var(--tsh)')}>{t('Add to this trip:')}</span>
+            {v.tripPlaces.options.slice(0, 4).map(o => <button key={o.key} onClick={o.onClick} title={o.sub} style={css('flex:none;height:38px;padding:0 13px;border-radius:13px;white-space:nowrap;border:1px solid var(--line2);background:var(--fill2);color:var(--ink);backdrop-filter:blur(12px);font-size:13px;font-weight:800;cursor:pointer')}>+ {o.name}</button>)}
+          </div>
+        )}
       </div>
 
       <div className="sc-flow" style={css('padding:4px 16px 150px;display:flex;flex-direction:column;gap:12px;pointer-events:auto;background:var(--bg)')}>
