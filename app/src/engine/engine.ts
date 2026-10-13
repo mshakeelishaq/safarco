@@ -109,8 +109,8 @@ export const jeepMatch = (j: [string, string, ...unknown[]], p: Place) => {
   return a.includes(b) || b.includes(a) || a.split(/[^a-z]+/).some(w => w.length >= 5 && !GENERIC.has(w) && b.includes(w));
 };
 export function scheduledPlaces(D: Dest, m: number, n: number) {
-  const pl = (D.places || []).filter(p => inM(m, p[3])); if (!n) return pl.slice(0, 1);
-  const per = Math.max(1, Math.min(4, Math.ceil(pl.length / n))); return pl.slice(0, per * n);
+  if (!n) return (D.places || []).filter(p => inM(m, p[3])).slice(0, 1);
+  return dayGroups(D, m, n).days.flatMap(d => d.list);
 }
 
 export interface AirOption { dep: string; arr: string; fare: number; km: number; pp: number; score: number }
@@ -206,19 +206,39 @@ export type DayKind = 'drive' | 'explore' | 'return' | 'fly';
 export interface Track { legs: Leg[]; coords: [number, number][]; marks: [number, number][]; dep: number; sunset: number; sunrise: number }
 export interface PlanDay { kind: DayKind; title: string; meta: string; note: string; stops: StopItem[]; stay: Stay | null; num?: number; date?: string; iso?: string; track?: Track }
 
+/**
+ * The places for each of n days at a destination: its usual day trips first (the places open this
+ * month, in visiting order), then the rest spread over the days left. Also what doesn't fit.
+ */
+export function dayGroups(D: Dest, m: number, n: number): { days: { list: Place[]; note: string }[]; extra: Place[] } {
+  const pl = placesFor(D, m), byName = new Map(pl.map(p => [p[0], p]));
+  const fixed = (D.days || []).map(d => ({ list: d.places.map(x => byName.get(x)).filter((p): p is Place => !!p), note: d.note || '' })).filter(d => d.list.length);
+  const used = new Set(fixed.flatMap(d => d.list.map(p => p[0]))), rest = pl.filter(p => !used.has(p[0]));
+  const days = fixed.slice(0, n), left = n - days.length;
+  if (left > 0 && rest.length) {
+    const per = Math.max(1, Math.min(4, Math.ceil(rest.length / left)));
+    for (let i = 0; i < left; i++) days.push({ list: rest.slice(i * per, i * per + per), note: '' });
+  }
+  while (days.length < n) days.push({ list: [], note: '' });
+  const shown = new Set(days.flatMap(d => d.list.map(p => p[0])));
+  return { days, extra: [...fixed.slice(n).flatMap(d => d.list), ...rest].filter(p => !shown.has(p[0])) };
+}
+
 function exploreDays(D: Dest, m: number, n: number): Omit<PlanDay, 'stay'>[] {
-  const pl = placesFor(D, m), out: Omit<PlanDay, 'stay'>[] = []; if (!n) return out;
-  const per = Math.max(1, Math.min(4, Math.ceil(pl.length / n))), extra = pl.slice(per * n).map(p => p[0]);
+  const out: Omit<PlanDay, 'stay'>[] = []; if (!n) return out;
+  const g = dayGroups(D, m, n), extra = g.extra.map(p => p[0]);
   for (let i = 0; i < n; i++) {
-    const list = pl.slice(i * per, i * per + per);
+    const list = g.days[i].list;
     const stops: StopItem[] = list.length ? list.map((p, j) => {
       const jp = (D.jeeps || []).find(x => inM(m, x[4]) && jeepMatch(x, p));
-      return { time: t(SLOTS[Math.min(j, 3)]), kind: 'pin' as const, label: p[0], note: `${t(p[1])} · ${t(p[2])}${jp ? ` · ${t('local jeep {price}, included', { price: fmt(jp[3]) })}` : ''}`, href: p[4] };
+      // Deserts go last, in the evening light.
+      const slot = /desert/i.test(p[0]) && j === list.length - 1 ? 3 : Math.min(j, 3);
+      return { time: t(SLOTS[slot]), kind: 'pin' as const, label: p[0], note: `${t(p[1])} · ${t(p[2])}${jp ? ` · ${t('local jeep {price}, included', { price: fmt(jp[3]) })}` : ''}`, href: p[4] };
     }) : [{ time: t('All day'), kind: 'pin', label: t('Free day'), note: t('Rest, shop, or go back to a favourite spot') }];
     stops.push({ time: t('Food'), kind: 'food', label: t('Eat local'), note: D.eat ? t(D.eat) : D.eat });
-    out.push({ kind: 'explore', title: list.length ? t('Explore {place}', { place: D.town }) : t('Free day in {place}', { place: D.town }), meta: list.length ? (list.length > 1 ? t('{n} places · local car or jeep', { n: list.length }) : t('{n} place · local car or jeep', { n: list.length })) : t('Nothing scheduled'), note: '', stops });
+    out.push({ kind: 'explore', title: list.length ? t('Explore {place}', { place: D.town }) : t('Free day in {place}', { place: D.town }), meta: list.length ? (list.length > 1 ? t('{n} places · local car or jeep', { n: list.length }) : t('{n} place · local car or jeep', { n: list.length })) : t('Nothing scheduled'), note: g.days[i].note ? t(g.days[i].note) : '', stops });
   }
-  if (extra.length && out.length) out[out.length - 1].note = t('More with an extra day: {list}.', { list: extra.join(', ') });
+  if (extra.length && out.length) { const o = out[out.length - 1]; o.note = (o.note ? o.note + ' ' : '') + t('More with an extra day: {list}.', { list: extra.join(', ') }); }
   return out;
 }
 
