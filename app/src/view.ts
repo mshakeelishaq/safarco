@@ -1,7 +1,7 @@
 // Everything the screens display, derived from app state. Ported from the
 // design's renderVals(); the screens in components/ read from this.
 import { HAVE_VEHICLE, EDGES, MODES, MON, MONTH_FULL, NODES, NODE_INFO, POPULAR, POP_DEST, SUGGEST_POOL, SUNRISE, SUNSET, TIERS, TIER_G, VEH, CAT, CAT2, GRADS, DESTS, STOP_KIND, type VehicleId } from './engine/data';
-import { MAX_DRIVE_H, plannedJeeps, circuit, tripFrom, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
+import { MAX_DRIVE_H, plannedJeeps, roomPlan, circuit, tripFrom, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
 import { clock, dayLabel, dur, fmt, fmtN, isoAdd, isoOf, isoOff, kShort, mapsQ, mon } from './engine/format';
 import { LIVE, fxRate, placesKey, routeKey, type Spot } from './engine/live';
 import { sunTimes } from './engine/sun';
@@ -568,8 +568,13 @@ export function buildView(s: AppState, api: Api) {
     }),
     people: ([['adults', t('Adults'), t('13–59 years'), 'ph-user', 'var(--g)'], ['kids', t('Kids'), t('Under 12 · lower fares and meals'), 'ph-baby', 'var(--amb)'], ['elders', t('Elders'), t('60+ · altitude care on high passes'), 'ph-person-simple-walk', 'var(--cor)']] as const)
       .map(([k, label, sub, icon, color]) => ({ key: k, label, sub, icon, color, value: `${s[k]}`, dec: () => api.setPeople(k, -1), inc: () => api.setPeople(k, 1) })),
+    // How many rooms: the suggested number, or the traveller's own.
+    roomCtl: (() => { const rp = roomPlan(s), own = s.roomCount != null && s.roomCount !== rp.auto;
+      return { n: rp.r, own, crowded: rp.crowded, suggested: t('Suggested {n}', { n: rp.auto }), dec: () => set({ roomCount: Math.max(1, rp.r - 1) === rp.auto ? null : Math.max(1, rp.r - 1), pickId: null }), inc: () => set({ roomCount: Math.min(20, rp.r + 1) === rp.auto ? null : Math.min(20, rp.r + 1), pickId: null }),
+        reset: own ? () => set({ roomCount: null, pickId: null }) : null,
+        note: rp.crowded ? t('Crowded: {people} people in {rooms}. Extra beds are added, but think about another room.', { people: rp.people, rooms: rp.r > 1 ? t('{n} rooms', { n: rp.r }) : t('{n} room', { n: rp.r }) }) : rp.extra ? (rp.extra > 1 ? t('{n} extra beds added.', { n: rp.extra }) : t('{n} extra bed added.', { n: rp.extra })) : '' }; })(),
     roomOpts: ([['separate', t('Separate rooms'), t('Doubles · kids share')], ['shared', t('Family rooms'), t('Up to 4 · 1.5× rate')]] as const).map(([k, label, sub]) => {
-      const on = s.rooms === k; return { key: k, label, sub, onClick: () => set({ rooms: k, pickId: null }), bg: on ? 'var(--cta)' : 'var(--fill)', fg: on ? 'var(--onCta)' : 'var(--ink)', border: on ? 'transparent' : 'var(--line2)' };
+      const on = s.rooms === k; return { key: k, label, sub, onClick: () => set({ rooms: k, roomCount: null, pickId: null }), bg: on ? 'var(--cta)' : 'var(--fill)', fg: on ? 'var(--onCta)' : 'var(--ink)', border: on ? 'transparent' : 'var(--line2)' };
     }),
     hasFamilyNote: s.vehicle === 'bike' && !!(s.kids || s.elders),
     familyNote: t('A motorbike isn’t advised with kids or elders.'),

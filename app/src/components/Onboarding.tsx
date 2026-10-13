@@ -263,10 +263,21 @@ export const DateInput = ({ v, set }: { v: View; set: Api['set'] }) =>
   <input type="date" value={v.s.startDate} min={v.todayIso} onChange={e => { if (e.target.value) set({ startDate: e.target.value, pickId: null }); }} aria-label={t('Start date')}
     style={css(`height:44px;border-radius:14px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);padding:0 12px;font-size:14px;font-weight:700;color-scheme:${v.s.theme === 'dark' ? 'dark' : 'light'};outline:none`)} />;
 
-export const RoomOpts = ({ v, compact }: { v: View; compact?: boolean }) => (
+export const RoomOpts = ({ v, compact }: { v: View; compact?: boolean }) => (<>
   <div style={css('display:grid;grid-template-columns:1fr 1fr;gap:8px')}>
     {v.roomOpts.map(r => <button key={r.key} onClick={r.onClick} aria-pressed={r.bg === 'var(--cta)'} style={css(`min-height:${compact ? 56 : 60}px;padding:${compact ? '8px' : '10px'} 12px;border-radius:${compact ? 16 : 18}px;border:1px solid ${r.border};background:${r.bg};color:${r.fg};text-align:left;cursor:pointer;transition:all .25s`)}><div style={css(`font-size:${compact ? 13 : 14}px;font-weight:800`)}>{r.label}</div><div style={css('font-size:11px;font-weight:600;opacity:.75;margin-top:2px')}>{r.sub}</div></button>)}
   </div>
+  <div style={css('display:flex;align-items:center;gap:10px;margin-top:10px;padding:8px 10px 8px 14px;border-radius:16px;background:var(--fill);border:1px solid var(--line2)')}>
+    <i className="ph-fill ph-door" style={css('font-size:20px;color:var(--g);flex:none')} />
+    <div style={css('flex:1;min-width:0')}>
+      <div style={css('font-size:14px;font-weight:800')}>{v.roomCtl.n > 1 ? t('{n} rooms', { n: v.roomCtl.n }) : t('{n} room', { n: v.roomCtl.n })}</div>
+      <div style={css('font-size:11px;font-weight:700;color:var(--mute)')}>{v.roomCtl.suggested}{v.roomCtl.reset && <button onClick={v.roomCtl.reset} style={css('margin-left:6px;padding:0;border:0;background:none;color:var(--g);font-size:11px;font-weight:800;cursor:pointer;text-decoration:underline')}>{t('Use suggested')}</button>}</div>
+    </div>
+    <button onClick={v.roomCtl.dec} disabled={v.roomCtl.n <= 1} aria-label={t('One room fewer')} style={css(`width:40px;height:40px;flex:none;border-radius:12px;border:1px solid var(--line2);background:var(--card);color:var(--ink);font-size:16px;cursor:pointer;opacity:${v.roomCtl.n <= 1 ? .4 : 1}`)}><i className="ph-bold ph-minus" /></button>
+    <button onClick={v.roomCtl.inc} aria-label={t('One room more')} style={css('width:40px;height:40px;flex:none;border-radius:12px;border:1px solid var(--line2);background:var(--card);color:var(--ink);font-size:16px;cursor:pointer')}><i className="ph-bold ph-plus" /></button>
+  </div>
+  {v.roomCtl.note && <div style={css(`font-size:12px;font-weight:700;margin:6px 4px 0;line-height:1.4;color:${v.roomCtl.crowded ? 'var(--cor)' : 'var(--mute)'}`)}>{v.roomCtl.note}</div>}
+</>
 );
 
 /** Whether the dates (and place) fit what the traveller wants to see, with one-tap fixes. */

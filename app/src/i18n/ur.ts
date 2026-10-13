@@ -1400,4 +1400,12 @@ export const UR: Record<string, string> = {
   "Waterfall by the road at Kiwai, with trout and pakoras": "Kiwai mein sadak ke kinare aabshaar, trout aur pakoray",
   "Still green lake, 19 km (about 50 min) beyond Shigar": "Thehri hui hari jheel, Shigar se 19 km (taqreeban 50 minute) aage",
   "45 km · 1 h 40 min, past Shigar": "45 km · 1 ghanta 40 minute, Shigar se aage",
+  "Suggested {n}": "Tajweez: {n}",
+  "Crowded: {people} people in {rooms}. Extra beds are added, but think about another room.": "Tang jagah: {people} log {rooms} mein. Extra bed lagaye gaye hain, lekin aik aur kamra soch lein.",
+  "{n} rooms": "{n} kamre",
+  "{n} room": "{n} kamra",
+  "{n} extra beds added.": "{n} extra bed lagaye gaye.",
+  "{n} extra bed added.": "{n} extra bed lagaya gaya.",
+  "One room fewer": "Aik kamra kam",
+  "One room more": "Aik kamra zyada",
 };

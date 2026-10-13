@@ -165,6 +165,9 @@
 .ph-fill.ph-devices:before {
   content: "\eba4";
 }
+.ph-fill.ph-door:before {
+  content: "\e61c";
+}
 .ph-fill.ph-download-simple:before {
   content: "\e20c";
 }
@@ -564,6 +567,9 @@
 }
 .ph-bold.ph-devices:before {
   content: "\eba4";
+}
+.ph-bold.ph-door:before {
+  content: "\e61c";
 }
 .ph-bold.ph-download-simple:before {
   content: "\e20c";
@@ -1188,6 +1194,14 @@
 }
 .ph-duotone.ph-devices:after {
   content: "\eba5";
+  margin-left: -1em;
+}
+.ph-duotone.ph-door:before {
+  content: "\e61c";
+  opacity: 0.2;
+}
+.ph-duotone.ph-door:after {
+  content: "\e61d";
   margin-left: -1em;
 }
 .ph-duotone.ph-download-simple:before {

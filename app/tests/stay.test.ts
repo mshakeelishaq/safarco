@@ -30,3 +30,16 @@ describe('kind of stay instead of a budget', () => {
     if (best) expect(best.total).toBeLessThanOrEqual(150000);
   });
 });
+
+describe('rooms', () => {
+  it('suggests rooms for the group and prices the ones asked for, with extra beds', async () => {
+    const { roomPlan, costFor } = await import('../src/engine/engine');
+    const fam = { ...base, adults: 4, kids: 2, groupSize: 6 };
+    expect(roomPlan(fam)).toMatchObject({ r: 2, auto: 2, extra: 0 });
+    expect(roomPlan({ ...fam, roomCount: 1 })).toMatchObject({ r: 1, extra: 3, crowded: true });
+    expect(roomPlan({ ...fam, rooms: 'shared' })).toMatchObject({ r: 2, extra: 0 });
+    const stay = (x: object) => costFor({ ...fam, ...x } as never).rows.find(r => r.label === 'Stay')!.val;
+    expect(stay({ roomCount: 3 })).toBeGreaterThan(stay({}));
+    expect(stay({ roomCount: 1 })).toBeLessThan(stay({}));
+  });
+});

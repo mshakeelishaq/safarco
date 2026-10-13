@@ -22,6 +22,8 @@ export interface TripState {
   extra?: string[];
   /** Whether `cap` is a real spending limit. Without one, trips are priced, not filtered. */
   capOn?: boolean;
+  /** Rooms the traveller asked for; empty means the suggested number. */
+  roomCount?: number | null;
   /** Departure time chosen for a day, by day number (0 = the first day). */
   departAt?: Record<number, number>;
   /** A night at a nearby place instead of its day trip (Khaplu from Skardu). */
@@ -375,6 +377,19 @@ export interface CostRow { icon: string; label: string; detail: string; val: num
 export interface Cost { rows: CostRow[]; total: number; ok: boolean; minDays: number; why: string }
 export const coachFare = (c: Trip) => Math.round((c.flatKm * PR.coachFlat + c.mtnKm * PR.coachMtn) / 100) * 100;
 
+/**
+ * Rooms for the group: the suggested number (doubles for two adults, kids on extra beds; or family
+ * rooms for up to 4), or the number asked for, with extra beds for anyone the beds don't cover.
+ */
+export function roomPlan(o: Pick<TripState, 'adults' | 'kids' | 'elders' | 'groupSize' | 'rooms' | 'roomCount'>) {
+  const AD = (o.adults ?? o.groupSize ?? 2) + (o.elders || 0), K = o.kids || 0, P = AD + K, shared = o.rooms === 'shared';
+  const auto = shared ? Math.max(1, Math.ceil(P / 4)) : Math.max(1, Math.ceil(AD / 2));
+  const r = o.roomCount && o.roomCount > 0 ? Math.min(20, Math.round(o.roomCount)) : auto;
+  // A family room sleeps 4. A double sleeps 2 adults and one kid sharing; anyone else gets an extra bed.
+  const extra = shared ? Math.max(0, P - 4 * r) : Math.max(0, AD - 2 * r) + Math.max(0, K - r);
+  return { r, auto, extra, crowded: extra > r, people: P };
+}
+
 export function costFor(o: TripState): Cost {
   const A = o.adults ?? o.groupSize ?? 2, K = o.kids || 0, E = o.elders || 0, P = A + K + E, AD = A + E;
   const M = mon(o), c = trip(o.corridor, o.origin, M), L = circuit(o), sf = seasonFactor(c, M), sfTxt = sf > 1 ? ` · ${t('peak +{pct}%', { pct: Math.round((sf - 1) * 100) })}` : sf < 1 ? ` · ${t('off-season −{pct}%', { pct: Math.round((1 - sf) * 100) })}` : '';
@@ -406,11 +421,12 @@ export function costFor(o: TripState): Cost {
     if (o.vehicle === 'bike') rows.push({ icon: 'ph-road-horizon', label: 'Tolls', detail: `${t('Motorways closed to bikes')} · GT Road / N-5`, val: 0 });
     else rows.push({ icon: 'ph-road-horizon', label: 'Tolls', detail: (tollList.length ? [...new Set(tollList.map(x => x[0]))].join(' + ') : t('No tolled roads')) + ` · ${L ? t('whole route') : t('return')}${units > 1 ? ` × ${units}` : ''}${v.tollX ? ` · ${t('coaster rate')}` : ''}`, val: tollSum });
   }
+  const rp = roomPlan(o);
   if (o.rooms === 'shared') {
-    const r = Math.ceil(P / 4);
-    rows.push({ icon: 'ph-bed', label: 'Stay', detail: `${r > 1 ? t('{n} family rooms (up to 4)', { n: r }) : t('{n} family room (up to 4)', { n: r })} × ${nightsTxt} · ${tr.label}${sfTxt}`, val: r * tr.night * 1.5 * nights * sf });
+    const { r, extra } = rp;
+    rows.push({ icon: 'ph-bed', label: 'Stay', detail: `${r > 1 ? t('{n} family rooms (up to 4)', { n: r }) : t('{n} family room (up to 4)', { n: r })}${extra ? ` + ${extra > 1 ? t('{n} extra beds', { n: extra }) : t('{n} extra bed', { n: extra })}` : ''} × ${nightsTxt} · ${tr.label}${sfTxt}`, val: (r * tr.night * 1.5 + extra * tr.night * 0.2) * nights * sf });
   } else {
-    const r = Math.max(1, Math.ceil(AD / 2)), extra = Math.max(0, K - r);
+    const { r, extra } = rp;
     rows.push({ icon: 'ph-bed', label: 'Stay', detail: `${r > 1 ? t('{n} doubles', { n: r }) : t('{n} double', { n: r })}${extra ? ` + ${extra > 1 ? t('{n} extra beds', { n: extra }) : t('{n} extra bed', { n: extra })}` : ''} × ${nightsTxt} · ${tr.label}${sfTxt}`, val: (r * tr.night + extra * tr.night * 0.2) * nights * sf });
   }
   rows.push({ icon: 'ph-fork-knife', label: 'Meals', detail: `${adults(AD)}${kidTxt('60%')} × ${t('{n} days', { n: o.days })}`, val: tr.meal * o.days * (AD + K * 0.6) });
