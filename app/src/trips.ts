@@ -9,10 +9,10 @@ const DEST_IDS = new Set(DESTS.map(d => d.id));
 
 /** The parts of the app state that describe a trip. */
 export type TripData = Pick<TripState, 'origin' | 'mode' | 'dest' | 'corridor' | 'startDate' | 'days' | 'depart' | 'vehicle' | 'tier' | 'adults' | 'kids' | 'elders' | 'groupSize' | 'rooms' | 'cap'>
-  & { places?: { n: string; p: string; lat: number; lon: number }[]; have?: TripState['have']; wish?: TripState['wish']; extra?: string[]; capOn?: boolean; edits?: PlanEdits };
+  & { places?: { n: string; p: string; lat: number; lon: number }[]; have?: TripState['have']; wish?: TripState['wish']; extra?: string[]; capOn?: boolean; overnight?: string | null; edits?: PlanEdits };
 export interface SavedTrip { id: string; name: string; data: TripData; savedAt: string; cloudId?: string }
 
-const KEYS: Exclude<keyof TripData, 'places'>[] = ['origin', 'mode', 'dest', 'corridor', 'startDate', 'days', 'depart', 'vehicle', 'tier', 'adults', 'kids', 'elders', 'groupSize', 'rooms', 'cap', 'capOn', 'have', 'wish', 'extra', 'edits'];
+const KEYS: Exclude<keyof TripData, 'places'>[] = ['origin', 'mode', 'dest', 'corridor', 'startDate', 'days', 'depart', 'vehicle', 'tier', 'adults', 'kids', 'elders', 'groupSize', 'rooms', 'cap', 'capOn', 'overnight', 'have', 'wish', 'extra', 'edits'];
 const LIST = 'safarco-trips', CURRENT = 'safarco-current';
 
 /** Trip fields from app state, plus any searched places the trip needs (they aren't built in). */
@@ -60,6 +60,7 @@ export function cleanTrip(raw: unknown): TripData | null {
     wish: (['green', 'water', 'blossom', 'autumn', 'snow', 'beach', 'any'].includes(r.wish as string) ? r.wish : null) as TripData['wish'],
     // Trips saved before the limit was optional always had one.
     capOn: r.capOn !== false,
+    overnight: typeof r.overnight === 'string' && DEST_IDS.has(r.overnight) ? r.overnight : null,
     extra: (Array.isArray(r.extra) ? r.extra : []).filter((k: unknown): k is string => typeof k === 'string' && DEST_IDS.has(k) && k !== corridor).slice(0, 3), edits: cleanEdits(r.edits)
   };
 }

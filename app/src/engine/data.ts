@@ -33,7 +33,7 @@ export interface DestInput {
   best?: number[] | null; warn?: [number[], string] | null; terrain?: Terrain;
   hotels?: Hotel[] | null; places?: Place[]; eat?: string; jeeps?: Jeep[]; livePlaces?: boolean;
   /** Day trips the way people do them: place names in visiting order, and a tip for the day. */
-  days?: { places: string[]; note?: string }[];
+  days?: { places: string[]; note?: string; stay?: string }[];
 }
 
 /** Months a to b inclusive, wrapping past December. */
@@ -174,7 +174,7 @@ export const DESTS: DestInput[] = [
       { places: ['Manthokha Waterfall', 'Khamosh Waterfall', 'Sarfaranga Cold Desert'], note: 'Back by Sarfaranga desert before sunset, then Skardu.' },
       { places: ['Satpara Lake', 'Kharpocho Fort', 'Katpana Cold Desert'], note: 'Katpana desert is usually done with Kharpocho Fort. Deserts are best early morning or before sunset.' },
       { places: ['Deosai Plains'] },
-      { places: ['Keris, Ghowari, Barah and Khaplu'], note: 'A long day there and back. Or stay a night: add Khaplu to the trip.' }
+      { places: ['Keris, Ghowari, Barah and Khaplu'], note: 'A long day there and back. Or stay a night in Khaplu and see more.', stay: 'khaplu' }
     ],
     eat: 'Balti food, apricot dishes, trout at Kachura', jeeps: [['deosai', 'Deosai Plains', '13,500 ft · full day', 18000, R(6, 9)], ['shigar', 'Shigar Fort & cold desert', 'Half day', 7000], ['basho', 'Basho Valley', 'By jeep or 4x4 · half day', 9000, R(6, 9)]] },
   { id: 'naran', name: 'Naran', town: 'Naran', region: 'Kaghan valley, KP', lat: 34.91, lon: 73.65, ft: 7900, node: 'NRN', best: R(5, 9), warn: [R(12, 4), 'Snow usually closes the road beyond Kaghan from December to April.'], hotels: STOP_HOTELS.NRN,

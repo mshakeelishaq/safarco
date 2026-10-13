@@ -44,6 +44,11 @@ export function DayPage({ v }: { v: View }) {
       <div ref={scroller} key={p.i} className="sc-fadein" style={css('flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:14px 16px calc(40px + env(safe-area-inset-bottom))')}>
       <div style={css('font-size:12px;color:var(--ink2);font-weight:600;line-height:1.45')}>{d.meta}</div>
       {d.note && <div style={css('font-size:12px;color:var(--amb2);font-weight:600;margin-top:5px;line-height:1.45')}>{d.note}</div>}
+      {d.stayOffer && <div style={css('display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;border-radius:16px;background:rgba(46,229,157,.1);border:1px solid rgba(46,229,157,.35)')}>
+        <i className="ph-fill ph-bed" style={css('font-size:20px;color:var(--g);flex:none')} />
+        <div style={css('flex:1;min-width:0;font-size:13px;font-weight:700;line-height:1.4')}>{d.stayOffer.text}</div>
+        <button onClick={d.stayOffer.apply} style={css('flex:none;height:38px;padding:0 12px;border-radius:12px;border:0;background:var(--ink);color:var(--bg);font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap')}>{d.stayOffer.cta}</button>
+      </div>}
       {d.destWx && <div style={css('display:flex;align-items:center;gap:6px;margin-top:6px;font-size:12px;font-weight:700;color:var(--ink2)')}><i className={`ph-duotone ${d.destWx.icon}`} style={css(`font-size:17px;color:${d.destWx.color}`)} />{d.destWx.typical ? t('Usually') + ' ' : ''}{d.destWx.hi}° / {d.destWx.lo}°{d.destWx.wet ? ` · ${d.destWx.wet}` : ''}</div>}
       {d.strip && d.strip.samples.length > 0 && (
         <div style={css('margin-top:10px')}>
