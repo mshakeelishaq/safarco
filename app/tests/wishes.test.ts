@@ -26,3 +26,14 @@ describe('wishes', () => {
     expect(snow.has(suggestions(s).list[0].corridor)).toBe(true);
   });
 });
+
+describe('trip photos', () => {
+  it('uses the autumn mix only for autumn trips to autumn-colour places, the same photo each time', async () => {
+    const { destPhoto } = await import('../src/photos');
+    expect(destPhoto('hunza', 11, '2026-11-02')).not.toBeNull();
+    expect(destPhoto('skardu', 10, '2026-10-20')).not.toBeNull();
+    expect(destPhoto('hunza', 7, '2026-07-02')).toBeNull();
+    expect(destPhoto('gwadar', 11, '2026-11-02')).toBeNull();
+    expect(destPhoto('hunza', 11, '2026-11-02')).toEqual(destPhoto('hunza', 11, '2026-11-02'));
+  });
+});

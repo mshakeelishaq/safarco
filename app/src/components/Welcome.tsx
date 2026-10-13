@@ -15,8 +15,11 @@ interface Photo { src: string; icon: string; caption: string; place: string; pos
 // A function so the captions are translated at render time (the language can change).
 const photos = (): Photo[] => [
   { src: '/photos/autumn-hunza.webp', icon: 'ph-leaf', caption: t('Autumn gold'), place: t('Hunza, under Rakaposhi'), pos: '52% 50%', months: [10, 11] },
-  { src: '/photos/hunza-orchards.webp', icon: 'ph-leaf', caption: t('Autumn colours'), place: 'Hunza', pos: '50% 50%', months: [10, 11], only: true },
+  { src: '/photos/hunza-orchards.webp', icon: 'ph-leaf', caption: t('Autumn colours'), place: 'Gilgit-Baltistan', pos: '50% 50%', months: [10, 11], only: true },
   { src: '/photos/altit-fort.webp', icon: 'ph-castle-turret', caption: t('Autumn light'), place: 'Altit Fort, Hunza', pos: '62% 50%', months: [10, 11], only: true },
+  { src: '/photos/hunza-golden-light.webp', icon: 'ph-sun', caption: t('Autumn light'), place: 'Gilgit-Baltistan', pos: '60% 50%', months: [10, 11], only: true },
+  { src: '/photos/hunza-autumn-peaks.webp', icon: 'ph-leaf', caption: t('Autumn colours'), place: 'Gilgit-Baltistan', pos: '50% 50%', months: [10, 11], only: true },
+  { src: '/photos/hunza-autumn-valley.webp', icon: 'ph-leaf', caption: t('Autumn colours'), place: 'Gilgit-Baltistan', pos: '40% 50%', months: [10, 11], only: true },
   { src: '/photos/snowfall.webp', icon: 'ph-snowflake', caption: t('Snowfall'), place: t('The northern valleys'), pos: '45% 50%', months: [12, 1, 2] },
   { src: '/photos/blossom.webp', icon: 'ph-flower', caption: t('Blossom season'), place: 'Gilgit-Baltistan', pos: '50% 55%', months: [3, 4] },
   { src: '/photos/green-valley.webp', icon: 'ph-tree-evergreen', caption: t('Lush green valleys'), place: t('The northern valleys'), pos: '45% 50%', months: [5, 6, 7, 8, 9] },
@@ -29,9 +32,14 @@ const SLIDE_MS = 6000;
 const chip = 'display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:12px;background:rgba(255,255,255,.14);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-size:12px;font-weight:700;white-space:nowrap';
 
 export function Welcome({ open, onStart, onGuide, onWish, lang, onLang }: { open: boolean; onStart: () => void; onGuide: () => void; onWish: (id: WishId) => void; lang: string; onLang: (l: 'en' | 'ur') => void }) {
-  // This season's photos first, then the rest; extra photos of a season only in that season.
-  const month = new Date().getMonth() + 1, all = photos().filter(p => !p.only || p.months.includes(month));
-  const list = [...all.filter(p => p.months.includes(month)), ...all.filter(p => !p.months.includes(month))];
+  // This season's photos first (a random 3 of them, so each visit looks a little different), then
+  // one photo of every other season. Extra photos of a season only show in that season.
+  const month = new Date().getMonth() + 1;
+  const [order] = useState(() => {
+    const all = photos(), now = all.filter(p => p.months.includes(month)).sort(() => Math.random() - .5).slice(0, 3);
+    return [...now, ...all.filter(p => !p.only && !p.months.includes(month))].map(p => p.src);
+  });
+  const byId = new Map(photos().map(p => [p.src, p])), list = order.map(src => byId.get(src)!);
   const [i, setI] = useState(0), [seen, setSeen] = useState<number[]>([0]);
   useEffect(() => {
     if (!open) return;
