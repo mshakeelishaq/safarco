@@ -102,9 +102,11 @@ function shortest(dest: string, month: number) {
   return (SPT[key] = { dist, next });
 }
 
+const GENERIC = new Set(['valley', 'lakes', 'plains', 'meadows', 'meadow', 'river', 'waterfall', 'glacier']);
 export const jeepMatch = (j: [string, string, ...unknown[]], p: Place) => {
   const a = j[1].toLowerCase(), b = p[0].toLowerCase();
-  return a.includes(b) || b.includes(a) || a.split(/[^a-z]+/).some(w => w.length >= 5 && b.includes(w));
+  // Words that name a kind of place ("Basho Valley", "Soq Valley") don't make two places the same.
+  return a.includes(b) || b.includes(a) || a.split(/[^a-z]+/).some(w => w.length >= 5 && !GENERIC.has(w) && b.includes(w));
 };
 export function scheduledPlaces(D: Dest, m: number, n: number) {
   const pl = (D.places || []).filter(p => inM(m, p[3])); if (!n) return pl.slice(0, 1);
