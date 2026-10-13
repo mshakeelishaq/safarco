@@ -389,7 +389,17 @@ export function buildView(s: AppState, api: Api) {
 
   const view = {
     wishOpts, wishPicks, wishNote, wishFit, tripPlaces, travelOpts, buildSteps, photo: destPhoto(s.corridor, M, s.startDate), cardPhoto: cardPhoto(s.corridor, M, s.startDate),
-    cardRoute: (isAir ? [[cityOr(s.origin).lon, cityOr(s.origin).lat], [D.lon, D.lat]] : routeCoords) as [number, number][], buildTips, budget, dayPage, totalShort: kShort(total), openDay: (i: number) => set({ dayOpen: i }), vehIcon: VEH[s.vehicle].icon,
+    cardStops: (() => {
+      // The trip as a line of stops for the share card: home, the nights on the way, the place (and home again on a circuit).
+      const home = s.origin || '', dests = [s.corridor, ...(s.extra || [])].map(k => DST(k)), nameOf = (tw: string) => dests.find(x => x.town === tw)?.name || tw;
+      if (isAir) return [home, D.name];
+      const towns: string[] = [];
+      plan.days.forEach(d => { const n = d.stay ? nameOf(d.stay.town) : ''; if (n && n !== home && n !== towns[towns.length - 1]) towns.push(n); });
+      let list = c.loop ? [home, ...towns, home] : (() => { const i = towns.indexOf(D.name); return [home, ...(i >= 0 ? towns.slice(0, i) : []), D.name]; })();
+      list = list.filter((x, i) => x && x !== list[i - 1]);
+      if (list.length > 5) list = [0, 1, 2, 3, 4].map(k => list[Math.round(k * (list.length - 1) / 4)]);
+      return list;
+    })(), buildTips, budget, dayPage, totalShort: kShort(total), openDay: (i: number) => set({ dayOpen: i }), vehIcon: VEH[s.vehicle].icon,
     editNote: editCount ? { text: editCount > 1 ? t('{n} changes to the places', { n: editCount }) : t('1 change to the places'), undo: () => set({ edits: NO_EDITS }) } : null,
     s, c, gate, tip, health, off, isAir, fuelPoints, fuelPins, drivers, afterTrip, guide, bestNow, tripSeason, wPlan, rPoints, selCorridor: sug.sel?.corridor, stays, nearby, priceNotes, ratesNote: isAir ? t('Flight fares are tentative: tap a flight day to see live fares. Confirm with the airline before you book.')
       : t('Prices {checked}. Confirm with the operator before you book.', { checked: checkedText(s.vehicle === 'public' ? 'coach' : 'hire') }),
