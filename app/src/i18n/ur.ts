@@ -1151,4 +1151,6 @@ export const UR: Record<string, string> = {
   "Works offline": "Offline bhi chale",
   "Photos © {handle}": "Tasaveer © {handle}",
   "Free · no sign-up": "Muft · sign-up ki zaroorat nahin",
+  "Sea and sunsets": "Samandar aur ghuroob-e-aftab",
+  "Karachi coast": "Karachi ka sahil",
 };
