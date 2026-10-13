@@ -3,8 +3,8 @@
 Imported on 2026-10-13.
 
 - **24 new destinations:** Gilgit, Shigar, Hushe Valley, Nagar & Minapin, Yasin Valley, Ishkoman Valley, Peshawar, Taxila, Mingora & Saidu Sharif, Abbottabad, Thandiani, Muzaffarabad, Rawalakot, Bagh & Sudhan Gali, Multan, Bahawalpur & Cholistan, Uch Sharif, Chakwal & Kallar Kahar, Khewra, Thatta & Keenjhar, Hyderabad, Sukkur & Rohri, Sehwan Sharif, Nagarparkar
-- **21 new places** for the app's destinations
-- **207 places with a map pin**, 205 with a visit length, 38 with a drive time
+- **18 new places** for the app's destinations
+- **204 places with a map pin**, 202 with a visit length, 37 with a drive time
 - **23 things to check** (below). Everything else is in the app as "not checked yet", unless marked Sure.
 
 ## Check these
@@ -128,6 +128,8 @@ Imported on 2026-10-13.
 **Naltar Valley**
 - Best months: the sheet suggests Jun–Sep; snow-dependent winter skiing (app has Jun–Feb). Mark Sure to apply.
 - Suggested removing "Naltar lakes (Satrangi, Bodlok)": Separate lakes need separate pins; use the split lake rows below after confirming local names. Mark Sure to apply.
+- "Satrangi Lake" is already part of "Naltar lakes (Satrangi, Bodlok)"; not added twice.
+- "Bodlok Lake" is already part of "Naltar lakes (Satrangi, Bodlok)"; not added twice.
 - Highlight "lush green: Naltar forest and upper valley summer scenery." not added: the app has its own highlights here. Mark Sure to add.
 - Highlight "waterfalls and lakes: Satrangi and Bodlok lake excursions by local jeep and walking." not added: the app has its own highlights here. Mark Sure to add.
 
@@ -189,6 +191,11 @@ Imported on 2026-10-13.
 **Mohenjo-daro**
 - Suggested removing "Larkana": Transfer and meal base; select a specific attraction before adding a tourist pin. Mark Sure to apply.
 - Highlight "heritage: Mohenjo-daro archaeological ruins and site museum." not added: the app has its own highlights here. Mark Sure to add.
+
+**Astore & Rama Meadows**
+- "Chilam village" is already part of "Deosai Plains via Chilam"; not added twice.
+- Highlight "lush green: Rama Meadows grassland and forest above Astore." not added: the app has its own highlights here. Mark Sure to add.
+- Highlight "waterfalls and lakes: Rama Lake walk above Rama Meadows." not added: the app has its own highlights here. Mark Sure to add.
 
 **Lahore → Islamabad**
 - New stop "Sial North service area (M-2)" at km 141: not added until marked Sure (each stop adds time to the drive).
@@ -252,10 +259,6 @@ Imported on 2026-10-13.
 **Kumrat Valley**
 - Highlight "lush green: Kumrat forest, river and Jahaz Banda meadows." not added: the app has its own highlights here. Mark Sure to add.
 
-**Astore & Rama Meadows**
-- Highlight "lush green: Rama Meadows grassland and forest above Astore." not added: the app has its own highlights here. Mark Sure to add.
-- Highlight "waterfalls and lakes: Rama Lake walk above Rama Meadows." not added: the app has its own highlights here. Mark Sure to add.
-
 **Phander & Ghizer**
 - Highlight "lush green: Green Phander valley, river channels and lake surroundings." not added: the app has its own highlights here. Mark Sure to add.
 - Highlight "autumn colours: Golden riverside trees around Phander Lake and village." not added: the app has its own highlights here. Mark Sure to add.
@@ -305,11 +308,6 @@ Imported on 2026-10-13.
 - Added "Chitta Gate" (not checked yet).
 - 3 day plans added (not checked yet).
 
-**Naltar Valley**
-- Added "Satrangi Lake" (not checked yet).
-- Added "Bodlok Lake" (not checked yet).
-- 1 day plan added (not checked yet).
-
 **Chitral**
 - Added "Ayun village" (not checked yet).
 - Added "Kalasha Dur museum" (from Kalash Valleys) for a day plan.
@@ -323,10 +321,6 @@ Imported on 2026-10-13.
 - Added "Kel town" (not checked yet).
 - Added "Dowarian village" (not checked yet).
 - 3 day plans added (not checked yet).
-
-**Astore & Rama Meadows**
-- Added "Chilam village" (not checked yet).
-- 2 day plans added (not checked yet).
 
 **Phander & Ghizer**
 - Added "Phander village" (not checked yet).
@@ -347,6 +341,12 @@ Imported on 2026-10-13.
 
 **Malam Jabba**
 - 2 day plans added (not checked yet).
+
+**Astore & Rama Meadows**
+- 2 day plans added (not checked yet).
+
+**Naltar Valley**
+- 1 day plan added (not checked yet).
 
 **Murree**
 - 2 day plans added (not checked yet).

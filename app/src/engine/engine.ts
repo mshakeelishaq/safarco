@@ -61,6 +61,9 @@ function stopsOn(l: Leg): EdgeStop[] {
 }
 const mealName = (h: number) => h < 10.75 ? t('Breakfast') : h < 16 ? t('Lunch') : h < 18.75 ? t('Tea break') : t('Dinner');
 
+/** Sights already shown on the plan being built, in day order: each is shown once (a viewpoint passed again on the way home is left out). */
+let SEEN: Set<string> | null = null;
+
 /** Timed drive/stop list for one driving day. */
 function dayStops(ls: Leg[], fromName: string, toName: string, dep: number, sunset: number) {
   const out: StopItem[] = []; let tm = dep, driveH = 0, stopMin = 0, km = 0, pend = { h: 0, km: 0, roads: [] as string[] };
@@ -78,6 +81,8 @@ function dayStops(ls: Leg[], fromName: string, toName: string, dep: number, suns
   ls.forEach((l, li) => {
     const sp = l.km / Math.max(l.h, 0.01); let done = 0; road(l.road);
     stopsOn(l).filter(x => !(li === 0 && x[0] < 8) && !(li === ls.length - 1 && x[0] > l.km - 8)).forEach(([at, kind, label, note]) => {
+      // Timing-only runs have no names and leave the shown sights alone.
+      if (kind === 'view' && fromName && SEEN) { if (SEEN.has(placeKey(label))) return; SEEN.add(placeKey(label)); }
       pend.h += (at - done) / sp; pend.km += at - done; done = at; mark(); flush();
       // The first stop between noon and half past two is lunch.
       const isLunch = !lunch && tm >= 12 && tm <= 14.5 && kind !== 'fuel', k: StopKind = isLunch ? 'food' : kind, m = isLunch ? Math.max(STOP_DUR.food || 40, STOP_DUR[kind] || 15) : STOP_DUR[kind] || 15;
@@ -282,7 +287,7 @@ function exploreDays(D: Dest, m: number, n: number, tier: TierId, over?: string 
   const out: PlanDay[] = []; if (!n) return out;
   // Day trips to nearby places on the trip (Shigar from Skardu) take a day each, leaving at least one here.
   const nSide = Math.min(sides.length, n > sides.length ? sides.length : Math.max(1, n - 1)), trips = sides.slice(0, nSide).map(k => sideDay(D, DST(k), m, tier));
-  const skip = new Set([...(elsewhere || []), ...trips.flatMap(x => [...x.covered])]);
+  const skip = new Set([...(elsewhere || []), ...(SEEN || []), ...trips.flatMap(x => [...x.covered])]);
   const g = dayGroups(D, m, Math.max(0, n - nSide - (K ? 2 : 0)), K ? K.id : '', skip), extra = g.extra.map(p => p[0]);
   g.days.forEach(day => {
     const list = day.list;
@@ -296,11 +301,15 @@ function exploreDays(D: Dest, m: number, n: number, tier: TierId, over?: string 
     const tip = day.note ? t(day.note) : '';
     out.push({ kind: 'explore', title: list.length ? t('Explore {place}', { place: D.town }) : t('Free day in {place}', { place: D.town }), meta: list.length ? (list.length > 1 ? t('{n} places · local car or jeep', { n: list.length }) : t('{n} place · local car or jeep', { n: list.length })) : t('Nothing scheduled'), note: tip, tip, offer: day.stay || undefined, stops, stay: stayAt(null, D.id, tier, true) });
   });
+  // This place's own sights count as shown first, so a day trip's drive doesn't stop at them on the way past.
+  const mark = (ds: PlanDay[]) => ds.forEach(d => d.stops.forEach(x => { if (x.kind === 'pin' || x.kind === 'view') SEEN?.add(placeKey(x.label)); }));
+  mark(out);
   // The night away goes where its day trip would have been: after the usual day trips, before free days.
   if (K) { const at = g.days.filter(d => d.fixed).length; out.splice(at, 0, ...overnightDays(D, K, m, tier, departAt?.[first + at])); }
   // Day trips go after the first day here.
   if (trips.length) { const at = Math.min(1, out.length); out.splice(at, 0, ...trips.map((x, i) => x.make(departAt?.[first + at + i]))); }
   if (extra.length && out.length) { const o = out[out.length - 1]; o.note = (o.note ? o.note + ' ' : '') + t('More with an extra day: {list}.', { list: extra.join(', ') }); }
+  mark(out);
   return out;
 }
 
@@ -377,6 +386,11 @@ export function seasonInfo(s: TripState, key: string): Note[] {
 
 export interface Plan { days: PlanDay[]; total: number; sunset: number; rec: number; dep: number; late: boolean; hasDrive: boolean; air: AirOption | null; /** A circuit: the days go round a loop, not out and back. */ loop?: boolean }
 export function buildPlan(s: TripState): Plan {
+  const outer = SEEN; SEEN = new Set();
+  try { return planOf(s); } finally { SEEN = outer; }
+}
+
+function planOf(s: TripState): Plan {
   const L = circuit(s); if (L) return buildCircuitPlan(s, L);
   const key = s.corridor, D = DST(key), m = mon(s), c = trip(key, s.origin, m), legs = c.legs, o = cityOr(s.origin);
   const at = (n: string): [number, number] => n === 'HOME' ? [o.lat, o.lon] : n === 'DEST' ? [D.lat, D.lon] : NODES[n];
@@ -425,7 +439,7 @@ export function buildPlan(s: TripState): Plan {
       note: [notes(g.roads), g.last && D.hub !== undefined ? t('Park at Raikot Bridge, jeep to Tato (1.5 h), then a 2–3 h hike.') : '', elderNote(g.roads, g.last)].filter(Boolean).join(' '),
       stay: g.last ? stayAt(null, key, s.tier, true) : stayAt(g.toNode, key, s.tier, false) });
   });
-  if (!free && days.length) { const pl = placesFor(D, m)[0]; if (pl) days[days.length - 1].stops.push({ time: t('Evening'), kind: 'pin', label: pl[0], note: [pl[1], pl[2]].filter(Boolean).join(' · '), href: pl[4] }); }
+  if (!free && days.length) { const pl = placesFor(D, m).find(p => !SEEN?.has(placeKey(p[0]))); if (pl) SEEN?.add(placeKey(pl[0])); if (pl) days[days.length - 1].stops.push({ time: t('Evening'), kind: 'pin', label: pl[0], note: [pl[1], pl[2]].filter(Boolean).join(' · '), href: pl[4] }); }
   days.push(...exploreDays(D, m, free, s.tier, s.overnight, days.length, s.departAt, undefined, sideTrips(s)[key]));
   for (let i = segs.length - 1; i >= 0; i--) {
     const g = segs[i], bd = backDays[i].day, back = g.ls.slice().reverse().map(l => ({ ...l, a: l.b, b: l.a })), sun = suns.get(bd)!, r = dayStops(back, g.to, g.from, depAt(bd), sun.set); late = late || r.late;
@@ -671,7 +685,7 @@ function buildCircuitPlan(s: TripState, L: Circuit): Plan {
     });
     if (last) return;
     const D = DST(h.to);
-    if (!alloc[hi] && days.length) { const pl = placesFor(D, m)[0]; if (pl) days[days.length - 1].stops.push({ time: t('Evening'), kind: 'pin', label: pl[0], note: [pl[1], pl[2]].filter(Boolean).join(' · '), href: pl[4] }); }
+    if (!alloc[hi] && days.length) { const pl = placesFor(D, m).find(p => !SEEN?.has(placeKey(p[0]))); if (pl) SEEN?.add(placeKey(pl[0])); if (pl) days[days.length - 1].stops.push({ time: t('Evening'), kind: 'pin', label: pl[0], note: [pl[1], pl[2]].filter(Boolean).join(' · '), href: pl[4] }); }
     days.push(...exploreDays(D, m, alloc[hi], s.tier, null, days.length, s.departAt, shared[h.to], sideTrips(s)[h.to]));
   });
   days.forEach((d, i) => { d.num = i + 1; d.date = dayLabel(s.startDate, i); d.iso = isoOff(s.startDate, i); });

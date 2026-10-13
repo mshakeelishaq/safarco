@@ -41,3 +41,22 @@ describe('no place twice', () => {
     expect(new Set(pins).size).toBe(pins.length);
   });
 });
+
+describe('every sight once per trip', () => {
+  const s0: TripState = { origin: 'Lahore', mode: 'know', dest: 'x', corridor: 'x', startDate: '2027-07-10', days: 6, depart: null,
+    vehicle: 'suv', tier: 'standard', adults: 2, kids: 0, elders: 0, groupSize: 2, rooms: 'separate', cap: 5000000, capOn: false };
+  const repeats = (s: TripState) => {
+    const labels = buildPlan(s).days.flatMap(d => d.stops.filter(x => (x.kind === 'pin' || x.kind === 'view') && !/free day/i.test(x.label)).map(x => x.label.toLowerCase()));
+    return labels.filter((l, i) => labels.indexOf(l) !== i);
+  };
+  it('no viewpoint or place is shown twice, there and back, at any destination', () => {
+    for (const D of DESTS) for (const days of [3, 6, 10]) expect(repeats({ ...s0, origin: /sindh|balochistan/i.test(D.region) ? 'Karachi' : 'Lahore', dest: D.id, corridor: D.id, days }), `${D.id} ${days}`).toEqual([]);
+  });
+  it('nor on trips to two places', () => {
+    for (const [a, b] of [['skardu', 'khaplu'], ['hunza', 'skardu'], ['hunza', 'passu'], ['naran', 'neelum'], ['skardu', 'shigar']]) expect(repeats({ ...s0, dest: a, corridor: a, extra: [b], days: 12 }), `${a}+${b}`).toEqual([]);
+  });
+  it('a combined place is not imported again as separate ones', () => {
+    const naltar = (DESTS.find(d => d.id === 'naltar')?.places || []).map(p => p[0]);
+    expect(naltar.filter(n => /satrangi|bodlok/i.test(n))).toHaveLength(1);
+  });
+});

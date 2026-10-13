@@ -52,6 +52,15 @@ def norm(name):
     t = re.sub(r'[^a-z0-9 ]+', ' ', t)
     return ' '.join(w for w in t.split() if w not in ('the', 'and', 'of'))
 
+GENERIC = {'lake', 'lakes', 'valley', 'view', 'point', 'viewpoint', 'village', 'fort', 'town', 'bazaar', 'meadows', 'river', 'the', 'and', 'top'}
+def covers(whole, part):
+    """True when a combined place ("Naltar lakes (Satrangi, Bodlok)", "Deosai Plains via Chilam") names this one."""
+    if not re.search(r'[(,&]|\band\b|\bvia\b', whole): return False
+    core = lambda n: ' '.join(w for w in norm(n).split() if w not in GENERIC)
+    bits = [core(b) for b in re.split(r'\s*(?:&|,|\(|\)|\band\b|\bvia\b)\s*', whole, flags=re.I)]
+    return bool(core(part)) and core(part) in bits
+
+
 def same(a, b, cut=0.86):
     a, b = norm(a), norm(b)
     return bool(a) and (a == b or SequenceMatcher(None, a, b).ratio() >= cut)
@@ -249,6 +258,9 @@ def main():
                 note(dname, f'"{name}" is already a stop on the road; not added as a place.'); continue
             if any(same(p[0], name) for p in dests[did]['places']):
                 note(dname, f'"{name}" looks like a place the app already has; not added twice.'); continue
+            whole = next((p[0] for p in dests[did]['places'] if covers(p[0], name)), None)
+            if whole:
+                note(dname, f'"{name}" is already part of "{whole}"; not added twice.'); continue
         # Duplicates within the sheet.
         seen = by_dest.setdefault(did, [])
         dup = next((x for x in seen if same(x['name'], name)), None)
