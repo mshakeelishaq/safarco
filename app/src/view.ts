@@ -292,6 +292,17 @@ export function buildView(s: AppState, api: Api) {
     };
   })();
 
+  // Suggestions for a wish that none of its places fit: say why, and offer the one change that fixes it.
+  const wishFit = (() => {
+    if (!W || s.mode !== 'suggest') return null;
+    const ids = new Set(wishPlaces(W.id).map(p => p.id)), wl = sug.list.filter(x => ids.has(x.corridor));
+    if (!wl.length || wl.some(fitsS)) return null;
+    const q = wl.slice().sort((a, b) => (+!a.ok - +!b.ok) || a.minDays - b.minDays || a.total - b.total)[0], name = DST(q.corridor).name;
+    if (!q.ok) return { text: t('From {origin}, places for {wish} are far. {name} needs at least {n} days ({how}).', { origin: s.origin || '', wish: lowerEn(t(W.label)), name, n: q.minDays, how: t(VEH[q.vehicle].short) }), cta: t('Set {n} days', { n: q.minDays }), apply: () => set({ days: q.minDays, pickId: null }) };
+    const need = Math.ceil(q.total / 5000) * 5000;
+    return { text: t('{name} fits your days, but comes to {amount}, more than your budget.', { name, amount: fmt(q.total) }), cta: t('Budget {amount}', { amount: kShort(need) }), apply: () => set({ cap: need, pickId: null }) };
+  })();
+
   // "How will you travel?": what the traveller already has.
   const travelOpts = ([['any', 'ph-sparkle', t('Suggest the best way'), t('Coach, hired car or flight')], ['car', 'ph-car-profile', t('Our own car'), t('Sedan or hatchback')],
     ['suv', 'ph-jeep', t('Own SUV / 4x4'), t('Prado, Fortuner, Land Cruiser')], ['bike', 'ph-motorcycle', t('Motorbike'), t('Our own bike')]] as const).map(([k, icon, label, sub]) => {
@@ -336,7 +347,7 @@ export function buildView(s: AppState, api: Api) {
   const editCount = edits.picks.length + edits.drops.length;
 
   const view = {
-    wishOpts, wishPicks, wishNote, travelOpts, buildSteps, photo: destPhoto(s.corridor, M, s.startDate), cardPhoto: cardPhoto(s.corridor, M, s.startDate),
+    wishOpts, wishPicks, wishNote, wishFit, travelOpts, buildSteps, photo: destPhoto(s.corridor, M, s.startDate), cardPhoto: cardPhoto(s.corridor, M, s.startDate),
     cardRoute: (isAir ? [[cityOr(s.origin).lon, cityOr(s.origin).lat], [D.lon, D.lat]] : routeCoords) as [number, number][], buildTips, budget, dayPage, totalShort: kShort(total), openDay: (i: number) => set({ dayOpen: i }), vehIcon: VEH[s.vehicle].icon,
     editNote: editCount ? { text: editCount > 1 ? t('{n} changes to the places', { n: editCount }) : t('1 change to the places'), undo: () => set({ edits: NO_EDITS }) } : null,
     s, c, gate, tip, health, off, isAir, fuelPoints, fuelPins, drivers, afterTrip, guide, bestNow, tripSeason, wPlan, rPoints, selCorridor: sug.sel?.corridor, stays, nearby, priceNotes, ratesNote: isAir ? t('Flight fares are tentative: tap a flight day to see live fares. Confirm with the airline before you book.')

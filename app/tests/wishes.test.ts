@@ -45,3 +45,12 @@ describe('waterfalls and lakes', () => {
     expect(green).toEqual(expect.arrayContaining(['naran', 'kalam']));
   });
 });
+
+describe('wish suggestions from far away', () => {
+  it('suggests only autumn places from Karachi, even when they need more days', () => {
+    const s: TripState & { pickId: null } = { origin: 'Karachi', mode: 'suggest', dest: 'hunza', corridor: 'hunza', startDate: '2026-10-20', days: 4, depart: null,
+      vehicle: 'sedan', tier: 'standard', adults: 2, kids: 0, elders: 0, groupSize: 2, rooms: 'separate', cap: 150000, wish: 'autumn', pickId: null };
+    const autumn = new Set(wishPlaces('autumn').map(p => p.id));
+    expect(suggestions(s).list.every(x => autumn.has(x.corridor))).toBe(true);
+  });
+});

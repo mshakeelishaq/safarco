@@ -1290,4 +1290,7 @@ export const UR: Record<string, string> = {
   "Other": "Deegar",
   "Show fewer": "Kam dikhayein",
   "Show all {n} stops": "Tamam {n} stop dikhayein",
+  "From {origin}, places for {wish} are far. {name} needs at least {n} days ({how}).": "{origin} se {wish} ki jagahen door hain. {name} ke liye kam az kam {n} din chahiye ({how}).",
+  "{name} fits your days, but comes to {amount}, more than your budget.": "{name} aap ke dinon mein aa jata hai, lekin {amount} banta hai, jo budget se zyada hai.",
+  "Budget {amount}": "Budget {amount}",
 };

@@ -357,10 +357,13 @@ export function suggestions(s: TripState & { pickId: string | null }) {
     const all = priced(s.dest), fit = all.filter(fits), best = fit.length ? fit[fit.length - 1] : null;
     list = all.slice().reverse(); list.forEach(x => { x.best = x === best; });
   } else {
-    list = SUGGEST_POOL.filter(k => DST(k).name !== s.origin).map(k => { const all = priced(k), fit = all.filter(fits); return fit.length ? fit[fit.length - 1] : all[0]; });
-    const inS = (x: Suggestion) => { const b = DST(x.corridor).best; return !b || b.includes(mon(s)) ? 1 : 0; };
+    // With a wish (autumn colours, snow…) only places that have it are suggested; others only fill a short list.
     const wished = new Set(s.wish && s.wish !== 'any' ? wishPlaces(s.wish).map(p => p.id) : []), inW = (x: Suggestion) => wished.has(x.corridor) ? 1 : 0;
-    list.sort((a, b) => (+fits(b) - +fits(a)) || (inW(b) - inW(a)) || (inS(b) - inS(a)) || (+b.ok - +a.ok) || (fits(a) ? b.total - a.total : a.total - b.total)); list = list.slice(0, 8);
+    const pool = [...new Set([...wished, ...SUGGEST_POOL])].filter(k => DST(k).name !== s.origin && (!wished.size || wished.has(k) || wished.size < 3));
+    // Each place's best style: the fullest that fits, else the cheapest that has enough days, else the quickest.
+    list = pool.map(k => { const all = priced(k), fit = all.filter(fits), ok = all.filter(x => x.ok); return fit.length ? fit[fit.length - 1] : ok.length ? ok[0] : all.slice().sort((a, b) => a.minDays - b.minDays)[0]; }).filter(Boolean);
+    const inS = (x: Suggestion) => { const b = DST(x.corridor).best; return !b || b.includes(mon(s)) ? 1 : 0; };
+    list.sort((a, b) => (inW(b) - inW(a)) || (+fits(b) - +fits(a)) || (inS(b) - inS(a)) || (+b.ok - +a.ok) || (fits(a) ? b.total - a.total : a.minDays - b.minDays || a.total - b.total)); list = list.slice(0, 8);
     list.forEach((x, i) => { x.best = i === 0 && fits(x); });
   }
   const okDesc = list.filter(x => x.ok), cheapestOk = s.mode === 'know' ? okDesc[okDesc.length - 1] : okDesc.slice().sort((a, b) => a.total - b.total)[0];

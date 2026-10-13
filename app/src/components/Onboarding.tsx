@@ -210,6 +210,10 @@ export function Onboarding({ v, api }: { v: View; api: Api }) {
           {s.step === 6 && <>
             <div style={css('display:flex;align-items:baseline;justify-content:space-between;gap:8px')}><div style={css('display:flex;align-items:baseline;gap:6px')}><span style={css('font-size:13px;font-weight:800;color:var(--mute)')}>PKR</span><span style={css('font-family:var(--fontH);font-weight:600;font-size:26px;letter-spacing:-.02em;font-variant-numeric:tabular-nums')}>{v.capBig}</span><span style={css('font-size:12px;font-weight:700;color:var(--mute)')}>{v.capUsd}</span></div><span style={css('font-size:12px;font-weight:700;color:var(--mute)')}>{v.tripMeta}</span></div>
             <Slider v={v} set={set} />
+            {v.wishFit && <div style={css('display:flex;gap:10px;align-items:center;margin-top:8px;padding:10px 12px;border-radius:18px;background:rgba(255,181,71,.13);border:1px solid rgba(255,181,71,.45)')}>
+              <div style={css('flex:1;min-width:0;font-size:13px;font-weight:700;line-height:1.45')}>{v.wishFit.text}</div>
+              <button onClick={v.wishFit.apply} style={css('flex:none;height:40px;padding:0 12px;border-radius:12px;border:0;background:var(--ink);color:var(--bg);font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap')}>{v.wishFit.cta}</button>
+            </div>}
             <div style={css('display:flex;flex-direction:column;gap:10px;margin-top:8px')}>
               {v.sugg.map(g => (
                 <button key={g.key} onClick={g.onClick} style={css(`display:flex;align-items:center;gap:12px;min-height:72px;padding:12px;border-radius:22px;border:1.5px solid transparent;background:${g.bg};color:var(--ink);text-align:left;cursor:pointer;opacity:${g.op};transform:${g.transform};box-shadow:${g.shadow};transition:all .35s cubic-bezier(.2,.8,.2,1)`)}>
