@@ -26,7 +26,9 @@ describe('parity with the v7 prototype engine', () => {
     const startDate = `2027-${String(m).padStart(2, '0')}-10`;
     for (const vehicle of ['sedan', 'public', 'air', 'coaster'] as const) {
       const s = { ...base, origin, dest, corridor: dest, startDate, vehicle, kids: 1, groupSize: 3 };
-      expect(costFor(s).total).toBeCloseTo(orig.costFor(s).total, 6);
+      // New places can add jeep trips (Basho Valley in summer); everything else must match.
+      const noJeeps = (c: { total: number; rows: { label: string; val: number }[] }) => newPlaces.has(dest) ? c.total - (c.rows.find(r => r.label === 'Jeep trips')?.val || 0) : c.total;
+      expect(noJeeps(costFor(s))).toBeCloseTo(noJeeps(orig.costFor(s)), 6);
       if (!newPlaces.has(dest)) expect(buildPlan(s).days.map(d => d.title)).toEqual(orig.buildPlan(s).days.map((d: { title: string }) => d.title));
     }
   });

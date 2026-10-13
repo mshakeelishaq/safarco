@@ -1349,4 +1349,6 @@ export const UR: Record<string, string> = {
   "Village just opposite Khaplu, orchards and river views": "Khaplu ke bilkul saamne gaon, baagh aur darya ke nazare",
   "Quiet green valley with orchards and streams": "Baaghon aur naalon wali pur-sukoon hari wadi",
   "Near Skardu": "Skardu ke qareeb",
+  "Pine forest, meadows and streams, best June to September": "Cheer ka jangal, sabza zaar aur naale, June se September behtareen",
+  "By jeep or 4x4 · half day": "Jeep ya 4x4 se · aadha din",
 };
