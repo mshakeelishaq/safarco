@@ -2,6 +2,8 @@
 // Road km, speeds, tolls, fares, hotel names and rates are estimates from the
 // design and need checking against real figures before launch.
 
+import { DEST_PATCH, IMPORTED_DESTS, IMPORTED_ON, PLACE_INFO, STOP_PATCH, type PlaceInfo } from './imported';
+
 export type VehicleId = 'sedan' | 'suv' | 'bike' | 'public' | 'air' | 'rentcar' | 'rent4x4' | 'coaster';
 export type TierId = 'backpacker' | 'standard' | 'premium';
 export type Mode = 'know' | 'suggest';
@@ -33,7 +35,11 @@ export interface DestInput {
   best?: number[] | null; warn?: [number[], string] | null; terrain?: Terrain;
   hotels?: Hotel[] | null; places?: Place[]; eat?: string; jeeps?: Jeep[]; livePlaces?: boolean;
   /** Day trips the way people do them: place names in visiting order, and a tip for the day. */
-  days?: { places: string[]; note?: string; stay?: string }[];
+  days?: { places: string[]; note?: string; stay?: string; leave?: number }[];
+  /** False for guides imported from research and not yet checked by SafarCo. */
+  checked?: boolean;
+  /** A short road or season note for imported guides. */
+  guideNote?: string;
 }
 
 /** Months a to b inclusive, wrapping past December. */
@@ -103,7 +109,7 @@ export const STOP_HOTELS: Record<string, Hotel[]> = {
   GLT: [['Gilgit Serena Hotel', 'Premium', 'Jutial, Rakaposhi view'], ['PTDC Gilgit', 'Standard', 'Chinar Bagh'], ['Madina Hotel Gilgit', 'Backpacker', 'Traveller favourite']],
   MGR: [['Swat Serena Hotel', 'Premium', 'Saidu Sharif'], ['Hotel Rock City Swat', 'Standard', 'Fizagat']],
   PSH: [['Pearl Continental Peshawar', 'Premium', 'Khyber Road']] };
-export const EDGE_STOPS: Record<string, EdgeStop[]> = {
+export const BASE_EDGE_STOPS: Record<string, EdgeStop[]> = {
   'LHR-ISB': [[185, 'food', 'Bhera service area', 'Fuel and clean washrooms'], [245, 'view', 'Kallar Kahar', 'Salt Range views and pakoras']],
   'FSD-ISB': [[75, 'tea', 'Pindi Bhattian interchange', 'Tea and fuel'], [145, 'food', 'Bhera service area', 'Fuel and clean washrooms'], [195, 'view', 'Kallar Kahar', 'Salt Range views']],
   'MUL-FSD': [[100, 'food', 'Abdul Hakeem service area', 'Fuel and washrooms']], 'MUL-LHR': [[165, 'food', 'Motorway service area', 'Fuel and washrooms']], 'FSD-LHR': [[90, 'tea', 'M-3 service area', 'Tea and fuel']],
@@ -160,7 +166,7 @@ export const P = { petrol: PETROL, diesel: DIESEL, localCar: LOCAL_CAR, coachFla
 export const AIRPORTS: Record<string, [string, number, number]> = { ISB: ['Islamabad', 33.56, 72.85], LHR: ['Lahore', 31.52, 74.40], KHI: ['Karachi', 24.90, 67.17] };
 export const FARES: Record<string, Record<string, number>> = { Skardu: { ISB: 22000, LHR: 30000, KHI: 38000 }, Gilgit: { ISB: 20000, LHR: 32000, KHI: 42000 }, Chitral: { ISB: 18000 }, Gwadar: { KHI: 18000, ISB: 32000, LHR: 32000 },
   Karachi: { ISB: 24000, LHR: 22000 }, Lahore: { KHI: 22000 }, Islamabad: { KHI: 24000 }, Quetta: { KHI: 20000, ISB: 26000, LHR: 26000 }, Peshawar: { KHI: 26000 }, Multan: { KHI: 20000 } };
-export const DESTS: DestInput[] = [
+export const BASE_DESTS: DestInput[] = [
   { id: 'hunza', name: 'Hunza', town: 'Karimabad, Hunza', region: 'Gilgit-Baltistan', lat: 36.32, lon: 74.66, ft: 8000, node: 'KRM', air: 'Gilgit', airNote: 'Gilgit → Karimabad by car, 100 km, about 2.5 h', best: R(4, 10), warn: [R(12, 2), 'Very cold in winter. Many hotels close and Khunjerab Pass is shut.'], terrain: { seed: 3.1, amp: 10, rise: 2.6, wig: 1 },
     hotels: [['Eagle’s Nest Hotel Duikar', 'Standard', 'Sunrise over Rakaposhi and Ultar'], ['Hunza Embassy Hotel', 'Backpacker', 'Walk to Baltit Fort'], ['Luxus Hunza', 'Premium', 'On Attabad Lake']],
     places: [['Baltit Fort', 'Karimabad · 10 min walk', '700-year-old fort above the town'], ['Altit Fort & Royal Garden', '3 km', 'Oldest fort in the valley'], ['Eagle’s Nest, Duikar', '20 min drive', 'Sunrise over Rakaposhi and Ultar'], ['Attabad Lake', '25 km · 40 min', 'Turquoise lake, boating'], ['Passu Cones & Hussaini Bridge', '50 km · 1.25 h', 'Cathedral peaks and a rope bridge'], ['Khunjerab Pass', '150 km · 3 h', 'China border at 15,397 ft. Carry your CNIC', R(4, 11)], ['Hopper Glacier, Nagar', '1 h', 'Short walk to the glacier view']],
@@ -257,6 +263,26 @@ export const DESTS: DestInput[] = [
     eat: 'Burns Road nihari and Boat Basin barbecue' }];
 export const CITY_AIR: Record<string, string> = { Karachi: 'Karachi', Lahore: 'Lahore', Islamabad: 'Islamabad', Rawalpindi: 'Islamabad', Quetta: 'Quetta', Peshawar: 'Peshawar', Multan: 'Multan', Gilgit: 'Gilgit', Skardu: 'Skardu', Chitral: 'Chitral', Gwadar: 'Gwadar' };
 export const PROV_FT: Record<string, number> = { 'Gilgit-Baltistan': 7000, 'Azad Kashmir': 3500, 'Khyber Pakhtunkhwa': 2500, Balochistan: 2000, Punjab: 650, Sindh: 100, Capital: 1770 };
+
+// ---- Guides imported from the "places to check" spreadsheet (scripts/import-places.py) ----
+/** Map link for a place pinned in the spreadsheet. */
+const pinLink = (i?: PlaceInfo) => i?.lat != null && i?.lon != null ? `https://www.google.com/maps/search/?api=1&query=${i.lat},${i.lon}` : undefined;
+function applyImport(base: DestInput[]): DestInput[] {
+  const out = base.map(d => {
+    const p = DEST_PATCH[d.id], ren = new Map(p?.rename || []), gone = new Set(p?.remove || []);
+    const places = [...(d.places || []).filter(x => !gone.has(x[0])).map(x => (ren.has(x[0]) ? [ren.get(x[0])!, ...x.slice(1)] : x) as Place), ...(p?.add || [])]
+      .map(x => x[4] || !pinLink(PLACE_INFO[`${d.id}|${x[0]}`]) ? x : [x[0], x[1], x[2], x[3] ?? null, pinLink(PLACE_INFO[`${d.id}|${x[0]}`])] as Place);
+    const days = d.days ? d.days.map(x => ({ ...x, places: x.places.filter(n => !gone.has(n)).map(n => ren.get(n) || n) })) : p?.days;
+    return { ...d, places, ...(days ? { days } : {}), ...(p?.best ? { best: p.best } : {}) };
+  });
+  const ids = new Set(base.map(d => d.id));
+  return [...out, ...IMPORTED_DESTS.filter(d => !ids.has(d.id)).map(d => ({ ...d, ftEst: PROV_FT[d.region] ?? 2000 }))];
+}
+/** Every destination: the app's own guides with the imported changes, then the imported ones. */
+export const DESTS: DestInput[] = applyImport(BASE_DESTS);
+/** Road stops, with stretches the spreadsheet changed. */
+export const EDGE_STOPS: Record<string, EdgeStop[]> = { ...BASE_EDGE_STOPS, ...STOP_PATCH };
+export { PLACE_INFO, IMPORTED_ON };
 export const SUGGEST_POOL: string[] = ['hunza', 'skardu', 'naran', 'kalam', 'fairy', 'neelum', 'chitral', 'khaplu', 'passu', 'shogran', 'malam', 'kumrat', 'murree', 'nathia', 'ziarat', 'gwadar', 'kundmalir', 'mohenjo', 'kalash', 'rama', 'naltar', 'phander'];
 export const POP_DEST: string[] = ['hunza', 'skardu', 'naran', 'kalam', 'fairy', 'neelum', 'chitral', 'murree', 'khaplu', 'gwadar', 'lahore', 'karachi'];
 export const CAT: Record<string, string> = { Fuel: 'var(--amb)', Transport: 'var(--sky)', Tolls: 'var(--vio)', Stay: 'var(--g)', Meals: 'var(--cor)', 'Local jeep': 'var(--sky)', Flights: 'var(--sky)', Rental: 'var(--vio)', 'To the airport': 'var(--sky)', 'Car + driver there': 'var(--vio)', 'Jeep trips': 'var(--amb)' };

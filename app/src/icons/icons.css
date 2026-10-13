@@ -204,6 +204,9 @@
 .ph-fill.ph-hourglass:before {
   content: "\e2b2";
 }
+.ph-fill.ph-info:before {
+  content: "\e2ce";
+}
 .ph-fill.ph-instagram-logo:before {
   content: "\e2d0";
 }
@@ -600,6 +603,9 @@
 }
 .ph-bold.ph-hourglass:before {
   content: "\e2b2";
+}
+.ph-bold.ph-info:before {
+  content: "\e2ce";
 }
 .ph-bold.ph-instagram-logo:before {
   content: "\e2d0";
@@ -1286,6 +1292,14 @@
 }
 .ph-duotone.ph-hourglass:after {
   content: "\e2b3";
+  margin-left: -1em;
+}
+.ph-duotone.ph-info:before {
+  content: "\e2ce";
+  opacity: 0.2;
+}
+.ph-duotone.ph-info:after {
+  content: "\e2cf";
   margin-left: -1em;
 }
 .ph-duotone.ph-instagram-logo:before {

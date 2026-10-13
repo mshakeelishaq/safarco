@@ -3,6 +3,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { buildPlan, costFor, suggestions, trip, type TripState } from './engine';
+import { DEST_PATCH } from './imported';
 
 const html = readFileSync(new URL('../../../project/SafarCo App v7.dc.html', import.meta.url), 'utf8');
 const js = html.slice(html.indexOf('const PETROL'), html.indexOf('class Component extends DCLogic'));
@@ -14,8 +15,8 @@ const base: TripState = {
 };
 const origins = ['Lahore', 'Karachi', 'Islamabad', 'Peshawar', 'Multan', 'Quetta', 'Gilgit'];
 const dests = ['hunza', 'skardu', 'naran', 'fairy', 'neelum', 'chitral', 'shogran', 'kumrat', 'gwadar', 'ziarat', 'city:Sukkur'];
-// Places added since the prototype (Skardu: Katpana desert, Ghowari and Khaplu) give more explore days.
-const newPlaces = new Set(['skardu']);
+// Places added since the prototype (Skardu's, and those from the places spreadsheet) give other explore days.
+const newPlaces = new Set(['skardu', ...Object.keys(DEST_PATCH)]);
 const cases: [string, string, number][] = [];
 for (const o of origins) for (const d of dests) for (const m of [1, 7]) cases.push([o, d, m]);
 

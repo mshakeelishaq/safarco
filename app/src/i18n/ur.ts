@@ -1389,4 +1389,5 @@ export const UR: Record<string, string> = {
   "Each driving day has its own suggested time, so it ends before sunset. Open a day to change it.": "Har safar ke din ka apna tajweez kiya waqt hai, taake ghuroob se pehle pohanch jayein. Badalne ke liye din kholein.",
   "Suggested {time}": "Tajweez: {time}",
   "You arrive after sunset with this time. Leave by {time}.": "Is waqt se aap ghuroob ke baad pohanchenge. {time} tak nikal jayein.",
+  "New guide from research, not checked by SafarCo yet. Check opening times and roads locally.": "Tehqeeq se bani nayi guide, SafarCo ne abhi check nahin ki. Khulne ke auqaat aur sadkein maqami tor par maloom kar lein.",
 };

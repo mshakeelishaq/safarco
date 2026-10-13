@@ -173,6 +173,7 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
         {v.gate.show && <BannerCard b={v.gate} />}
         {v.tip.show && <BannerCard b={v.tip} center><button onClick={v.tip.apply} style={css('flex:none;height:44px;padding:0 14px;border-radius:14px;border:0;background:var(--ink);color:var(--bg);font-size:13px;font-weight:800;cursor:pointer')}>{v.tip.cta}</button></BannerCard>}
 
+        {v.draftGuide && <div style={css('display:flex;gap:8px;align-items:flex-start;padding:10px 12px;border-radius:16px;background:rgba(255,181,71,.12);border:1px solid rgba(255,181,71,.4);font-size:12px;font-weight:700;line-height:1.45;color:var(--ink2)')}><i className="ph-fill ph-info" style={css('font-size:16px;color:var(--amb2);flex:none;margin-top:1px')} />{v.draftGuide}</div>}
         <section aria-label={t('Trip at a glance')} style={css(`border-radius:30px;overflow:hidden;background:var(--card);border:1px solid var(--line);box-shadow:${v.budgetShadow};transition:box-shadow .4s`)}>
           <div style={css(`position:relative;height:${img ? (v.photo ? 190 : 150) : 96}px;background:${img ? 'var(--fill)' : 'linear-gradient(135deg,#2EE59D,#19C2B8 55%,#3B8DFF)'}`)}>
             {img && <img src={img} alt="" loading="lazy" style={css('display:block;width:100%;height:100%;object-fit:cover')} />}

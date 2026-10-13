@@ -12,6 +12,14 @@ A user mocked up designs in HTML/CSS/JS using an AI design tool, then exported t
 
 **If anything is ambiguous, ask the user to confirm before you start implementing.** It's much cheaper to clarify scope up front than to build the wrong thing.
 
+## Places spreadsheet import
+
+Destinations, places, day plans and road stops can be filled in a spreadsheet ("SafarCo places to check.xlsx") and imported:
+
+    cd app && python3 scripts/import-places.py "SafarCo places to check.xlsx" --report import-report.md
+
+It checks every row first (pins outside Pakistan or farther than the road distance, drive times that don't fit, odd visit lengths, duplicates, day plans that end after dark or zigzag) and writes `app/src/engine/imported.ts` plus a report of what to check. Removals, renames and new best months for existing guides only apply when marked "Sure"; Skardu and Khaplu day plans and their Apr–Nov season are kept. Imported guides show "not checked yet" until marked Sure.
+
 ## About the design files
 
 The design medium is **HTML/CSS/JS** — these are prototypes, not production code. Your job is to **recreate them pixel-perfectly** in whatever technology makes sense for the target codebase (React, Vue, native, whatever fits). Match the visual output; don't copy the prototype's internal structure unless it happens to fit.

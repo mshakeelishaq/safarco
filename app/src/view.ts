@@ -147,7 +147,7 @@ export function buildView(s: AppState, api: Api) {
     return ids.slice(0, 30).map(id => {
       const D = DST(id), tr = trip(id, o, M), on = s.dest === id;
       const fitTxt = s.have === 'car' || s.have === 'bike' ? roadFit(HAVE_VEHICLE[s.have], id, o, M)?.text || '' : '';
-      return { key: id, name: D.name, fit: fitTxt, sub: D.ft != null && !D.generic ? t('{region} · {ft} ft', { region: D.region, ft: fmtN(D.ft) }) : D.region, meta: t('{km} km · {h} h', { km: tr.kmStr, h: Math.round(tr.hours) }), icon: D.icon, onClick: () => set({ dest: id, corridor: id, pickId: null, ...(id !== s.corridor ? { extra: [] } : {}) }),
+      return { key: id, name: D.name, fit: fitTxt, sub: (D.ft != null && !D.generic ? t('{region} · {ft} ft', { region: D.region, ft: fmtN(D.ft) }) : D.region) + (D.checked === false ? ' · ' + t('not checked yet') : ''), meta: t('{km} km · {h} h', { km: tr.kmStr, h: Math.round(tr.hours) }), icon: D.icon, onClick: () => set({ dest: id, corridor: id, pickId: null, ...(id !== s.corridor ? { extra: [] } : {}) }),
         bg: on ? 'rgba(255,181,71,.12)' : 'transparent', border: on ? 'rgba(255,181,71,.5)' : 'transparent', iconC: on ? 'var(--amb)' : 'var(--mute)', checkOp: on ? 1 : 0 };
     });
   })();
@@ -497,6 +497,8 @@ export function buildView(s: AppState, api: Api) {
     tripMeta: s.groupSize > 1 ? t('{n} travellers · {days} days', { n: s.groupSize, days: s.days }) : t('{n} traveller · {days} days', { n: s.groupSize, days: s.days }),
     sliderPct: (s.cap - 20000) / 480000 * 100,
     capPresets: [50000, 100000, 200000, 350000].map(v => ({ key: v, label: `${v / 1000}k`, onClick: () => set({ cap: v, pickId: null }), ...chip(s.cap === v) })),
+    // Guides imported from research and not yet checked by SafarCo say so.
+    draftGuide: [s.corridor, ...(s.extra || [])].some(k => DST(k).checked === false) ? [t('New guide from research, not checked by SafarCo yet. Check opening times and roads locally.'), ...[s.corridor, ...(s.extra || [])].map(k => DST(k).guideNote).filter(Boolean)].join(' ') : '',
     stayOpts, capOn,
     capToggle: capOn ? { label: t('Remove the limit'), onClick: () => set({ capOn: false, pickId: null }) }
       : { label: t('I have a spending limit'), onClick: () => set({ capOn: true, pickId: null, cap: Math.max(40000, Math.ceil((stayOpts.find(o => o.on)?.low || total) * 1.1 / 5000) * 5000) }) },
