@@ -288,9 +288,9 @@ def main():
             info[f'{did}|{name}'] = inf
         # New places: added to the destination (not checked unless Sure).
         if not app_name:
-            dist = f'{km:.0f} km' + (f' · {mins:.0f} min' if mins else '') if km else (s(r[13]) or 'Nearby')
-            tip = s(r[18]).split('Source:')[0].strip().rstrip('.')
-            place = [name, dist, (tip[:120] + '…') if len(tip) > 120 else tip]
+            how = {'car': 'By car', 'rough': 'By car, rough road', '4x4': 'By 4x4', 'jeep': 'By local jeep', 'walk': 'On foot', 'boat': 'By boat', 'chairlift': 'By chairlift'}
+            dist = f'{km:.0f} km' + (f' · {mins:.0f} min' if mins else '') if km else how.get(acc, 'Nearby')
+            place = [name, dist, clean_tip(r[18])]
             pm = months(r[16]) if sure else None
             place += [pm, maps(*c) if c else None]
             if did in new_dests:
@@ -487,6 +487,20 @@ def main():
     print(f'{len(new_dests)} new destinations · {sum(len(p.get("add", [])) for p in patch.values())} new places for existing ones · '
           f'{sum(1 for v in info.values() if "lat" in v)} places pinned · {len(changed)} road stretches changed · {len(checks)} to check')
 
+
+def clean_tip(text, limit=150):
+    """Only what a traveller needs: drops the research notes (visit allowances, pins, sources) and cuts at a sentence."""
+    skip = re.compile(r'^(family visit allowance|no routine|pin:|source|visit length|routing|coordinates|confidence|checked|estimate)', re.I)
+    lines = [x.strip() for x in s(text).split('\n') if x.strip() and not skip.match(x.strip())]
+    noise = re.compile(r'verified map point|map point|area point|brochure|approximate|estimate|routing|openstreetmap|\bosm\b|think so|not sure|checked \d|\bsource\b|https?://'
+                       r'|added to match|^pin\b|unconfirmed|residents|wikipedia|\bdutch\b|\*|hotel-to-gate|day plans', re.I)
+    sentences = re.split(r'(?<=[.!?])\s+', ' '.join(lines))
+    # One- or two-word labels ("Fort.", "Tourist attraction.") are map categories, not tips.
+    out = ' '.join(x for x in sentences if x and len(x.split()) > 2 and not noise.search(x)).strip()
+    if len(out) > limit:
+        cut = out[:limit].rsplit('. ', 1)[0]
+        out = cut if len(cut) > 40 else out[:limit].rsplit(' ', 1)[0]
+    return out.rstrip(' .;,') + ('.' if out else '')
 
 def cell(r, i):
     return r[i] if len(r) > i else None

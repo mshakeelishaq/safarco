@@ -173,7 +173,7 @@ export const BASE_DESTS: DestInput[] = [
     eat: 'Chapshuro and walnut cake at Karimabad cafés', jeeps: [['khunjerab', 'Khunjerab Pass day trip', 'Up to 15,397 ft · full day', 18000, R(4, 11)], ['hopper', 'Hopper Glacier, Nagar', 'Half day, return', 7000]] },
   { id: 'skardu', name: 'Skardu', town: 'Skardu', region: 'Gilgit-Baltistan', lat: 35.30, lon: 75.63, ft: 7310, node: 'SKD', air: 'Skardu', airNote: 'Airport → town, 20 min', best: R(4, 11), warn: [R(12, 2), 'Freezing winter. Deosai and Basho are closed.'], terrain: { seed: 11.2, amp: 8.5, rise: 2.3, wig: .7 },
     hotels: [['Shangrila Resort Skardu', 'Premium', 'Lower Kachura Lake'], ['Mashabrum Hotel Skardu', 'Standard', 'Airport road'], ['Indus Motel Skardu', 'Backpacker', 'Indus riverfront']],
-    places: [['Upper Kachura Lake', '30 km · 45 min', 'Clear lake, short walk down'], ['Shangrila, Lower Kachura', '25 km', 'Heart-shaped lake and resort'], ['Sarfaranga Cold Desert', '20 km · 30 min', 'Sand dunes at 7,500 ft, best early morning or before sunset'], ['Shigar Fort', '32 km · 45 min', 'Restored 17th-century palace'], ['Soq Valley', 'With the Kachura lakes', 'Quiet green valley with orchards and streams'], ['Satpara Lake', '8 km', 'Lake above the town'], ['Kharpocho Fort', 'In Skardu town · short climb', 'Hilltop fort above the town and the Indus'], ['Deosai Plains', 'By jeep · 13,500 ft', 'High plateau of wildflowers', R(6, 9)], ['Manthokha Waterfall', '75 km · 2 h', 'Tall falls in Kharmang'], ['Khamosh Waterfall', 'Near Manthokha', 'Quiet falls, usually seen with Manthokha', R(5, 9)], ['Blind Lake', 'Near Shigar', 'Still green lake, often seen with Shigar'], ['Basho Valley', 'By jeep or 4x4 · 40 km', 'Pine forest, meadows and streams, best June to September', R(6, 9)], ['Katpana Cold Desert', '10 km · 20 min', 'White sand dunes by the airport, best early morning or before sunset'], ['Keris, Ghowari, Barah and Khaplu', '103 km · 3 h', 'On the way: Keris’ wooden bridge, Ghowari’s golden poplars, Barah Valley, then Khaplu Palace']],
+    places: [['Upper Kachura Lake', '30 km · 45 min', 'Clear lake, short walk down'], ['Shangrila, Lower Kachura', '25 km', 'Heart-shaped lake and resort'], ['Sarfaranga Cold Desert', '20 km · 30 min', 'Sand dunes at 7,500 ft, best early morning or before sunset'], ['Shigar Fort', '32 km · 45 min', 'Restored 17th-century palace'], ['Soq Valley', 'With the Kachura lakes', 'Quiet green valley with orchards and streams'], ['Satpara Lake', '8 km', 'Lake above the town'], ['Kharpocho Fort', 'In Skardu town · short climb', 'Hilltop fort above the town and the Indus'], ['Deosai Plains', 'By jeep · 13,500 ft', 'High plateau of wildflowers', R(6, 9)], ['Manthokha Waterfall', '75 km · 2 h', 'Tall falls in Kharmang'], ['Khamosh Waterfall', 'Near Manthokha', 'Quiet falls, usually seen with Manthokha', R(5, 9)], ['Blind Lake', '45 km · 1 h 40 min, past Shigar', 'Still green lake, 19 km (about 50 min) beyond Shigar'], ['Basho Valley', 'By jeep or 4x4 · 40 km', 'Pine forest, meadows and streams, best June to September', R(6, 9)], ['Katpana Cold Desert', '10 km · 20 min', 'White sand dunes by the airport, best early morning or before sunset'], ['Keris, Ghowari, Barah and Khaplu', '103 km · 3 h', 'On the way: Keris’ wooden bridge, Ghowari’s golden poplars, Barah Valley, then Khaplu Palace']],
     days: [
       { places: ['Upper Kachura Lake', 'Shangrila, Lower Kachura', 'Soq Valley'], note: 'Soq Valley is seen on the same visit as the Kachura lakes.' },
       { places: ['Shigar Fort', 'Blind Lake'] },
@@ -266,8 +266,13 @@ export const PROV_FT: Record<string, number> = { 'Gilgit-Baltistan': 7000, 'Azad
 
 /** Places SafarCo has checked itself (pins from the owner); these win over anything imported. */
 const OWN_INFO: Record<string, PlaceInfo> = {
-  'shogran|Kiwai waterfall': { lat: 34.6309, lon: 73.4435, km: 7, min: 18, visit: 45, access: 'car', checked: true }
+  'shogran|Kiwai waterfall': { lat: 34.6309, lon: 73.4435, km: 7, min: 18, visit: 45, access: 'car', checked: true },
+  // Past Shigar, not by Skardu: the straight line is short but the road goes round. No exact pin yet.
+  'skardu|Blind Lake': { km: 45, min: 100, visit: 60, access: 'car', checked: true },
+  'shigar|Blind Lake (Zharba Tso)': { km: 19, min: 50, visit: 60, access: 'car', checked: true }
 };
+/** "45 km · 1 h 40 min" for a checked place. */
+const ownDist = (i: PlaceInfo) => i.km == null ? '' : `${i.km} km` + (i.min ? ` · ${i.min >= 60 ? `${Math.floor(i.min / 60)} h${i.min % 60 ? ` ${i.min % 60} min` : ''}` : `${i.min} min`}` : '');
 export const PLACE_INFO: Record<string, PlaceInfo> = { ...IMPORTED_INFO, ...OWN_INFO };
 
 // ---- Guides imported from the "places to check" spreadsheet (scripts/import-places.py) ----
@@ -282,7 +287,10 @@ function applyImport(base: DestInput[]): DestInput[] {
     return { ...d, places, ...(days ? { days } : {}), ...(p?.best ? { best: p.best } : {}) };
   });
   const ids = new Set(base.map(d => d.id));
-  return [...out, ...IMPORTED_DESTS.filter(d => !ids.has(d.id)).map(d => ({ ...d, ftEst: PROV_FT[d.region] ?? 2000 }))];
+  const all = [...out, ...IMPORTED_DESTS.filter(d => !ids.has(d.id)).map(d => ({ ...d, ftEst: PROV_FT[d.region] ?? 2000 }))];
+  // Places SafarCo checked itself: their pin (or none) and distance win over imported ones.
+  return all.map(d => ({ ...d, places: (d.places || []).map(x => { const o = OWN_INFO[`${d.id}|${x[0]}`]; if (!o) return x;
+    return [x[0], d.id === 'skardu' || !ownDist(o) ? x[1] : ownDist(o), x[2], x[3] ?? null, pinLink(o)] as Place; }) }));
 }
 /** Every destination: the app's own guides with the imported changes, then the imported ones. */
 export const DESTS: DestInput[] = applyImport(BASE_DESTS);

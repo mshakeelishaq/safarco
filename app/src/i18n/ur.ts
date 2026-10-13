@@ -1398,4 +1398,6 @@ export const UR: Record<string, string> = {
   "Pumps are far apart on the Makran Coastal Highway. Pasni has fuel.": "Makran Coastal Highway par pump door door hain. Pasni mein fuel milta hai.",
   "Lunch and fuel by the sea, or stay the night: Hammerhead and the turtle beach": "Samandar ke kinare khana aur fuel, ya raat ruk jayein: Hammerhead aur kachhuon wala sahil",
   "Waterfall by the road at Kiwai, with trout and pakoras": "Kiwai mein sadak ke kinare aabshaar, trout aur pakoray",
+  "Still green lake, 19 km (about 50 min) beyond Shigar": "Thehri hui hari jheel, Shigar se 19 km (taqreeban 50 minute) aage",
+  "45 km · 1 h 40 min, past Shigar": "45 km · 1 ghanta 40 minute, Shigar se aage",
 };

@@ -268,7 +268,7 @@ export function buildView(s: AppState, api: Api) {
   const inPlan = new Set(edited.flatMap(e => e.stops.map(x => x.label.toLowerCase())));
   // A place's own sights: its guide plus live ones (each place on a circuit has its own).
   const poolFor = (X: typeof D) => { const live = X.id === D.id ? destSights : spotsAt('sights', X.lat, X.lon);
-    return { loading: live.loading, list: [...placesFor(X, M).map(p => ({ name: p[0], note: `${t(p[1])} · ${t(p[2])}`, href: p[4] || mapsQ(`${p[0]}, ${X.town}`) })),
+    return { loading: live.loading, list: [...placesFor(X, M).map(p => ({ name: p[0], note: [t(p[1]), t(p[2])].filter(Boolean).join(' · '), href: p[4] || mapsQ(`${p[0]}, ${X.town}`) })),
       ...live.list.map(x => ({ name: x.name, note: x.km ? t('{type} · {km} km', { type: t(x.type), km: x.km }) : t(x.type), href: mapsQ(`${x.name}, ${X.town}`) }))] }; };
   const placeAt = (town: string) => (L ? L.order : [s.corridor]).map(k => DST(k)).find(X => X.town === town) || null;
   const suggestFor = (d: PlanDay, i: number) => {

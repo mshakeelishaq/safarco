@@ -257,7 +257,7 @@ function exploreDays(D: Dest, m: number, n: number, tier: TierId, over?: string 
       const jp = (D.jeeps || []).find(x => inM(m, x[4]) && jeepMatch(x, p));
       // Deserts go last, in the evening light.
       const slot = /desert/i.test(p[0]) && j === list.length - 1 ? 3 : Math.min(j, 3);
-      return { time: t(SLOTS[slot]), kind: 'pin' as const, label: p[0], note: `${t(p[1])} · ${t(p[2])}${jp ? ` · ${t('local jeep {price}, included', { price: fmt(jp[3]) })}` : ''}`, href: p[4] };
+      return { time: t(SLOTS[slot]), kind: 'pin' as const, label: p[0], note: [t(p[1]), t(p[2])].filter(Boolean).join(' · ') + `${jp ? ` · ${t('local jeep {price}, included', { price: fmt(jp[3]) })}` : ''}`, href: p[4] };
     }) : [{ time: t('All day'), kind: 'pin', label: t('Free day'), note: t('Rest, shop, or go back to a favourite spot') }];
     stops.push({ time: t('Food'), kind: 'food', label: t('Eat local'), note: D.eat ? t(D.eat) : D.eat });
     const tip = day.note ? t(day.note) : '';
@@ -274,7 +274,7 @@ function overnightDays(D: Dest, K: Dest, m: number, tier: TierId, own?: number):
   const ls = hopLegs(tripFrom(K.id, pointOf(D.id), m), '@' + D.id, '@' + K.id), set = SUNSET[m - 1];
   const rec = recDep(ls, set), dep = own ?? rec, r = dayStops(ls, D.town, K.town, dep, set), onRoad = new Set(r.items.map(x => x.label));
   const kp = placesFor(K, m).filter(p => !onRoad.has(p[0])), first = kp.slice(1, 4), second = [kp[0], ...kp.slice(4, 5)].filter(Boolean);
-  const pin = (p: Place, time: string): StopItem => ({ time, kind: 'pin', label: p[0], note: `${t(p[1])} · ${t(p[2])}`, href: p[4] });
+  const pin = (p: Place, time: string): StopItem => ({ time, kind: 'pin', label: p[0], note: [t(p[1]), t(p[2])].filter(Boolean).join(' · '), href: p[4] });
   const hours = Math.round(ls.reduce((a, l) => a + l.h, 0) * 2) / 2;
   return [
     { kind: 'drive', title: `${D.town} → ${K.town}`, depart: { at: dep, rec, own: own != null }, meta: t('{km} km on the road, with stops · night in {place}', { km: fmtN(Math.round(r.km / 5) * 5), place: K.town }), note: '', stops: [...r.items, ...first.map((p, j) => pin(p, t(SLOTS[j === first.length - 1 && j > 0 ? 3 : 2])))], stay: stayAt(null, K.id, tier, true) },
@@ -361,7 +361,7 @@ export function buildPlan(s: TripState): Plan {
       note: [notes(g.roads), g.last && D.hub !== undefined ? t('Park at Raikot Bridge, jeep to Tato (1.5 h), then a 2–3 h hike.') : '', elderNote(g.roads, g.last)].filter(Boolean).join(' '),
       stay: g.last ? stayAt(null, key, s.tier, true) : stayAt(g.toNode, key, s.tier, false) });
   });
-  if (!free && days.length) { const pl = placesFor(D, m)[0]; if (pl) days[days.length - 1].stops.push({ time: t('Evening'), kind: 'pin', label: pl[0], note: `${pl[1]} · ${pl[2]}`, href: pl[4] }); }
+  if (!free && days.length) { const pl = placesFor(D, m)[0]; if (pl) days[days.length - 1].stops.push({ time: t('Evening'), kind: 'pin', label: pl[0], note: [pl[1], pl[2]].filter(Boolean).join(' · '), href: pl[4] }); }
   days.push(...exploreDays(D, m, free, s.tier, s.overnight, days.length, s.departAt));
   for (let i = segs.length - 1; i >= 0; i--) {
     const g = segs[i], bd = backDays[i].day, back = g.ls.slice().reverse().map(l => ({ ...l, a: l.b, b: l.a })), sun = suns.get(bd)!, r = dayStops(back, g.to, g.from, depAt(bd), sun.set); late = late || r.late;
@@ -555,7 +555,7 @@ function buildCircuitPlan(s: TripState, L: Circuit): Plan {
     });
     if (last) return;
     const D = DST(h.to);
-    if (!alloc[hi] && days.length) { const pl = placesFor(D, m)[0]; if (pl) days[days.length - 1].stops.push({ time: t('Evening'), kind: 'pin', label: pl[0], note: `${pl[1]} · ${pl[2]}`, href: pl[4] }); }
+    if (!alloc[hi] && days.length) { const pl = placesFor(D, m)[0]; if (pl) days[days.length - 1].stops.push({ time: t('Evening'), kind: 'pin', label: pl[0], note: [pl[1], pl[2]].filter(Boolean).join(' · '), href: pl[4] }); }
     days.push(...exploreDays(D, m, alloc[hi], s.tier));
   });
   days.forEach((d, i) => { d.num = i + 1; d.date = dayLabel(s.startDate, i); d.iso = isoOff(s.startDate, i); });
