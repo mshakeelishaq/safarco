@@ -213,3 +213,8 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
   .sc-drive, .sc-draw, .sc-bob, .sc-cloud { animation: none; }
   .sc-drive { offset-distance: 60%; }
 }
+
+/* Welcome photos: a slow zoom while each one shows. */
+@keyframes sc-kb { from { transform: scale(1.02); } to { transform: scale(1.12); } }
+.sc-kb { animation: sc-kb 7s ease-out both; }
+@media (prefers-reduced-motion: reduce) { .sc-kb { animation: none; } }

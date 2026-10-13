@@ -283,7 +283,8 @@ export function App() {
 
           <SaveSheet open={s.sheet === 'save'} isSaved={!!s.savedId} defaultName={(s.savedId && trips.find(t => t.id === s.savedId)?.name) || defaultName(tripData(s))} onSave={saveTrip} onClose={() => set({ sheet: 'none' })} />
           <Welcome open={s.welcome} lang={s.lang} onLang={l => { if (l !== s.lang) view.switchLang(); }} onStart={() => { try { localStorage.setItem(WELCOMED, '1'); } catch { /* storage blocked */ } set({ welcome: false }); }}
-            onGuide={() => { try { localStorage.setItem(WELCOMED, '1'); } catch { /* storage blocked */ } set({ welcome: false, guide: true }); }} />
+            onGuide={() => { try { localStorage.setItem(WELCOMED, '1'); } catch { /* storage blocked */ } set({ welcome: false, guide: true }); }}
+            onWish={id => { try { localStorage.setItem(WELCOMED, '1'); } catch { /* storage blocked */ } view.wishOpts.find(o => o.key === id)?.onClick(); set({ welcome: false, step: s.screen === 'onboard' ? 1 : s.step }); }} />
           <SeasonGuide v={view.guide} open={s.guide} />
           <SignInSheet open={s.sheet === 'signin'} onGoogle={google} onClose={() => set({ sheet: 'none' })} />
           <TripsSheet open={s.sheet === 'trips'} trips={trips} user={user} currentId={s.savedId} onOpen={openTrip} onDelete={deleteTrip} onShare={t => shareTrip(t.data, t.name)} onNew={newTrip}

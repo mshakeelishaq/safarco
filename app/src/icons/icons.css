@@ -234,6 +234,9 @@
 .ph-fill.ph-minus:before {
   content: "\e32a";
 }
+.ph-fill.ph-mosque:before {
+  content: "\ecee";
+}
 .ph-fill.ph-motorcycle:before {
   content: "\e80a";
 }
@@ -615,6 +618,9 @@
 }
 .ph-bold.ph-minus:before {
   content: "\e32a";
+}
+.ph-bold.ph-mosque:before {
+  content: "\ecee";
 }
 .ph-bold.ph-motorcycle:before {
   content: "\e80a";
@@ -1336,6 +1342,14 @@
 }
 .ph-duotone.ph-minus:after {
   content: "\e32b";
+  margin-left: -1em;
+}
+.ph-duotone.ph-mosque:before {
+  content: "\ecee";
+  opacity: 0.2;
+}
+.ph-duotone.ph-mosque:after {
+  content: "\ecef";
   margin-left: -1em;
 }
 .ph-duotone.ph-motorcycle:before {
