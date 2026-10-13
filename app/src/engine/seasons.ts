@@ -93,7 +93,7 @@ export type WishId = 'green' | 'blossom' | 'autumn' | 'snow' | 'beach' | 'any';
 export interface Wish { id: WishId; icon: string; color: string; grad: string; label: string; tagline: string; months: number[] }
 /** The first question: what kind of trip they dream of. Months are when it's really there to see. */
 export const WISHES: Wish[] = [
-  { id: 'green', icon: 'ph-tree-evergreen', color: '#1baf7a', grad: 'linear-gradient(160deg,#2EC48A,#0E8F68)', label: 'Lush green valleys', tagline: 'Meadows, lakes and pine forest, cool while the plains bake.', months: [6, 7, 8] },
+  { id: 'green', icon: 'ph-tree-evergreen', color: '#1baf7a', grad: 'linear-gradient(160deg,#2EC48A,#0E8F68)', label: 'Lush green valleys', tagline: 'Meadows, lakes and pine forest, cool while the plains bake.', months: [5, 6, 7, 8, 9] },
   { id: 'blossom', icon: 'ph-flower', color: '#E85D9A', grad: 'linear-gradient(160deg,#F59AC0,#D9468A)', label: 'Blossom season', tagline: 'Cherry and apricot flowers under snowy peaks.', months: [4] },
   { id: 'autumn', icon: 'ph-leaf', color: '#D9731A', grad: 'linear-gradient(160deg,#F5B04A,#C9561A)', label: 'Autumn colours', tagline: 'Golden poplars and red orchards across Gilgit-Baltistan.', months: [10, 11] },
   { id: 'snow', icon: 'ph-snowflake', color: '#3B8DFF', grad: 'linear-gradient(160deg,#8CC4FF,#3B6FD8)', label: 'Snowfall', tagline: 'Wake up to white hills and snow on the pine trees.', months: [12, 1, 2] },

@@ -13,10 +13,10 @@ export const seenWelcome = () => { try { return localStorage.getItem(WELCOMED) =
 interface Photo { src: string; icon: string; caption: string; place: string; pos: string; months: number[] }
 // A function so the captions are translated at render time (the language can change).
 const photos = (): Photo[] => [
-  { src: '/photos/autumn-hunza.webp', icon: 'ph-leaf', caption: t('Autumn gold'), place: t('Hunza, under Rakaposhi'), pos: '52% 50%', months: [9, 10, 11] },
+  { src: '/photos/autumn-hunza.webp', icon: 'ph-leaf', caption: t('Autumn gold'), place: t('Hunza, under Rakaposhi'), pos: '52% 50%', months: [10, 11] },
   { src: '/photos/snowfall.webp', icon: 'ph-snowflake', caption: t('Snowfall'), place: t('The northern valleys'), pos: '45% 50%', months: [12, 1, 2] },
   { src: '/photos/blossom.webp', icon: 'ph-flower', caption: t('Blossom season'), place: 'Gilgit-Baltistan', pos: '50% 55%', months: [3, 4] },
-  { src: '/photos/green-valley.webp', icon: 'ph-tree-evergreen', caption: t('Lush green valleys'), place: t('The northern valleys'), pos: '45% 50%', months: [5, 6, 7, 8] },
+  { src: '/photos/green-valley.webp', icon: 'ph-tree-evergreen', caption: t('Lush green valleys'), place: t('The northern valleys'), pos: '45% 50%', months: [5, 6, 7, 8, 9] },
   { src: '/photos/sea-sunset.webp', icon: 'ph-waves', caption: t('Sea and sunsets'), place: t('Karachi coast'), pos: '56% 50%', months: [] },
   { src: '/photos/mosque-arches.webp', icon: 'ph-mosque', caption: t('Heritage'), place: 'Sindh', pos: '28% 50%', months: [] }
 ];
