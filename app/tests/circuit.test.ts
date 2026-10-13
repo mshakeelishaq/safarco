@@ -36,3 +36,17 @@ describe('circuits', () => {
     expect(costFor({ ...base, vehicle: 'air', extra: ['naran'] }).ok).toBe(false);
   });
 });
+
+describe('places close together on one trip', () => {
+  it('a short hop is the morning of a day there, and shared sights are seen once', async () => {
+    const { buildPlan, circuit } = await import('../src/engine/engine');
+    const s = { origin: 'Islamabad', mode: 'know' as const, dest: 'skardu', corridor: 'skardu', extra: ['shigar'], startDate: '2026-11-03', days: 9, depart: null, vehicle: 'suv' as const, tier: 'standard' as const, adults: 2, kids: 0, elders: 0, groupSize: 2, rooms: 'separate' as const, cap: 1e6 };
+    const L = circuit(s)!;
+    expect(L.hops.find(h => h.to === 'shigar')!.short).toBe(true);
+    const days = buildPlan(s).days, hop = days.find(d => d.title === 'Skardu → Shigar')!;
+    expect(hop.stops.some(x => x.kind === 'pin')).toBe(true);
+    expect(days.some(d => d.title === 'Explore Shigar' && days.indexOf(d) === days.indexOf(hop) + 1 && !d.stops.some(x => x.kind === 'pin'))).toBe(false);
+    const pins = days.flatMap(d => d.stops.filter(x => x.kind === 'pin').map(x => x.label.toLowerCase()));
+    expect(pins.filter(x => x.startsWith('shigar fort')).length).toBe(1);
+  });
+});

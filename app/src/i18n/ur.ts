@@ -1408,4 +1408,6 @@ export const UR: Record<string, string> = {
   "{n} extra bed added.": "{n} extra bed lagaya gaya.",
   "One room fewer": "Aik kamra kam",
   "One room more": "Aik kamra zyada",
+  "Drive to {place}": "{place} ki taraf rawangi",
+  "{km} km · {time}": "{km} km · {time}",
 };
