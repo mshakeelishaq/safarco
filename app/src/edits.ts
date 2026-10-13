@@ -1,6 +1,6 @@
 // Places the traveller adds to or removes from the plan. The engine builds the plan;
 // these edits are applied on top, so a changed plan (another destination or length) drops them.
-import { SLOTS, STOP_DUR } from './engine/data';
+import { PLACE_INFO, SLOTS, STOP_DUR } from './engine/data';
 import type { PlanDay, StopItem } from './engine/engine';
 import { clock } from './engine/format';
 import type { PlanEdits } from './state';
@@ -18,6 +18,9 @@ export const parseClock = (s: string) => {
 
 export interface EditedStop extends StopItem { removable?: boolean; added?: boolean; key: string }
 export interface EditedDay { stops: EditedStop[]; places: number; saved: number }
+
+/** How long people usually stay at a place, in hours (from the places spreadsheet), else an hour. */
+const visitH = (name: string) => { const k = Object.keys(PLACE_INFO).find(x => x.endsWith('|' + name)); return (k && PLACE_INFO[k].visit || 60) / 60; };
 
 /** Stops a traveller may skip on a driving day. */
 const SKIPPABLE = new Set(['tea', 'view', 'food']);
@@ -50,7 +53,19 @@ export function editDay(d: PlanDay, i: number, e: PlanEdits): EditedDay {
       const h = x.time ? parseClock(x.time) : null;
       stops.push({ ...x, time: h != null && saved ? clock(h - saved / 60) : x.time, removable: skippable || pin });
     }
-    stops.push(...added.map(a => ({ ...a, time: t('Evening') })));
+    // Places to see after arriving (the plan's own and those added) go between arrival and dinner,
+    // one after another from half an hour after arrival.
+    const isLater = (x: Omit<EditedStop, 'key'>) => x.kind === 'pin' && (x.time === t('Evening') || !x.time);
+    const later = [...stops.filter(isLater), ...added];
+    stops = stops.filter(x => !isLater(x));
+    const arriveAt = stops.findIndex(x => x.kind === 'bed'), arrive = arriveAt >= 0 ? parseClock(stops[arriveAt].time) : null;
+    if (later.length && arrive != null) {
+      let h = Math.max(arrive + 0.5, 9);
+      const timed = later.map(x => { const at = h; h += visitH(x.label) + 0.33; return { ...x, time: clock(at) }; });
+      const dinner = stops.findIndex((x, i) => i > arriveAt && x.kind === 'food');
+      if (dinner >= 0) stops[dinner] = { ...stops[dinner], time: clock(Math.max(19.5, h)) };
+      stops.splice(arriveAt + 1, 0, ...timed);
+    } else stops.push(...later.map(a => ({ ...a, time: t('Evening') })));
   }
   return { stops: stops.map((x, j) => ({ ...x, key: `${j}:${x.label}` })), places: stops.filter(x => x.kind === 'pin' && x.label !== t('Free day')).length, saved };
 }

@@ -53,3 +53,20 @@ describe('own vehicle', () => {
     expect(roadFit('sedan', 'hunza', 'Lahore', 7)).toBeNull();
   });
 });
+
+describe('places added to a driving day', () => {
+  it('go after arriving, with times, and dinner stays last', async () => {
+    const { editDay } = await import('../src/edits');
+    const day = { kind: 'drive', title: 'Skardu → Shigar', meta: '', note: '', stay: null, stops: [
+      { time: '7:30 am', kind: 'food', label: 'Breakfast', note: '' }, { time: '8:00 am', kind: 'go', label: 'Leave Skardu', note: '' },
+      { time: '', kind: 'drive', label: '54 min drive', note: '', isDrive: true }, { time: '8:54 am', kind: 'bed', label: 'Arrive Shigar', note: '' },
+      { time: '7:30 pm', kind: 'food', label: 'Dinner', note: '' }] } as never;
+    const e = { key: 'k', drops: [], picks: [{ day: 0, name: 'Shigar Fort', note: '', href: '' }, { day: 0, name: 'Amburiq Mosque', note: '', href: '' }] };
+    const out = editDay(day, 0, e).stops.map(x => `${x.time} ${x.label}`);
+    expect(out.indexOf('Dinner'.padStart(0)) === -1).toBe(true);
+    const labels = out.map(x => x.replace(/^\S+ (am|pm) /, '').replace(/^ /, ''));
+    expect(labels.indexOf('Shigar Fort')).toBe(labels.indexOf('Arrive Shigar') + 1);
+    expect(labels[labels.length - 1]).toBe('Dinner');
+    expect(out.find(x => x.endsWith('Shigar Fort'))).toMatch(/^9:2\d am/);
+  });
+});
