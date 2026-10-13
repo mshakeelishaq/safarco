@@ -32,12 +32,13 @@ const SLIDE_MS = 6000;
 const chip = 'display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:12px;background:rgba(255,255,255,.14);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-size:12px;font-weight:700;white-space:nowrap';
 
 export function Welcome({ open, onStart, onGuide, onWish, lang, onLang }: { open: boolean; onStart: () => void; onGuide: () => void; onWish: (id: WishId) => void; lang: string; onLang: (l: 'en' | 'ur') => void }) {
-  // This season's photos first (a random 3 of them, so each visit looks a little different), then
+  // Hunza first, then this season's photos (a random 2 of them, so each visit looks a little different), then
   // one photo of every other season. Extra photos of a season only show in that season.
   const month = new Date().getMonth() + 1;
   const [order] = useState(() => {
-    const all = photos(), now = all.filter(p => p.months.includes(month)).sort(() => Math.random() - .5).slice(0, 3);
-    return [...now, ...all.filter(p => !p.only && !p.months.includes(month))].map(p => p.src);
+    // The app always opens on Hunza under Rakaposhi, then this season's photos.
+    const all = photos(), lead = all[0], now = all.filter(p => p !== lead && p.months.includes(month)).sort(() => Math.random() - .5).slice(0, 2);
+    return [lead, ...now, ...all.filter(p => p !== lead && !p.only && !p.months.includes(month))].map(p => p.src);
   });
   const byId = new Map(photos().map(p => [p.src, p])), list = order.map(src => byId.get(src)!);
   const [i, setI] = useState(0), [seen, setSeen] = useState<number[]>([0]);
