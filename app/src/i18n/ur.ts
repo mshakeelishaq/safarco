@@ -1397,4 +1397,5 @@ export const UR: Record<string, string> = {
   "Pumps are far apart on the Makran Coastal Highway. Ormara has fuel.": "Makran Coastal Highway par pump door door hain. Ormara mein fuel milta hai.",
   "Pumps are far apart on the Makran Coastal Highway. Pasni has fuel.": "Makran Coastal Highway par pump door door hain. Pasni mein fuel milta hai.",
   "Lunch and fuel by the sea, or stay the night: Hammerhead and the turtle beach": "Samandar ke kinare khana aur fuel, ya raat ruk jayein: Hammerhead aur kachhuon wala sahil",
+  "Waterfall by the road at Kiwai, with trout and pakoras": "Kiwai mein sadak ke kinare aabshaar, trout aur pakoray",
 };

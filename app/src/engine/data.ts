@@ -2,7 +2,7 @@
 // Road km, speeds, tolls, fares, hotel names and rates are estimates from the
 // design and need checking against real figures before launch.
 
-import { DEST_PATCH, IMPORTED_DESTS, IMPORTED_ON, PLACE_INFO, STOP_PATCH, type PlaceInfo } from './imported';
+import { DEST_PATCH, IMPORTED_DESTS, IMPORTED_ON, PLACE_INFO as IMPORTED_INFO, STOP_PATCH, type PlaceInfo } from './imported';
 
 export type VehicleId = 'sedan' | 'suv' | 'bike' | 'public' | 'air' | 'rentcar' | 'rent4x4' | 'coaster';
 export type TierId = 'backpacker' | 'standard' | 'premium';
@@ -209,7 +209,7 @@ export const BASE_DESTS: DestInput[] = [
     places: [['Passu Cones', 'At Passu', 'Cathedral peaks over the village'], ['Hussaini Suspension Bridge', '10 km', 'Rope bridge over the Hunza river'], ['Borith Lake', '4 km', 'Quiet lake near Hussaini'], ['Khunjerab Pass', '85 km · 2 h', 'China border at 15,397 ft', R(4, 11)]],
     eat: 'Gojali food and apricot cake' },
   { id: 'shogran', name: 'Shogran', town: 'Shogran', region: 'Kaghan valley, KP', lat: 34.64, lon: 73.46, ft: 7750, node: 'SHG', best: R(4, 10), warn: [R(12, 2), 'Heavy snow. The road up from Kiwai can close.'],
-    places: [['Siri Paye meadows', '10 km by jeep · 1 h', 'Meadows at 9,800 ft with Makra peak views', R(5, 10)], ['Kiwai waterfall', '8 km below', 'Trout and pakoras'], ['Shogran forest walks', 'Walk', 'Pine trails around the plateau']],
+    places: [['Siri Paye meadows', '10 km by jeep · 1 h', 'Meadows at 9,800 ft with Makra peak views', R(5, 10)], ['Kiwai waterfall', '7 km · 18 min by road', 'Waterfall by the road at Kiwai, with trout and pakoras'], ['Shogran forest walks', 'Walk', 'Pine trails around the plateau']],
     eat: 'Trout and pakoras at Kiwai', jeeps: [['siri', 'Siri Paye meadows', 'Shogran ⇄ Siri Paye, return', 4000, R(5, 10)]] },
   { id: 'malam', name: 'Malam Jabba', town: 'Malam Jabba', region: 'Swat, KP', lat: 34.80, lon: 72.57, ft: 8700, node: 'MJB', best: [12, 1, 2, ...R(5, 9)],
     hotels: [['Pearl Continental Malam Jabba', 'Premium', 'Ski resort hotel']],
@@ -264,6 +264,12 @@ export const BASE_DESTS: DestInput[] = [
 export const CITY_AIR: Record<string, string> = { Karachi: 'Karachi', Lahore: 'Lahore', Islamabad: 'Islamabad', Rawalpindi: 'Islamabad', Quetta: 'Quetta', Peshawar: 'Peshawar', Multan: 'Multan', Gilgit: 'Gilgit', Skardu: 'Skardu', Chitral: 'Chitral', Gwadar: 'Gwadar' };
 export const PROV_FT: Record<string, number> = { 'Gilgit-Baltistan': 7000, 'Azad Kashmir': 3500, 'Khyber Pakhtunkhwa': 2500, Balochistan: 2000, Punjab: 650, Sindh: 100, Capital: 1770 };
 
+/** Places SafarCo has checked itself (pins from the owner); these win over anything imported. */
+const OWN_INFO: Record<string, PlaceInfo> = {
+  'shogran|Kiwai waterfall': { lat: 34.6309, lon: 73.4435, km: 7, min: 18, visit: 45, access: 'car', checked: true }
+};
+export const PLACE_INFO: Record<string, PlaceInfo> = { ...IMPORTED_INFO, ...OWN_INFO };
+
 // ---- Guides imported from the "places to check" spreadsheet (scripts/import-places.py) ----
 /** Map link for a place pinned in the spreadsheet. */
 const pinLink = (i?: PlaceInfo) => i?.lat != null && i?.lon != null ? `https://www.google.com/maps/search/?api=1&query=${i.lat},${i.lon}` : undefined;
@@ -282,7 +288,7 @@ function applyImport(base: DestInput[]): DestInput[] {
 export const DESTS: DestInput[] = applyImport(BASE_DESTS);
 /** Road stops, with stretches the spreadsheet changed. */
 export const EDGE_STOPS: Record<string, EdgeStop[]> = { ...BASE_EDGE_STOPS, ...STOP_PATCH };
-export { PLACE_INFO, IMPORTED_ON };
+export { IMPORTED_ON };
 export const SUGGEST_POOL: string[] = ['hunza', 'skardu', 'naran', 'kalam', 'fairy', 'neelum', 'chitral', 'khaplu', 'passu', 'shogran', 'malam', 'kumrat', 'murree', 'nathia', 'ziarat', 'gwadar', 'kundmalir', 'mohenjo', 'kalash', 'rama', 'naltar', 'phander'];
 export const POP_DEST: string[] = ['hunza', 'skardu', 'naran', 'kalam', 'fairy', 'neelum', 'chitral', 'murree', 'khaplu', 'gwadar', 'lahore', 'karachi'];
 export const CAT: Record<string, string> = { Fuel: 'var(--amb)', Transport: 'var(--sky)', Tolls: 'var(--vio)', Stay: 'var(--g)', Meals: 'var(--cor)', 'Local jeep': 'var(--sky)', Flights: 'var(--sky)', Rental: 'var(--vio)', 'To the airport': 'var(--sky)', 'Car + driver there': 'var(--vio)', 'Jeep trips': 'var(--amb)' };
