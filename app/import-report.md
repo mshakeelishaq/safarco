@@ -4,16 +4,26 @@ Imported on 2026-10-13.
 
 - **24 new destinations:** Gilgit, Shigar, Hushe Valley, Nagar & Minapin, Yasin Valley, Ishkoman Valley, Peshawar, Taxila, Mingora & Saidu Sharif, Abbottabad, Thandiani, Muzaffarabad, Rawalakot, Bagh & Sudhan Gali, Multan, Bahawalpur & Cholistan, Uch Sharif, Chakwal & Kallar Kahar, Khewra, Thatta & Keenjhar, Hyderabad, Sukkur & Rohri, Sehwan Sharif, Nagarparkar
 - **22 new places** for the app's destinations
-- **121 places with a map pin**, 206 with a visit length, 38 with a drive time
-- **17 things to check** (below). Everything else is in the app as "not checked yet", unless marked Sure.
+- **208 places with a map pin**, 206 with a visit length, 38 with a drive time
+- **21 things to check** (below). Everything else is in the app as "not checked yet", unless marked Sure.
 
 ## Check these
 
 **Shogran**
+- "Kiwai waterfall": the pin is 13 km from Shogran in a straight line, but the road distance says 8 km. One is wrong; pin left out.
 - Day plan "Siri Paye meadows, Shogran village": Shogran village is not on the Places sheet for Shogran. Left out of the day.
+
+**Gwadar**
+- "Ormara beach": the pin is 234 km from Gwadar. Check it is the right place; pin left out.
 
 **Nathia Gali**
 - Day plan "Pipeline Track from Dunga Gali to Ayubia": Pipeline Track from Dunga Gali to Ayubia is not on the Places sheet for Nathia Gali. Left out of the day.
+
+**Lahore**
+- Day plan "Wagah border ceremony": leaving at 2:00 pm gets back around 6:09 pm, after sunset (5:12 pm) in Nov. Leave earlier or drop a place.
+
+**Hyderabad**
+- Day plan "Sindh Museum, Pakka Qila, Shahi Bazaar, Rani Bagh" goes back and forth; a different order saves a lot of driving.
 
 **Lahore → Islamabad**
 - New stop "Sukheki North service area (M-2)": km from start missing is not on this stretch (375 km). Not added.
