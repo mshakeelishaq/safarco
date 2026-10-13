@@ -263,22 +263,6 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
           </div>}
         </section>
 
-        <Fold icon="ph-cloud-sun" iconColor="var(--sky)" title={t('Weather in {town}', { town: c.town })} summary={v.wx.destLoading ? t('Loading…') : glance.wx?.range}>
-          {v.wx.destSummary && <div style={css('font-size:13px;font-weight:600;color:var(--ink2);line-height:1.45')}>{v.wx.destSummary}</div>}
-          <div style={css('display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:12px -16px 0;padding:0 16px 2px')}>
-            {v.wx.destDays.map(w => (
-              <div key={w.key} title={w.typical ? t('Typical for this date') : t('Forecast')} style={css(`flex:none;width:68px;padding:10px 4px;border-radius:16px;background:var(--fill);border:1px ${w.typical ? 'dashed var(--line2)' : 'solid transparent'};display:flex;flex-direction:column;align-items:center;gap:5px`)}>
-                <div style={css('font-size:11px;font-weight:800;color:var(--mute);white-space:nowrap')}>{w.day}</div>
-                <i className={`ph-duotone ${w.icon}`} style={css(`font-size:26px;color:${w.color}`)} />
-                <div style={css('font-size:15px;font-weight:800;font-variant-numeric:tabular-nums')}>{w.hi}°</div>
-                <div style={css('font-size:12px;font-weight:600;color:var(--mute);font-variant-numeric:tabular-nums')}>{w.lo}°</div>
-                {w.wet && <div style={css('font-size:10px;font-weight:800;color:var(--sky);text-align:center;line-height:1.2')}>{w.wet}</div>}
-              </div>
-            ))}
-          </div>
-          <div style={css('font-size:11px;font-weight:600;color:var(--mute);margin-top:10px;line-height:1.45')}>{v.wx.destSource}. {v.wx.note}{v.wx.destDays.some(d => d.typical) ? ' ' + t('Dashed boxes are typical, not forecast.') : ''}</div>
-        </Fold>
-
         {(v.wiki.info || v.wiki.loading) && (
           <Fold icon="ph-book-open-text" title={t('About {name}', { name: c.name })} summary={v.wiki.info ? v.wiki.info.source : t('Loading…')}>
             {v.wiki.info && <>

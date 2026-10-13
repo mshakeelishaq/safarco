@@ -66,15 +66,6 @@ export function weatherView(s: TripState, plan: Plan, points: RoutePoint[], w: W
     return { key: d.iso!, snowy: !!(x.typical && x.snowYears), day: dayLabel(d.iso!, 0).split(' ').slice(0, 2).join(' '), icon, color, hi: x.hi != null ? Math.round(x.hi) : null, lo: x.lo != null ? Math.round(x.lo) : null, wet, typical: x.typical, idx: i };
   });
   const destKnown = destDays.filter((x): x is NonNullable<typeof x> => !!x);
-  const fcCount = destKnown.filter(x => !x.typical).length, typCount = destKnown.length - fcCount;
-  const yrs = { from: String(w.years[w.years.length - 1]), to: String(w.years[0]) };
-  const source = fcCount && typCount ? (fcCount > 1 ? t('Forecast for {n} days, then typical for these dates ({from}–{to})', { n: fcCount, ...yrs }) : t('Forecast for {n} day, then typical for these dates ({from}–{to})', { n: fcCount, ...yrs }))
-    : fcCount ? `${t('Forecast')} · Open-Meteo` : typCount ? `${t('Typical for these dates, {from}–{to}', yrs)} · Open-Meteo` : '';
-  const destSummary = destKnown.length ? (() => {
-    const hi = destKnown.map(x => x.hi!).filter(x => x != null), lo = destKnown.map(x => x.lo!).filter(x => x != null);
-    const rng = (a: number[]) => Math.min(...a) === Math.max(...a) ? `${a[0]}` : t('{min} to {max}', { min: Math.min(...a), max: Math.max(...a) });
-    return hi.length ? `${t('Highs {hi}°C, lows {lo}°C.', { hi: rng(hi), lo: rng(lo) })}${Math.min(...lo) <= 0 ? ` ${t('Below freezing at night.')}` : ''}` : '';
-  })() : '';
 
   // Air quality.
   const aq = airQuality(w);
@@ -116,7 +107,7 @@ export function weatherView(s: TripState, plan: Plan, points: RoutePoint[], w: W
 
   const anyFc = !!w.fcStart, loading = points.some(p => !strips.get(p.day)?.samples.length) || [...strips.values()].some(st => st.loading);
   return {
-    strips, mapPts, passes, destDays: destKnown, destSource: source, destSummary, destLoading: !destKnown.length,
+    strips, mapPts, passes, destDays: destKnown, destLoading: !destKnown.length,
     aq: { ...aq, note: aqNote }, depart, pack,
     note: anyFc ? (w.needTypical ? t('Hourly forecast where it reaches (until {date}); typical weather for later days.', { date: dayLabel(isoAdd(15), 0) }) : t('Hourly forecast from Open-Meteo. Most reliable 3–5 days ahead.')) : t('Your dates are more than 16 days away, so this shows what the last 5 years were like on the same dates. The hourly forecast appears 16 days before you travel.'),
     /** True when every day is typical weather (no forecast yet); use this rather than matching the note text. */
