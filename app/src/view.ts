@@ -153,10 +153,11 @@ export function buildView(s: AppState, api: Api) {
   })();
 
   const oqT = s.oq.trim().toLowerCase();
-  const plan = buildPlan(s);
-
-  // The traveller's added and removed places (see src/edits.ts).
+  // The traveller's added and removed places and chosen departure times (see src/edits.ts).
   const pk = planKey(s), edits = s.edits.key === pk ? s.edits : { ...NO_EDITS, key: pk };
+  const plan = buildPlan({ ...s, departAt: edits.times });
+  /** Leave earlier or later on one day; null goes back to the suggested time. */
+  const setDepart = (day: number, h: number | null) => { const times = { ...(edits.times || {}) }; if (h == null) delete times[day]; else times[day] = Math.max(3, Math.min(12, h)); set({ edits: { ...edits, times } }); };
   const edited = plan.days.map((d, i) => editDay(d, i, edits));
   const addPick = (day: number, p: { name: string; note: string; href: string }) => set({ edits: { ...edits, picks: [...edits.picks, { day, ...p }] }, toast: t('Added {name} to Day {n}', { name: p.name, n: day + 1 }) });
   const removeStop = (day: number, x: EditedStop) => x.added
@@ -525,11 +526,11 @@ export function buildView(s: AppState, api: Api) {
     budgetShadow: ring('budget'),     capPct: Math.round(pct * 100), totalNum: fmtN(total), totalUsd: usd(total), perPersonStr: `${fmt(total / s.groupSize)} (${usd(total / s.groupSize)})`, capStr: fmt(s.cap), barPct: Math.min(pct, 1) * 100,
     plan: (() => {
       const p = plan, K: Record<string, [string, string]> = { drive: ['linear-gradient(135deg,#2EE59D,#0FA678)', t('Drive')], explore: ['linear-gradient(135deg,#9B7BFF,#5B6CFF)', t('Explore')], return: ['linear-gradient(135deg,#FFB547,#FF7A3D)', t('Return')], fly: ['linear-gradient(135deg,#6FD3FF,#3B8DFF)', t('Fly')] };
-      const depChips = [null, 4.5, 5.5, 6.5, 7.5, 8.5].map(v => { const on = (s.depart ?? null) === v; return { key: String(v), label: v === null ? t('Auto · {time}', { time: clock(p.rec) }) : clock(v), onClick: () => set({ depart: v }), ...chip(on) }; });
+      const depChips = [null, 4.5, 5.5, 6.5, 7.5, 8.5].map(v => { const on = (s.depart ?? null) === v; return { key: String(v), label: v === null ? t('Auto · each day') : clock(v), onClick: () => set({ depart: v }), ...chip(on) }; });
       return { summary: t('{n} days · {m} nights', { n: p.total, m: p.total - 1 }), via: p.air ? t('Flights {from} ⇄ {to} · car and driver at the destination', { from: p.air.dep, to: p.air.arr }) : L ? t('{km} km round trip · {via}', { km: c.kmStr, via: c.via }) : t('{km} km each way by road · {via}', { km: c.kmStr, via: c.via }),
         hasDep: !p.air && p.hasDrive, depChips, wxDepart: rw.depart && s.depart !== rw.depart.dep ? { ...rw.depart, label: clock(rw.depart.dep), apply: () => set({ depart: rw.depart!.dep }) } : null, depNoteC: p.late ? 'var(--amb)' : 'var(--mute)',
         depNote: p.late ? t('Some driving days end after sunset (about {time}).', { time: clock(p.sunset) }) + ' ' + (p.dep > p.rec ? t('Leave by {time}.', { time: clock(p.rec) }) : t('Consider an extra night stop.'))
-          : s.depart == null ? t('Recommended {time}, so every driving day ends before sunset (the earliest is about {sunset}).', { time: clock(p.rec), sunset: clock(p.sunset) })
+          : s.depart == null ? t('Each driving day has its own suggested time, so it ends before sunset. Open a day to change it.')
           : t('Every driving day ends before sunset (the earliest is about {sunset}).', { sunset: clock(p.sunset) }),
         days: p.days.map((d, i) => ({ ...d, flight: d.kind === 'fly' && p.air && d.iso ? (() => { const out = i === 0, from = out ? p.air!.dep : p.air!.arr, to = out ? p.air!.arr : p.air!.dep;
           return { from, to, fare: t('Tentative: about {fare} one way per adult', { fare: pkrUsd(p.air!.fare) }), href: flightSearchUrl(from, to, d.iso!, s.adults + s.elders, s.kids) }; })() : null, fuel: (() => { const f = fuel.get(i); if (!f || !(f.stops.length || f.notes.length || f.gaps.length || f.loading)) return null;
@@ -546,6 +547,10 @@ export function buildView(s: AppState, api: Api) {
           return { ...st, range: t('{tier} · {range} ({usd}) a night', { tier: t(TIERS[s.tier].label), range: nr.text, usd: nr.usd }), href: check(st.town, night, 1), options, loading: live.loading && !picks.length, source: live.list.length ? 'OpenStreetMap, via Geoapify' : '' };
         })(), stops: edited[i].stops.map(x => ({ ...x, icon: STOP_KIND[x.kind][0], color: STOP_KIND[x.kind][1], remove: x.removable ? () => removeStop(i, x) : null })),
           places: edited[i].places, savedMin: edited[i].saved, suggest: suggestFor(d, i),
+          // When to leave this day: the suggested time, or the traveller's own, in 15-minute steps.
+          departCtl: d.depart ? (() => { const dp = d.depart!, arrive = d.track ? d.track.dep + d.track.marks[d.track.marks.length - 1][1] : null;
+            return { time: clock(dp.at), suggested: t('Suggested {time}', { time: clock(dp.rec) }), own: dp.own, earlier: () => setDepart(i, dp.at - 0.25), later: () => setDepart(i, dp.at + 0.25), reset: dp.own ? () => setDepart(i, null) : null,
+              warn: arrive != null && d.track && arrive > d.track.sunset ? t('You arrive after sunset with this time. Leave by {time}.', { time: clock(dp.rec) }) : '' }; })() : null,
           // A night at a nearby place instead of its long day trip (+1 day), or back to the day trip.
           stayOffer: d.offer && !s.overnight ? { text: t('Stay a night in {place} and see more', { place: DST(d.offer).name }), cta: t('Add a night (+1 day)'), apply: () => set({ overnight: d.offer!, days: Math.min(14, s.days + 1), dayOpen: null, toast: t('A night in {place} is in the plan.', { place: DST(d.offer!).name }) }) }
             : s.overnight && d.stay && DST(s.overnight).town === d.stay.town ? { text: t('Night in {place}.', { place: DST(s.overnight).name }), cta: t('Make it a day trip (−1 day)'), apply: () => set({ overnight: null, days: Math.max(2, s.days - 1), dayOpen: null }) } : null,

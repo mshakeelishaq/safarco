@@ -23,14 +23,16 @@ const fmtT = (t: number | null | undefined) => t == null ? '–' : `${Math.round
 
 export function weatherView(s: TripState, plan: Plan, points: RoutePoint[], w: WeatherPlan) {
   const bike = s.vehicle === 'bike', D = DST(s.corridor);
-  const atPoint = (p: RoutePoint) => pointWx(w, p, plan.dep + p.offsetH, bike);
+  // Each day leaves at its own time.
+  const depOf = (p: RoutePoint) => plan.days[p.day]?.track?.dep ?? plan.dep;
+  const atPoint = (p: RoutePoint) => pointWx(w, p, depOf(p) + p.offsetH, bike);
 
   // Road strips, one per driving day.
   const strips = new Map<number, { samples: { key: string; time: string; label: string; icon: string; color: string; temp: string; text: string; flags: Flag[] }[]; flags: { key: string; level: Flag['level']; icon: string; text: string }[]; typical: boolean; loading: boolean }>();
   const mapPts: { lat: number; lon: number; color: string; label: string; text: string; day: number }[] = [];
   const all: { p: RoutePoint; x: PointWx | null }[] = [];
   for (const p of points) {
-    const x = atPoint(p), hour = plan.dep + p.offsetH, [icon, color] = WMO(x?.code ?? null);
+    const x = atPoint(p), hour = depOf(p) + p.offsetH, [icon, color] = WMO(x?.code ?? null);
     all.push({ p, x });
     const st = strips.get(p.day) || { samples: [], flags: [], typical: false, loading: false };
     st.typical = st.typical || !!x?.typical; st.loading = st.loading || !x;
@@ -48,7 +50,7 @@ export function weatherView(s: TripState, plan: Plan, points: RoutePoint[], w: W
 
   // Passes on the route, at the hour you cross.
   const passes = all.filter(a => a.p.pass).map(({ p, x }) => ({
-    key: `${p.day}-${p.label}`, name: p.label, ft: `${fmtN(p.ft!)} ft`, when: t('Day {n} · {date} · around {time}', { n: p.day + 1, date: dayLabel(p.iso, 0), time: clock(plan.dep + p.offsetH) }),
+    key: `${p.day}-${p.label}`, name: p.label, ft: `${fmtN(p.ft!)} ft`, when: t('Day {n} · {date} · around {time}', { n: p.day + 1, date: dayLabel(p.iso, 0), time: clock(depOf(p) + p.offsetH) }),
     icon: WMO(x?.code ?? null)[0], color: wxColor(x), temp: fmtT(x?.temp),
     text: !x ? t('Loading…') : x.typical
       ? t('Usually {hi} by day, {lo} at night. Snow on these dates in {n} of the last {years} years.', { hi: fmtT(x.hi), lo: fmtT(x.lo), n: String(x.snowYears), years: String(x.years) })

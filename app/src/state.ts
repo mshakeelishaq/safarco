@@ -51,7 +51,7 @@ export interface AppState extends TripState {
 /** A place the traveller added to a day. */
 export interface PlacePick { day: number; name: string; note: string; href: string }
 /** Changes to the plan's places. `key` names the plan they apply to; a different plan ignores them. */
-export interface PlanEdits { key: string; picks: PlacePick[]; drops: string[] }
+export interface PlanEdits { key: string; picks: PlacePick[]; drops: string[]; times?: Record<number, number> }
 export const NO_EDITS: PlanEdits = { key: '', picks: [], drops: [] };
 
 const prefersLite = () => {

@@ -44,6 +44,22 @@ export function DayPage({ v }: { v: View }) {
       <div ref={scroller} key={p.i} className="sc-fadein" style={css('flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:14px 16px calc(40px + env(safe-area-inset-bottom))')}>
       <div style={css('font-size:12px;color:var(--ink2);font-weight:600;line-height:1.45')}>{d.meta}</div>
       {d.note && <div style={css('font-size:12px;color:var(--amb2);font-weight:600;margin-top:5px;line-height:1.45')}>{d.note}</div>}
+      {d.departCtl && <div style={css('margin-top:10px;padding:10px 12px;border-radius:16px;background:var(--card);border:1px solid var(--line)')}>
+        <div style={css('display:flex;align-items:center;gap:10px')}>
+          <i className="ph-fill ph-clock" style={css('font-size:20px;color:var(--g);flex:none')} />
+          <div style={css('flex:1;min-width:0')}>
+            <div style={css('font-size:11px;font-weight:800;color:var(--mute);text-transform:uppercase;letter-spacing:.05em')}>{t('Leave at')}</div>
+            <div style={css('font-size:18px;font-weight:800;font-variant-numeric:tabular-nums')}>{d.departCtl.time}</div>
+          </div>
+          <button onClick={d.departCtl.earlier} aria-label={t('Leave 15 minutes earlier')} style={css('width:44px;height:44px;flex:none;border-radius:13px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);font-size:18px;cursor:pointer')}><i className="ph-bold ph-minus" /></button>
+          <button onClick={d.departCtl.later} aria-label={t('Leave 15 minutes later')} style={css('width:44px;height:44px;flex:none;border-radius:13px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);font-size:18px;cursor:pointer')}><i className="ph-bold ph-plus" /></button>
+        </div>
+        <div style={css('display:flex;align-items:center;gap:8px;margin-top:6px;font-size:12px;font-weight:700;color:var(--mute)')}>
+          <span>{d.departCtl.suggested}</span>
+          {d.departCtl.reset && <button onClick={d.departCtl.reset} style={css('padding:0;border:0;background:none;color:var(--g);font-size:12px;font-weight:800;cursor:pointer;text-decoration:underline')}>{t('Use suggested')}</button>}
+        </div>
+        {d.departCtl.warn && <div style={css('font-size:12px;font-weight:700;color:var(--cor);margin-top:6px;line-height:1.4')}>{d.departCtl.warn}</div>}
+      </div>}
       {d.stayOffer && <div style={css('display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;border-radius:16px;background:rgba(46,229,157,.1);border:1px solid rgba(46,229,157,.35)')}>
         <i className="ph-fill ph-bed" style={css('font-size:20px;color:var(--g);flex:none')} />
         <div style={css('flex:1;min-width:0;font-size:13px;font-weight:700;line-height:1.4')}>{d.stayOffer.text}</div>

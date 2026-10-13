@@ -34,7 +34,9 @@ function cleanEdits(raw: unknown): PlanEdits {
   const picks = (Array.isArray(e.picks) ? e.picks : []).slice(0, 40).filter((p: any) => p && typeof p.name === 'string' && Number.isInteger(p.day) && p.day >= 0 && p.day < 20)
     .map((p: any) => ({ day: p.day as number, name: str(p.name, 80), note: str(p.note, 120), href: /^https:\/\//.test(String(p.href || '')) ? str(p.href, 300) : '' }));
   const drops = (Array.isArray(e.drops) ? e.drops : []).slice(0, 60).map(d => str(d, 100));
-  return { key: str(e.key, 200), picks, drops };
+  const times: Record<number, number> = {};
+  if (e.times && typeof e.times === 'object') Object.entries(e.times as Record<string, unknown>).slice(0, 30).forEach(([k, v]) => { const d = +k; if (Number.isInteger(d) && d >= 0 && d < 30 && typeof v === 'number' && v >= 3 && v <= 12) times[d] = Math.round(v * 4) / 4; });
+  return { key: str(e.key, 200), picks, drops, ...(Object.keys(times).length ? { times } : {}) };
 }
 
 /** Checks and cleans trip data from storage or a shared link. Returns null if it isn't usable. */
