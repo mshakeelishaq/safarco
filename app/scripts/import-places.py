@@ -161,7 +161,7 @@ def main():
     new_dests = {}
     for r in rows('New destinations'):
         name = s(r[0])
-        if not name or name.lower().startswith('destination name'):
+        if not name or name.lower().startswith('destination name') or name.startswith('(example'):
             continue
         did = name_to_id.get(norm(name)) or next((v for k, v in name_to_id.items() if same(k, name, .8)), None) or slug(name)
         if did in dests:
@@ -213,7 +213,7 @@ def main():
             if sure:
                 patch.setdefault(did, {}).setdefault('remove', []).append(app_name); applied.append((dname, f'Removed "{app_name}".'))
             else:
-                note(dname, f'Suggested removing "{app_name}": {s(r[18])[:140]} Mark Sure to apply.')
+                note(dname, f'Suggested removing "{app_name}": {first_line(r[18])} Mark Sure to apply.')
             continue
         if app_name and keep == 'rename' and correct and correct != app_name:
             if sure:
@@ -420,11 +420,22 @@ def main():
             name = correct or s(r[2])
             if not name:
                 continue
+            # No km but a pin: place it along the stretch by its distance from the start town.
+            pin = coords(r[11], r[12], '')
+            if km is None and pin and L and a in app['nodes'] and b in app['nodes']:
+                A, B = app['nodes'][a], app['nodes'][b]
+                straight = hav(A[0], A[1], B[0], B[1])
+                if straight > 1 and hav(A[0], A[1], *pin) + hav(*pin, B[0], B[1]) < straight * 1.25:
+                    est = hav(A[0], A[1], *pin) / straight * edge_len[f'{a}-{b}' if f'{a}-{b}' in edge_len else f'{b}-{a}']
+                    km = L - est if flip else est
             if km is None or not L or not (0 < km < L):
                 chk(where, f'New stop "{name}": km from start {s(r[8]) or "missing"} is not on this stretch ({L or "?"} km). Not added.'); continue
             lst = stops.setdefault(key, [])
             if any(same(x[2], name) for x in lst):
                 continue
+            # Each stop adds time to the drive, so new ones go in only when checked.
+            if conf != 'sure':
+                note(where, f'New stop "{name}" at km {round(km)}: not added until marked Sure (each stop adds time to the drive).'); continue
             lst.append([round(km), kind or 'view', name, s(r[13]).split('Source:')[0].strip()[:100]])
             lst.sort(key=lambda x: x[0]); changed.add(key); applied.append((where, f'Added stop "{name}" at km {round(km)} (not checked yet).'))
 
@@ -435,6 +446,10 @@ def main():
     print(f'{len(new_dests)} new destinations · {sum(len(p.get("add", [])) for p in patch.values())} new places for existing ones · '
           f'{sum(1 for v in info.values() if "lat" in v)} places pinned · {len(changed)} road stretches changed · {len(checks)} to check')
 
+
+def first_line(text):
+    t = s(text).split('\n')[0].split('Source:')[0].strip()
+    return t if t.endswith('.') else t + '.'
 
 def by_dest_info(by_dest, did, name):
     rec = next((x for x in by_dest.get(did, []) if x['name'] == name), None)
