@@ -20,6 +20,8 @@ export interface TripState {
   wish?: WishId | null;
   /** More places on the same trip (a circuit), besides the main destination `corridor`. */
   extra?: string[];
+  /** Whether `cap` is a real spending limit. Without one, trips are priced, not filtered. */
+  capOn?: boolean;
 }
 
 /** Trip styles to compare: the traveller's own vehicle only, or every style SafarCo knows. */
@@ -360,19 +362,22 @@ export interface Suggestion extends TripConfig { corridor: string; key: string; 
 /** Options for the suggestions step: trip styles for one destination, or the best style per destination. */
 export function suggestions(s: TripState & { pickId: string | null }) {
   const cost = (corridor: string, cf: TripConfig): Suggestion => { const r = costFor({ ...s, corridor, vehicle: cf.vehicle, tier: cf.tier, extra: s.mode === 'know' ? s.extra : [] }); return { ...cf, corridor, key: corridor + ':' + cf.id, total: r.total, ok: r.ok, minDays: r.minDays, why: r.why }; };
-  const cfgs = configsFor(s);
-  const priced = (k: string) => cfgs.map(cf => cost(k, cf)).filter(x => !x.why).sort((a, b) => a.total - b.total);
-  const fits = (x: Suggestion) => x.ok && x.total <= s.cap;
+  // Without a spending limit, the chosen kind of stay decides: only those styles, cheapest first.
+  const limit = s.capOn !== false, all = configsFor(s), inTier = all.filter(cf => cf.tier === s.tier), cfgs = limit || !inTier.length ? all : inTier;
+  const price = (k: string, list: TripConfig[]) => list.map(cf => cost(k, cf)).filter(x => !x.why).sort((a, b) => a.total - b.total);
+  // If the chosen kind of stay can't be done in these days, show every way rather than none.
+  const priced = (k: string) => { const ps = price(k, cfgs); return cfgs === all || ps.some(x => x.ok) ? ps : price(k, all); };
+  const fits = (x: Suggestion) => x.ok && (!limit || x.total <= s.cap);
   let list: Suggestion[];
   if (s.mode === 'know') {
-    const all = priced(s.dest), fit = all.filter(fits), best = fit.length ? fit[fit.length - 1] : null;
-    list = all.slice().reverse(); list.forEach(x => { x.best = x === best; });
+    const opts = priced(s.dest), fit = opts.filter(fits), best = fit.length ? (limit ? fit[fit.length - 1] : fit[0]) : null;
+    list = opts.slice().reverse(); list.forEach(x => { x.best = x === best; });
   } else {
     // With a wish (autumn colours, snow…) only places that have it are suggested; others only fill a short list.
     const wished = new Set(s.wish && s.wish !== 'any' ? wishPlaces(s.wish).map(p => p.id) : []), inW = (x: Suggestion) => wished.has(x.corridor) ? 1 : 0;
     const pool = [...new Set([...wished, ...SUGGEST_POOL])].filter(k => DST(k).name !== s.origin && (!wished.size || wished.has(k) || wished.size < 3));
     // Each place's best style: the fullest that fits, else the cheapest that has enough days, else the quickest.
-    list = pool.map(k => { const all = priced(k), fit = all.filter(fits), ok = all.filter(x => x.ok); return fit.length ? fit[fit.length - 1] : ok.length ? ok[0] : all.slice().sort((a, b) => a.minDays - b.minDays)[0]; }).filter(Boolean);
+    list = pool.map(k => { const ps = priced(k), fit = ps.filter(fits), ok = ps.filter(x => x.ok); return fit.length ? (limit ? fit[fit.length - 1] : fit[0]) : ok.length ? ok[0] : ps.slice().sort((a, b) => a.minDays - b.minDays)[0]; }).filter(Boolean);
     const inS = (x: Suggestion) => { const b = DST(x.corridor).best; return !b || b.includes(mon(s)) ? 1 : 0; };
     list.sort((a, b) => (inW(b) - inW(a)) || (+fits(b) - +fits(a)) || (inS(b) - inS(a)) || (+b.ok - +a.ok) || (fits(a) ? b.total - a.total : a.minDays - b.minDays || a.total - b.total)); list = list.slice(0, 8);
     list.forEach((x, i) => { x.best = i === 0 && fits(x); });

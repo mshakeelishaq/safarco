@@ -50,8 +50,10 @@ export function buildView(s: AppState, api: Api) {
     legs: L.hops.flatMap(h => h.legs), legDays: L.legDays, minDays: L.minDays, cuts: [] as number[], flatKm: L.flatKm, mtnKm: L.mtnKm } : { ...c0, loop: false };
   /** A leg end on the map: home, a place ('@hunza' or 'DEST'), or a town on the road network. */
   const pointAt = (n: string): { lat: number; lon: number } => n === 'HOME' ? cityOr(s.origin) : n === 'DEST' ? DST(s.corridor) : n.startsWith('@') ? DST(n.slice(1)) : { lat: NODES[n][0], lon: NODES[n][1] };
-  const cc = costFor(s), { rows, total } = cc, pct = total / s.cap, air = airFor(s.corridor, s.origin), P = s.groupSize;
-  const health = pct < 0.85 ? { label: t('Healthy'), bg: 'rgba(46,229,157,.14)', fg: 'var(--g)' } : pct <= 1 ? { label: t('Near cap'), bg: 'rgba(255,181,71,.16)', fg: 'var(--amb)' } : { label: t('Over cap'), bg: 'rgba(255,107,91,.16)', fg: 'var(--cor)' };
+  // The spending limit is optional: without one, trips are priced, not judged against a number.
+  const capOn = s.capOn !== false, cap = capOn ? s.cap : Infinity;
+  const cc = costFor(s), { rows, total } = cc, pct = capOn ? total / s.cap : 0, air = airFor(s.corridor, s.origin), P = s.groupSize;
+  const health = !capOn ? { label: t('{amount} each', { amount: kShort(total / Math.max(1, s.groupSize)) }), bg: 'var(--fill)', fg: 'var(--ink2)' } : pct < 0.85 ? { label: t('Healthy'), bg: 'rgba(46,229,157,.14)', fg: 'var(--g)' } : pct <= 1 ? { label: t('Near cap'), bg: 'rgba(255,181,71,.16)', fg: 'var(--amb)' } : { label: t('Over cap'), bg: 'rgba(255,107,91,.16)', fg: 'var(--cor)' };
   const hasHub = c.hub !== undefined;
   const isAir = s.vehicle === 'air' && !!air;
 
@@ -76,7 +78,7 @@ export function buildView(s: AppState, api: Api) {
 
   const tierC: Record<string, string> = { Premium: 'var(--vio)', Standard: 'var(--g)', Backpacker: 'var(--amb)', Search: 'var(--sky)' };
   const tierG: Record<string, string> = { Premium: 'linear-gradient(135deg,#9B7BFF,#5B6CFF)', Standard: 'linear-gradient(135deg,#2EE59D,#0FA678)', Backpacker: 'linear-gradient(135deg,#FFB547,#FF7A3D)', Search: 'linear-gradient(135deg,#6FD3FF,#3B8DFF)' };
-  const fitsS = (x: { ok: boolean; total: number }) => x.ok !== false && x.total <= s.cap;
+  const fitsS = (x: { ok: boolean; total: number }) => x.ok !== false && x.total <= cap;
   const opts = configsFor(s).map(cf => { const r = costFor({ ...s, vehicle: cf.vehicle, tier: cf.tier }); return { ...cf, total: r.total, ok: r.ok, why: r.why }; }).filter(o => !o.why && o.ok).sort((a, b) => a.total - b.total);
   const applyCfg = (o: { vehicle: VehicleId; tier: AppState['tier'] }) => () => { set({ vehicle: o.vehicle, tier: o.tier, flash: 'budget' }); api.later(2200, () => set({ flash: null })); };
   const warn = { bg: 'linear-gradient(135deg,rgba(255,181,71,.22),rgba(255,122,61,.06))', border: 'rgba(255,181,71,.45)', tile: 'linear-gradient(135deg,#FFB547,#FF7A3D)', icon: 'ph-trend-down' };
@@ -89,7 +91,7 @@ export function buildView(s: AppState, api: Api) {
   else if (!cc.ok) tip = { show: true, ...warn, icon: 'ph-calendar-x', title: t('{n} days isn’t enough for this route', { n: s.days }), msg: c.legDays > 1
     ? t('{km} km by road, about {h} h each way. That’s {d} driving days each way at {max} h a day, plus 1 day there.', { km: c.kmStr, h: Math.round(c.hours), d: c.legDays, max: MAX_DRIVE_H })
     : t('{km} km by road, about {h} h each way. That’s {d} driving day each way at {max} h a day, plus 1 day there.', { km: c.kmStr, h: Math.round(c.hours), d: c.legDays, max: MAX_DRIVE_H }), cta: t('Set {n} days', { n: c.minDays }), apply: () => set({ days: c.minDays }) };
-  else if (total > s.cap) {
+  else if (capOn && total > s.cap) {
     const fit = opts.filter(fitsS);
     if (fit.length) { const o = fit[fit.length - 1]; tip = { show: true, ...warn, title: t('{amount} over your cap', { amount: fmt(total - s.cap) }), msg: t('{name} ({vehicle}, {tier} stays) comes to {amount}.', { name: t(o.name), vehicle: t(VEH[o.vehicle].short), tier: t(TIERS[o.tier].label).toLowerCase(), amount: fmt(o.total) }), cta: t('Switch'), apply: applyCfg(o) }; }
     else {
@@ -100,7 +102,7 @@ export function buildView(s: AppState, api: Api) {
     }
   } else {
     const up = opts.filter(o => fitsS(o) && o.total > total + 1000);
-    if (up.length && s.cap - total > s.cap * .15) { const o = up[up.length - 1]; tip = { show: true, ...good, title: t('{amount} to spare', { amount: fmt(s.cap - total) }), msg: t('Upgrade to {name} ({vehicle}, {tier} stays) for {amount}.', { name: t(o.name), vehicle: t(VEH[o.vehicle].short), tier: t(TIERS[o.tier].label).toLowerCase(), amount: fmt(o.total) }), cta: t('Upgrade'), apply: applyCfg(o) }; }
+    if (capOn && up.length && s.cap - total > s.cap * .15) { const o = up[up.length - 1]; tip = { show: true, ...good, title: t('{amount} to spare', { amount: fmt(s.cap - total) }), msg: t('Upgrade to {name} ({vehicle}, {tier} stays) for {amount}.', { name: t(o.name), vehicle: t(VEH[o.vehicle].short), tier: t(TIERS[o.tier].label).toLowerCase(), amount: fmt(o.total) }), cta: t('Upgrade'), apply: applyCfg(o) }; }
   }
 
   const canNext = s.step === 0 ? !!s.wish : s.step === 1 ? !!s.origin : s.step === 2 ? !!s.mode : true;
@@ -112,8 +114,22 @@ export function buildView(s: AppState, api: Api) {
     { title: t('Where do you want to go?'), sub: t('From {origin}. Search any city or tourist spot, or let SafarCo suggest one.', { origin: s.origin || 'Islamabad' }) },
     { title: t('When are you going?'), sub: t('Tentative dates are fine. Roads, season and prices change with the month.') },
     { title: t('Who’s travelling, and how?'), sub: t('Fares, meals and rooms are worked out for each person.') },
-    { title: t('What’s your budget?'), sub: t('Total for the whole group: transport, stays and food.') },
-    s.mode === 'know' ? { title: t('Your {name} options', { name: DST(s.dest).name }), sub: t('Move the budget and the options re-rank instantly.') } : { title: t('Trips that fit your budget'), sub: t('Ranked for your dates, days and budget.') }];
+    { title: t('How do you like to stay?'), sub: t('Prices are worked out for your trip. You can set a spending limit if you have one.') },
+    s.mode === 'know' ? { title: t('Your {name} options', { name: DST(s.dest).name }), sub: capOn ? t('Move the budget and the options re-rank instantly.') : t('Every way to go, with the full price for your group.') }
+      : capOn ? { title: t('Trips that fit your budget'), sub: t('Ranked for your dates, days and budget.') } : { title: t('Trips for you'), sub: t('Ranked for your dates and wish, priced for your group.') }];
+  // "How do you like to stay?": each kind of stay with its price for this trip, worked out live.
+  const stayOpts = s.step !== 5 || s.screen === 'app' ? [] : (['backpacker', 'standard', 'premium'] as const).map(tier => {
+    const cfgs = configsFor(s).filter(cf => cf.tier === tier), W2 = s.wish && s.wish !== 'any' ? wishPlaces(s.wish).map(p => p.id) : [];
+    const places = s.mode === 'know' ? [s.dest] : (W2.length >= 3 ? W2 : [...new Set([...W2, ...SUGGEST_POOL])]).filter(k => DST(k).name !== s.origin);
+    const rs = places.flatMap(k => cfgs.map(cf => costFor({ ...s, corridor: k, vehicle: cf.vehicle, tier, extra: s.mode === 'know' ? s.extra : [] }))).filter(r => !r.why);
+    const totals = rs.filter(r => r.ok).map(r => r.total), need = rs.length ? Math.min(...rs.map(r => r.minDays)) : 0;
+    const low = totals.length ? Math.min(...totals) : 0, on = s.tier === tier;
+    const info = { backpacker: { label: t('Budget'), sub: t('Guest houses and dhabas'), icon: 'ph-tent' }, standard: { label: t('Standard'), sub: t('Good hotels and restaurants'), icon: 'ph-bed' }, premium: { label: t('Comfort'), sub: t('Resorts and the best views'), icon: 'ph-star' } }[tier];
+    return { key: tier, ...info, on, low, tile: TIER_G[tier],
+      price: !low ? (need > s.days ? t('Needs {n}+ days', { n: need }) : t('Not for this trip')) : s.mode === 'know' ? fmt(low) : t('From {amount}', { amount: fmt(low) }),
+      each: low ? t('{amount} each', { amount: kShort(low / Math.max(1, s.groupSize)) }) : '',
+      onClick: () => set({ tier, pickId: null }) };
+  });
 
   const geoOf = (q: string) => LIVE.geo[q.trim().toLowerCase()];
   const destRows = (() => {
@@ -465,7 +481,10 @@ export function buildView(s: AppState, api: Api) {
     tripMeta: s.groupSize > 1 ? t('{n} travellers · {days} days', { n: s.groupSize, days: s.days }) : t('{n} traveller · {days} days', { n: s.groupSize, days: s.days }),
     sliderPct: (s.cap - 20000) / 480000 * 100,
     capPresets: [50000, 100000, 200000, 350000].map(v => ({ key: v, label: `${v / 1000}k`, onClick: () => set({ cap: v, pickId: null }), ...chip(s.cap === v) })),
-    budgetHint: s.mode === 'know'
+    stayOpts, capOn,
+    capToggle: capOn ? { label: t('Remove the limit'), onClick: () => set({ capOn: false, pickId: null }) }
+      : { label: t('I have a spending limit'), onClick: () => set({ capOn: true, pickId: null, cap: Math.max(40000, Math.ceil((stayOpts.find(o => o.on)?.low || total) * 1.1 / 5000) * 5000) }) },
+    budgetHint: !capOn ? '' : s.mode === 'know'
       ? (sug.list.find(x => x.best) ? t('Best fit for {dest}: {name}, {amount}.', { dest: DST(s.dest).label, name: t(sug.list.find(x => x.best)!.name), amount: fmt(sug.list.find(x => x.best)!.total) }) : sug.list.length ? t('{dest} starts at {amount} for this group.', { dest: DST(s.dest).label, amount: fmt(sug.list[sug.list.length - 1].total) }) : '')
       : (fitCount ? t('{n} of {total} destinations fit this budget.', { n: fitCount, total: sug.list.length }) : t('Nothing fits yet. Raise the budget or shorten the trip.')),
     sugg: sug.list.map((g: Suggestion) => {
@@ -474,7 +493,7 @@ export function buildView(s: AppState, api: Api) {
           : g.name === TIERS[g.tier].label ? t('{name} · {vehicle}', { name: t(g.name), vehicle: t(VEH[g.vehicle].short) })
           : t('{name} · {vehicle} · {tier} stays', { name: t(g.name), vehicle: t(VEH[g.vehicle].short), tier: t(TIERS[g.tier].label) }),
         icon: VEH[g.vehicle].icon, tile: TIER_G[g.tier], fit: roadFit(g.vehicle, g.corridor, s.origin, M)?.text || '', amount: fmt(g.total), amountUsd: usd(g.total), best: !!g.best,
-        fitLabel: !g.ok ? (g.why ? t(g.why) : t('Needs {n}+ days', { n: g.minDays })) : fits ? t('{amount} left', { amount: kShort(s.cap - g.total) }) : `+${kShort(g.total - s.cap)}`, fitFg: fits ? 'var(--g)' : 'var(--cor)', fitBg: fits ? 'rgba(46,229,157,.14)' : 'rgba(255,107,91,.16)',
+        fitLabel: !g.ok ? (g.why ? t(g.why) : t('Needs {n}+ days', { n: g.minDays })) : fits ? (capOn ? t('{amount} left', { amount: kShort(s.cap - g.total) }) : t('{amount} each', { amount: kShort(g.total / Math.max(1, s.groupSize)) })) : `+${kShort(g.total - s.cap)}`, fitFg: fits ? 'var(--g)' : 'var(--cor)', fitBg: fits ? 'rgba(46,229,157,.14)' : 'rgba(255,107,91,.16)',
         bg: on ? 'linear-gradient(var(--fill),var(--fill)) padding-box, linear-gradient(135deg,#2EE59D,#FFB547) border-box' : 'linear-gradient(rgba(255,255,255,.05),rgba(255,255,255,.05)) padding-box, linear-gradient(rgba(255,255,255,.1),rgba(255,255,255,.1)) border-box',
         transform: on ? 'translateZ(18px) rotateX(4deg)' : 'translateZ(0)', shadow: on ? '0 22px 40px -18px rgba(46,229,157,.7)' : 'none', op: fits || on ? 1 : .62,
         onClick: () => set({ pickId: g.key, corridor: g.corridor }) };
@@ -585,7 +604,7 @@ export function buildView(s: AppState, api: Api) {
       { key: 'k', label: t('Kids (under 12)'), value: `${s.kids}`, dec: () => api.setPeople('kids', -1), inc: () => api.setPeople('kids', 1) },
       { key: 'e', label: t('Elders (60+)'), value: `${s.elders}`, dec: () => api.setPeople('elders', -1), inc: () => api.setPeople('elders', 1) },
       { key: 'd', label: t('Days'), value: `${s.days}`, dec: () => set({ days: Math.max(2, s.days - 1) }), inc: () => set({ days: Math.min(14, s.days + 1) }) },
-      { key: 'b', label: t('Budget cap'), value: `${Math.round(s.cap / 1000)}k`, dec: () => set({ cap: Math.max(40000, s.cap - 10000) }), inc: () => set({ cap: s.cap + 10000 }) }
+      { key: 'b', label: t('Budget cap'), value: capOn ? `${Math.round(s.cap / 1000)}k` : t('None'), dec: () => capOn && set(s.cap <= 40000 ? { capOn: false } : { cap: Math.max(40000, s.cap - 10000) }), inc: () => set(capOn ? { cap: s.cap + 10000 } : { capOn: true, cap: Math.max(40000, Math.ceil(total / 5000) * 5000) }) }
     ],
     helplines: [['1122', t('Rescue')], ['15', t('Police')], ['130', t('Motorway Police')], ['115', t('Edhi Ambulance')]].map(([num, label]) => ({ num, label, href: `tel:${num}` })),
     hotels: stays.list.map(h => ({ ...h, tierC: tierC[h.tier] || 'var(--sky)', grad: tierG[h.tier] || 'linear-gradient(135deg,#6FD3FF,#3B8DFF)' })),

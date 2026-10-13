@@ -196,21 +196,34 @@ export function Onboarding({ v, api }: { v: View; api: Api }) {
           </>}
 
           {s.step === 5 && <>
-            <div style={css('display:flex;align-items:baseline;gap:8px')}><span style={css('font-size:15px;font-weight:800;color:var(--mute)')}>PKR</span><span style={css('font-family:var(--fontH);font-weight:600;font-size:42px;letter-spacing:-.03em;font-variant-numeric:tabular-nums;background:var(--ng2);-webkit-background-clip:text;background-clip:text;color:transparent')}>{v.capBig}</span><span style={css('font-size:15px;font-weight:800;color:var(--mute);font-variant-numeric:tabular-nums')}>{v.capUsd}</span></div>
-            <div style={css('font-size:13px;color:var(--mute);font-weight:600')}>{v.capPer}</div>
-            <Slider v={v} set={set} />
-            <div style={css('display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px')}>
-              {v.capPresets.map(p => <button key={p.key} onClick={p.onClick} style={css(`height:44px;border-radius:14px;border:1px solid ${p.border};background:${p.bg};color:${p.fg};font-size:13px;font-weight:800;cursor:pointer;transition:all .2s`)}>{p.label}</button>)}
+            <div role="radiogroup" aria-label={t('How do you like to stay?')} style={css('display:flex;flex-direction:column;gap:10px')}>
+              {v.stayOpts.map(o => (
+                <button key={o.key} role="radio" aria-checked={o.on} onClick={o.onClick} style={css(`display:flex;align-items:center;gap:12px;min-height:76px;padding:12px;border-radius:22px;border:1.5px solid ${o.on ? 'var(--g)' : 'var(--line2)'};background:${o.on ? 'rgba(46,229,157,.12)' : 'var(--fill)'};color:var(--ink);text-align:left;cursor:pointer;transition:all .2s`)}>
+                  <div style={css(`width:46px;height:46px;flex:none;border-radius:15px;background:${o.tile};display:flex;align-items:center;justify-content:center;color:#fff;font-size:23px;box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 -3px 0 rgba(0,0,0,.18)`)}><i className={`ph-fill ${o.icon}`} /></div>
+                  <div style={css('flex:1;min-width:0')}><div style={css('font-size:16px;font-weight:800')}>{o.label}</div><div style={css('font-size:12px;color:var(--mute);font-weight:600;margin-top:2px')}>{o.sub}</div></div>
+                  <div style={css('flex:none;text-align:right')}><div style={css('font-size:14px;font-weight:800;font-variant-numeric:tabular-nums')}>{o.price}</div><div style={css('font-size:11px;color:var(--mute);font-weight:700;margin-top:2px')}>{o.each}</div></div>
+                </button>
+              ))}
             </div>
-            <div style={css('display:flex;align-items:center;gap:12px;margin-top:16px;padding:14px;border-radius:20px;background:linear-gradient(135deg,rgba(46,229,157,.16),rgba(25,194,184,.05));border:1px solid rgba(46,229,157,.3)')}>
-              <div style={css('width:40px;height:40px;flex:none;border-radius:13px;background:linear-gradient(135deg,#2EE59D,#0FA678);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px')}><i className="ph-fill ph-sparkle" /></div>
-              <div style={css('font-size:14px;font-weight:700;line-height:1.4')}>{v.budgetHint}</div>
-            </div>
+            <div style={css('font-size:12px;color:var(--mute);font-weight:600;margin:8px 4px 0;line-height:1.45')}>{t('Whole group: transport, stays, food and tolls, for {meta}.', { meta: v.tripMeta.toLowerCase() })}</div>
+            <button onClick={v.capToggle.onClick} style={css('align-self:flex-start;margin-top:14px;height:40px;padding:0 14px;border-radius:12px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);font-size:13px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:6px')}><i className={`ph-fill ${v.capOn ? 'ph-x' : 'ph-wallet'}`} />{v.capToggle.label}</button>
+            {v.capOn && <>
+              <div style={css('display:flex;align-items:baseline;gap:8px;margin-top:14px')}><span style={css('font-size:15px;font-weight:800;color:var(--mute)')}>PKR</span><span style={css('font-family:var(--fontH);font-weight:600;font-size:36px;letter-spacing:-.03em;font-variant-numeric:tabular-nums;background:var(--ng2);-webkit-background-clip:text;background-clip:text;color:transparent')}>{v.capBig}</span><span style={css('font-size:15px;font-weight:800;color:var(--mute);font-variant-numeric:tabular-nums')}>{v.capUsd}</span></div>
+              <div style={css('font-size:13px;color:var(--mute);font-weight:600')}>{v.capPer}</div>
+              <Slider v={v} set={set} />
+              <div style={css('display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px')}>
+                {v.capPresets.map(p => <button key={p.key} onClick={p.onClick} style={css(`height:44px;border-radius:14px;border:1px solid ${p.border};background:${p.bg};color:${p.fg};font-size:13px;font-weight:800;cursor:pointer;transition:all .2s`)}>{p.label}</button>)}
+              </div>
+              {v.budgetHint && <div style={css('display:flex;align-items:center;gap:12px;margin-top:16px;padding:14px;border-radius:20px;background:linear-gradient(135deg,rgba(46,229,157,.16),rgba(25,194,184,.05));border:1px solid rgba(46,229,157,.3)')}>
+                <div style={css('width:40px;height:40px;flex:none;border-radius:13px;background:linear-gradient(135deg,#2EE59D,#0FA678);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px')}><i className="ph-fill ph-sparkle" /></div>
+                <div style={css('font-size:14px;font-weight:700;line-height:1.4')}>{v.budgetHint}</div>
+              </div>}
+            </>}
           </>}
 
           {s.step === 6 && <>
-            <div style={css('display:flex;align-items:baseline;justify-content:space-between;gap:8px')}><div style={css('display:flex;align-items:baseline;gap:6px')}><span style={css('font-size:13px;font-weight:800;color:var(--mute)')}>PKR</span><span style={css('font-family:var(--fontH);font-weight:600;font-size:26px;letter-spacing:-.02em;font-variant-numeric:tabular-nums')}>{v.capBig}</span><span style={css('font-size:12px;font-weight:700;color:var(--mute)')}>{v.capUsd}</span></div><span style={css('font-size:12px;font-weight:700;color:var(--mute)')}>{v.tripMeta}</span></div>
-            <Slider v={v} set={set} />
+            {v.capOn ? <><div style={css('display:flex;align-items:baseline;justify-content:space-between;gap:8px')}><div style={css('display:flex;align-items:baseline;gap:6px')}><span style={css('font-size:13px;font-weight:800;color:var(--mute)')}>PKR</span><span style={css('font-family:var(--fontH);font-weight:600;font-size:26px;letter-spacing:-.02em;font-variant-numeric:tabular-nums')}>{v.capBig}</span><span style={css('font-size:12px;font-weight:700;color:var(--mute)')}>{v.capUsd}</span></div><span style={css('font-size:12px;font-weight:700;color:var(--mute)')}>{v.tripMeta}</span></div>
+            <Slider v={v} set={set} /></> : <div style={css('font-size:12px;font-weight:700;color:var(--mute)')}>{v.tripMeta}</div>}
             {v.wishFit && <div style={css('display:flex;gap:10px;align-items:center;margin-top:8px;padding:10px 12px;border-radius:18px;background:rgba(255,181,71,.13);border:1px solid rgba(255,181,71,.45)')}>
               <div style={css('flex:1;min-width:0;font-size:13px;font-weight:700;line-height:1.45')}>{v.wishFit.text}</div>
               <button onClick={v.wishFit.apply} style={css('flex:none;height:40px;padding:0 12px;border-radius:12px;border:0;background:var(--ink);color:var(--bg);font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap')}>{v.wishFit.cta}</button>

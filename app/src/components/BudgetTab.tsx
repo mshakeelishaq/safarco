@@ -14,15 +14,21 @@ export function BudgetTab({ v }: { v: View; api: Api }) {
         <section aria-label={t('Total cost')} style={css(`border-radius:30px;padding:18px;background:var(--card);border:1px solid var(--line);box-shadow:${v.budgetShadow};transition:box-shadow .4s`)}>
           <div style={css('display:flex;align-items:center;justify-content:space-between;gap:8px')}>
             <div style={css('font-size:13px;font-weight:800;color:var(--mute)')}>{t('Whole trip, everyone')}</div>
-            <div style={css(`display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:11px;background:${v.health.bg};color:${v.health.fg};font-size:12px;font-weight:800`)}><span style={css(`width:7px;height:7px;border-radius:50%;background:${v.health.fg}`)} />{v.health.label}</div>
+            {v.capOn && <div style={css(`display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:11px;background:${v.health.bg};color:${v.health.fg};font-size:12px;font-weight:800`)}><span style={css(`width:7px;height:7px;border-radius:50%;background:${v.health.fg}`)} />{v.health.label}</div>}
           </div>
           <div style={css('display:flex;align-items:baseline;gap:8px;margin-top:8px;flex-wrap:wrap')}>
             <span style={css('font-size:15px;font-weight:800;color:var(--mute)')}>PKR</span>
             <span style={css('font-family:var(--fontH);font-weight:600;font-size:38px;letter-spacing:-.03em;font-variant-numeric:tabular-nums;background:var(--ng3);-webkit-background-clip:text;background-clip:text;color:transparent')}>{v.totalNum}</span>
             <span style={css('font-size:15px;font-weight:800;color:var(--mute);font-variant-numeric:tabular-nums')}>≈ {v.totalUsd}</span>
           </div>
-          <div style={css('font-size:13px;color:var(--mute);font-weight:600;font-variant-numeric:tabular-nums')}>{t('{amount} per person · {pct}% of {cap} budget', { amount: v.perPersonStr, pct: v.capPct, cap: v.capStr })}</div>
-          <div role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(v.barPct)} aria-label={t('Share of budget')} style={css('height:8px;border-radius:4px;background:var(--fill2);margin:12px 0 4px;overflow:hidden')}><div style={css(`height:100%;width:${v.barPct}%;border-radius:4px;background:${v.health.fg};transition:width .6s cubic-bezier(.2,.8,.2,1)`)} /></div>
+          {v.capOn ? <>
+            <div style={css('font-size:13px;color:var(--mute);font-weight:600;font-variant-numeric:tabular-nums')}>{t('{amount} per person · {pct}% of {cap} budget', { amount: v.perPersonStr, pct: v.capPct, cap: v.capStr })}</div>
+            <div role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(v.barPct)} aria-label={t('Share of budget')} style={css('height:8px;border-radius:4px;background:var(--fill2);margin:12px 0 4px;overflow:hidden')}><div style={css(`height:100%;width:${v.barPct}%;border-radius:4px;background:${v.health.fg};transition:width .6s cubic-bezier(.2,.8,.2,1)`)} /></div>
+            <button onClick={v.capToggle.onClick} style={css('margin-top:6px;padding:0;border:0;background:none;color:var(--mute);font-size:12px;font-weight:800;cursor:pointer;text-decoration:underline')}>{v.capToggle.label}</button>
+          </> : <div style={css('display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap')}>
+            <div style={css('font-size:13px;color:var(--mute);font-weight:600;font-variant-numeric:tabular-nums')}>{t('{amount} per person', { amount: v.perPersonStr })}</div>
+            <button onClick={v.capToggle.onClick} style={css('height:36px;padding:0 12px;border-radius:11px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);font-size:12px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:6px')}><i className="ph-fill ph-wallet" />{t('Set a spending limit')}</button>
+          </div>}
 
           <h2 style={css('margin:20px 0 0;font-size:14px;font-weight:800')}>{t('Where the money goes')}</h2>
           <div role="img" aria-label={b.segs.map(x => `${x.label} ${x.share}`).join(', ')} style={css('display:flex;gap:2px;height:22px;margin-top:10px')}>

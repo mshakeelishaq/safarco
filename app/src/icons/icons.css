@@ -330,6 +330,9 @@
 .ph-fill.ph-tag:before {
   content: "\e478";
 }
+.ph-fill.ph-tent:before {
+  content: "\e8ba";
+}
 .ph-fill.ph-thermometer-cold:before {
   content: "\e5c8";
 }
@@ -723,6 +726,9 @@
 }
 .ph-bold.ph-tag:before {
   content: "\e478";
+}
+.ph-bold.ph-tent:before {
+  content: "\e8ba";
 }
 .ph-bold.ph-thermometer-cold:before {
   content: "\e5c8";
@@ -1616,6 +1622,14 @@
 }
 .ph-duotone.ph-tag:after {
   content: "\e479";
+  margin-left: -1em;
+}
+.ph-duotone.ph-tent:before {
+  content: "\e8ba";
+  opacity: 0.2;
+}
+.ph-duotone.ph-tent:after {
+  content: "\e8bb";
   margin-left: -1em;
 }
 .ph-duotone.ph-thermometer-cold:before {
