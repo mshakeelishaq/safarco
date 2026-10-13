@@ -570,7 +570,8 @@ export function sideTrips(s: TripState): Record<string, string[]> {
   const ck = `${s.corridor}|${extra.join(',')}|${(s.sleepAt || []).join(',')}|${m}`; if (ck in SIDES) return SIDES[ck];
   const out: Record<string, string[]> = {}, bases = [s.corridor, ...extra];
   extra.forEach(k => {
-    if ((s.sleepAt || []).includes(k)) return;
+    // Places reached by jeep and a hike (Fairy Meadows) are never a day trip: people stay the night.
+    if ((s.sleepAt || []).includes(k) || DST(k).hub !== undefined) return;
     const near = bases.filter(b => b !== k && !Object.values(out).flat().includes(b)).map(b => ({ b, h: tripFrom(k, pointOf(b), m).hours })).sort((a, b) => a.h - b.h)[0];
     if (near && near.h <= SIDE_H) (out[near.b] = out[near.b] || []).push(k);
   });
