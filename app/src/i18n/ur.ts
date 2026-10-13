@@ -1345,4 +1345,5 @@ export const UR: Record<string, string> = {
   "Water ponds and apricot orchards": "Paani ke talaab aur khubani ke baagh",
   "40 min past Khaplu": "Khaplu se 40 minute aage",
   "Apricot orchards and a different autumn along the upper Shyok": "Khubani ke baagh aur oopri Shyok ke saath alag si khizaan",
+  "Lunch, fuel and ATMs before Khaplu": "Khaplu se pehle khana, petrol aur ATM",
 };

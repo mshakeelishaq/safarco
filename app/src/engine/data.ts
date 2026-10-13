@@ -119,7 +119,7 @@ export const EDGE_STOPS: Record<string, EdgeStop[]> = {
   'GLT-KRM': [[60, 'tea', 'Rakaposhi View Point, Ghulmet', 'Tea facing 25,550 ft Rakaposhi']],
   'RKT-SKD': [[35, 'view', 'Alam Bridge', 'Gilgit and Indus rivers meet'], [110, 'tea', 'Roundu valley', 'Tea stalls along the Indus']],
   'GLT-SKD': [[25, 'view', 'Alam Bridge', 'Gilgit and Indus rivers meet'], [115, 'tea', 'Roundu valley', 'Tea stalls along the Indus']],
-  'KRM-PSU': [[20, 'view', 'Attabad Lake', 'Turquoise lake and tunnels']], 'SKD-KHP': [[48, 'view', 'Keris', 'Wooden bridge over the river, orchards and tall peaks'], [65, 'tea', 'Ghowari', 'Tall golden poplars in autumn, 1 h before Khaplu'], [94, 'view', 'Barah Valley', 'Water ponds and apricot orchards']],
+  'KRM-PSU': [[20, 'view', 'Attabad Lake', 'Turquoise lake and tunnels']], 'SKD-KHP': [[1, 'food', 'Skardu', 'Lunch, fuel and ATMs before Khaplu'], [48, 'view', 'Keris', 'Wooden bridge over the river, orchards and tall peaks'], [65, 'tea', 'Ghowari', 'Tall golden poplars in autumn, 1 h before Khaplu'], [94, 'view', 'Barah Valley', 'Water ponds and apricot orchards']],
   'MRE-MZD': [[40, 'tea', 'Kohala bridge', 'Tea by the Jhelum river']], 'MZD-KEL': [[93, 'view', 'Keran', 'Neelum river views'], [136, 'food', 'Sharda', 'By the Neelum river']],
   'DIR-CTR': [[30, 'view', 'Lowari Tunnel', '8.5 km tunnel under the pass'], [75, 'tea', 'Drosh', 'Tea stop']],
   'QTA-SKR': [[160, 'food', 'Sibi', 'Fuel and washrooms']], 'KZD-KHI': [[220, 'tea', 'Bela', 'Tea stop']], 'DGK-LRL': [[85, 'view', 'Fort Munro', 'Hill station views at 6,470 ft']], 'DIK-ISB': [[165, 'tea', 'M-14 service area', 'Tea and fuel']],
