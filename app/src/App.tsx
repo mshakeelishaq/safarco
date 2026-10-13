@@ -119,7 +119,8 @@ export function App() {
     // A saved trip updates itself (on the device now, in the account shortly after).
     const t = setTimeout(() => {
       const old = localTrips().find(x => x.id === s.savedId); if (!old) return;
-      const upd = { ...old, data: d, savedAt: new Date().toISOString() };
+      // A name SafarCo made ("Lahore → Skardu · May 2027") follows the trip when its places or month change.
+      const upd = { ...old, name: old.name === defaultName(old.data) ? defaultName(d) : old.name, data: d, savedAt: new Date().toISOString() };
       saveLocal(upd); setTrips(localTrips());
       if (user) cloudSave(upd).then(cid => { if (cid !== upd.cloudId) { saveLocal({ ...upd, cloudId: cid }); setTrips(localTrips()); } }).catch(() => {});
     }, 1200);
