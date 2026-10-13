@@ -1335,7 +1335,9 @@ export const UR: Record<string, string> = {
   "Deep snow in the Kumrat forest": "Kumrat ke jangal mein gehri barf",
   "The road past Thal is usually snowbound: go with a local jeep and check before you go.": "Thal se aage sadak aksar barf se band hoti hai: maqami jeep ke saath jaayein aur pehle maloom kar lein.",
   "White sand dunes by the airport, best at sunset": "Airport ke paas safed ret ke teele, ghuroob-e-aftab par behtareen",
-  "Tall poplars, golden in autumn, and Khaplu Palace": "Oonche safede, khizaan mein sunehre, aur Khaplu Mahal",
+  "On the way: Ghowari’s golden poplars, then Barah Valley, then Khaplu Palace": "Raaste mein: pehle Ghowari ke sunehre safede, phir Barah wadi, phir Khaplu Mahal",
+  "On the Skardu road, 30 km before Khaplu": "Skardu wali sadak par, Khaplu se 30 km pehle",
+  "On the Skardu road, just before Khaplu": "Skardu wali sadak par, Khaplu se zara pehle",
   "Clear water ponds and streams, apricot blossom in April": "Saaf paani ke talaab aur naale, April mein khubani ke phool",
   "Tall pines and poplars, golden in late October": "Oonche cheer aur safede, October ke aakhir mein sunehre",
 };
