@@ -1410,4 +1410,13 @@ export const UR: Record<string, string> = {
   "One room more": "Aik kamra zyada",
   "Drive to {place}": "{place} ki taraf rawangi",
   "{km} km · {time}": "{km} km · {time}",
+  "Day trip to {place}": "{place} ka din bhar ka safar",
+  "{km} km each way · back to {place} for the night": "Har taraf {km} km · raat ke liye wapas {place}",
+  "Back to {place}": "Wapas {place}",
+  "About {time}": "Taqreeban {time}",
+  "Make it a day trip from {place}": "{place} se din ka safar bana dein",
+  "{place} is a day trip from {base} again.": "{place} phir se {base} se din ka safar hai.",
+  "A day trip from {base}, back for the night. Or stay in {place}.": "{base} se din ka safar, raat ko wapsi. Ya {place} mein ruk jayein.",
+  "Stay a night in {place}": "{place} mein aik raat rukein",
+  "{place} on the way back: best in the late-afternoon light.": "Wapsi par {place}: dopahar dhalne ki roshni mein behtareen.",
 };

@@ -7,7 +7,7 @@ import type { PlanEdits } from './state';
 import { t } from './i18n';
 
 /** Which plan a set of edits belongs to: same start, destination, length and way of travel. */
-export const planKey = (s: { origin: string | null; corridor: string; days: number; vehicle: string; extra?: string[]; overnight?: string | null }) => `${s.origin}|${s.corridor}|${s.days}|${s.vehicle === 'air' ? 'air' : 'road'}${s.extra?.length ? '|' + s.extra.join(',') : ''}${s.overnight ? '|night:' + s.overnight : ''}`;
+export const planKey = (s: { origin: string | null; corridor: string; days: number; vehicle: string; extra?: string[]; overnight?: string | null; sleepAt?: string[] }) => `${s.origin}|${s.corridor}|${s.days}|${s.vehicle === 'air' ? 'air' : 'road'}${s.extra?.length ? '|' + s.extra.join(',') : ''}${s.overnight ? '|night:' + s.overnight : ''}${s.sleepAt?.length ? '|sleep:' + s.sleepAt.join(',') : ''}`;
 export const dropKey = (day: number, label: string) => `${day}|${label}`;
 
 /** "6:30 am" → 6.5 */
@@ -58,12 +58,14 @@ export function editDay(d: PlanDay, i: number, e: PlanEdits): EditedDay {
     const isLater = (x: Omit<EditedStop, 'key'>) => x.kind === 'pin' && (x.time === t('Evening') || !x.time);
     const later = [...stops.filter(isLater), ...added];
     stops = stops.filter(x => !isLater(x));
-    const arriveAt = stops.findIndex(x => x.kind === 'bed'), arrive = arriveAt >= 0 ? parseClock(stops[arriveAt].time) : null;
-    if (later.length && arrive != null) {
-      let h = Math.max(arrive + 0.5, 9);
+    const arriveAt = stops.findIndex(x => x.kind === 'bed' || x.arrive), arrive = arriveAt >= 0 ? parseClock(stops[arriveAt].time) : null;
+    if (arrive != null && (later.length || stops.some(x => x.driveH && !x.time))) {
+      let h = Math.max(arrive + (later.length ? 0.33 : 0), 9);
       const timed = later.map(x => { const at = h; h += visitH(x.label) + 0.33; return { ...x, time: clock(at) }; });
-      const dinner = stops.findIndex((x, i) => i > arriveAt && x.kind === 'food');
-      if (dinner >= 0) stops[dinner] = { ...stops[dinner], time: clock(Math.max(19.5, h)) };
+      // A drive back (day trips) follows the sights.
+      stops = stops.map(x => { if (!x.driveH || x.time) return x; const at = h; h += x.driveH; return { ...x, time: clock(at) }; });
+      const dinner = stops.findIndex((x, i) => i > arriveAt && x.kind === 'food' && x.label === t('Dinner'));
+      if (dinner >= 0) stops[dinner] = { ...stops[dinner], time: clock(Math.max(19.5, h + 0.5)) };
       stops.splice(arriveAt + 1, 0, ...timed);
     } else stops.push(...later.map(a => ({ ...a, time: t('Evening') })));
   }

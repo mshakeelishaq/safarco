@@ -67,6 +67,6 @@ describe('places added to a driving day', () => {
     const labels = out.map(x => x.replace(/^\S+ (am|pm) /, '').replace(/^ /, ''));
     expect(labels.indexOf('Shigar Fort')).toBe(labels.indexOf('Arrive Shigar') + 1);
     expect(labels[labels.length - 1]).toBe('Dinner');
-    expect(out.find(x => x.endsWith('Shigar Fort'))).toMatch(/^9:2\d am/);
+    expect(out.find(x => x.endsWith('Shigar Fort'))).toMatch(/^9:1\d am/);
   });
 });

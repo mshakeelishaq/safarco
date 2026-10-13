@@ -38,9 +38,22 @@ describe('circuits', () => {
 });
 
 describe('places close together on one trip', () => {
-  it('a short hop is the morning of a day there, and shared sights are seen once', async () => {
+  it('a nearby place is a day trip from the base, unless you choose to sleep there', async () => {
     const { buildPlan, circuit } = await import('../src/engine/engine');
     const s = { origin: 'Islamabad', mode: 'know' as const, dest: 'skardu', corridor: 'skardu', extra: ['shigar'], startDate: '2026-11-03', days: 9, depart: null, vehicle: 'suv' as const, tier: 'standard' as const, adults: 2, kids: 0, elders: 0, groupSize: 2, rooms: 'separate' as const, cap: 1e6 };
+    expect(circuit(s)).toBeNull();
+    const days = buildPlan(s).days, trip = days.find(d => d.side)!;
+    expect(trip.side).toMatchObject({ id: 'shigar', base: 'skardu', sleeping: false });
+    expect(trip.stay!.town).toBe('Skardu');
+    expect(trip.stops.at(-2)!.label).toBe('Back to Skardu');
+    expect(days.every(d => d.stay?.town !== 'Shigar')).toBe(true);
+    const sleep = buildPlan({ ...s, sleepAt: ['shigar'] }).days;
+    expect(sleep.some(d => d.stay?.town === 'Shigar' && d.side?.sleeping)).toBe(true);
+  });
+
+  it('when sleeping there, the short hop is the morning of a day there, and shared sights are seen once', async () => {
+    const { buildPlan, circuit } = await import('../src/engine/engine');
+    const s = { origin: 'Islamabad', mode: 'know' as const, dest: 'skardu', corridor: 'skardu', extra: ['shigar'], sleepAt: ['shigar'], startDate: '2026-11-03', days: 9, depart: null, vehicle: 'suv' as const, tier: 'standard' as const, adults: 2, kids: 0, elders: 0, groupSize: 2, rooms: 'separate' as const, cap: 1e6 };
     const L = circuit(s)!;
     expect(L.hops.find(h => h.to === 'shigar')!.short).toBe(true);
     const days = buildPlan(s).days, hop = days.find(d => d.title === 'Skardu → Shigar')!;
