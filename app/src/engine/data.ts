@@ -267,9 +267,9 @@ export const PROV_FT: Record<string, number> = { 'Gilgit-Baltistan': 7000, 'Azad
 /** Places SafarCo has checked itself (pins from the owner); these win over anything imported. */
 const OWN_INFO: Record<string, PlaceInfo> = {
   'shogran|Kiwai waterfall': { lat: 34.6309, lon: 73.4435, km: 7, min: 18, visit: 45, access: 'car', checked: true },
-  // Past Shigar, not by Skardu: the straight line is short but the road goes round. No exact pin yet.
-  'skardu|Blind Lake': { km: 45, min: 100, visit: 60, access: 'car', checked: true },
-  'shigar|Blind Lake (Zharba Tso)': { km: 19, min: 50, visit: 60, access: 'car', checked: true }
+  // Past Shigar, not by Skardu: the straight line is short but the road goes round.
+  'skardu|Blind Lake': { lat: 35.4216, lon: 75.6414, km: 45, min: 100, visit: 60, access: 'car', checked: true },
+  'shigar|Blind Lake (Zharba Tso)': { lat: 35.4216, lon: 75.6414, km: 19, min: 50, visit: 60, access: 'car', checked: true }
 };
 /** "45 km · 1 h 40 min" for a checked place. */
 const ownDist = (i: PlaceInfo) => i.km == null ? '' : `${i.km} km` + (i.min ? ` · ${i.min >= 60 ? `${Math.floor(i.min / 60)} h${i.min % 60 ? ` ${i.min % 60} min` : ''}` : `${i.min} min`}` : '');
