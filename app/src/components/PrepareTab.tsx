@@ -4,6 +4,7 @@ import { t } from '../i18n';
 import type { Api, View } from '../view';
 import { Fold, Footer, PackingCard, Ratings, TabHero, tripGlance } from './TripTab';
 import { Notes } from './Onboarding';
+import { GetReadyCard } from './TripMode';
 
 /** Everything worth knowing before the trip, most serious first. */
 function precautions(v: View) {
@@ -27,6 +28,7 @@ export function PrepareTab({ v, api }: { v: View; api: Api }) {
     <div data-screen-label="Prepare">
       <TabHero v={v} title={t('Prepare')} sub={t('What to know, what to pack, and help on the road.')} />
       <div className="sc-flow" style={css('padding:4px 16px 150px;display:flex;flex-direction:column;gap:12px;pointer-events:auto;background:var(--bg)')}>
+        <GetReadyCard v={v} />
         <Fold icon="ph-shield-warning" iconColor={list.some(x => x.color === 'var(--cor)') ? 'var(--cor)' : 'var(--amb2)'} title={t('Things to know')} summary={list.length ? (list.length > 1 ? t('{n} notes', { n: list.length }) : t('1 note')) : t('All clear')} summaryColor={list.some(x => x.color === 'var(--cor)') ? 'var(--cor)' : undefined}>
           {list.length ? <div style={css('display:flex;flex-direction:column;gap:10px')}>
             {list.map(x => <div key={x.key} style={css('display:flex;gap:10px;align-items:flex-start')}><i className={`ph-fill ${x.icon}`} style={css(`font-size:18px;color:${x.color};flex:none;margin-top:1px`)} /><div style={css(`font-size:13px;font-weight:700;line-height:1.45;color:${x.color === 'var(--cor)' ? 'var(--cor)' : 'var(--ink2)'}`)}>{x.text}</div></div>)}

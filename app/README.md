@@ -22,6 +22,8 @@ Planning starts with the language (on the welcome screen) and **"What do you wan
 
 Trip screens: **Plan** (summary, the route day by day; each day opens its own page where places can be added or removed, saved with the trip, `src/edits.ts`), **Map**, **Budget** (where the money goes, other ways to do the trip) and **Prepare** (things to know, packing list, offline maps, emergency numbers, trusted drivers). A new plan opens with a short "getting your plan ready" screen while live roads, weather, hotels and fuel load (`src/components/Building.tsx`, at most 10 s). The travellers question also asks how they travel (own car, SUV, bike, or let SafarCo suggest); with their own vehicle, only that vehicle is planned and jeep-only last stretches are flagged.
 
+**Before, during and after the trip** (`src/view-trip.ts`, `src/components/TripMode.tsx`, progress kept per trip on the phone in `src/run.ts`): lock the plan for a countdown and a get-ready checklist (Prepare); on the trip dates the Plan tab opens on **Today** (GPS progress along the day's road, next stop, fuel, sunset, ticks, a running-late helper, check-in, send location, emergency sheet); an expense log with planned vs spent and who-owes-whom (Budget); afterwards a trip summary. **Share** offers a family follow page (`/follow`, live with `supabase/follow.sql`, else a copy of the plan in the link), the Instagram trip card (drawn on the phone, `src/sharecard.ts`) and the plan link.
+
 Themes: Paper (default), Daylight, Peach and Dark, under **Edit trip → Theme**, or open with `?theme=dark`. Add `?frame` to see the app inside the design's phone mock-up.
 
 ## Free services

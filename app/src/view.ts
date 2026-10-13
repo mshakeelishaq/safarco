@@ -19,7 +19,8 @@ import { NO_EDITS } from './state';
 import { dropKey, editDay, planKey, type EditedStop } from './edits';
 import { THEMES } from './state';
 import { tilesAlong } from './offline';
-import { destPhoto } from './photos';
+import { cardPhoto, destPhoto } from './photos';
+import { tripMode } from './view-trip';
 import { fuelByDay, fuelQueryPoints, type DayFuel } from './engine/fuel';
 import { LANGS, setLang, t } from './i18n';
 
@@ -31,6 +32,12 @@ export interface Api {
   toggleOffline: () => void;
   share: () => void;
   newTrip: () => void;
+  /** On the road: record a check-in, tell family on WhatsApp. */
+  checkIn?: (place: string) => void;
+  /** Draw and share the trip card picture. */
+  shareCard?: () => void;
+  /** Start a new trip with a wish already chosen. */
+  nextTrip?: (wish: string) => void;
 }
 
 
@@ -328,8 +335,9 @@ export function buildView(s: AppState, api: Api) {
   const dayPage = s.dayOpen != null && s.dayOpen < dayCount ? { i: s.dayOpen, close: () => set({ dayOpen: null }), prev: s.dayOpen > 0 ? () => set({ dayOpen: s.dayOpen! - 1 }) : null, next: s.dayOpen < dayCount - 1 ? () => set({ dayOpen: s.dayOpen! + 1 }) : null } : null;
   const editCount = edits.picks.length + edits.drops.length;
 
-  return {
-    wishOpts, wishPicks, wishNote, travelOpts, buildSteps, photo: destPhoto(s.corridor, M, s.startDate), buildTips, budget, dayPage, totalShort: kShort(total), openDay: (i: number) => set({ dayOpen: i }), vehIcon: VEH[s.vehicle].icon,
+  const view = {
+    wishOpts, wishPicks, wishNote, travelOpts, buildSteps, photo: destPhoto(s.corridor, M, s.startDate), cardPhoto: cardPhoto(s.corridor, M, s.startDate),
+    cardRoute: (isAir ? [[cityOr(s.origin).lon, cityOr(s.origin).lat], [D.lon, D.lat]] : routeCoords) as [number, number][], buildTips, budget, dayPage, totalShort: kShort(total), openDay: (i: number) => set({ dayOpen: i }), vehIcon: VEH[s.vehicle].icon,
     editNote: editCount ? { text: editCount > 1 ? t('{n} changes to the places', { n: editCount }) : t('1 change to the places'), undo: () => set({ edits: NO_EDITS }) } : null,
     s, c, gate, tip, health, off, isAir, fuelPoints, fuelPins, drivers, afterTrip, guide, bestNow, tripSeason, wPlan, rPoints, selCorridor: sug.sel?.corridor, stays, nearby, priceNotes, ratesNote: isAir ? t('Flight fares are tentative: tap a flight day to see live fares. Confirm with the airline before you book.')
       : t('Prices {checked}. Confirm with the operator before you book.', { checked: checkedText(s.vehicle === 'public' ? 'coach' : 'hire') }),
@@ -554,5 +562,10 @@ export function buildView(s: AppState, api: Api) {
     tripSummary: [dayLabel(s.startDate, 0), s.adults > 1 ? t('{n} adults', { n: s.adults }) : t('{n} adult', { n: s.adults }), !s.kids ? '' : s.kids > 1 ? t('{n} kids', { n: s.kids }) : t('{n} kid', { n: s.kids }),
       !s.elders ? '' : s.elders > 1 ? t('{n} elders', { n: s.elders }) : t('{n} elder', { n: s.elders }), t(VEH[s.vehicle].short), t(TIERS[s.tier].label), t('{n} days', { n: s.days })].filter(Boolean).join(' · ')
   };
+  // Before, during and after the trip (see src/view-trip.ts).
+  const pack = (() => { try { return (JSON.parse(localStorage.getItem('safarco-pack:' + s.corridor + '|' + s.startDate) || '[]') as string[]).filter(k => rw.pack.some(p => p.key === k)).length; } catch { return 0; } })();
+  const tripRun = tripMode({ s, set, days: view.plan.days, edits, road: roadLine, points: rPoints, dest: { lat: D.lat, lon: D.lon, town: D.town, name: D.name },
+    planned: budget.segs.map(x => ({ key: x.key, val: x.val })), total, km: c.km, isAir, mtn: c.mtnKm > 0, packDone: pack, packTotal: rw.pack.length, toggleOffline: api.toggleOffline });
+  return { ...view, trip: tripRun };
 }
 export type View = ReturnType<typeof buildView>;

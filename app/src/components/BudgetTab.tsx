@@ -3,6 +3,7 @@ import { css } from '../lib/css';
 import { t } from '../i18n';
 import type { Api, View } from '../view';
 import { BannerCard, Fold, Footer, TabHero } from './TripTab';
+import { ExpensesCard } from './TripMode';
 
 export function BudgetTab({ v }: { v: View; api: Api }) {
   const b = v.budget;
@@ -38,6 +39,8 @@ export function BudgetTab({ v }: { v: View; api: Api }) {
             ))}
           </div>
         </section>
+
+        <ExpensesCard v={v} />
 
         {v.tip.show && <BannerCard b={v.tip} center><button onClick={v.tip.apply} style={css('flex:none;height:44px;padding:0 14px;border-radius:14px;border:0;background:var(--ink);color:var(--bg);font-size:13px;font-weight:800;cursor:pointer')}>{v.tip.cta}</button></BannerCard>}
 

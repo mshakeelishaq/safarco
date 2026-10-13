@@ -130,3 +130,26 @@ export async function setReviewStatus(id: number, status: Review['status']) {
 export async function deleteReview(id: number) {
   if (!sb) return; const { error } = await sb.from('reviews').delete().eq('id', id); if (error) throw error;
 }
+
+// ---- Family "follow our trip" links (supabase/follow.sql) ----------------------------
+export interface FollowView { data: unknown; expired: boolean; checkins: { place: string; lat: number | null; lon: number | null; created_at: string }[] }
+/** Makes a follow link for this trip (signed in only); returns its id. */
+export async function createFollow(data: unknown, expiresOn: string): Promise<string> {
+  if (!sb) throw new Error('Accounts are not set up');
+  const { data: row, error } = await sb.from('follows').insert({ data, expires_on: expiresOn }).select('id').single();
+  if (error) throw error; return row.id as string;
+}
+/** Keeps the family's view of the plan up to date after changes. */
+export async function updateFollow(id: string, data: unknown, expiresOn: string) {
+  if (!sb) return; const { error } = await sb.from('follows').update({ data, expires_on: expiresOn, updated_at: new Date().toISOString() }).eq('id', id); if (error) throw error;
+}
+export async function stopFollow(id: string) { if (!sb) return; const { error } = await sb.from('follows').delete().eq('id', id); if (error) throw error; }
+export async function addCheckin(id: string, place: string, lat?: number, lon?: number) {
+  if (!sb) return; const { error } = await sb.from('checkins').insert({ follow_id: id, place: place.slice(0, 80), lat: lat ?? null, lon: lon ?? null }); if (error) throw error;
+}
+/** What family see: the plan and the latest check-ins, or null if the link doesn't exist. */
+export async function getFollow(id: string): Promise<FollowView | null> {
+  if (!sb) return null;
+  const { data, error } = await sb.rpc('follow_view', { fid: id });
+  if (error) throw error; return (data as FollowView) || null;
+}

@@ -15,3 +15,15 @@ export function destPhoto(id: string, month: number, startDate = '') {
   if (!AUTUMN_MONTHS.includes(month) || !wishPlaces('autumn').some(p => p.id === id)) return null;
   return { src: AUTUMN[pick(id + startDate, AUTUMN.length)] };
 }
+
+const COAST = ['gwadar', 'kundmalir', 'karachi'], HERITAGE = ['mohenjo', 'lahore'];
+/** A background for the trip's share card: our photo for the place and season, else one for the season. */
+export function cardPhoto(id: string, month: number, startDate = '') {
+  const own = destPhoto(id, month, startDate); if (own) return own.src;
+  if (COAST.includes(id)) return '/photos/sea-sunset.webp';
+  if (HERITAGE.includes(id)) return '/photos/mosque-arches.webp';
+  if ([10, 11].includes(month)) return '/photos/autumn-hunza.webp';
+  if ([12, 1, 2].includes(month)) return '/photos/snowfall.webp';
+  if ([3, 4].includes(month)) return '/photos/blossom.webp';
+  return '/photos/green-valley.webp';
+}

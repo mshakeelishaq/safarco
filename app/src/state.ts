@@ -14,7 +14,9 @@ export interface AppState extends TripState {
   flash: 'budget' | null; offline: 'off' | 'downloading' | 'ready'; progress: number;
   offlineMB: number; offlineErr: string; mapFail: boolean; theme: Theme;
   /** Which bottom sheet is open besides Edit trip. */
-  sheet: 'none' | 'trips' | 'save' | 'signin' | 'feedback' | 'review';
+  sheet: 'none' | 'trips' | 'save' | 'signin' | 'feedback' | 'review' | 'share' | 'sos' | 'expense';
+  /** Where the phone was last found on the road (GPS), for progress along today's drive. */
+  here: { lat: number; lon: number; at: number } | null;
   /** The trusted hotel or driver being rated in the review sheet. */
   reviewFor: { kind: 'hotel' | 'driver'; id: string; name: string; date: string } | null;
   /** The welcome screen explaining what SafarCo is for. */
@@ -68,7 +70,7 @@ export const initialState = (): AppState => ({
   corridor: 'hunza', tab: 'trip', settings: false, flash: null,
   offline: 'off', progress: 0, offlineMB: 0, offlineErr: '', mapFail: false, theme: savedTheme(),
   sheet: 'none', savedId: null, toast: null, lite: prefersLite(), chosen: null, reviewFor: null, welcome: false, guide: false, lang: currentLang(),
-  have: 'any', wish: null, building: null, dayOpen: null, edits: NO_EDITS
+  have: 'any', wish: null, here: null, building: null, dayOpen: null, edits: NO_EDITS
 });
 
 export type Patch = Partial<AppState>;

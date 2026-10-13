@@ -5,6 +5,7 @@ import { css } from '../lib/css';
 import { t } from '../i18n';
 import type { Api, View } from '../view';
 import { Notes, WishNote } from './Onboarding';
+import { LockChip, MemoriesCard, TodayCard } from './TripMode';
 
 const card = 'border-radius:30px;padding:18px 18px 16px;background:var(--card);border:1px solid var(--line)';
 
@@ -126,7 +127,7 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
             <div style={css('flex:none;display:flex;gap:6px;pointer-events:auto;text-shadow:none')}>
               <button onClick={() => set({ sheet: 'trips', settings: false })} aria-label={t('My trips')} title={t('My trips')} style={css('width:44px;height:44px;border-radius:15px;border:1px solid var(--line2);background:var(--fill2);backdrop-filter:blur(12px);color:var(--ink);font-size:18px;cursor:pointer')}><i className="ph-bold ph-list-bullets" /></button>
               <button onClick={() => set({ sheet: 'save', settings: false })} aria-label={s.savedId ? t('Saved trip') : t('Save trip')} title={s.savedId ? t('Saved') : t('Save')} style={css(`width:44px;height:44px;border-radius:15px;border:1px solid ${s.savedId ? 'transparent' : 'var(--line2)'};background:${s.savedId ? 'var(--cta)' : 'var(--fill2)'};backdrop-filter:blur(12px);color:${s.savedId ? 'var(--onCta)' : 'var(--ink)'};font-size:18px;cursor:pointer`)}><i className={`${s.savedId ? 'ph-fill' : 'ph-bold'} ph-bookmark-simple`} /></button>
-              <button onClick={api.share} aria-label={t('Share trip')} title={t('Share')} style={css('width:44px;height:44px;border-radius:15px;border:1px solid var(--line2);background:var(--fill2);backdrop-filter:blur(12px);color:var(--ink);font-size:18px;cursor:pointer')}><i className="ph-bold ph-share-network" /></button>
+              <button onClick={() => set({ sheet: 'share', settings: false })} aria-label={t('Share trip')} title={t('Share')} style={css('width:44px;height:44px;border-radius:15px;border:1px solid var(--line2);background:var(--fill2);backdrop-filter:blur(12px);color:var(--ink);font-size:18px;cursor:pointer')}><i className="ph-bold ph-share-network" /></button>
               <button onClick={openSettings} aria-label={t('Edit trip')} style={css('height:44px;padding:0 12px;border-radius:15px;border:1px solid var(--line2);background:var(--fill2);backdrop-filter:blur(12px);color:var(--ink);font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px')}><i className="ph-fill ph-sliders-horizontal" style={css('font-size:17px')} />{t('Edit')}</button>
             </div>
           </div>
@@ -163,6 +164,8 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
           </section>
         )}
 
+        <TodayCard v={v} api={api} onCheckIn={p => api.checkIn?.(p)} />
+        <MemoriesCard v={v} onCard={() => api.shareCard?.()} onNext={w => api.nextTrip?.(w)} />
         {v.gate.show && <BannerCard b={v.gate} />}
         {v.tip.show && <BannerCard b={v.tip} center><button onClick={v.tip.apply} style={css('flex:none;height:44px;padding:0 14px;border-radius:14px;border:0;background:var(--ink);color:var(--bg);font-size:13px;font-weight:800;cursor:pointer')}>{v.tip.cta}</button></BannerCard>}
 
@@ -201,6 +204,7 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
               </div>
             ); })()}
             {v.wishNote && !v.wishNote.good && <WishNote n={v.wishNote} />}
+            <LockChip v={v} api={api} />
             {glance.warnings.length > 0 && <button onClick={() => set({ tab: 'prepare' })} style={css('display:flex;flex-direction:column;gap:6px;margin-top:12px;padding:0;border:0;background:none;color:var(--ink);text-align:left;cursor:pointer;width:100%')}>
               {glance.warnings.slice(0, 2).map(w => <span key={w} style={css('display:flex;gap:8px;align-items:flex-start;font-size:13px;font-weight:700;line-height:1.4;color:var(--cor)')}><i className="ph-fill ph-warning" style={css('margin-top:2px;flex:none')} />{w}</span>)}
               <span style={css('font-size:12px;font-weight:800;color:var(--g);display:flex;align-items:center;gap:4px')}>{glance.warnings.length > 2 ? t('{n} more things to know in Prepare', { n: glance.warnings.length - 2 }) : t('Precautions in Prepare')}<i className="ph-bold ph-caret-right" /></span>

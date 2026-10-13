@@ -27,7 +27,7 @@ export const HIGHLIGHTS: Record<string, Highlight[]> = {
   fairy: [H([6, 7, 8, 9], 'summer', 'Nanga Parbat views from the meadows')],
   rama: [H([7, 8], 'summer', 'Rama Meadows and Deosai in flower')],
   naran: [H([6, 7, 8], 'summer', 'Lake Saif-ul-Malook, Lalazar and Babusar Pass open')],
-  shogran: [H([5, 6, 7, 8, 9], 'summer', 'Siri Paye meadows in green')],
+  shogran: [H([5, 6, 7, 8, 9], 'summer', 'Siri Paye meadows in green and the Kiwai waterfall')],
   kalam: [H([6, 7, 8], 'summer', 'Mahodand Lake and the Ushu forest'), H([12, 1], 'winter', 'Snow in Kalam town', 'Snow often blocks the road above Bahrain: check before you go.')],
   malam: [H([12, 1, 2], 'winter', 'Snow and the ski slopes'), H([6, 7, 8], 'summer', 'Chairlift rides and cool air')],
   kumrat: [H([6, 7, 8], 'summer', 'Pine forest and the river at Kumrat')],
@@ -89,17 +89,25 @@ export function nextStartIn(months: number[], today = new Date()) {
 }
 
 // ---- What the traveller wants to see ----------------------------------------------
-export type WishId = 'green' | 'blossom' | 'autumn' | 'snow' | 'beach' | 'any';
+export type WishId = 'green' | 'water' | 'blossom' | 'autumn' | 'snow' | 'beach' | 'any';
 export interface Wish { id: WishId; icon: string; color: string; grad: string; label: string; tagline: string; months: number[] }
 /** The first question: what kind of trip they dream of. Months are when it's really there to see. */
 export const WISHES: Wish[] = [
   { id: 'green', icon: 'ph-tree-evergreen', color: '#1baf7a', grad: 'linear-gradient(160deg,#2EC48A,#0E8F68)', label: 'Lush green valleys', tagline: 'Meadows, lakes and pine forest, cool while the plains bake.', months: [5, 6, 7, 8, 9] },
+  { id: 'water', icon: 'ph-drop', color: '#1B8FC9', grad: 'linear-gradient(160deg,#5BC6F0,#1767B8)', label: 'Waterfalls and lakes', tagline: 'Turquoise lakes and roaring falls, fullest in the summer melt.', months: [5, 6, 7, 8, 9] },
   { id: 'blossom', icon: 'ph-flower', color: '#E85D9A', grad: 'linear-gradient(160deg,#F59AC0,#D9468A)', label: 'Blossom season', tagline: 'Cherry and apricot flowers under snowy peaks.', months: [4] },
   { id: 'autumn', icon: 'ph-leaf', color: '#D9731A', grad: 'linear-gradient(160deg,#F5B04A,#C9561A)', label: 'Autumn colours', tagline: 'Golden poplars and red orchards across Gilgit-Baltistan.', months: [10, 11] },
   { id: 'snow', icon: 'ph-snowflake', color: '#3B8DFF', grad: 'linear-gradient(160deg,#8CC4FF,#3B6FD8)', label: 'Snowfall', tagline: 'Wake up to white hills and snow on the pine trees.', months: [12, 1, 2] },
   { id: 'beach', icon: 'ph-waves', color: '#0FA6B8', grad: 'linear-gradient(160deg,#5AD1D9,#1B7FB0)', label: 'Sea and beaches', tagline: 'Warm sun on a quiet coast while the north freezes.', months: [11, 12, 1, 2] }
 ];
 export const wishOf = (id: WishId | null | undefined) => WISHES.find(w => w.id === id) || null;
+
+/** Which wishes a highlight fulfils: its main kind, plus lakes and waterfalls where it has them. */
+export function wishKinds(h: Highlight): WishId[] {
+  const k = wishKind(h), out = k ? [k] : [];
+  if (h.season === 'summer' && /lake|waterfall/i.test(h.text)) out.push('water');
+  return out;
+}
 
 /** Which wish a highlight fulfils, if any. */
 export function wishKind(h: Highlight): WishId | null {
@@ -116,7 +124,7 @@ export function wishKind(h: Highlight): WishId | null {
 /** Places to see a wish, the easy ones (no caution) first. */
 export function wishPlaces(id: WishId) {
   return DESTS.flatMap(d => {
-    const h = highlightsOf(d.id).filter(x => wishKind(x) === id).sort((a, b) => +!!a.caution - +!!b.caution)[0];
+    const h = highlightsOf(d.id).filter(x => wishKinds(x).includes(id)).sort((a, b) => +!!a.caution - +!!b.caution)[0];
     return h ? [{ id: d.id, name: d.name, h }] : [];
   }).sort((a, b) => +!!a.h.caution - +!!b.h.caution);
 }

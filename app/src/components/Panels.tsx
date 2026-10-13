@@ -10,10 +10,10 @@ import type { SavedTrip } from '../trips';
 import { IG_HANDLE, IG_MESSAGE, IG_PROFILE } from '../contact';
 import { Grip, scrim, sheet } from './Sheets';
 
-const btn = (primary: boolean) => css(`height:50px;padding:0 18px;border-radius:16px;border:${primary ? '0' : '1px solid var(--line2)'};background:${primary ? 'var(--cta)' : 'var(--fill)'};color:${primary ? 'var(--onCta)' : 'var(--ink)'};font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;width:100%`);
-const input = css('width:100%;box-sizing:border-box;height:50px;border-radius:16px;border:1px solid var(--line2);background:var(--fill);padding:0 14px;font-size:15px;font-weight:600;color:var(--ink);outline:none');
+export const btn = (primary: boolean) => css(`height:50px;padding:0 18px;border-radius:16px;border:${primary ? '0' : '1px solid var(--line2)'};background:${primary ? 'var(--cta)' : 'var(--fill)'};color:${primary ? 'var(--onCta)' : 'var(--ink)'};font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;width:100%`);
+export const input = css('width:100%;box-sizing:border-box;height:50px;border-radius:16px;border:1px solid var(--line2);background:var(--fill);padding:0 14px;font-size:15px;font-weight:600;color:var(--ink);outline:none');
 
-function Panel({ open, onClose, title, sub, height, children }: { open: boolean; onClose: () => void; title: string; sub?: string; height: number; children: React.ReactNode }) {
+export function Panel({ open, onClose, title, sub, height, children }: { open: boolean; onClose: () => void; title: string; sub?: string; height: number; children: React.ReactNode }) {
   return <>
     <div onClick={onClose} style={scrim(open)} />
     <div role="dialog" aria-modal="true" aria-label={title} aria-hidden={!open} inert={!open} className="sc-sheet" style={sheet(height, open)}>

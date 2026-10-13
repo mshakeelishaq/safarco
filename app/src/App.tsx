@@ -3,7 +3,14 @@ import { EditSheet } from './components/Sheets';
 import { FeedbackSheet, ReviewSheet, SaveSheet, SignInSheet, TripsSheet } from './components/Panels';
 import { WELCOMED, Welcome, seenWelcome } from './components/Welcome';
 import { SeasonGuide } from './components/SeasonGuide';
-import { cloudDelete, cloudEnabled, cloudSave, cloudTrips, currentUser, loadPriceList, loadReviews, onUserChange, sendFeedback, signInWithGoogle, signOut, submitReview, type User } from './cloud';
+import { addCheckin, cloudDelete, cloudEnabled, cloudSave, cloudTrips, createFollow, currentUser, loadPriceList, loadReviews, onUserChange, sendFeedback, signInWithGoogle, signOut, stopFollow, submitReview, updateFollow, type User } from './cloud';
+import { ExpenseSheet, ShareSheet, SosSheet } from './components/TripMode';
+import { RUN_SUBS, getRun, runKey, updateRun } from './run';
+import { followLink } from './view-trip';
+import { drawCard, shareCard } from './sharecard';
+import { followCopyUrl } from './trips';
+import { isoOff, mon as monthOf } from './engine/format';
+import { MONTH_FULL } from './engine/data';
 import { markRated, ratedKey } from './rated';
 import { setReviews } from './reviews';
 import { t as tx } from './i18n';
@@ -53,7 +60,7 @@ export function App() {
   const dlAbort = useRef<AbortController | null>(null);
 
   // Live data: re-render when a fetch lands.
-  useEffect(() => { LIVE.subs.add(bump); return () => { LIVE.subs.delete(bump); timers.current.forEach(clearTimeout); dlAbort.current?.abort(); }; }, []);
+  useEffect(() => { LIVE.subs.add(bump); RUN_SUBS.add(bump); return () => { LIVE.subs.delete(bump); RUN_SUBS.delete(bump); timers.current.forEach(clearTimeout); dlAbort.current?.abort(); }; }, []);
 
   // Fetch the road route and weather for the current trip.
   useEffect(() => {
@@ -225,7 +232,55 @@ export function App() {
   const doneBuilding = useCallback(() => set({ building: null }), [set]);
   // Close a day page when the trip changes.
   useEffect(() => { set({ dayOpen: null }); }, [s.corridor, s.origin, s.days, set]);
-  const api: Api = { set, later, locate, setPeople, toggleOffline, share: () => shareTrip(), newTrip };
+  // ---- Family follow link, check-ins and the trip card --------------------------------
+  const [busy, setBusy] = useState('');
+  const sendText = async (title: string, text: string, url: string) => {
+    try { if (navigator.share) { await navigator.share({ title, text, url }); return; } } catch (e) { if ((e as Error)?.name === 'AbortError') return; }
+    window.open(`https://wa.me/?text=${encodeURIComponent(`${text} ${url}`)}`, '_blank');
+  };
+  const shareFamily = async () => {
+    const st = stRef.current, key = runKey(st), d = tripData(st), expires = isoOff(st.startDate, st.days + 3), name = DST(st.corridor).name;
+    setBusy('family');
+    let url = followCopyUrl(d);
+    if (cloudEnabled && user) {
+      try {
+        let id = getRun(key).followId;
+        if (id) await updateFollow(id, d, expires); else { id = await createFollow(d, expires); updateRun(key, () => ({ followId: id })); }
+        url = followLink(id);
+      } catch { set({ toast: tx('Couldn’t make a live link, so this shares a copy of the plan.') }); }
+    }
+    setBusy('');
+    updateRun(key, r => ({ ticks: [...new Set([...r.ticks, 'family'])] }));
+    await sendText(`SafarCo: ${name}`, tx('Follow our trip to {place}:', { place: name }), url);
+  };
+  const stopFamily = async () => {
+    const key = runKey(stRef.current), id = getRun(key).followId; if (!id) return;
+    try { await stopFollow(id); updateRun(key, () => ({ followId: null })); set({ sheet: 'none', toast: tx('Family link stopped.') }); } catch { set({ toast: tx('Couldn’t stop the link. Try again when online.') }); }
+  };
+  const checkIn = (place: string) => {
+    const st = stRef.current, id = getRun(runKey(st)).followId, r = view.trip.checkIn(place);
+    if (id && user) addCheckin(id, place, st.here?.lat, st.here?.lon).catch(() => { /* WhatsApp still tells family */ });
+    window.open(r.wa, '_blank');
+    set({ toast: tx('Checked in at {place}', { place }) });
+  };
+  const makeCard = async () => {
+    const st = stRef.current, v = view, D = DST(st.corridor), m = monthOf(st);
+    setBusy('card');
+    try {
+      const places = [...new Set(v.plan.days.flatMap(d => d.stops.filter(x => x.kind === 'pin' && x.label !== tx('Free day')).map(x => x.label)))];
+      const blob = await drawCard({
+        photo: v.cardPhoto, kicker: `${v.c.from} → ${D.name}`, title: D.name, when: `${MONTH_FULL[m - 1]} ${st.startDate.slice(0, 4)} · ${tx('{n} days', { n: v.plan.days.length })}`,
+        stats: [{ value: v.isAir ? tx('By air') : tx('{km} km', { km: v.c.kmStr }), label: v.isAir ? '' : tx('each way') }, { value: String(v.plan.days.length), label: tx('days') }, { value: String(places.length), label: tx('places') }],
+        places, placesLabel: tx('Places').toUpperCase(), route: v.cardRoute, footer: tx('Planned with SafarCo · safarco.vercel.app'), credit: tx('Photo © {handle}', { handle: 'shakeelnaturegraphy' })
+      });
+      const how = await shareCard(blob, `safarco-${D.id}.jpg`, tx('My trip to {place}, planned with SafarCo', { place: D.name }));
+      if (how === 'saved') set({ toast: tx('Trip card saved. Post it from your gallery.') });
+    } catch (e) { if ((e as Error)?.name !== 'AbortError') set({ toast: tx('Couldn’t make the trip card. Try again.') }); }
+    setBusy('');
+  };
+  const nextTrip = (wish: string) => { clearCurrent(); set({ screen: 'onboard', step: 1, sheet: 'none', settings: false, savedId: null, wish: wish as AppState['wish'], edits: { key: '', picks: [], drops: [] } }); view.wishOpts.find(o => o.key === wish)?.onClick(); };
+
+  const api: Api = { set, later, locate, setPeople, toggleOffline, share: () => shareTrip(), newTrip, checkIn, shareCard: makeCard, nextTrip };
   const view = buildView(s, api);
 
   // On the suggestions step, keep the scene on the selected option.
@@ -290,6 +345,12 @@ export function App() {
           <TripsSheet open={s.sheet === 'trips'} trips={trips} user={user} currentId={s.savedId} onOpen={openTrip} onDelete={deleteTrip} onShare={t => shareTrip(t.data, t.name)} onNew={newTrip}
             onSignIn={google} onSignOut={() => signOut().then(() => set({ toast: tx('Signed out. Trips stay on this device.') }))} onFeedback={() => set({ sheet: 'feedback' })} onAbout={() => set({ sheet: 'none', welcome: true })} onGuide={view.guide.open} onClose={() => set({ sheet: 'none' })} />
           <FeedbackSheet open={s.sheet === 'feedback'} onSend={feedback} onClose={() => set({ sheet: 'none' })} />
+          {s.screen === 'app' && <>
+            <ShareSheet open={s.sheet === 'share'} onClose={() => set({ sheet: 'none' })} live={cloudEnabled && !!user} signedIn={!!user} cloud={cloudEnabled} following={!!view.trip.run.followId} busy={busy}
+              onPlan={() => { set({ sheet: 'none' }); shareTrip(); }} onFamily={shareFamily} onStop={stopFamily} onCard={makeCard} onSignIn={google} />
+            <SosSheet v={view} open={s.sheet === 'sos'} onClose={() => set({ sheet: 'none' })} />
+            <ExpenseSheet v={view} open={s.sheet === 'expense'} onClose={() => set({ sheet: 'none' })} />
+          </>}
           <ReviewSheet open={s.sheet === 'review'} target={s.reviewFor} user={user} onGoogle={google} onClose={() => set({ sheet: 'none' })}
             onSend={(rating, comment) => { const r = s.reviewFor; if (!r) return Promise.reject(new Error('Nothing to rate'));
               return submitReview(r.kind, r.id, rating, comment, user?.name.split(' ')[0] || 'Traveller', r.date).then(() => markRated(ratedKey(r.kind, r.id))); }} />

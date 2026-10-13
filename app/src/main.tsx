@@ -17,9 +17,10 @@ import './styles.css';
 import { App } from './App';
 import { Admin } from './pages/Admin';
 import { Privacy, Terms } from './pages/Legal';
+import { Follow } from './pages/Follow';
 
 const path = location.pathname.replace(/\/+$/, '') || '/';
-const Page = path === '/admin' ? Admin : path === '/privacy' ? Privacy : path === '/terms' ? Terms : App;
+const Page = path === '/admin' ? Admin : path === '/privacy' ? Privacy : path === '/terms' ? Terms : path === '/follow' ? Follow : App;
 createRoot(document.getElementById('root')!).render(<Page />);
 
 if (import.meta.env.PROD) {

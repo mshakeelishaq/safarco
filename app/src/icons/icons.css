@@ -171,6 +171,9 @@
 .ph-fill.ph-drop:before {
   content: "\e210";
 }
+.ph-fill.ph-first-aid:before {
+  content: "\e56e";
+}
 .ph-fill.ph-flag:before {
   content: "\e244";
 }
@@ -561,6 +564,9 @@
 }
 .ph-bold.ph-drop:before {
   content: "\e210";
+}
+.ph-bold.ph-first-aid:before {
+  content: "\e56e";
 }
 .ph-bold.ph-flag:before {
   content: "\e244";
@@ -1186,6 +1192,14 @@
 }
 .ph-duotone.ph-drop:after {
   content: "\e211";
+  margin-left: -1em;
+}
+.ph-duotone.ph-first-aid:before {
+  content: "\e56e";
+  opacity: 0.2;
+}
+.ph-duotone.ph-first-aid:after {
+  content: "\e56f";
   margin-left: -1em;
 }
 .ph-duotone.ph-flag:before {

@@ -37,3 +37,11 @@ describe('trip photos', () => {
     expect(destPhoto('hunza', 11, '2026-11-02')).toEqual(destPhoto('hunza', 11, '2026-11-02'));
   });
 });
+
+describe('waterfalls and lakes', () => {
+  it('finds lake and waterfall places without taking them from green valleys', () => {
+    const water = wishPlaces('water').map(p => p.id), green = wishPlaces('green').map(p => p.id);
+    expect(water).toEqual(expect.arrayContaining(['naran', 'hunza', 'kalam', 'shogran']));
+    expect(green).toEqual(expect.arrayContaining(['naran', 'kalam']));
+  });
+});

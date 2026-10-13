@@ -57,7 +57,7 @@ export function cleanTrip(raw: unknown): TripData | null {
     tier: (TIERS.includes(r.tier as string) ? r.tier : 'standard') as TripData['tier'],
     adults, kids, elders, groupSize: adults + kids + elders, rooms: r.rooms === 'shared' ? 'shared' : 'separate', cap: int(r.cap, 20000, 5000000, 120000),
     have: (['car', 'suv', 'bike'].includes(r.have as string) ? r.have : 'any') as TripData['have'],
-    wish: (['green', 'blossom', 'autumn', 'snow', 'beach', 'any'].includes(r.wish as string) ? r.wish : null) as TripData['wish'], edits: cleanEdits(r.edits)
+    wish: (['green', 'water', 'blossom', 'autumn', 'snow', 'beach', 'any'].includes(r.wish as string) ? r.wish : null) as TripData['wish'], edits: cleanEdits(r.edits)
   };
 }
 
@@ -93,3 +93,5 @@ export function cloudMerge(cloud: SavedTrip[]) {
   const add = cloud.map(t => ({ ...t, data: cleanTrip(t.data)! })).filter(t => t.data && !have.has(t.cloudId));
   if (add.length) write(LIST, [...local, ...add].sort((a, b) => b.savedAt.localeCompare(a.savedAt)).slice(0, 200));
 }
+/** A family "follow our trip" page that works without an account: the plan packed into the link. */
+export const followCopyUrl = (d: TripData) => `${location.origin}/follow?trip=${b64(JSON.stringify(d))}`;
