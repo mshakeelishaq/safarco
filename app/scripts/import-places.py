@@ -2,7 +2,7 @@
 """
 Imports the "SafarCo places to check" spreadsheet into the app.
 
-    python3 scripts/import-places.py path/to/file.xlsx [--report report.md]
+    python3 scripts/import-places.py path/to/file.xlsx [--report report.md] [--pins "pins needed.xlsx"]
 
 It checks every row first and only imports what passes:
   - map pins outside Pakistan, or farther from the destination than the road distance, are left out;
@@ -130,6 +130,14 @@ def main():
     road_names = {norm(st[2]) for lst in app['edgeStops'].values() for st in lst}
 
     wb = load_workbook(xlsx, data_only=True)
+    # Optional: a "pins needed" file with map pins for places the main sheet lacks (--pins file.xlsx).
+    extra_pins = {}
+    if '--pins' in args:
+        pw = load_workbook(args[args.index('--pins') + 1], data_only=True)
+        for r in pw[pw.sheetnames[0]].iter_rows(min_row=2, values_only=True):
+            c = coords(r[5], r[6], r[7]) if len(r) > 7 else None
+            if r[0] and r[2] and c:
+                extra_pins[(s(r[0]), norm(r[2]))] = (c, s(r[8]).lower() == 'sure' if len(r) > 8 else False)
     # Row 2 is the format example on every sheet; on New destinations the research put Machlu there, so it is read.
     rows = lambda name: [r for r in wb[name].iter_rows(min_row=2 if name == 'New destinations' else 3, values_only=True) if any(v not in (None, '') for v in r)]
     is_example = lambda r: s(r[0]).startswith('(example)')
@@ -245,6 +253,9 @@ def main():
 
         # Numbers, with checks.
         c, base = coords(r[8], r[9], r[10]), base_of(did)
+        if not c and (did, norm(name)) in extra_pins:
+            c, pin_sure = extra_pins[(did, norm(name))]
+            sure = sure or pin_sure
         km, mins, visit, fee = num(r[11]), num(r[12]), num(r[14]), num(r[17])
         acc, tod = ACCESS.get(s(r[13]).lower()), TOD.get(s(r[15]).lower())
         if c and not (PK[0] <= c[0] <= PK[1] and PK[2] <= c[1] <= PK[3]):
