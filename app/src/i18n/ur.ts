@@ -1153,4 +1153,5 @@ export const UR: Record<string, string> = {
   "Free · no sign-up": "Muft · sign-up ki zaroorat nahin",
   "Sea and sunsets": "Samandar aur ghuroob-e-aftab",
   "Karachi coast": "Karachi ka sahil",
+  "Waterfalls": "Aabshaar",
 };

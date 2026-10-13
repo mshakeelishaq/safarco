@@ -165,6 +165,9 @@
 .ph-fill.ph-download-simple:before {
   content: "\e20c";
 }
+.ph-fill.ph-drop:before {
+  content: "\e210";
+}
 .ph-fill.ph-flag:before {
   content: "\e244";
 }
@@ -549,6 +552,9 @@
 }
 .ph-bold.ph-download-simple:before {
   content: "\e20c";
+}
+.ph-bold.ph-drop:before {
+  content: "\e210";
 }
 .ph-bold.ph-flag:before {
   content: "\e244";
@@ -1158,6 +1164,14 @@
 }
 .ph-duotone.ph-download-simple:after {
   content: "\e20d";
+  margin-left: -1em;
+}
+.ph-duotone.ph-drop:before {
+  content: "\e210";
+  opacity: 0.2;
+}
+.ph-duotone.ph-drop:after {
+  content: "\e211";
   margin-left: -1em;
 }
 .ph-duotone.ph-flag:before {
