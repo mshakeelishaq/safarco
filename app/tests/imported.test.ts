@@ -29,3 +29,15 @@ describe('guides imported from the places spreadsheet', () => {
     for (const [k, v] of Object.entries(PLACE_INFO)) if (v.lat != null) expect(v.lat > 23.5 && v.lat < 37.2 && v.lon! > 60.8 && v.lon! < 77.9, k).toBe(true);
   });
 });
+
+describe('no place twice', () => {
+  it('Hunza shows Hussaini Bridge and Passu Cones once each', async () => {
+    const { buildPlan } = await import('../src/engine/engine');
+    const days = buildPlan({ origin: 'Lahore', mode: 'know', dest: 'hunza', corridor: 'hunza', startDate: '2026-10-20', days: 9, depart: null,
+      vehicle: 'suv', tier: 'standard', adults: 2, kids: 0, elders: 0, groupSize: 2, rooms: 'separate', cap: 600000 }).days;
+    const pins = days.flatMap(d => d.stops.filter(s => s.kind === 'pin').map(s => s.label));
+    expect(pins.filter(l => /hussaini/i.test(l))).toHaveLength(1);
+    expect(pins.filter(l => /passu cones/i.test(l))).toHaveLength(1);
+    expect(new Set(pins).size).toBe(pins.length);
+  });
+});

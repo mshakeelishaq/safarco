@@ -3,8 +3,8 @@
 Imported on 2026-10-13.
 
 - **24 new destinations:** Gilgit, Shigar, Hushe Valley, Nagar & Minapin, Yasin Valley, Ishkoman Valley, Peshawar, Taxila, Mingora & Saidu Sharif, Abbottabad, Thandiani, Muzaffarabad, Rawalakot, Bagh & Sudhan Gali, Multan, Bahawalpur & Cholistan, Uch Sharif, Chakwal & Kallar Kahar, Khewra, Thatta & Keenjhar, Hyderabad, Sukkur & Rohri, Sehwan Sharif, Nagarparkar
-- **22 new places** for the app's destinations
-- **208 places with a map pin**, 206 with a visit length, 38 with a drive time
+- **21 new places** for the app's destinations
+- **207 places with a map pin**, 205 with a visit length, 38 with a drive time
 - **23 things to check** (below). Everything else is in the app as "not checked yet", unless marked Sure.
 
 ## Check these
@@ -167,8 +167,8 @@ Imported on 2026-10-13.
 - Only 18 km from Nathia Gali: it may fit better as places on the Nathia Gali trip.
 
 **Hunza**
-- Suggested renaming "Passu Cones & Hussaini Bridge" to "Passu Cones Viewpoint". Mark Sure to apply.
-- Suggested renaming "Hopper Glacier, Nagar" to "Hoper Glacier viewpoint". Mark Sure to apply.
+- Suggested renaming "Passu Cones viewpoint" to "Passu Cones Viewpoint". Mark Sure to apply.
+- Suggested renaming "Hoper Glacier, Nagar" to "Hoper Glacier viewpoint". Mark Sure to apply.
 - "Hussaini Suspension Bridge" is already a place in Passu; not added twice.
 - "Borith Lake" is already a place in Passu; not added twice.
 - Highlight "lush green: Karimabad and Altit orchards and green Upper Hunza villages." not added: the app has its own highlights here. Mark Sure to add.
@@ -286,7 +286,6 @@ Imported on 2026-10-13.
 - Added "Gulmit village" (not checked yet).
 - Added "Sost bazaar" (not checked yet).
 - Added "Hussaini Suspension Bridge" (from Passu) for a day plan.
-- Added "Borith Lake" (from Passu) for a day plan.
 - 4 day plans added (not checked yet).
 
 **Skardu**

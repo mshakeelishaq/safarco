@@ -25,6 +25,8 @@ MON = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'no
 PK = (23.5, 37.2, 60.8, 77.9)  # lat min/max, lon min/max
 CURATED_DAYS = {'skardu', 'khaplu'}
 # Proposed destinations that are already places in another guide (Machlu is seen from Khaplu).
+# Places renamed in the app since the sheet was made: old name -> current name.
+RENAMED = {'passu cones & hussaini bridge': 'Passu Cones viewpoint', 'hopper glacier, nagar': 'Hoper Glacier, Nagar'}
 NOT_DESTS = {'machlu': 'khaplu'}  # day plans the owner gave; never replaced by an import
 # What the owner has told us; an import never overrides these.
 OWNER_BEST = {'skardu': [4, 5, 6, 7, 8, 9, 10, 11], 'khaplu': [4, 5, 6, 7, 8, 9, 10, 11]}
@@ -217,6 +219,10 @@ def main():
             continue
         dname = (dests.get(did) or new_dests[did])['name']
         app_name, keep, correct, conf = s(r[2]), s(r[6]).lower(), s(r[7]), s(r[19]).lower()
+        # The sheet may carry a name the app has since corrected (Hopper → Hoper Glacier).
+        app_name = RENAMED.get(app_name.lower(), app_name)
+        if app_name and did in dests and app_name not in [p[0] for p in dests[did]['places']]:
+            app_name = next((p[0] for p in dests[did]['places'] if same(p[0], app_name, .8)), app_name)
         name = correct if (keep == 'rename' or not app_name) and correct else app_name
         if not name:
             continue
@@ -307,7 +313,10 @@ def main():
     suggested = {}  # renames waiting for Sure: new name -> app name
     for r in place_rows:
         if s(r[6]).lower() == 'rename' and s(r[2]) and s(r[7]):
-            suggested[(s(r[0]), norm(r[7]))] = s(r[2])
+            cur = s(r[2])
+            if s(r[0]) in dests and cur not in [p[0] for p in dests[s(r[0])]['places']]:
+                cur = next((p[0] for p in dests[s(r[0])]['places'] if same(p[0], cur, .8)), cur)
+            suggested[(s(r[0]), norm(r[7]))] = cur
     towns = {norm(c) for c in cities} | {norm(v[0]) for v in app['nodeInfo'].values()} | {norm(d['name']) for d in {**dests, **new_dests}.values()}
     def pool_of(did):
         pool = [p[0] for p in (dests[did]['places'] if did in dests else [])] + [x['name'] for x in by_dest.get(did, [])]
@@ -369,9 +378,9 @@ def main():
         if over and not over.lower().startswith('no') and not over.lower().startswith('optional'):
             stay = next((k for k, v in {**dests, **new_dests}.items() if k != did and norm(v['name']).split(' ')[0] in norm(over)), None)
         day = {'places': names}
-        tip = s(r[8]).split('Source:')[0].replace('Suggested schedule.', '').strip()
+        tip = clean_tip(s(r[8]).replace('Suggested schedule.', ''), 160)
         if tip:
-            day['note'] = tip if tip.endswith('.') else tip + '.'
+            day['note'] = tip
         if stay:
             day['stay'] = stay
         leave, back = clock(r[4]), clock(r[5])
@@ -493,7 +502,7 @@ def clean_tip(text, limit=150):
     skip = re.compile(r'^(family visit allowance|no routine|pin:|source|visit length|routing|coordinates|confidence|checked|estimate)', re.I)
     lines = [x.strip() for x in s(text).split('\n') if x.strip() and not skip.match(x.strip())]
     noise = re.compile(r'verified map point|map point|area point|brochure|approximate|estimate|routing|openstreetmap|\bosm\b|think so|not sure|checked \d|\bsource\b|https?://'
-                       r'|added to match|^pin\b|unconfirmed|residents|wikipedia|\bdutch\b|\*|hotel-to-gate|day plans', re.I)
+                       r'|added to match|^pin\b|unconfirmed|residents|wikipedia|\bdutch\b|\*|hotel-to-gate|day plans|reconciliation|provisional|route legs|confirmed\.$|not the hike|column g|back by|\bassumed\b|still needed|allowance|buffer|\bvisits \d|min \+|daylight|solcalc|\b(january|february|march|april|may|june|july|august|september|october|november|december) plan\b', re.I)
     sentences = re.split(r'(?<=[.!?])\s+', ' '.join(lines))
     # One- or two-word labels ("Fort.", "Tourist attraction.") are map categories, not tips.
     out = ' '.join(x for x in sentences if x and len(x.split()) > 2 and not noise.search(x)).strip()

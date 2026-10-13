@@ -282,7 +282,7 @@ export function buildView(s: AppState, api: Api) {
       else { pool = near.list.map(x => ({ name: x.name, note: x.km ? t('{type} · {km} km', { type: t(x.type), km: x.km }) : t(x.type), href: mapsQ(`${x.name}, ${st.town}`) })); loading = near.loading; }
     }
     const seen = new Set<string>();
-    // "Hopper Glacier" and "Hopper Glacier, Nagar" are the same place.
+    // "Hoper Glacier" and "Hoper Glacier, Nagar" are the same place.
     const same = (a: string, b: string) => a === b || a.startsWith(b + ',') || b.startsWith(a + ',') || a.startsWith(b + ' ') || b.startsWith(a + ' ');
     const taken = [...inPlan];
     const list = pool.filter(p => { const k = p.name.toLowerCase(); if (taken.some(x => same(x, k)) || [...seen].some(x => same(x, k))) return false; seen.add(k); return true; })

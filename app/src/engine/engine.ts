@@ -261,7 +261,9 @@ export function sharedPlaces(ids: string[], m: number): Record<string, Set<strin
 export function dayGroups(D: Dest, m: number, n: number, skip = '', elsewhere?: Set<string>): { days: { list: Place[]; note: string; stay: string; fixed?: boolean }[]; extra: Place[] } {
   // Places seen from another base on the same trip are left out here.
   const pl = placesFor(D, m).filter(p => !elsewhere?.has(placeKey(p[0]))), byName = new Map(pl.map(p => [p[0], p]));
-  const fixed: { list: Place[]; note: string; stay: string; fixed?: boolean }[] = (D.days || []).filter(d => !skip || d.stay !== skip).map(d => ({ list: d.places.map(x => byName.get(x)).filter((p): p is Place => !!p), note: d.note || '', stay: d.stay || '', fixed: true })).filter(d => d.list.length);
+  const fixed: { list: Place[]; note: string; stay: string; fixed?: boolean }[] = (D.days || []).filter(d => !skip || d.stay !== skip).map(d => ({ list: d.places.map(x => byName.get(x)).filter((p): p is Place => !!p), note: d.note || '', stay: d.stay || '', fixed: true }))
+    // A place on two of the given days (Passu Cones on the way to Khunjerab too) is shown on the first only.
+    .map((d, _, all) => ({ ...d, list: d.list.filter(p => !all.slice(0, all.indexOf(d)).some(e => e.list.includes(p))) })).filter(d => d.list.length);
   const skipped = new Set((D.days || []).filter(d => skip && d.stay === skip).flatMap(d => d.places));
   const used = new Set(fixed.flatMap(d => d.list.map(p => p[0]))), rest = pl.filter(p => !used.has(p[0]) && !skipped.has(p[0]));
   const days = fixed.slice(0, n), left = n - days.length;

@@ -1419,4 +1419,5 @@ export const UR: Record<string, string> = {
   "A day trip from {base}, back for the night. Or stay in {place}.": "{base} se din ka safar, raat ko wapsi. Ya {place} mein ruk jayein.",
   "Stay a night in {place}": "{place} mein aik raat rukein",
   "{place} on the way back: best in the late-afternoon light.": "Wapsi par {place}: dopahar dhalne ki roshni mein behtareen.",
+  "The cathedral peaks, seen from the KKH at Passu": "Passu mein KKH se nazar aane wali cathedral chotiyan",
 };
