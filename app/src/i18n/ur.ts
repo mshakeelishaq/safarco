@@ -1328,4 +1328,5 @@ export const UR: Record<string, string> = {
   "Remove the limit": "Hadd hata dein",
   "I have a spending limit": "Meri kharch ki hadd hai",
   "None": "Koi nahin",
+  "In season now": "Abhi mausam hai",
 };
