@@ -3,6 +3,7 @@
 // These sit alongside each destination's `best` and `warn` months in data.ts.
 import { DESTS, MON } from './data';
 import { isoOf } from './format';
+import { IMPORTED_HIGHLIGHTS } from './imported';
 
 export type SeasonId = 'spring' | 'summer' | 'autumn' | 'winter';
 export interface Season { id: SeasonId; label: string; months: number[]; icon: string; color: string; blurb: string }
@@ -14,10 +15,11 @@ export const SEASONS: Season[] = [
 ];
 export const seasonOf = (m: number) => SEASONS.find(s => s.months.includes(m))!;
 
-export interface Highlight { months: number[]; season: SeasonId; text: string; caution?: string }
+/** `wish` is set for imported highlights, which say what they are rather than leaving it to the text. */
+export interface Highlight { months: number[]; season: SeasonId; text: string; caution?: string; wish?: WishId }
 
 const H = (months: number[], season: SeasonId, text: string, caution?: string): Highlight => ({ months, season, text, caution });
-export const HIGHLIGHTS: Record<string, Highlight[]> = {
+export const BASE_HIGHLIGHTS: Record<string, Highlight[]> = {
   hunza: [H([4], 'spring', 'Cherry and apricot blossom under snowy peaks'), H([6, 7, 8], 'summer', 'Long days, Attabad Lake and Khunjerab Pass open'), H([10], 'autumn', 'Golden poplars and clear views of Rakaposhi'), H([11], 'autumn', 'Last of the autumn gold', 'Cold nights, and Khunjerab Pass closes at the end of November.')],
   skardu: [H([4], 'spring', 'Apricot blossom in Shigar and Skardu'), H([7, 8], 'summer', 'Deosai Plains in flower and open'), H([10, 11], 'autumn', 'Autumn gold in Shigar, Khaplu and Ghowari, and the Kachura lakes')],
   khaplu: [H([4], 'spring', 'Apricot blossom in Khaplu and the Barah valley'), H([10, 11], 'autumn', 'Golden fields along the Shyok and the tall golden poplars of Ghowari')],
@@ -44,6 +46,8 @@ export const HIGHLIGHTS: Record<string, Highlight[]> = {
   lahore: [H([2, 3], 'spring', 'Pleasant weather, gardens in bloom'), H([10], 'autumn', 'Mild days before the smog season')],
   islamabad: [H([3, 4], 'spring', 'Margalla Hills in bloom'), H([10, 11], 'autumn', 'Clear, mild days for the hills')]
 };
+/** The app's own highlights, plus imported ones for destinations that have none. */
+export const HIGHLIGHTS: Record<string, Highlight[]> = { ...(IMPORTED_HIGHLIGHTS as Record<string, Highlight[]>), ...BASE_HIGHLIGHTS };
 
 const ord = (months: number[]) => months.map(m => MON[m - 1]);
 /** "Apr", "Jun–Aug", "Dec–Feb" or, for split lists, "Dec–Feb, May–Sep". Months are read in the given order. */
@@ -104,6 +108,7 @@ export const wishOf = (id: WishId | null | undefined) => WISHES.find(w => w.id =
 
 /** Which wishes a highlight fulfils: its main kind, plus lakes and waterfalls where it has them. */
 export function wishKinds(h: Highlight): WishId[] {
+  if (h.wish) return [h.wish];
   const k = wishKind(h), out = k ? [k] : [];
   if (h.season === 'summer' && /lake|waterfall/i.test(h.text)) out.push('water');
   return out;

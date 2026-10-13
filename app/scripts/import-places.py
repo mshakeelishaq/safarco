@@ -194,7 +194,7 @@ def main():
         new_dests[did] = {'id': did, 'name': name, 'town': base, 'region': region or s(r[1]) or 'Pakistan', 'regionKey': region,
                           'lat': round(c[0], 4), 'lon': round(c[1], 4), 'air': air if air in app['airports'] else None,
                           'best': months(r[6]), 'avoid': s(r[7]), 'road': s(r[8]), 'why': s(r[10]), 'checked': s(r[11]).lower() == 'sure',
-                          'places': [], 'days': None}
+                          'places': [], 'days': None, 'ft': num(cell(r, 12)), 'wayIn': s(cell(r, 13)), 'winter': s(cell(r, 14)), 'hotels': hotels_of(cell(r, 15))}
 
     # ------------------------------------------------------------ places
     info, by_dest = {}, {}
@@ -445,12 +445,50 @@ def main():
             lst.sort(key=lambda x: x[0]); changed.add(key); applied.append((where, f'Added stop "{name}" at km {round(km)} (not checked yet).'))
 
     # ------------------------------------------------------------ write
-    write_ts(new_dests, patch, info, {k: stops[k] for k in sorted(changed)}, xlsx.name)
+    # ------------------------------------------------------------ highlights (what to see, when)
+    highlights = {}
+    WISH = {'lush green': 'green', 'waterfalls and lakes': 'water', 'blossom': 'blossom', 'autumn colours': 'autumn', 'snowfall': 'snow', 'sea and beaches': 'beach'}
+    def season_of(ms):
+        sc = {'spring': [3, 4, 5], 'summer': [6, 7, 8], 'autumn': [9, 10, 11], 'winter': [12, 1, 2]}
+        return max(sc, key=lambda k: sum(1 for m in ms if m in sc[k]))
+    if 'Highlights' in wb.sheetnames:
+        for r in wb['Highlights'].iter_rows(min_row=2, values_only=True):
+            did, kind, ms, text = s(r[0]), s(r[1]).lower(), months(r[2]), s(r[3])
+            if not did or did.startswith('(') or not ms or not text or (did not in dests and did not in new_dests):
+                continue
+            dname = (dests.get(did) or new_dests[did])['name']
+            if did in app['highlights'] and s(r[5]).lower() != 'sure':
+                note(dname, f'Highlight "{kind}: {text[:70]}" not added: the app has its own highlights here. Mark Sure to add.'); continue
+            h = {'months': ms, 'season': season_of(ms), 'text': text.rstrip('.')}
+            if s(r[4]):
+                h['caution'] = s(r[4]).split('\n')[0].rstrip('.') + '.'
+            if kind in WISH:
+                h['wish'] = WISH[kind]
+            highlights.setdefault(did, []).append(h)
+        n = sum(len(v) for v in highlights.values())
+        if n:
+            applied.append(('What to see', f'{n} seasonal highlights for {len(highlights)} destinations (not checked yet).'))
+    write_ts(new_dests, patch, info, {k: stops[k] for k in sorted(changed)}, xlsx.name, highlights)
     write_report(report_path, xlsx.name, new_dests, patch, info, checks, notes, applied)
     print(f'Wrote {OUT.relative_to(APP)} and {report_path}')
     print(f'{len(new_dests)} new destinations · {sum(len(p.get("add", [])) for p in patch.values())} new places for existing ones · '
           f'{sum(1 for v in info.values() if "lat" in v)} places pinned · {len(changed)} road stretches changed · {len(checks)} to check')
 
+
+def cell(r, i):
+    return r[i] if len(r) > i else None
+
+def hotels_of(text):
+    """'Budget: Rehaish Inn — Khaplu town' lines -> [[name, tier, area]] in the app's tiers."""
+    out, tiers = [], {'budget': 'Backpacker', 'standard': 'Standard', 'comfort': 'Premium'}
+    for line in s(text).split('\n'):
+        m = re.match(r'\s*(budget|standard|comfort)\s*:\s*(.+)', line, re.I)
+        if not m:
+            continue
+        parts = re.split(r'\s+[—–-]\s+', m.group(2), maxsplit=1)
+        name, area = parts[0], (parts[1] if len(parts) > 1 else '')
+        out.append([name.strip()[:60], tiers[m.group(1).lower()], (area or '').strip()[:60]])
+    return out
 
 def first_line(text):
     t = s(text).split('\n')[0].split('Source:')[0].strip()
@@ -484,7 +522,7 @@ def trim(place):
         p.pop()
     return p
 
-def write_ts(new_dests, patch, info, stops, source):
+def write_ts(new_dests, patch, info, stops, source, highlights=None):
     js = lambda v: json.dumps(v, ensure_ascii=False)
     for d in new_dests.values():
         d['places'] = [trim(p) for p in d['places']]
@@ -509,8 +547,14 @@ def write_ts(new_dests, patch, info, stops, source):
              'best': d['best'], 'checked': d['checked'], 'places': d['places']}
         if d['days']:
             o['days'] = d['days']
-        if d['avoid'] or d['road']:
-            o['guideNote'] = ' '.join(x for x in [d['road'] if not d['road'].lower().startswith('check current') else '', f"Avoid: {d['avoid']}." if d['avoid'] else ''] if x) or None
+        if d['ft']:
+            o['ft'] = round(d['ft'])
+        if d['hotels']:
+            o['hotels'] = d['hotels']
+        way = d['wayIn'] or (d['road'] if not d['road'].lower().startswith('check current') else '')
+        note = ' '.join(x.strip().rstrip('.') + '.' for x in [way.split('\n')[0], d['winter'].split('\n')[0] if d['winter'] else '', f"Avoid {d['avoid']}" if d['avoid'] else ''] if x)
+        if note:
+            o['guideNote'] = note[:400]
         o = {k: v for k, v in o.items() if v is not None}
         lines.append('  ' + js(o) + ',')
     lines += ['];', '', '/** Changes to the app\'s own destinations: new places, and renames, removals and months marked Sure. */',
@@ -520,7 +564,9 @@ def write_ts(new_dests, patch, info, stops, source):
     for k in sorted(info):
         lines.append(f'  {js(k)}: {js(info[k])},')
     lines += ['};', '', '/** Road stretches with stops changed or added, as complete lists. */',
-              'export const STOP_PATCH: Record<string, EdgeStop[]> = ' + js(stops) + ';', '']
+              'export const STOP_PATCH: Record<string, EdgeStop[]> = ' + js(stops) + ';', '',
+              '/** Seasonal highlights for destinations that have none: what to see, when. */',
+              "export const IMPORTED_HIGHLIGHTS: Record<string, { months: number[]; season: 'spring' | 'summer' | 'autumn' | 'winter'; text: string; caution?: string; wish?: 'green' | 'water' | 'blossom' | 'autumn' | 'snow' | 'beach' }[]> = " + js(highlights or {}) + ';', '']
     OUT.write_text('\n'.join(lines))
 
 
