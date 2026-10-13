@@ -265,7 +265,9 @@ def main():
             if km and straight > km * 1.05 + 3:
                 chk(dname, f'"{name}": the pin is {straight:.0f} km from {dname} in a straight line, but the road distance says {km:.0f} km. One is wrong; pin left out.'); c = None
             elif not km and straight > 120:
-                chk(dname, f'"{name}": the pin is {straight:.0f} km from {dname}. Check it is the right place; pin left out.'); c = None
+                chk(dname, f'"{name}": the pin is {straight:.0f} km from {dname}, too far to be one of its places' + ('; not added.' if not app_name else '. Pin left out.')); c = None
+                if not app_name:
+                    seen.remove(rec); continue
             elif km and km > straight * 4 + 15:
                 chk(dname, f'"{name}": {km:.0f} km by road but only {straight:.0f} km away in a straight line. Check the distance.')
         if km and mins:

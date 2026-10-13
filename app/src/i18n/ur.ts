@@ -1394,4 +1394,7 @@ export const UR: Record<string, string> = {
   "Crosses Babusar Top at 13,690 ft. Usually open from mid-June to October; snow closes it the rest of the year.": "13,690 ft par Babusar Top se guzarta hai. Aam tor par June ke wast se October tak khula; baqi saal barf se band.",
   "{road} (open {from} to {to})": "{road} ({from} se {to} tak khula)",
   "{roads} usually opens or closes around {month}: snow can close it. Check before you go; the KKH via Besham is the other way.": "{roads} aam tor par {month} ke aas paas khulta ya band hota hai: barf se band ho sakta hai. Jaane se pehle maloom karein; doosra raasta Besham se KKH hai.",
+  "Pumps are far apart on the Makran Coastal Highway. Ormara has fuel.": "Makran Coastal Highway par pump door door hain. Ormara mein fuel milta hai.",
+  "Pumps are far apart on the Makran Coastal Highway. Pasni has fuel.": "Makran Coastal Highway par pump door door hain. Pasni mein fuel milta hai.",
+  "Lunch and fuel by the sea, or stay the night: Hammerhead and the turtle beach": "Samandar ke kinare khana aur fuel, ya raat ruk jayein: Hammerhead aur kachhuon wala sahil",
 };

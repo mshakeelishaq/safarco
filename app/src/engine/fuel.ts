@@ -23,7 +23,8 @@ export const FUEL_GAPS: Record<string, [string, string, string]> = {
   'CTR-BMB': ['Chitral', '', 'No pumps in the Kalash valleys.'],
   'GLT-NLT': ['Gilgit', '', 'No pump in Naltar valley.'],
   'KHI-KML': ['Hub', '', 'Pumps are far apart on the Makran Coastal Highway.'],
-  'KML-GWD': ['', '', 'Pumps are far apart on the Makran Coastal Highway. Ormara and Pasni have fuel.']
+  'KML-ORM': ['', 'Ormara', 'Pumps are far apart on the Makran Coastal Highway. Ormara has fuel.'],
+  'ORM-GWD': ['Ormara', '', 'Pumps are far apart on the Makran Coastal Highway. Pasni has fuel.']
 };
 
 /** SafarCo's fuel notes for one driving day's roads. */

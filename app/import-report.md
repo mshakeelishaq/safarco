@@ -5,7 +5,7 @@ Imported on 2026-10-13.
 - **24 new destinations:** Gilgit, Shigar, Hushe Valley, Nagar & Minapin, Yasin Valley, Ishkoman Valley, Peshawar, Taxila, Mingora & Saidu Sharif, Abbottabad, Thandiani, Muzaffarabad, Rawalakot, Bagh & Sudhan Gali, Multan, Bahawalpur & Cholistan, Uch Sharif, Chakwal & Kallar Kahar, Khewra, Thatta & Keenjhar, Hyderabad, Sukkur & Rohri, Sehwan Sharif, Nagarparkar
 - **22 new places** for the app's destinations
 - **208 places with a map pin**, 206 with a visit length, 38 with a drive time
-- **21 things to check** (below). Everything else is in the app as "not checked yet", unless marked Sure.
+- **23 things to check** (below). Everything else is in the app as "not checked yet", unless marked Sure.
 
 ## Check these
 
@@ -14,7 +14,7 @@ Imported on 2026-10-13.
 - Day plan "Siri Paye meadows, Shogran village": Shogran village is not on the Places sheet for Shogran. Left out of the day.
 
 **Gwadar**
-- "Ormara beach": the pin is 234 km from Gwadar. Check it is the right place; pin left out.
+- "Ormara beach": the pin is 234 km from Gwadar, too far to be one of its places. Pin left out.
 
 **Nathia Gali**
 - Day plan "Pipeline Track from Dunga Gali to Ayubia": Pipeline Track from Dunga Gali to Ayubia is not on the Places sheet for Nathia Gali. Left out of the day.
@@ -63,6 +63,10 @@ Imported on 2026-10-13.
 
 **Dera Ismail Khan → Islamabad**
 - New stop "Hakla Mini Service Area (M-1, Islamabad-bound)": km from start missing is not on this stretch (330 km). Not added.
+
+**Kund Malir → Gwadar**
+- New stop "Buzi Pass (coastal-highway landscape stop)": km from start missing is not on this stretch (? km). Not added.
+- New stop "Pasni (optional town fuel/food exit)": km from start missing is not on this stretch (? km). Not added.
 
 ## Kept your version, or waiting for "Sure"
 
@@ -244,10 +248,6 @@ Imported on 2026-10-13.
 **Karachi → Kund Malir**
 - New stop "Hub (N-25 fuel/supplies stop)" at km 30: not added until marked Sure (each stop adds time to the drive).
 - New stop "Winder (N-25 town supplies stop)" at km 101: not added until marked Sure (each stop adds time to the drive).
-
-**Kund Malir → Gwadar**
-- New stop "Buzi Pass (coastal-highway landscape stop)" at km 28: not added until marked Sure (each stop adds time to the drive).
-- New stop "Pasni (optional town fuel/food exit)" at km 247: not added until marked Sure (each stop adds time to the drive).
 
 **Kumrat Valley**
 - Highlight "lush green: Kumrat forest, river and Jahaz Banda meadows." not added: the app has its own highlights here. Mark Sure to add.
