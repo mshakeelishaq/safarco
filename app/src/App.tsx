@@ -1,4 +1,5 @@
 import { cardPhoto } from './photos';
+import { onInstallChange } from './install';
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { EditSheet } from './components/Sheets';
 import { FeedbackSheet, FoodSheet, ReviewSheet, SaveSheet, SignInSheet, TripsSheet } from './components/Panels';
@@ -56,6 +57,8 @@ export function App() {
   const stRef = useRef(s); stRef.current = s;
   const set = useCallback((p: Patch) => setS(prev => ({ ...prev, ...p })), []);
   const [, bump] = useReducer((x: number) => x + 1, 0);
+  // The install card appears once the browser offers to install the app.
+  useEffect(() => onInstallChange(bump), []);
   const timers = useRef<number[]>([]);
   const later = useCallback((ms: number, fn: () => void) => { timers.current.push(window.setTimeout(fn, ms)); }, []);
   const sceneRef = useRef<HTMLDivElement>(null), scrollRef = useRef<HTMLDivElement>(null);

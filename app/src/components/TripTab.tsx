@@ -164,6 +164,17 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
         <TodayCard v={v} api={api} onCheckIn={p => api.checkIn?.(p)} />
         <MemoriesCard v={v} onCard={() => api.shareCard?.()} onNext={w => api.nextTrip?.(w)} />
         {v.gate.show && <BannerCard b={v.gate} />}
+        {v.install && <div style={css('display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:20px;background:var(--card);border:1px solid rgba(46,229,157,.4)')}>
+          <i className="ph-fill ph-device-mobile" style={css('font-size:24px;color:var(--g);flex:none;margin-top:2px')} />
+          <div style={css('flex:1;min-width:0')}>
+            <div style={css('font-size:14px;font-weight:800')}>{t('Add SafarCo to your home screen')}</div>
+            <div style={css('font-size:12px;font-weight:600;color:var(--ink2);margin-top:2px;line-height:1.45')}>{v.install.ios ? t('Tap Share, then “Add to Home Screen”. It opens like an app, and your plan works offline in the mountains.') : t('It opens like an app, and your plan works offline in the mountains.')}</div>
+            <div style={css('display:flex;gap:8px;margin-top:10px')}>
+              {!v.install.ios && <button onClick={v.install.install} style={css('height:40px;padding:0 16px;border-radius:12px;border:0;background:var(--cta);color:var(--onCta);font-size:13px;font-weight:800;cursor:pointer')}>{t('Install')}</button>}
+              <button onClick={v.install.dismiss} style={css('height:40px;padding:0 12px;border-radius:12px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);font-size:13px;font-weight:800;cursor:pointer')}>{t('Not now')}</button>
+            </div>
+          </div>
+        </div>}
         {v.tip.show && <BannerCard b={v.tip} center><button onClick={v.tip.apply} style={css('flex:none;height:44px;padding:0 14px;border-radius:14px;border:0;background:var(--ink);color:var(--bg);font-size:13px;font-weight:800;cursor:pointer')}>{v.tip.cta}</button></BannerCard>}
 
         {v.comfort && <button onClick={v.comfort.toggle} role="switch" aria-checked={v.comfort.on} style={css('display:flex;align-items:center;gap:12px;min-height:56px;padding:10px 12px;border-radius:16px;border:1px solid var(--line2);background:var(--card);color:var(--ink);text-align:left;cursor:pointer')}>

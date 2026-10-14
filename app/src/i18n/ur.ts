@@ -2004,4 +2004,9 @@ export const UR: Record<string, string> = {
   "Make my plan": "Mera plan banayein",
   "How many days?": "Kitne din?",
   "Your city": "Aap ka shehar",
+  "Add SafarCo to your home screen": "SafarCo ko home screen par lagayein",
+  "Tap Share, then “Add to Home Screen”. It opens like an app, and your plan works offline in the mountains.": "Share dabayein, phir “Add to Home Screen”. Yeh app ki tarah khulega, aur aap ka plan pahaaron mein offline bhi chalega.",
+  "It opens like an app, and your plan works offline in the mountains.": "Yeh app ki tarah khulega, aur aap ka plan pahaaron mein offline bhi chalega.",
+  "Install": "Install karein",
+  "SafarCo is on your home screen.": "SafarCo aap ki home screen par hai.",
 };

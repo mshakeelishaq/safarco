@@ -2,6 +2,7 @@
 // design's renderVals(); the screens in components/ read from this.
 import { HAVE_VEHICLE, EDGES, MODES, MON, MONTH_FULL, NODES, NODE_INFO, POPULAR, POP_DEST, SUGGEST_POOL, SUNRISE, SUNSET, TIERS, TIER_G, VEH, CAT, CAT2, GRADS, DESTS, STOP_KIND, type VehicleId } from './engine/data';
 import { FOOD } from './engine/food';
+import { canPrompt, dismissInstall, isIOS, isInstalled, promptInstall, wasDismissed } from './install';
 import { foodTipsFor } from './foodtips';
 import { MAX_DRIVE_H, plannedJeeps, roomPlan, circuit, sideTrips, dayTripOptions, tripFrom, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
 import { clock, dayLabel, dur, fmt, fmtN, isoAdd, isoOf, isoOff, kShort, mapsQ, mon } from './engine/format';
@@ -708,6 +709,12 @@ export function buildView(s: AppState, api: Api) {
   const pack = (() => { try { return (JSON.parse(localStorage.getItem('safarco-pack:' + s.corridor + '|' + s.startDate) || '[]') as string[]).filter(k => rw.pack.some(p => p.key === k)).length; } catch { return 0; } })();
   const tripRun = tripMode({ s, set, days: view.plan.days, edits, road: roadLine, points: rPoints, dest: { lat: D.lat, lon: D.lon, town: D.town, name: D.name },
     planned: budget.segs.map(x => ({ key: x.key, val: x.val })), total, km: c.km, isAir, mtn: c.mtnKm > 0, packDone: pack, packTotal: rw.pack.length, toggleOffline: api.toggleOffline });
-  return { ...view, trip: tripRun };
+  // After the first saved or locked trip: offer to put SafarCo on the home screen (once, until dismissed).
+  const install = s.screen === 'app' && (s.savedId || tripRun.getReady?.locked) && !isInstalled() && !wasDismissed() && (canPrompt() || isIOS()) ? {
+    ios: !canPrompt(),
+    install: () => { promptInstall().then(ok => { if (ok) set({ toast: t('SafarCo is on your home screen.') }); }); },
+    dismiss: () => dismissInstall()
+  } : null;
+  return { ...view, trip: tripRun, install };
 }
 export type View = ReturnType<typeof buildView>;
