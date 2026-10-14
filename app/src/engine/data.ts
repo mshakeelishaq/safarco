@@ -268,6 +268,10 @@ export const PROV_FT: Record<string, number> = { 'Gilgit-Baltistan': 7000, 'Azad
 const OWN_INFO: Record<string, PlaceInfo> = {
   'shogran|Kiwai waterfall': { lat: 34.6309, lon: 73.4435, km: 7, min: 18, visit: 45, access: 'car', checked: true },
   // Past Shigar, not by Skardu: the straight line is short but the road goes round.
+  // Pins from the owner.
+  'lahore|Badshahi Mosque': { lat: 31.5885, lon: 74.3111, visit: 60, access: 'walk', tod: 'morning', months: [11, 12, 1, 2, 3], checked: true },
+  'lahore|Lahore Fort & Sheesh Mahal': { lat: 31.5895, lon: 74.3123, visit: 120, access: 'walk', tod: 'morning', months: [11, 12, 1, 2, 3], checked: true },
+  'lahore|Walled City food street': { lat: 31.5868, lon: 74.3104, visit: 90, access: 'walk', tod: 'evening', months: [11, 12, 1, 2, 3], checked: true },
   'skardu|Blind Lake': { lat: 35.4216, lon: 75.6414, km: 45, min: 100, visit: 60, access: 'car', checked: true },
   'shigar|Blind Lake (Zharba Tso)': { lat: 35.4216, lon: 75.6414, km: 19, min: 50, visit: 60, access: 'car', checked: true }
 };
