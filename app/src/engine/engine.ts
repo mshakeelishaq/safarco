@@ -47,6 +47,11 @@ export interface TripState {
 export const AIR_IN = ['Islamabad', 'Lahore', 'Karachi'];
 /** The arrival airport closest by road to a destination. */
 export const bestAirport = (key: string, month = 7) => AIR_IN.map(n => ({ n, h: trip(key, n, month).hours })).sort((a, b) => a.h - b.h)[0].n;
+/** From abroad, Gilgit-Baltistan is flown to from Islamabad by default (Gilgit or Skardu airport). */
+export const flyNorth = (s: { abroad?: boolean }, key: string) => !!s.abroad && ['Gilgit', 'Skardu'].includes(DST(key).air || '');
+/** Landed in Lahore or Karachi and flying north: first to Islamabad (by road from Lahore, by air from Karachi). */
+export const viaIsb = (s: Pick<TripState, 'abroad' | 'vehicle' | 'corridor' | 'origin'>) => s.vehicle === 'air' && flyNorth(s, s.corridor) && !!s.origin && s.origin !== 'Islamabad';
+const ISB_BY_AIR = (o: string) => o === 'Karachi';
 /** Ways to travel for someone flying in: no own car, so coach, a hired car or 4x4 with driver, a flight, or a coaster. */
 const ABROAD_CONFIGS: TripConfig[] = [CONFIGS[0], { id: 'hire', name: 'Hired car', vehicle: 'rentcar', tier: 'standard' }, { id: 'hire4', name: 'Hired 4x4', vehicle: 'rent4x4', tier: 'standard' }, { id: 'hirep', name: 'Premium', vehicle: 'rent4x4', tier: 'premium' }, ...CONFIGS.filter(cf => cf.id === 'fly' || cf.id === 'group')];
 
@@ -270,7 +275,7 @@ function stayAt(node: string | null, key: string, tier: TierId, isDest: boolean)
   return { town, place, name: h[0], note: t(h[2]), tier: h[1], alts: alts ? t('Also: {list}', { list: alts }) : '', href: mapsQ(h[0]), lat, lon, curated: true };
 }
 
-export type DayKind = 'drive' | 'explore' | 'return' | 'fly' | 'arrive';
+export type DayKind = 'drive' | 'explore' | 'return' | 'fly' | 'arrive' | 'transfer';
 /** Where a driving day goes and when: used for weather along the road. */
 export interface Track { legs: Leg[]; coords: [number, number][]; marks: [number, number][]; dep: number; sunset: number; sunrise: number }
 export interface PlanDay { kind: DayKind; title: string; meta: string; note: string; stops: StopItem[]; stay: Stay | null; tip?: string; offer?: string; side?: { id: string; base: string; sleeping: boolean }; roadNight?: RoadNight; dest?: string; timing?: DayClock; long?: string; depart?: { at: number; rec: number; own: boolean }; num?: number; date?: string; iso?: string; track?: Track }
@@ -482,7 +487,19 @@ function abroadPlan(s: TripState): Plan {
   // Departure times are kept by the day's place in the whole trip; the trip after landing counts from 0.
   const shift = (r?: Record<number, number>) => r && Object.fromEntries(Object.entries(r).map(([k, v]) => [+k - 1, v] as const).filter(([k]) => k >= 0));
   let rest: Plan | null = null;
-  if (s.days >= 2) {
+  // Flying north from Lahore or Karachi: a day to get to Islamabad first, and back the same way on the last day.
+  if (viaIsb(s) && s.days >= 3) {
+    const air = ISB_BY_AIR(o.n), isb = stayAt('ISB', s.corridor, s.tier, false), road = trip('islamabad', o.n, m);
+    const hop: PlanDay = air
+      ? { kind: 'transfer', title: t('{from} → {to} by air', { from: o.n, to: 'Islamabad' }), meta: t('About 2 h flight'), note: t('Flights to Gilgit and Skardu leave from Islamabad.'), stay: isb,
+        stops: [{ time: '8:00 am', kind: 'go', label: t('{airport} airport', { airport: o.n }), note: t('Check in 90 minutes before departure') }, { time: '9:30 am', kind: 'plane', label: t('Fly to {place}', { place: 'Islamabad' }), note: '' }, { time: '12:00 pm', kind: 'bed', label: t('Transfer to your stay'), note: t('Rest; tomorrow’s flight is early') }] }
+      : { kind: 'transfer', title: t('{from} → {to} by road', { from: o.n, to: 'Islamabad' }), meta: t('{km} km on the motorway · about {time}', { km: road.kmStr, time: dur(road.hours) }), note: t('Flights to Gilgit and Skardu leave from Islamabad.'), stay: isb,
+        stops: [{ time: '9:00 am', kind: 'go', label: t('Leave {place}', { place: o.n }), note: t('By car with driver, or the Daewoo coach') }, { time: '', kind: 'food', label: t('Lunch'), note: t('Bhera service area on the M-2') }, { time: clock(9 + road.hours + 0.75), kind: 'bed', label: t('Arrive {place}', { place: 'Islamabad' }), note: t('Rest; tomorrow’s flight is early') }] };
+    const r = planOf({ ...s, origin: 'Islamabad', abroad: false, days: s.days - 2, startDate: isoOff(s.startDate, 2), departAt: shift(shift(s.departAt)) });
+    const end = r.days[r.days.length - 1];
+    end.stops = [...end.stops, air ? { time: '', kind: 'plane', label: t('Fly {from} → {to}', { from: 'Islamabad', to: o.n }), note: t('Book a flight a few hours after you land from the north') } : { time: '', kind: 'go', label: t('Drive {from} → {to}', { from: 'Islamabad', to: o.n }), note: t('About {time} on the motorway', { time: dur(road.hours) }) }];
+    rest = { ...r, days: [hop, ...r.days] };
+  } else if (s.days >= 2) {
     if (here) { const ds = exploreDays(D, m, s.days - 1, s.tier, s.overnight, 1, s.departAt, undefined, sideTrips(s)[s.corridor]); rest = { days: ds, total: ds.length, sunset: sunTimes(D.lat, D.lon, s.startDate).set, rec: 6, dep: 6, late: false, hasDrive: false, air: null }; }
     else rest = planOf({ ...s, abroad: false, days: s.days - 1, startDate: isoOff(s.startDate, 1), departAt: shift(s.departAt) });
   }
@@ -593,6 +610,15 @@ export function roomPlan(o: Pick<TripState, 'adults' | 'kids' | 'elders' | 'grou
 }
 
 export function costFor(o: TripState): Cost {
+  // Flying north after landing in Lahore or Karachi: the trip from Islamabad, plus getting there and back, and a day for it.
+  if (viaIsb(o)) {
+    const r = costFor({ ...o, origin: 'Islamabad', hop: true } as TripState), P = (o.adults ?? o.groupSize ?? 2) + (o.elders || 0), K = o.kids || 0, from = o.origin!;
+    const row: CostRow = ISB_BY_AIR(from)
+      ? { icon: 'ph-airplane-tilt', label: 'To Islamabad', detail: t('{from} ⇄ {to} by air · {price} one way (tentative)', { from, to: 'Islamabad', price: fmt(FARES.Islamabad.KHI) }), val: FARES.Islamabad.KHI * 2 * (P + K * 0.75) }
+      : { icon: 'ph-bus', label: 'To Islamabad', detail: t('{from} ⇄ {to} by coach · {price} return per person', { from, to: 'Islamabad', price: fmt(coachFare(trip('islamabad', from, mon(o))) * 2) }), val: coachFare(trip('islamabad', from, mon(o))) * 2 * (P + K * 0.5) };
+    const minDays = r.minDays + 1, rows = [row, ...r.rows];
+    return { ...r, rows, total: rows.reduce((a, x) => a + x.val, 0), minDays, ok: r.ok && o.days >= minDays };
+  }
   const A = o.adults ?? o.groupSize ?? 2, K = o.kids || 0, E = o.elders || 0, P = A + K + E, AD = A + E;
   const M = mon(o), c = trip(o.corridor, o.origin, M), L = circuit(o), sf = seasonFactor(c, M), sfTxt = sf > 1 ? ` · ${t('peak +{pct}%', { pct: Math.round((sf - 1) * 100) })}` : sf < 1 ? ` · ${t('off-season −{pct}%', { pct: Math.round((1 - sf) * 100) })}` : '';
   // A circuit goes round once; a single place is there and back.
@@ -612,7 +638,9 @@ export function costFor(o: TripState): Cost {
       minDays = 3; ok = o.days >= 3;
       rows.push({ icon: 'ph-airplane-tilt', label: 'Flights', detail: `${a.dep} ⇄ ${a.arr} · ${t('about {price} one way (tentative)', { price: fmt(a.fare) })} × ${adults(AD)}${kidTxt('75%')}`, val: a.fare * 2 * (AD + K * 0.75) });
       if (a.pp) rows.push({ icon: 'ph-bus', label: 'To the airport', detail: t('{from} ⇄ {to} by coach · {price} return per person', { from: c.from, to: a.dep, price: fmt(a.pp) }), val: a.pp * P });
-      const cars = Math.ceil(P / 4); rows.push({ icon: 'ph-steering-wheel', label: 'Car + driver there', detail: cars > 1 ? t('{n} cars × {days} days × {price}, fuel included', { n: cars, days: o.days, price: fmt(PR.localCar) }) : t('{n} car × {days} days × {price}, fuel included', { n: cars, days: o.days, price: fmt(PR.localCar) }), val: cars * o.days * PR.localCar });
+      // Days in the north: not the day landing in Pakistan, nor the day getting to Islamabad.
+      const cars = Math.ceil(P / 4), cd = Math.max(1, o.days - (o.abroad ? 1 : 0) - ((o as { hop?: boolean }).hop ? 1 : 0));
+      rows.push({ icon: 'ph-steering-wheel', label: 'Car + driver there', detail: cars > 1 ? t('{n} cars × {days} days × {price}, fuel included', { n: cars, days: cd, price: fmt(PR.localCar) }) : t('{n} car × {days} days × {price}, fuel included', { n: cars, days: cd, price: fmt(PR.localCar) }), val: cars * cd * PR.localCar });
     }
   } else if (o.vehicle === 'public') {
     const fare = L ? coachFare({ flatKm, mtnKm } as Trip) : coachFare(c);
@@ -644,7 +672,7 @@ export function costFor(o: TripState): Cost {
 }
 
 /** Free days at the destination once driving (or flying) days are taken out. */
-export const freeDays = (o: TripState, c: Trip) => { const L = circuit(o); return L ? Math.max(0, o.days - L.legDays) : o.vehicle === 'air' && airFor(o.corridor, o.origin) ? Math.max(0, o.days - 2) : Math.max(0, o.days - 2 * c.legDays); };
+export const freeDays = (o: TripState, c: Trip): number => { if (o.abroad) return Math.max(0, freeDays({ ...o, abroad: false, origin: viaIsb(o) ? 'Islamabad' : o.origin }, viaIsb(o) ? trip(o.corridor, 'Islamabad', mon(o)) : c) - 1 - (viaIsb(o) ? 1 : 0)); const L = circuit(o); return L ? Math.max(0, o.days - L.legDays) : o.vehicle === 'air' && airFor(o.corridor, o.origin) ? Math.max(0, o.days - 2) : Math.max(0, o.days - 2 * c.legDays); };
 /** Local jeep trips needed for places that are in the plan this month. */
 export function plannedJeeps(o: TripState, c: Trip, M: number): Jeep[] {
   const L = circuit(o);
@@ -665,14 +693,14 @@ export function suggestions(s: TripState & { pickId: string | null }) {
   const fits = (x: Suggestion) => x.ok && (!limit || x.total <= s.cap);
   let list: Suggestion[];
   if (s.mode === 'know') {
-    const opts = priced(s.dest), fit = opts.filter(fits), best = fit.length ? (limit ? fit[fit.length - 1] : fit[0]) : null;
+    const opts = priced(s.dest), fit = opts.filter(fits), fly = flyNorth(s, s.dest) ? fit.find(x => x.vehicle === 'air') : undefined, best = fly || (fit.length ? (limit ? fit[fit.length - 1] : fit[0]) : null);
     list = opts.slice().reverse(); list.forEach(x => { x.best = x === best; });
   } else {
     // With a wish (autumn colours, snow…) only places that have it are suggested; others only fill a short list.
     const wished = new Set(s.wish && s.wish !== 'any' ? wishPlaces(s.wish).map(p => p.id) : []), inW = (x: Suggestion) => wished.has(x.corridor) ? 1 : 0;
     const pool = [...new Set([...wished, ...SUGGEST_POOL])].filter(k => (s.abroad || DST(k).name !== s.origin) && (!wished.size || wished.has(k) || wished.size < 3));
     // Each place's best style: the fullest that fits, else the cheapest that has enough days, else the quickest.
-    list = pool.map(k => { const ps = priced(k), fit = ps.filter(fits), ok = ps.filter(x => x.ok); return fit.length ? (limit ? fit[fit.length - 1] : fit[0]) : ok.length ? ok[0] : ps.slice().sort((a, b) => a.minDays - b.minDays)[0]; }).filter(Boolean);
+    list = pool.map(k => { const ps = priced(k), fit = ps.filter(fits), ok = ps.filter(x => x.ok), fly = flyNorth(s, k) ? fit.find(x => x.vehicle === 'air') : undefined; return fly ? fly : fit.length ? (limit ? fit[fit.length - 1] : fit[0]) : ok.length ? ok[0] : ps.slice().sort((a, b) => a.minDays - b.minDays)[0]; }).filter(Boolean);
     const inS = (x: Suggestion) => { const b = DST(x.corridor).best; return !b || b.includes(mon(s)) ? 1 : 0; };
     list.sort((a, b) => (inW(b) - inW(a)) || (+fits(b) - +fits(a)) || (inS(b) - inS(a)) || (+b.ok - +a.ok) || (fits(a) ? b.total - a.total : a.minDays - b.minDays || a.total - b.total)); list = list.slice(0, 8);
     list.forEach((x, i) => { x.best = i === 0 && fits(x); });

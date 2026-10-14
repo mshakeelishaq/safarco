@@ -4,7 +4,7 @@ import { SECURITY, HAVE_VEHICLE, EDGES, MODES, MON, MONTH_FULL, NODES, NODE_INFO
 import { FOOD } from './engine/food';
 import { canPrompt, dismissInstall, isIOS, isInstalled, promptInstall, wasDismissed } from './install';
 import { foodTipsFor } from './foodtips';
-import { AIR_IN, bestAirport, DAY_OUT_H, SHORT2_H, MAX_DRIVE_H, plannedJeeps, roomPlan, circuit, sideTrips, dayTripOptions, tripFrom, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
+import { AIR_IN, bestAirport, flyNorth, viaIsb, DAY_OUT_H, SHORT2_H, MAX_DRIVE_H, plannedJeeps, roomPlan, circuit, sideTrips, dayTripOptions, tripFrom, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
 import { clock, dayLabel, dur, fmt, fmtN, isoAdd, isoOf, isoOff, kShort, mapsQ, mon } from './engine/format';
 import { LIVE, fxRate, placesKey, routeKey, type Spot } from './engine/live';
 import { sunTimes } from './engine/sun';
@@ -59,7 +59,7 @@ export function buildView(s: AppState, api: Api) {
   const pointAt = (n: string): { lat: number; lon: number } => n === 'HOME' ? cityOr(s.origin) : n === 'DEST' ? DST(s.corridor) : n.startsWith('@') ? DST(n.slice(1)) : { lat: NODES[n][0], lon: NODES[n][1] };
   // The spending limit is optional: without one, trips are priced, not judged against a number.
   const capOn = s.capOn !== false, cap = capOn ? s.cap : Infinity;
-  const cc = costFor(s), { rows, total } = cc, pct = capOn ? total / s.cap : 0, air = airFor(s.corridor, s.origin), P = s.groupSize;
+  const cc = costFor(s), { rows, total } = cc, pct = capOn ? total / s.cap : 0, air = airFor(s.corridor, viaIsb(s) ? 'Islamabad' : s.origin), P = s.groupSize;
   const health = !capOn ? { label: t('{amount} each', { amount: kShort(total / Math.max(1, s.groupSize)) }), bg: 'var(--fill)', fg: 'var(--ink2)' } : pct < 0.85 ? { label: t('Healthy'), bg: 'rgba(46,229,157,.14)', fg: 'var(--g)' } : pct <= 1 ? { label: t('Near cap'), bg: 'rgba(255,181,71,.16)', fg: 'var(--amb)' } : { label: t('Over cap'), bg: 'rgba(255,107,91,.16)', fg: 'var(--cor)' };
   const hasHub = c.hub !== undefined;
   const isAir = s.vehicle === 'air' && !!air;
@@ -370,7 +370,7 @@ export function buildView(s: AppState, api: Api) {
     const ids = (m === 'season' || m === 'sea' ? wishPlaces(s.wish as Parameters<typeof wishPlaces>[0]).map(p => p.id) : SUGGEST_POOL)
       .filter(k => notHome(k) && (m !== 'north' || /Gilgit/.test(DST(k).region)) && (near ? easy(k) : inM_(k)));
     const opts = ids.flatMap(k => { const l = suggestions({ ...s, mode: 'know', dest: k, corridor: k, capOn: false, pickId: null, extra: [] }).list.filter(x => x.ok);
-      const road = l.filter(x => x.vehicle !== 'air'), roomy = (x: typeof l[number]) => s.days - x.minDays >= 1;
+      const road = l.filter(x => flyNorth(s, k) ? x.vehicle === 'air' : x.vehicle !== 'air'), roomy = (x: typeof l[number]) => s.days - x.minDays >= 1;
       const best = [road.filter(roomy), l.filter(roomy), road, l].find(x => x.length)?.slice().sort((a, b) => a.total - b.total)[0];
       return best ? [{ ...best, roomy: roomy(best), known: DST(k).checked !== false, hours: trip(k, from(k), M).hours }] : []; });
     // Near and easy first for an escape, a slow trip or family time; otherwise SafarCo's favourites, then the best value.
@@ -617,7 +617,7 @@ export function buildView(s: AppState, api: Api) {
     restart: () => api.newTrip(),
     budgetShadow: ring('budget'),     capPct: Math.round(pct * 100), totalNum: fmtN(total), totalUsd: usd(total), perPersonStr: `${fmt(total / s.groupSize)} (${usd(total / s.groupSize)})`, capStr: fmt(s.cap), barPct: Math.min(pct, 1) * 100,
     plan: (() => {
-      const p = plan, K: Record<string, [string, string]> = { drive: ['linear-gradient(135deg,#2EE59D,#0FA678)', t('Drive')], explore: ['linear-gradient(135deg,#9B7BFF,#5B6CFF)', t('Explore')], return: ['linear-gradient(135deg,#FFB547,#FF7A3D)', t('Return')], fly: ['linear-gradient(135deg,#6FD3FF,#3B8DFF)', t('Fly')], arrive: ['linear-gradient(135deg,#6FD3FF,#3B8DFF)', t('Arrive')] };
+      const p = plan, K: Record<string, [string, string]> = { drive: ['linear-gradient(135deg,#2EE59D,#0FA678)', t('Drive')], explore: ['linear-gradient(135deg,#9B7BFF,#5B6CFF)', t('Explore')], return: ['linear-gradient(135deg,#FFB547,#FF7A3D)', t('Return')], fly: ['linear-gradient(135deg,#6FD3FF,#3B8DFF)', t('Fly')], transfer: ['linear-gradient(135deg,#6FD3FF,#3B8DFF)', t('Transfer')], arrive: ['linear-gradient(135deg,#6FD3FF,#3B8DFF)', t('Arrive')] };
       const depChips = [null, 4.5, 5.5, 6.5, 7.5, 8.5].map(v => { const on = (s.depart ?? null) === v; return { key: String(v), label: v === null ? t('Auto · each day') : clock(v), onClick: () => set({ depart: v }), ...chip(on) }; });
       return { summary: p.total === 1 ? t('A day out · home the same night') : t('{n} days · {m} nights', { n: p.total, m: p.total - 1 }), via: (s.abroad ? t('Fly into {city}', { city: s.origin || '' }) + ' · ' : '') + (p.air ? t('Flights {from} ⇄ {to} · car and driver at the destination', { from: p.air.dep, to: p.air.arr }) : L ? t('{km} km round trip · {via}', { km: c.kmStr, via: c.via }) : c.hours < 0.5 ? t('Explore the city') : t('{km} km each way by road · {via}', { km: c.kmStr, via: c.via })),
         hasDep: !p.air && p.hasDrive, depChips, wxDepart: rw.depart && s.depart !== rw.depart.dep ? { ...rw.depart, label: clock(rw.depart.dep), apply: () => set({ depart: rw.depart!.dep }) } : null, depNoteC: p.late ? 'var(--amb)' : 'var(--mute)',

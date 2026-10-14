@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { bestAirport, buildPlan, configsFor, costFor } from '../src/engine/engine';
+import { bestAirport, buildPlan, configsFor, costFor, suggestions } from '../src/engine/engine';
 describe('flying in from abroad', () => {
   const base = { origin: 'Islamabad', mode: 'know' as const, startDate: '2027-07-10', depart: null, vehicle: 'rentcar' as const, tier: 'standard' as const, adults: 2, kids: 0, elders: 0, groupSize: 2, rooms: 'separate' as const, cap: 300000, abroad: true, airAuto: true };
   it('picks the arrival airport nearest the place', () => {
@@ -36,5 +36,20 @@ describe('security advisory', () => {
     for (const x of [SECURITY.text, SECURITY.short, ROAD_NOTE['Makran Coastal Hwy']]) expect(UR[x]).toBeTruthy();
     const p = buildPlan({ origin: 'Karachi', mode: 'know', dest: 'gwadar', corridor: 'gwadar', startDate: '2027-01-10', days: 5, depart: null, vehicle: 'sedan', tier: 'standard', adults: 2, kids: 0, elders: 0, groupSize: 2, rooms: 'separate', cap: 300000 });
     expect(p.days[0].note).toContain('Security risk area');
+  });
+});
+
+describe('flying north from abroad', () => {
+  const s = { mode: 'know' as const, dest: 'skardu', corridor: 'skardu', startDate: '2027-07-10', depart: null, vehicle: 'air' as const, tier: 'standard' as const, adults: 2, kids: 0, elders: 0, groupSize: 2, rooms: 'separate' as const, cap: 400000, days: 7, abroad: true };
+  it('flies from Islamabad, reaching it by road from Lahore and by air from Karachi', () => {
+    expect(buildPlan({ ...s, origin: 'Islamabad' }).days[1].title).toBe('Islamabad → Skardu by air');
+    const lhr = buildPlan({ ...s, origin: 'Lahore' }).days, khi = buildPlan({ ...s, origin: 'Karachi' }).days;
+    expect([lhr[1].title, lhr[2].title]).toEqual(['Lahore → Islamabad by road', 'Islamabad → Skardu by air']);
+    expect([khi[1].title, khi[2].title]).toEqual(['Karachi → Islamabad by air', 'Islamabad → Skardu by air']);
+    expect(lhr.at(-1)!.stops.map(x => x.label)).toContain('Drive Islamabad → Lahore');
+    expect(costFor({ ...s, origin: 'Karachi' }).rows[0].label).toBe('To Islamabad');
+  });
+  it('suggests flying as the default for Gilgit-Baltistan', () => {
+    expect(suggestions({ ...s, origin: 'Islamabad', vehicle: 'sedan', capOn: false, pickId: null }).list.find(x => x.best)?.vehicle).toBe('air');
   });
 });
