@@ -132,7 +132,7 @@ export const BASE_EDGE_STOPS: Record<string, EdgeStop[]> = {
   'DIR-CTR': [[30, 'view', 'Lowari Tunnel', '8.5 km tunnel under the pass'], [75, 'tea', 'Drosh', 'Tea stop']],
   'QTA-SKR': [[160, 'food', 'Sibi', 'Fuel and washrooms']], 'KZD-KHI': [[220, 'tea', 'Bela', 'Tea stop']], 'DGK-LRL': [[85, 'view', 'Fort Munro', 'Hill station views at 6,470 ft']], 'DIK-ISB': [[165, 'tea', 'M-14 service area', 'Tea and fuel']],
   // Owner pins: Buzi Pass top 25.4442, 65.2475; Pasni 25.2825, 63.4444.
-  'KHI-KML': [[125, 'food', 'Zero Point, Makran Coastal Highway', 'Last dhabas and fuel before the coast']], 'KML-ORM': [[40, 'view', 'Princess of Hope', 'Rock formation by the highway'], [45, 'view', 'Buzi Pass top', 'Wide views over the Makran coast and mud cliffs']], 'ORM-GWD': [[1, 'food', 'Ormara', 'Lunch and fuel by the sea, or stay the night: Hammerhead and the turtle beach'], [131, 'food', 'Pasni', 'Fuel and food in Pasni town, a short exit off the highway']] };
+  'KHI-KML': [[125, 'food', 'Zero Point, Makran Coastal Highway', 'Last dhabas and fuel before the coast']], 'KML-ORM': [[40, 'view', 'Princess of Hope', 'Rock formation by the highway'], [45, 'view', 'Buzi Pass top', 'Wide views over the Makran coast and mud cliffs']], 'ORM-GWD': [[1, 'food', 'Ormara', 'Lunch and fuel by the sea, or stay the night: Hammerhead and the turtle beach'], [14, 'view', 'Taak beach', 'Quiet beach just past Ormara, clear water'], [131, 'food', 'Pasni', 'Fuel and food in Pasni town, a short exit off the highway. Juddi beach has dunes; boats to Astola Island (3 h each way, camping only) must be booked ahead']] };
 export const STOP_KIND: Record<StopKind, [string, string, number]> = { drive: ['ph-car-simple', 'var(--mute)', 0], food: ['ph-fork-knife', 'var(--cor)', .75], tea: ['ph-coffee', 'var(--amb)', .33], view: ['ph-binoculars', 'var(--sky)', .25], fuel: ['ph-gas-pump', 'var(--vio)', .17], go: ['ph-flag', 'var(--g)', 0], bed: ['ph-bed', 'var(--g)', 0], pin: ['ph-map-pin', 'var(--vio)', 0], plane: ['ph-airplane-tilt', 'var(--sky)', 0] };
 export const SLOTS: string[] = ['Morning', 'Midday', 'Afternoon', 'Evening'];
 export const MON: string[] = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -244,10 +244,10 @@ export const BASE_DESTS: DestInput[] = [
     eat: 'Sajji and Balochi food' },
   { id: 'gwadar', name: 'Gwadar', town: 'Gwadar', region: 'Balochistan', lat: 25.13, lon: 62.32, ft: 30, node: 'GWD', icon: 'ph-waves', air: 'Gwadar', airNote: 'Airport → town, 20 min', best: R(10, 3), warn: [R(5, 8), 'Hot and humid in summer.'],
     hotels: [['Pearl Continental Gwadar', 'Premium', 'On Koh-e-Batil']],
-    places: [['Koh-e-Batil (Hammerhead)', 'Town', 'Clifftop views over both bays'], ['Marine Drive', 'Town', 'Sea front'], ['Ormara beach', 'On the way', 'Quiet beach town']],
+    places: [['Koh-e-Batil (Hammerhead)', 'Town', 'Clifftop views over both bays'], ['Marine Drive', 'Town', 'East Bay (Demi Zir) sea front and fishing harbour'], ['West Bay (Paddi Zir)', 'Town', 'Calmer water for a swim, sunset views']],
     eat: 'Fresh fish and prawns' },
   { id: 'kundmalir', name: 'Kund Malir', town: 'Kund Malir', region: 'Hingol, Balochistan', lat: 25.40, lon: 65.47, ft: 30, node: 'KML', icon: 'ph-waves', best: R(10, 3), warn: [R(5, 9), 'Very hot. Little shade on the coast.'],
-    places: [['Kund Malir beach', 'On arrival', 'Blue water and a wide beach'], ['Princess of Hope', '40 km west', 'Natural rock formation'], ['Hingol mud volcanoes', 'By jeep', 'Chandragup mud volcano'], ['Hinglaj Mata temple', 'Hingol', 'Cave temple and pilgrimage site']],
+    places: [['Kund Malir beach', 'On arrival', 'Blue water and a wide beach'], ['Princess of Hope', '40 km west', 'Natural rock formation'], ['Hingol mud volcanoes', 'By 4x4 · 15–20 km dirt track', 'Chandragup mud volcanoes, a Hindu pilgrimage site. Go with a local guide'], ['Sapat beach (Buji Koh)', 'By 4x4 · off-road', 'Sheer sea stack, sea caves and an empty beach. Go with a local guide'], ['Hinglaj Mata temple', 'Hingol', 'Cave temple and pilgrimage site']],
     eat: 'Few dhabas on the coast. Carry food and water' },
   { id: 'mohenjo', name: 'Mohenjo-daro', town: 'Mohenjo-daro', region: 'Sindh', lat: 27.33, lon: 68.14, ft: 150, node: 'MJD', icon: 'ph-bank', best: R(11, 2), warn: [R(4, 9), 'Extremely hot. Visit at sunrise.'],
     places: [['Mohenjo-daro ruins', 'On site', '4,500-year-old city of the Indus civilisation'], ['Site museum', 'On site', 'Seals, pottery and the Priest-King'], ['Larkana', '28 km', 'City stop and food']],
@@ -260,7 +260,7 @@ export const BASE_DESTS: DestInput[] = [
     eat: 'Karahi and barbecue at Melody food street' },
   { id: 'karachi', name: 'Karachi', town: 'Karachi', region: 'Sindh', lat: 24.86, lon: 67.01, ft: 30, node: 'KHI', icon: 'ph-buildings', air: 'Karachi', best: R(11, 2), warn: [R(5, 8), 'Hot and humid.'],
     hotels: [['Pearl Continental Karachi', 'Premium', 'Club Road']],
-    places: [['Mazar-e-Quaid', 'Central', 'Jinnah’s mausoleum'], ['Frere Hall', 'Saddar', 'Colonial hall and gardens'], ['Mohatta Palace', 'Clifton', 'Museum in a stone palace'], ['Clifton Beach & Sea View', 'Clifton', 'Sunset by the sea'], ['Burns Road food street', 'Saddar', 'Nihari, rabri and bun kebab']],
+    places: [['Mazar-e-Quaid', 'Central', 'Jinnah’s mausoleum'], ['Frere Hall', 'Saddar', 'Colonial hall and gardens'], ['Mohatta Palace', 'Clifton', 'Museum in a stone palace'], ['Clifton Beach & Sea View', 'Clifton', 'Sunset by the sea'], ['Burns Road food street', 'Saddar', 'Nihari, rabri and bun kebab'], ['Gadani beach', 'Off the RCD highway past Hub', 'Long beach by the ship-breaking yards (the yards need permission)'], ['Sonmiani beach & Miani Hor', 'Past Hub · permit', 'Lagoon with mangroves and flamingos. Military area: book or get a permit first']],
     eat: 'Burns Road nihari and Boat Basin barbecue' }];
 export const CITY_AIR: Record<string, string> = { Karachi: 'Karachi', Lahore: 'Lahore', Islamabad: 'Islamabad', Rawalpindi: 'Islamabad', Quetta: 'Quetta', Peshawar: 'Peshawar', Multan: 'Multan', Gilgit: 'Gilgit', Skardu: 'Skardu', Chitral: 'Chitral', Gwadar: 'Gwadar' };
 export const PROV_FT: Record<string, number> = { 'Gilgit-Baltistan': 7000, 'Azad Kashmir': 3500, 'Khyber Pakhtunkhwa': 2500, Balochistan: 2000, Punjab: 650, Sindh: 100, Capital: 1770 };
@@ -283,6 +283,14 @@ const OWN_INFO: Record<string, PlaceInfo> = {
   'uch|Tomb of Baha’al-Halim': { lat: 29.2322, lon: 71.06, visit: 30, access: "walk", tod: "morning", months: [11, 12, 1, 2], checked: true },
   'hyderabad|Pakka Qila': { lat: 25.3942, lon: 68.3756, visit: 60, access: "walk", tod: "morning", months: [11, 12, 1, 2], checked: true },
   'hyderabad|Shahi Bazaar': { lat: 25.3882, lon: 68.3726, visit: 60, access: "walk", tod: "afternoon", months: [11, 12, 1, 2], checked: true },
+  // Owner: Buzi Pass is on the climb west of Kund Malir.
+  'kundmalir|Buzi Pass': { lat: 25.4442, lon: 65.2475, visit: 15, access: 'car', checked: true },
+  // Makran coast list from the owner (approximate pins, not checked yet).
+  'kundmalir|Sapat beach (Buji Koh)': { lat: 25.46, lon: 65.93, km: 60, min: 120, visit: 90, access: '4x4', checked: false },
+  'kundmalir|Hingol mud volcanoes': { lat: 25.4454, lon: 65.8654, km: 55, min: 100, visit: 60, access: '4x4', checked: false },
+  'gwadar|West Bay (Paddi Zir)': { lat: 25.16, lon: 62.29, visit: 60, tod: 'sunset', checked: false },
+  'karachi|Gadani beach': { lat: 25.04, lon: 66.73, visit: 90, access: 'car', checked: false },
+  'karachi|Sonmiani beach & Miani Hor': { lat: 25.19, lon: 66.58, visit: 120, access: 'car', checked: false },
   'skardu|Blind Lake': { lat: 35.4216, lon: 75.6414, km: 45, min: 100, visit: 60, access: 'car', checked: true },
   'shigar|Blind Lake (Zharba Tso)': { lat: 35.4216, lon: 75.6414, km: 19, min: 50, visit: 60, access: 'car', checked: true }
 };
