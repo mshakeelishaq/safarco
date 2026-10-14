@@ -1983,4 +1983,6 @@ export const UR: Record<string, string> = {
   "Lagoon with mangroves and flamingos. Military area: book or get a permit first": "Mangroves aur flamingos wali lagoon. Fauji ilaqa: pehle booking ya permit lein",
   "Quiet beach just past Ormara, clear water": "Ormara ke foran baad pursukoon sahil, saaf paani",
   "Fuel and food in Pasni town, a short exit off the highway. Juddi beach has dunes; boats to Astola Island (3 h each way, camping only) must be booked ahead": "Pasni shehar mein petrol aur khana, highway se thora sa hat kar. Juddi beach par ret ke teelay hain; Astola Island ki kashti (har taraf 3 h, sirf camping) pehle book karein",
+  "55 km · 1 h 40 min": "55 km · 1 h 40 min",
+  "60 km · 2 h": "60 km · 2 h",
 };
