@@ -290,6 +290,10 @@ export function App() {
   const api: Api = { set, later, locate, setPeople, toggleOffline, share: () => shareTrip(), newTrip, checkIn, shareCard: makeCard, nextTrip };
   const view = buildView(s, api);
 
+  // Photos for the suggestion cards on the first steps (each place's guide photo, fetched once).
+  const pickIds = s.screen === 'onboard' ? [...(view.wishPicks?.picks || []), ...view.bestNow.picks].map(p => p.key).join(',') : '';
+  useEffect(() => { if (pickIds) pickIds.split(',').forEach(id => wikiFetch(DST(id))); }, [pickIds]);
+
   // On the suggestions step, keep the scene on the selected option.
   const selCorridor = s.screen === 'onboard' && s.step === 6 ? view.selCorridor : undefined;
   useEffect(() => { if (selCorridor && selCorridor !== s.corridor) set({ corridor: selCorridor }); }, [selCorridor, s.corridor, set]);

@@ -107,8 +107,8 @@ export function Onboarding({ v, api }: { v: View; api: Api }) {
             {v.wishPicks && v.wishPicks.picks.length > 0 ? (
               <div style={css('margin-top:16px;padding:12px 0 12px 14px;border-radius:20px;background:var(--fill);border:1px solid var(--line)')}>
                 <div style={css('font-size:13px;font-weight:800;padding-right:12px')}>{v.wishPicks.label}</div>
-                <div style={css('display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-top:8px;padding-right:14px')}>
-                  {v.wishPicks.picks.map(p => <button key={p.key} onClick={p.onClick} aria-pressed={p.on} style={css(`flex:none;height:38px;padding:0 12px;border-radius:12px;border:1px solid ${p.on ? 'transparent' : 'var(--line2)'};background:${p.on ? 'var(--cta)' : 'var(--card)'};color:${p.on ? 'var(--onCta)' : 'var(--ink)'};font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap`)}><i className={`ph-fill ${p.icon}`} style={css(`color:${p.on ? 'inherit' : p.color}`)} />{p.name}</button>)}
+                <div style={css('display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;margin-top:10px;padding:2px 14px 4px 0;scroll-snap-type:x mandatory')}>
+                  <PickCards picks={v.wishPicks.picks} />
                 </div>
               </div>
             ) : v.bestNow.picks.length > 0 && (
@@ -117,8 +117,8 @@ export function Onboarding({ v, api }: { v: View; api: Api }) {
                   <div style={css('flex:1;min-width:0;font-size:13px;font-weight:800')}>{t('Best in {month}', { month: v.bestNow.month })}</div>
                   <button onClick={v.guide.open} style={css('flex:none;min-height:32px;padding:0 4px;border:0;background:none;color:var(--g);font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:4px')}>{t('All seasons')}<i className="ph-bold ph-caret-right" /></button>
                 </div>
-                <div style={css('display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-top:8px;padding-right:14px')}>
-                  {v.bestNow.picks.map(p => <button key={p.key} onClick={p.onClick} aria-pressed={p.on} style={css(`flex:none;height:38px;padding:0 12px;border-radius:12px;border:1px solid ${p.on ? 'transparent' : 'var(--line2)'};background:${p.on ? 'var(--cta)' : 'var(--card)'};color:${p.on ? 'var(--onCta)' : 'var(--ink)'};font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap`)}><i className={`ph-fill ${p.icon}`} style={css(`color:${p.on ? 'inherit' : p.color}`)} />{p.name}</button>)}
+                <div style={css('display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;margin-top:10px;padding:2px 14px 4px 0;scroll-snap-type:x mandatory')}>
+                  <PickCards picks={v.bestNow.picks} />
                 </div>
               </div>
             )}
@@ -320,3 +320,25 @@ export const TripPlaces = ({ v }: { v: View }) => {
     </div>
   );
 };
+
+type Pick = { key: string; name: string; icon: string; color: string; photo: string; text: string; when: string; km: string; caution: boolean; on: boolean; onClick: () => void };
+/** Suggested places as cards: photo, what's special, best months and distance. Tap to choose. */
+function PickCards({ picks }: { picks: Pick[] }) {
+  return <>{picks.map(p => (
+    <button key={p.key} onClick={p.onClick} aria-pressed={p.on} style={css(`flex:none;width:168px;scroll-snap-align:start;padding:0;border-radius:18px;overflow:hidden;border:2px solid ${p.on ? 'var(--g)' : 'var(--line)'};background:var(--card);color:var(--ink);text-align:left;cursor:pointer;display:flex;flex-direction:column;box-shadow:${p.on ? '0 10px 24px -14px rgba(46,229,157,.9)' : '0 6px 16px -12px rgba(0,0,0,.35)'};transition:border-color .2s,box-shadow .2s`)}>
+      <div style={css('position:relative;height:96px;background:var(--fill)')}>
+        <img src={p.photo} alt="" loading="lazy" style={css('display:block;width:100%;height:100%;object-fit:cover')} />
+        <div style={css('position:absolute;inset:auto 0 0 0;height:44px;background:linear-gradient(180deg,transparent,rgba(0,0,0,.55))')} />
+        <div style={css('position:absolute;left:10px;bottom:7px;right:10px;color:#fff;font-size:15px;font-weight:800;line-height:1.15;text-shadow:0 1px 3px rgba(0,0,0,.5)')}>{p.name}</div>
+        {p.on && <i className="ph-fill ph-check-circle" style={css('position:absolute;top:7px;right:7px;font-size:24px;color:var(--g);background:#fff;border-radius:50%')} />}
+      </div>
+      <div style={css('flex:1;display:flex;flex-direction:column;gap:6px;padding:8px 10px 10px')}>
+        <div style={css('display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:12px;font-weight:600;line-height:1.35;color:var(--ink2);min-height:32px')}>{p.text}</div>
+        <div style={css('display:flex;align-items:center;gap:5px;margin-top:auto;font-size:11px;font-weight:800;color:var(--mute)')}>
+          <i className={`ph-fill ${p.caution ? 'ph-warning' : p.icon}`} style={css(`font-size:13px;color:${p.caution ? 'var(--amb2)' : p.color}`)} />
+          <span style={css('white-space:nowrap;overflow:hidden;text-overflow:ellipsis')}>{[p.when, p.km].filter(Boolean).join(' · ')}</span>
+        </div>
+      </div>
+    </button>
+  ))}</>;
+}

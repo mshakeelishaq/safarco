@@ -21,7 +21,7 @@ import { NO_EDITS } from './state';
 import { dropKey, editDay, planKey, type EditedStop } from './edits';
 import { THEMES } from './state';
 import { tilesAlong } from './offline';
-import { cardPhoto, destPhoto } from './photos';
+import { cardPhoto, destPhoto, ownPhoto } from './photos';
 import { tripMode } from './view-trip';
 import { fuelByDay, fuelQueryPoints, type DayFuel } from './engine/fuel';
 import { LANGS, setLang, t } from './i18n';
@@ -200,9 +200,14 @@ export function buildView(s: AppState, api: Api) {
       .map(p => ({ key: p.id + se.id, name: p.name, region: p.region, text: t(p.h.text), ...iconFor(p.h), when: monthsLabel(p.h.months), caution: p.h.caution ? t(p.h.caution) : '', note: note(p.id), km: t('{km} km', { km: fmtN(kmFrom(p.id)) }), onPick: () => goTo(p.id, p.h.months) })) })),
     open: () => set({ guide: true, sheet: 'none', settings: false }), close: () => set({ guide: false })
   };
+  /** A suggestion card: the place's guide photo once loaded (else ours for the season), what's special, when, how far. */
+  const pickCard = (id: string, h: { text: string; months: number[]; caution?: string }) => {
+    const w = LIVE.wiki[id], img = w && w.status === 'ok' && w.data?.image;
+    return { photo: ownPhoto(id) || img || cardPhoto(id, h.months.includes(M) ? M : h.months[0]), text: t(h.text), when: monthsLabel(h.months), km: s.origin ? t('{km} km', { km: fmtN(kmFrom(id)) }) : '' };
+  };
   const bestNow = { month: MONTH_FULL[M - 1], picks: DESTS.filter(d => DST(d.id).name !== s.origin).flatMap(d => { const h = highlightIn(d.id, M); return h ? [{ id: d.id, name: d.name, h }] : []; })
     .sort((a, b) => +!!a.h.caution - +!!b.h.caution || kmFrom(a.id) - kmFrom(b.id)).slice(0, 10)
-    .map(p => ({ key: p.id, name: p.name, ...iconFor(p.h), caution: !!p.h.caution, on: s.dest === p.id && s.mode === 'know', onClick: () => set({ mode: 'know', dest: p.id, corridor: p.id, pickId: null }) })) };
+    .map(p => ({ key: p.id, name: p.name, ...iconFor(p.h), ...pickCard(p.id, p.h), caution: !!p.h.caution, on: s.dest === p.id && s.mode === 'know', onClick: () => set({ mode: 'know', dest: p.id, corridor: p.id, pickId: null }) })) };
   const tripSeason = (() => {
     const Dd = DST(s.corridor); if (Dd.generic) return null;
     const h = highlightIn(s.corridor, M), first = highlightsOf(s.corridor)[0], Mo = MONTH_FULL[M - 1];
@@ -311,7 +316,7 @@ export function buildView(s: AppState, api: Api) {
       onClick: () => set({ wish: w.id, pickId: null, startDate: w.months.includes(M) && s.startDate >= isoAdd(3) ? s.startDate : nextStartIn(w.months) }) })),
     { key: 'any', now: false, icon: 'ph-compass', grad: 'linear-gradient(160deg,#9AA5B1,#5F6B78)', label: t('Show me everything'), tagline: t('Not sure yet? See what’s best for your dates.'), when: '', places: '', on: s.wish === 'any', onClick: () => set({ wish: 'any', pickId: null }) }];
   const wishPicks = W ? { label: t('Best for {wish}', { wish: lowerEn(t(W.label)) }), picks: wishPlaces(W.id).filter(p => DST(p.id).name !== s.origin).slice(0, 10)
-    .map(p => ({ key: p.id, name: p.name, icon: W.icon, color: W.color, on: s.dest === p.id && s.mode === 'know', onClick: () => set({ mode: 'know', dest: p.id, corridor: p.id, pickId: null }) })) } : null;
+    .map(p => ({ key: p.id, name: p.name, icon: W.icon, color: W.color, ...pickCard(p.id, p.h), caution: !!p.h.caution, on: s.dest === p.id && s.mode === 'know', onClick: () => set({ mode: 'know', dest: p.id, corridor: p.id, pickId: null }) })) } : null;
   const wishNote = (() => {
     if (!W) return null;
     const placeOk = wishPlaces(W.id).some(p => p.id === s.corridor), when = W.months.includes(M);

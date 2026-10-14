@@ -8,6 +8,8 @@ const AUTUMN = ['/photos/autumn-hunza.webp', '/photos/hunza-autumn-peaks.webp', 
 const AUTUMN_MONTHS = [10, 11];
 /** A place's own photo, used whenever it's the trip's place: Hunza is the view of Rakaposhi. */
 const OWN: Record<string, string> = { hunza: '/photos/autumn-hunza.webp' };
+/** Our own photo of a place, if we have one. */
+export const ownPhoto = (id: string): string | undefined => OWN[id];
 
 /** A small, stable number for a trip, so it keeps the same photo each time it opens. */
 const pick = (key: string, n: number) => { let h = 0; for (const c of key) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h % n; };
