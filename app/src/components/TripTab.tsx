@@ -55,7 +55,7 @@ function dayQuick(d: PlanDay) {
   const flags = d.strip?.flags || [], last = d.strip?.samples[d.strip.samples.length - 1];
   const wx = d.destWx ? { icon: d.destWx.icon, color: d.destWx.color, temp: `${d.destWx.hi}°` } : last ? { icon: last.icon, color: last.color, temp: last.temp } : null;
   const warn = flags.some(f => f.level === 'danger') ? 'danger' : flags.length ? 'caution' : null;
-  const line = d.track ? d.meta.replace(/ \+ .*$/, '') : d.stops.length ? d.stops.filter(t => !t.isDrive).map(t => t.label).slice(0, 3).join(', ') : d.meta;
+  const line = d.track ? d.meta.replace(/ \+ .*$/, '') : d.stops.length ? d.stops.filter(t => d.timing ? t.kind === 'pin' : !t.isDrive).map(t => t.label).slice(0, 3).join(', ') : d.meta;
   return { wx, warn, line };
 }
 

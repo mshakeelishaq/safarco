@@ -1,6 +1,7 @@
 // Places the traveller adds to or removes from the plan. The engine builds the plan;
 // these edits are applied on top, so a changed plan (another destination or length) drops them.
 import { PLACE_INFO, SLOTS, STOP_DUR } from './engine/data';
+import { timeDay } from './engine/timing';
 import type { PlanDay, StopItem } from './engine/engine';
 import { clock } from './engine/format';
 import type { PlanEdits } from './state';
@@ -17,7 +18,7 @@ export const parseClock = (s: string) => {
 };
 
 export interface EditedStop extends StopItem { removable?: boolean; added?: boolean; key: string }
-export interface EditedDay { stops: EditedStop[]; places: number; saved: number }
+export interface EditedDay { stops: EditedStop[]; places: number; saved: number; warn?: string }
 
 /** How long people usually stay at a place, in hours (from the places spreadsheet), else an hour. */
 const visitH = (name: string) => { const k = Object.keys(PLACE_INFO).find(x => x.endsWith('|' + name)); return (k && PLACE_INFO[k].visit || 60) / 60; };
@@ -34,14 +35,16 @@ export function editDay(d: PlanDay, i: number, e: PlanEdits): EditedDay {
   const picks = e.picks.filter(p => p.day === i);
   const added = picks.map(p => ({ time: '', kind: 'pin' as const, label: p.name, note: p.note, href: p.href || undefined, added: true, removable: true }));
   let stops: Omit<EditedStop, 'key'>[];
-  let saved = 0;
+  let saved = 0, warn = d.long || '';
 
   if (d.kind === 'explore') {
     const free = t('Free day');
     const pins = d.stops.filter(x => x.kind === 'pin' && x.label !== free && !dropped(x.label)).map(x => ({ ...x, removable: true }));
     const all = [...pins, ...added.filter(a => !pins.some(p => p.label.toLowerCase() === a.label.toLowerCase()))].map((x, j) => ({ ...x, time: t(SLOTS[Math.min(j, 3)]) }));
-    const rest = d.stops.filter(x => x.kind !== 'pin');
-    stops = all.length ? [...all, ...rest] : [{ time: t('All day'), kind: 'pin', label: free, note: t('Rest, shop, or go back to a favourite spot') }, ...rest];
+    // Timed days are timed again with the places as they now are.
+    const rest = d.stops.filter(x => x.kind !== 'pin' && (!d.timing || (x.kind === 'food' && x.label === t('Eat local'))));
+    if (d.timing && all.length) { const r = timeDay(all, d.timing, rest); stops = r.stops; warn = r.warn; }
+    else { warn = ''; stops = all.length ? [...all, ...rest] : [{ time: t('All day'), kind: 'pin', label: free, note: t('Rest, shop, or go back to a favourite spot') }, ...rest.map(x => x.kind === 'food' ? { ...x, time: t('Food') } : x)]; }
   } else if (d.kind === 'fly') {
     stops = [...d.stops, ...added.map(a => ({ ...a, time: t('Evening') }))];
   } else {
@@ -69,5 +72,5 @@ export function editDay(d: PlanDay, i: number, e: PlanEdits): EditedDay {
       stops.splice(arriveAt + 1, 0, ...timed);
     } else stops.push(...later.map(a => ({ ...a, time: t('Evening') })));
   }
-  return { stops: stops.map((x, j) => ({ ...x, key: `${j}:${x.label}` })), places: stops.filter(x => x.kind === 'pin' && x.label !== t('Free day')).length, saved };
+  return { stops: stops.map((x, j) => ({ ...x, key: `${j}:${x.label}` })), places: stops.filter(x => x.kind === 'pin' && x.label !== t('Free day')).length, saved, warn };
 }

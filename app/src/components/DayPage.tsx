@@ -87,8 +87,8 @@ export function DayPage({ v }: { v: View }) {
           {d.stops.map(st => st.isDrive ? (
             <div key={st.key} style={css('display:flex;gap:10px;align-items:center;min-height:26px')}>
               <div style={css('width:58px;flex:none;display:flex;justify-content:center')}><div style={css('width:2px;height:24px;border-radius:1px;background:repeating-linear-gradient(180deg,var(--fill2) 0 4px,transparent 4px 8px)')} /></div>
-              <i className="ph-fill ph-car-simple" style={css('font-size:15px;color:var(--mute);flex:none')} />
-              <div style={css('flex:1;min-width:0;font-size:12px;font-weight:800;color:var(--ink2);line-height:1.4')}>{st.label}<span style={css('font-weight:500;color:var(--mute)')}> · {st.note}</span></div>
+              <i className={`ph-fill ${st.walk ? 'ph-person-simple-walk' : 'ph-car-simple'}`} style={css('font-size:15px;color:var(--mute);flex:none')} />
+              <div style={css('flex:1;min-width:0;font-size:12px;font-weight:800;color:var(--ink2);line-height:1.4')}>{st.label}{st.note && <span style={css('font-weight:500;color:var(--mute)')}> · {st.note}</span>}</div>
             </div>
           ) : (
             <div key={st.key} className={st.added ? 'sc-fadein' : undefined} style={css('display:flex;gap:10px;align-items:flex-start')}>

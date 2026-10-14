@@ -6,6 +6,7 @@ import {
 } from './data';
 import { clock, dayLabel, dur, fmt, fmtN, hav, inM, isoOff, mapsQ, mon } from './format';
 import { sunTimes } from './sun';
+import { timeDay, type DayClock } from './timing';
 import { t } from '../i18n';
 import { LIVE, routeKey } from './live';
 import { wishPlaces, type WishId } from './seasons';
@@ -51,7 +52,7 @@ export const jeepsFor = (P: number) => Math.max(1, Math.ceil(P / 5));
 
 export interface Leg { a: string; b: string; km: number; h: number; road: string; months?: number[]; mtn?: boolean }
 /** `arrive`: where a day trip reaches its place (sights follow it); `driveH`: hours of a drive back that the day page times. */
-export interface StopItem { time: string; kind: StopKind; label: string; note: string; dur?: string; isDrive?: boolean; href?: string; arrive?: boolean; driveH?: number }
+export interface StopItem { time: string; kind: StopKind; label: string; note: string; dur?: string; isDrive?: boolean; walk?: boolean; href?: string; arrive?: boolean; driveH?: number }
 
 function stopsOn(l: Leg): EdgeStop[] {
   const f = EDGE_STOPS[`${l.a}-${l.b}`], r = EDGE_STOPS[`${l.b}-${l.a}`];
@@ -235,7 +236,7 @@ function stayAt(node: string | null, key: string, tier: TierId, isDest: boolean)
 export type DayKind = 'drive' | 'explore' | 'return' | 'fly';
 /** Where a driving day goes and when: used for weather along the road. */
 export interface Track { legs: Leg[]; coords: [number, number][]; marks: [number, number][]; dep: number; sunset: number; sunrise: number }
-export interface PlanDay { kind: DayKind; title: string; meta: string; note: string; stops: StopItem[]; stay: Stay | null; tip?: string; offer?: string; side?: { id: string; base: string; sleeping: boolean }; depart?: { at: number; rec: number; own: boolean }; num?: number; date?: string; iso?: string; track?: Track }
+export interface PlanDay { kind: DayKind; title: string; meta: string; note: string; stops: StopItem[]; stay: Stay | null; tip?: string; offer?: string; side?: { id: string; base: string; sleeping: boolean }; timing?: DayClock; long?: string; depart?: { at: number; rec: number; own: boolean }; num?: number; date?: string; iso?: string; track?: Track }
 
 /**
  * The places for each of n days at a destination: its usual day trips first (the places open this
@@ -263,10 +264,10 @@ export function sharedPlaces(ids: string[], m: number): Record<string, Set<strin
   return out;
 }
 
-export function dayGroups(D: Dest, m: number, n: number, skip = '', elsewhere?: Set<string>): { days: { list: Place[]; note: string; stay: string; fixed?: boolean }[]; extra: Place[] } {
+export function dayGroups(D: Dest, m: number, n: number, skip = '', elsewhere?: Set<string>): { days: { list: Place[]; note: string; stay: string; fixed?: boolean; leave?: number }[]; extra: Place[] } {
   // Places seen from another base on the same trip are left out here.
   const pl = placesFor(D, m).filter(p => !elsewhere?.has(placeKey(p[0]))), byName = new Map(pl.map(p => [p[0], p]));
-  const fixed: { list: Place[]; note: string; stay: string; fixed?: boolean }[] = (D.days || []).filter(d => !skip || d.stay !== skip).map(d => ({ list: d.places.map(x => byName.get(x)).filter((p): p is Place => !!p), note: d.note || '', stay: d.stay || '', fixed: true }))
+  const fixed: { list: Place[]; note: string; stay: string; fixed?: boolean; leave?: number }[] = (D.days || []).filter(d => !skip || d.stay !== skip).map(d => ({ list: d.places.map(x => byName.get(x)).filter((p): p is Place => !!p), note: d.note || '', stay: d.stay || '', fixed: true, leave: d.leave }))
     // A place on two of the given days (Passu Cones on the way to Khunjerab too) is shown on the first only.
     .map((d, _, all) => ({ ...d, list: d.list.filter(p => !all.slice(0, all.indexOf(d)).some(e => e.list.includes(p))) })).filter(d => d.list.length);
   const skipped = new Set((D.days || []).filter(d => skip && d.stay === skip).flatMap(d => d.places));
@@ -305,13 +306,12 @@ function exploreDays(D: Dest, m: number, n: number, tier: TierId, over?: string 
     const list = day.list;
     const stops: StopItem[] = list.length ? list.map((p, j) => {
       const jp = (D.jeeps || []).find(x => inM(m, x[4]) && jeepMatch(x, p));
-      // Deserts go last, in the evening light.
-      const slot = /desert/i.test(p[0]) && j === list.length - 1 ? 3 : Math.min(j, 3);
-      return { time: t(SLOTS[slot]), kind: 'pin' as const, label: p[0], note: [t(p[1]), t(p[2])].filter(Boolean).join(' · ') + `${jp ? ` · ${t('local jeep {price}, included', { price: fmt(jp[3]) })}` : ''}`, href: p[4] };
+      return { time: '', kind: 'pin' as const, label: p[0], note: [t(p[1]), t(p[2])].filter(Boolean).join(' · ') + `${jp ? ` · ${t('local jeep {price}, included', { price: fmt(jp[3]) })}` : ''}`, href: p[4] };
     }) : [{ time: t('All day'), kind: 'pin', label: t('Free day'), note: t('Rest, shop, or go back to a favourite spot') }];
     stops.push({ time: t('Food'), kind: 'food', label: t('Eat local'), note: D.eat ? t(D.eat) : D.eat });
     const tip = day.note ? t(day.note) : '';
-    out.push({ kind: 'explore', title: list.length ? t('Explore {place}', { place: D.town }) : t('Free day in {place}', { place: D.town }), meta: list.length ? (list.length > 1 ? t('{n} places · local car or jeep', { n: list.length }) : t('{n} place · local car or jeep', { n: list.length })) : t('Nothing scheduled'), note: tip, tip, offer: day.stay || undefined, stops, stay: stayAt(null, D.id, tier, true) });
+    out.push({ kind: 'explore', title: list.length ? t('Explore {place}', { place: D.town }) : t('Free day in {place}', { place: D.town }), meta: list.length ? (list.length > 1 ? t('{n} places · local car or jeep', { n: list.length }) : t('{n} place · local car or jeep', { n: list.length })) : t('Nothing scheduled'), note: tip, tip, offer: day.stay || undefined, stops, stay: stayAt(null, D.id, tier, true),
+      ...(list.length ? { timing: { dest: D.id, leave: day.leave ?? 9, sunset: SUNSET[m - 1], sunrise: SUNRISE[m - 1] } } : {}) });
   });
   // This place's own sights count as shown first, so a day trip's drive doesn't stop at them on the way past.
   const mark = (ds: PlanDay[]) => ds.forEach(d => d.stops.forEach(x => { if (x.kind === 'pin' || x.kind === 'view') SEEN?.add(placeKey(x.label)); }));
@@ -320,6 +320,12 @@ function exploreDays(D: Dest, m: number, n: number, tier: TierId, over?: string 
   if (K) { const at = g.days.filter(d => d.fixed).length; out.splice(at, 0, ...overnightDays(D, K, m, tier, departAt?.[first + at])); }
   // Day trips go after the first day here.
   if (trips.length) { const at = Math.min(1, out.length); out.splice(at, 0, ...trips.map((x, i) => x.make(departAt?.[first + at + i]))); }
+  // Clock times, now each day's number (and any time the traveller chose for it) is known.
+  out.forEach((d, k) => {
+    if (d.kind !== 'explore' || !d.timing) return;
+    const own = departAt?.[first + k], rec = d.timing.leave, at = own ?? rec, r = timeDay(d.stops.filter(x => x.kind === 'pin'), { ...d.timing, leave: at }, d.stops.filter(x => x.kind !== 'pin'));
+    Object.assign(d, { stops: r.stops, long: r.warn, timing: { ...d.timing, leave: at }, depart: { at, rec, own: own != null } });
+  });
   if (extra.length && out.length) { const o = out[out.length - 1]; o.note = (o.note ? o.note + ' ' : '') + t('More with an extra day: {list}.', { list: extra.join(', ') }); }
   mark(out);
   return out;

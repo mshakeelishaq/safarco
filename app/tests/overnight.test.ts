@@ -10,7 +10,7 @@ describe('a night at a nearby place', () => {
   it('offers Khaplu on its day trip from Skardu', () => {
     const d = buildPlan(base).days.find(x => x.offer);
     expect(d?.offer).toBe('khaplu');
-    expect(d?.stops[0].label).toMatch(/Khaplu/);
+    expect(d?.stops.find(x => x.kind === 'pin')?.label).toMatch(/Khaplu/);
   });
 
   it('turns the day trip into a drive with a night in Khaplu and a way back', () => {

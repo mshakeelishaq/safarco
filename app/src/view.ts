@@ -560,7 +560,7 @@ export function buildView(s: AppState, api: Api) {
           : d.offer && !s.overnight ? { text: t('Stay a night in {place} and see more', { place: DST(d.offer).name }), cta: t('Add a night (+1 day)'), apply: () => set({ overnight: d.offer!, days: Math.min(14, s.days + 1), dayOpen: null, toast: t('A night in {place} is in the plan.', { place: DST(d.offer!).name }) }) }
             : s.overnight && d.stay && DST(s.overnight).town === d.stay.town ? { text: t('Night in {place}.', { place: DST(s.overnight).name }), cta: t('Make it a day trip (−1 day)'), apply: () => set({ overnight: null, days: Math.max(2, s.days - 1), dayOpen: null }) } : null,
           ...(d.kind === 'explore' ? { note: d.tip || '', meta: edited[i].places > 1 ? t('{n} places · local car or jeep', { n: edited[i].places }) : edited[i].places ? t('{n} place · local car or jeep', { n: 1 }) : t('Nothing scheduled') } : {}),
-          busy: d.kind === 'explore' && edited[i].places > 4 ? t('Busy day: {n} places. Consider moving one to another day.', { n: edited[i].places }) : '',
+          busy: edited[i].warn ? edited[i].warn : d.kind === 'explore' && edited[i].places > 4 ? t('Busy day: {n} places. Consider moving one to another day.', { n: edited[i].places }) : '',
           tile: K[d.kind][0], kindLabel: K[d.kind][1], lineOp: i === p.days.length - 1 ? 0 : 1 })) };
     })(),
     rows: rows.map(r => ({ ...r, label: t(r.label), amount: fmtN(r.val), amountUsd: usd(r.val), color: CAT[r.label] || 'var(--sky)', grad: `linear-gradient(135deg,${CAT[r.label] || 'var(--sky)'},${CAT2[r.label] || '#3B8DFF'})` })),

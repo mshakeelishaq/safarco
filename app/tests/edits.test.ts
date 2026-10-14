@@ -11,14 +11,15 @@ describe('editing the plan', () => {
   const plan = buildPlan(base), ex = plan.days.findIndex(d => d.kind === 'explore'), drive = plan.days.findIndex(d => d.kind === 'drive' && d.stops.some(x => x.dur));
   const key = planKey(base);
 
-  it('removes and adds places on an explore day, renumbering the slots', () => {
-    const first = plan.days[ex].stops[0].label;
+  it('removes and adds places on an explore day, timing the day again', () => {
+    const first = plan.days[ex].stops.find(x => x.kind === 'pin')!.label;
     const e = { key, picks: [{ day: ex, name: 'Borith Lake', note: 'Lake', href: '' }], drops: [dropKey(ex, first)] };
     const d = editDay(plan.days[ex], ex, e);
     const pins = d.stops.filter(x => x.kind === 'pin');
     expect(pins.map(x => x.label)).not.toContain(first);
-    expect(pins[pins.length - 1]).toMatchObject({ label: 'Borith Lake', added: true, removable: true });
-    expect(pins[0].time).toBe('Morning');
+    expect(pins.find(x => x.label === 'Borith Lake')).toMatchObject({ added: true, removable: true });
+    expect(pins.every(x => /^\d{1,2}:\d{2} (am|pm)$/.test(x.time))).toBe(true);
+    expect(d.stops[d.stops.length - 2].label).toBe('Back at your hotel');
     expect(d.places).toBe(pins.length);
   });
 
