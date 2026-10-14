@@ -1969,4 +1969,6 @@ export const UR: Record<string, string> = {
   "Day trip removed. That day is free again.": "Din ka safar hata diya. Woh din phir farigh hai.",
   "Hill village and small bazaar above the Kaghan valley": "Kaghan valley ke upar pahari gaon aur chhota bazaar",
   "In Shogran": "Shogran mein",
+  "Wide views over the Makran coast and mud cliffs": "Makran sahil aur mitti ki chattanon ka khula nazara",
+  "Fuel and food in Pasni town, a short exit off the highway": "Pasni shehar mein petrol aur khana, highway se thora sa hat kar",
 };

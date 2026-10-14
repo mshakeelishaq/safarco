@@ -23,7 +23,9 @@ for (const o of origins) for (const d of dests) for (const m of [1, 7]) cases.pu
 describe('parity with the v7 prototype engine', () => {
   it.each(cases)('%s → %s in month %i', (origin, dest, m) => {
     const a = trip(dest, origin, m), b = orig.trip(dest, origin, 10, m);
-    expect([a.km, a.legDays, a.minDays, a.cuts]).toEqual([b.km, b.legDays, b.minDays, b.cuts]);
+    // Owner-added stops on the coastal highway (Buzi Pass, Pasni) move where a long drive to Gwadar stops for the night, not how many days it takes.
+    const sameNights = !['gwadar', 'kundmalir'].includes(dest);
+    expect([a.km, a.legDays, a.minDays, sameNights ? a.cuts : 0]).toEqual([b.km, b.legDays, b.minDays, sameNights ? b.cuts : 0]);
     const startDate = `2027-${String(m).padStart(2, '0')}-10`;
     for (const vehicle of ['sedan', 'public', 'air', 'coaster'] as const) {
       const s = { ...base, origin, dest, corridor: dest, startDate, vehicle, kids: 1, groupSize: 3 };
