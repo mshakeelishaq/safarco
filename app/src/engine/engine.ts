@@ -37,10 +37,21 @@ export interface TripState {
   comfort?: boolean;
   /** Places the traveller chose to see on a day trip from where they're staying (on a free day), whatever the distance. */
   dayTrips?: string[];
+  /** Flying in from abroad: the trip starts at the arrival airport (`origin`) with a day to land and rest. */
+  abroad?: boolean;
+  /** From abroad, SafarCo picks the arrival airport that suits the destination (until the traveller picks one). */
+  airAuto?: boolean;
 }
 
+/** Airports with flights from abroad that a trip can start from. */
+export const AIR_IN = ['Islamabad', 'Lahore', 'Karachi'];
+/** The arrival airport closest by road to a destination. */
+export const bestAirport = (key: string, month = 7) => AIR_IN.map(n => ({ n, h: trip(key, n, month).hours })).sort((a, b) => a.h - b.h)[0].n;
+/** Ways to travel for someone flying in: no own car, so coach, a hired car or 4x4 with driver, a flight, or a coaster. */
+const ABROAD_CONFIGS: TripConfig[] = [CONFIGS[0], { id: 'hire', name: 'Hired car', vehicle: 'rentcar', tier: 'standard' }, { id: 'hire4', name: 'Hired 4x4', vehicle: 'rent4x4', tier: 'standard' }, { id: 'hirep', name: 'Premium', vehicle: 'rent4x4', tier: 'premium' }, ...CONFIGS.filter(cf => cf.id === 'fly' || cf.id === 'group')];
+
 /** Trip styles to compare: the traveller's own vehicle only, or every style SafarCo knows. */
-export const configsFor = (s: { have?: Have; groupSize: number }) => s.have && s.have !== 'any' ? OWN_CONFIGS[s.have] : CONFIGS.filter(cf => cf.id !== 'group' || s.groupSize >= 8);
+export const configsFor = (s: { have?: Have; groupSize: number; abroad?: boolean }) => s.have && s.have !== 'any' ? OWN_CONFIGS[s.have] : s.abroad ? ABROAD_CONFIGS.filter(cf => cf.id !== 'group' || s.groupSize >= 8) : CONFIGS.filter(cf => cf.id !== 'group' || s.groupSize >= 8);
 
 /** Whether a destination suits a sedan or bike: a jeep for the last part, or fine. Null for 4x4s, coaches and flights. */
 export function roadFit(vehicle: VehicleId, key: string, origin: string | null, month: number): { level: 'jeep'; text: string } | null {
@@ -259,7 +270,7 @@ function stayAt(node: string | null, key: string, tier: TierId, isDest: boolean)
   return { town, place, name: h[0], note: t(h[2]), tier: h[1], alts: alts ? t('Also: {list}', { list: alts }) : '', href: mapsQ(h[0]), lat, lon, curated: true };
 }
 
-export type DayKind = 'drive' | 'explore' | 'return' | 'fly';
+export type DayKind = 'drive' | 'explore' | 'return' | 'fly' | 'arrive';
 /** Where a driving day goes and when: used for weather along the road. */
 export interface Track { legs: Leg[]; coords: [number, number][]; marks: [number, number][]; dep: number; sunset: number; sunrise: number }
 export interface PlanDay { kind: DayKind; title: string; meta: string; note: string; stops: StopItem[]; stay: Stay | null; tip?: string; offer?: string; side?: { id: string; base: string; sleeping: boolean }; roadNight?: RoadNight; dest?: string; timing?: DayClock; long?: string; depart?: { at: number; rec: number; own: boolean }; num?: number; date?: string; iso?: string; track?: Track }
@@ -455,7 +466,31 @@ export function seasonInfo(s: TripState, key: string): Note[] {
 export interface Plan { days: PlanDay[]; total: number; sunset: number; rec: number; dep: number; late: boolean; hasDrive: boolean; air: AirOption | null; /** A circuit: the days go round a loop, not out and back. */ loop?: boolean }
 export function buildPlan(s: TripState): Plan {
   const outer = SEEN; SEEN = new Set();
-  try { return planOf(s); } finally { SEEN = outer; }
+  try { return s.abroad ? abroadPlan(s) : planOf(s); } finally { SEEN = outer; }
+}
+
+/** Flying in from abroad: a day to land and rest in the arrival city, the trip from there, and the flight home from it. */
+function abroadPlan(s: TripState): Plan {
+  const o = cityOr(s.origin), m = mon(s), D = DST(s.corridor), here = !circuit(s) && trip(s.corridor, s.origin, m).hours < 0.5;
+  const node = Object.keys(NODE_INFO).find(k => NODE_INFO[k][0] === o.n);
+  const stay: Stay = here ? stayAt(null, s.corridor, s.tier, true) : node ? stayAt(node, s.corridor, s.tier, false)
+    : { town: o.n, place: o.n, name: t('Hotels in {place}', { place: o.n }), note: t('Opens a Google Maps search'), tier: t('Search'), alts: '', href: mapsQ('hotels in ' + o.n), lat: o.lat, lon: o.lon, curated: false };
+  const land: PlanDay = { kind: 'arrive', title: t('Land in {city}', { city: o.n }), meta: t('Rest after the flight'), note: t('A long flight and a time change: keep today easy. The trip starts tomorrow morning.'), stay,
+    stops: [{ time: '', kind: 'plane', label: t('Land at {city} airport', { city: o.n }), note: t('Get a local SIM and some cash (PKR) at the airport') },
+      { time: '', kind: 'go', label: t('Taxi to your hotel'), note: t('From the airport taxi desk or a ride app') },
+      { time: t('Evening'), kind: 'bed', label: t('Rest'), note: t('An early night: tomorrow is a full day') }] };
+  // Departure times are kept by the day's place in the whole trip; the trip after landing counts from 0.
+  const shift = (r?: Record<number, number>) => r && Object.fromEntries(Object.entries(r).map(([k, v]) => [+k - 1, v] as const).filter(([k]) => k >= 0));
+  let rest: Plan | null = null;
+  if (s.days >= 2) {
+    if (here) { const ds = exploreDays(D, m, s.days - 1, s.tier, s.overnight, 1, s.departAt, undefined, sideTrips(s)[s.corridor]); rest = { days: ds, total: ds.length, sunset: sunTimes(D.lat, D.lon, s.startDate).set, rec: 6, dep: 6, late: false, hasDrive: false, air: null }; }
+    else rest = planOf({ ...s, abroad: false, days: s.days - 1, startDate: isoOff(s.startDate, 1), departAt: shift(s.departAt) });
+  }
+  const days = [land, ...(rest?.days || []).map(d => ({ ...d, stops: d.stops.map(x => x.kind === 'food' && x.note === t('At home') ? { ...x, note: t('At your hotel') } : x) }))];
+  const last = days[days.length - 1];
+  last.stops = [...last.stops, { time: '', kind: 'plane', label: t('Flight home from {city}', { city: o.n }), note: t('Book it for late tonight or tomorrow: roads and flights can be delayed.') }];
+  days.forEach((d, i) => { d.num = i + 1; d.date = dayLabel(s.startDate, i); d.iso = isoOff(s.startDate, i); });
+  return { ...(rest || { sunset: 18, rec: 6, dep: 6, late: false, hasDrive: false, air: null }), days, total: days.length };
 }
 
 function planOf(s: TripState): Plan {
@@ -603,6 +638,8 @@ export function costFor(o: TripState): Cost {
   const add = plannedJeeps(o, c, M);
   if (add.length) { const j = jeepsFor(P); rows.push({ icon: 'ph-jeep', label: 'Jeep trips', detail: `${add.map(x => x[1]).join(', ')} · ${jeeps(j)}`, val: add.reduce((a, x) => a + x[3], 0) * j }); }
   if (o.vehicle === 'air' && (o.extra || []).some(k => k !== o.corridor && !sideIds(o).has(k))) { ok = false; why = 'Flights are for one place'; }
+  // From abroad: one more day to land and rest, and the flight to Pakistan is the traveller's own.
+  if (o.abroad) { minDays = Math.max(2, minDays + 1); ok = ok && o.days >= minDays; rows.push({ icon: 'ph-globe-hemisphere-east', label: 'Flight to Pakistan', detail: t('Book it yourself: fares from abroad change too often to guess'), val: 0 }); }
   return { rows, total: rows.reduce((a, r) => a + r.val, 0), ok, minDays, why };
 }
 
@@ -619,7 +656,7 @@ export function plannedJeeps(o: TripState, c: Trip, M: number): Jeep[] {
 export interface Suggestion extends TripConfig { corridor: string; key: string; total: number; ok: boolean; minDays: number; why: string; best?: boolean }
 /** Options for the suggestions step: trip styles for one destination, or the best style per destination. */
 export function suggestions(s: TripState & { pickId: string | null }) {
-  const cost = (corridor: string, cf: TripConfig): Suggestion => { const r = costFor({ ...s, corridor, vehicle: cf.vehicle, tier: cf.tier, extra: s.mode === 'know' ? s.extra : [] }); return { ...cf, corridor, key: corridor + ':' + cf.id, total: r.total, ok: r.ok, minDays: r.minDays, why: r.why }; };
+  const cost = (corridor: string, cf: TripConfig): Suggestion => { const r = costFor({ ...s, corridor, ...(s.abroad && s.airAuto ? { origin: bestAirport(corridor, mon(s)) } : {}), vehicle: cf.vehicle, tier: cf.tier, extra: s.mode === 'know' ? s.extra : [] }); return { ...cf, corridor, key: corridor + ':' + cf.id, total: r.total, ok: r.ok, minDays: r.minDays, why: r.why }; };
   // Without a spending limit, the chosen kind of stay decides: only those styles, cheapest first.
   const limit = s.capOn !== false, all = configsFor(s), inTier = all.filter(cf => cf.tier === s.tier), cfgs = limit || !inTier.length ? all : inTier;
   const price = (k: string, list: TripConfig[]) => list.map(cf => cost(k, cf)).filter(x => !x.why).sort((a, b) => a.total - b.total);
@@ -633,7 +670,7 @@ export function suggestions(s: TripState & { pickId: string | null }) {
   } else {
     // With a wish (autumn colours, snow…) only places that have it are suggested; others only fill a short list.
     const wished = new Set(s.wish && s.wish !== 'any' ? wishPlaces(s.wish).map(p => p.id) : []), inW = (x: Suggestion) => wished.has(x.corridor) ? 1 : 0;
-    const pool = [...new Set([...wished, ...SUGGEST_POOL])].filter(k => DST(k).name !== s.origin && (!wished.size || wished.has(k) || wished.size < 3));
+    const pool = [...new Set([...wished, ...SUGGEST_POOL])].filter(k => (s.abroad || DST(k).name !== s.origin) && (!wished.size || wished.has(k) || wished.size < 3));
     // Each place's best style: the fullest that fits, else the cheapest that has enough days, else the quickest.
     list = pool.map(k => { const ps = priced(k), fit = ps.filter(fits), ok = ps.filter(x => x.ok); return fit.length ? (limit ? fit[fit.length - 1] : fit[0]) : ok.length ? ok[0] : ps.slice().sort((a, b) => a.minDays - b.minDays)[0]; }).filter(Boolean);
     const inS = (x: Suggestion) => { const b = DST(x.corridor).best; return !b || b.includes(mon(s)) ? 1 : 0; };

@@ -83,23 +83,39 @@ export function Onboarding({ v, api }: { v: View; api: Api }) {
               </div>
               <SectionLabel style="margin:0 4px 8px">{t('Your city')}</SectionLabel>
             </>}
-            <button onClick={() => { if (s.loc !== 'locating') set({ loc: 'ask' }); }} style={css(`width:100%;display:flex;align-items:center;gap:14px;min-height:68px;padding:10px 14px;border-radius:22px;border:1px solid ${v.locBtn.border};background:var(--fill);color:var(--ink);text-align:left;cursor:pointer;transition:border-color .3s`)}>
-              <div style={css(`width:46px;height:46px;flex:none;border-radius:15px;background:${v.locBtn.tile};display:flex;align-items:center;justify-content:center;color:#fff;font-size:23px;box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 -3px 0 rgba(0,0,0,.18)`)}>{s.loc === 'locating' ? <Spinner /> : <i className={`ph-fill ${v.locBtn.icon}`} />}</div>
-              <div style={css('flex:1;min-width:0')}><div style={css('font-size:16px;font-weight:800')}>{v.locBtn.title}</div><div style={css('font-size:12px;color:var(--mute);margin-top:2px;font-weight:600')}>{v.locBtn.sub}</div></div>
-              <i className="ph-bold ph-caret-right" style={css('font-size:16px;color:var(--mute)')} />
-            </button>
-            <div style={css('margin-top:12px')}><SearchBox value={s.oq} onChange={oq => set({ oq })} onClear={() => set({ oq: '' })} placeholder={t('Search {n} cities, e.g. Sukkur', { n: v.cityCount })} label={t('Search city')} focus="focus-g" /></div>
-            <SectionLabel style="margin:16px 4px 6px">{v.listLabel}</SectionLabel>
-            <div style={css('display:flex;flex-direction:column;gap:2px')}>
-              {v.cityRows.map(r => (
-                <button key={r.key} onClick={r.onClick} className="hov-fill" aria-pressed={r.checkOp === 1} style={css(`display:flex;align-items:center;gap:12px;min-height:52px;padding:6px 12px;border-radius:16px;border:1px solid ${r.border};background:${r.bg};color:var(--ink);text-align:left;cursor:pointer;transition:all .2s`)}>
-                  <i className="ph-fill ph-map-pin" style={css(`font-size:19px;color:${r.pinC};flex:none`)} />
-                  <span style={css('flex:1;min-width:0;display:flex;align-items:baseline;gap:8px')}><span style={css('font-size:15px;font-weight:700')}>{r.name}</span><span style={css('font-size:12px;font-weight:600;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis')}>{r.prov}</span></span>
-                  <i className="ph-bold ph-check" style={css(`font-size:16px;color:var(--g);opacity:${r.checkOp}`)} />
-                </button>
-              ))}
-            </div>
-            {v.noCity && <div style={css('padding:16px 12px;font-size:14px;color:var(--mute);font-weight:600;line-height:1.45')}>{t('No city found. Try the nearest district city, or use your current location.')}</div>}
+            {v.abroad ? (
+              <div style={css('padding:16px;border-radius:22px;background:var(--fill);border:1px solid rgba(111,211,255,.45)')}>
+                <div style={css('display:flex;align-items:center;gap:12px')}>
+                  <div style={css('width:46px;height:46px;flex:none;border-radius:15px;background:linear-gradient(135deg,#6FD3FF,#3B8DFF);display:flex;align-items:center;justify-content:center;color:#fff;font-size:23px;box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 -3px 0 rgba(0,0,0,.18)')}><i className="ph-fill ph-airplane-tilt" /></div>
+                  <div style={css('flex:1;min-width:0')}><div style={css('font-size:16px;font-weight:800')}>{t('Flying in from abroad')}</div><div style={css('font-size:12px;color:var(--mute);margin-top:2px;font-weight:600;line-height:1.4')}>{t('Your trip starts at the airport you land at, with a day to rest.')}</div></div>
+                </div>
+                <SectionLabel style="margin:16px 0 8px">{t('Landing at')}</SectionLabel>
+                <div style={css('display:flex;flex-wrap:wrap;gap:8px')}>
+                  {v.abroad.chips.map(c => <button key={c.key} onClick={c.onClick} aria-pressed={c.on} style={css(`min-height:40px;padding:0 14px;border-radius:13px;border:1px solid ${c.on ? 'var(--g)' : 'var(--line2)'};background:${c.on ? 'rgba(46,229,157,.14)' : 'transparent'};color:var(--ink);font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px`)}>{c.key === 'auto' && <i className="ph-fill ph-sparkle" style={css('color:var(--g)')} />}{c.label}</button>)}
+                </div>
+                <div style={css('font-size:12px;color:var(--ink2);font-weight:600;line-height:1.45;margin-top:10px')}>{v.abroad.note}</div>
+                <button onClick={v.abroad.home} style={css('margin-top:12px;min-height:36px;padding:0;border:0;background:none;color:var(--g);font-size:13px;font-weight:800;cursor:pointer')}>{t('I’m already in Pakistan')}</button>
+              </div>
+            ) : <>
+              <button onClick={() => { if (s.loc !== 'locating') set({ loc: 'ask' }); }} style={css(`width:100%;display:flex;align-items:center;gap:14px;min-height:68px;padding:10px 14px;border-radius:22px;border:1px solid ${v.locBtn.border};background:var(--fill);color:var(--ink);text-align:left;cursor:pointer;transition:border-color .3s`)}>
+                <div style={css(`width:46px;height:46px;flex:none;border-radius:15px;background:${v.locBtn.tile};display:flex;align-items:center;justify-content:center;color:#fff;font-size:23px;box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 -3px 0 rgba(0,0,0,.18)`)}>{s.loc === 'locating' ? <Spinner /> : <i className={`ph-fill ${v.locBtn.icon}`} />}</div>
+                <div style={css('flex:1;min-width:0')}><div style={css('font-size:16px;font-weight:800')}>{v.locBtn.title}</div><div style={css('font-size:12px;color:var(--mute);margin-top:2px;font-weight:600')}>{v.locBtn.sub}</div></div>
+                <i className="ph-bold ph-caret-right" style={css('font-size:16px;color:var(--mute)')} />
+              </button>
+              <div style={css('margin-top:12px')}><SearchBox value={s.oq} onChange={oq => set({ oq })} onClear={() => set({ oq: '' })} placeholder={t('Search {n} cities, e.g. Sukkur', { n: v.cityCount })} label={t('Search city')} focus="focus-g" /></div>
+              <button onClick={v.goAbroad} style={css('margin-top:10px;width:100%;min-height:48px;border-radius:16px;border:1px dashed var(--line2);background:none;color:var(--ink);font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px')}><i className="ph-fill ph-airplane-tilt" style={css('color:var(--g)')} />{t('Flying in from abroad?')}</button>
+              <SectionLabel style="margin:16px 4px 6px">{v.listLabel}</SectionLabel>
+              <div style={css('display:flex;flex-direction:column;gap:2px')}>
+                {v.cityRows.map(r => (
+                  <button key={r.key} onClick={r.onClick} className="hov-fill" aria-pressed={r.checkOp === 1} style={css(`display:flex;align-items:center;gap:12px;min-height:52px;padding:6px 12px;border-radius:16px;border:1px solid ${r.border};background:${r.bg};color:var(--ink);text-align:left;cursor:pointer;transition:all .2s`)}>
+                    <i className="ph-fill ph-map-pin" style={css(`font-size:19px;color:${r.pinC};flex:none`)} />
+                    <span style={css('flex:1;min-width:0;display:flex;align-items:baseline;gap:8px')}><span style={css('font-size:15px;font-weight:700')}>{r.name}</span><span style={css('font-size:12px;font-weight:600;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis')}>{r.prov}</span></span>
+                    <i className="ph-bold ph-check" style={css(`font-size:16px;color:var(--g);opacity:${r.checkOp}`)} />
+                  </button>
+                ))}
+              </div>
+              {v.noCity && <div style={css('padding:16px 12px;font-size:14px;color:var(--mute);font-weight:600;line-height:1.45')}>{t('No city found. Try the nearest district city, or use your current location.')}</div>}
+            </>}
           </>}
 
           {s.step === 2 && <>

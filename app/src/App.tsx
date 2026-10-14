@@ -29,7 +29,7 @@ import { TripTab } from './components/TripTab';
 import { LIVE, fxFetch, geoSearch, placesFetch, placesKey, placesUrl, reverseGeo, routeFetch, routeKey, routeUrl, wikiFetch } from './engine/live';
 import { allUrls, fetchWeather } from './weather/route';
 import { mapsQ, mon } from './engine/format';
-import { trip, usualDays } from './engine/engine';
+import { bestAirport, trip, usualDays } from './engine/engine';
 import { NODES } from './engine/data';
 import { DST, cityOr, nearestCity } from './engine/places';
 import { css } from './lib/css';
@@ -163,6 +163,13 @@ export function App() {
     return () => clearTimeout(t);
   }, [q]);
 
+  // From abroad, the arrival airport follows the destination until the traveller picks one.
+  useEffect(() => {
+    if (!s.abroad || !s.airAuto) return;
+    const o = bestAirport(s.corridor, mon(s)); if (o !== s.origin) set({ origin: o });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [s.abroad, s.airAuto, s.corridor, s.startDate, s.origin]);
+
   // Theme is remembered on this device.
   useEffect(() => { try { localStorage.setItem('safarco-theme', s.theme); } catch { /* storage blocked */ } }, [s.theme]);
 
@@ -178,7 +185,8 @@ export function App() {
     if (!navigator.geolocation) return fail(tx('This device has no GPS. Search for your city below.'));
     navigator.geolocation.getCurrentPosition(p => {
       const { latitude: a, longitude: o } = p.coords;
-      if (!(a > 23.5 && a < 37.2 && o > 60.8 && o < 77.9)) return fail(tx('You seem to be outside Pakistan. Search for your city below.'));
+      // Outside Pakistan: the trip starts at the airport they fly into, the one that suits the place they pick.
+      if (!(a > 23.5 && a < 37.2 && o > 60.8 && o < 77.9)) { const st = stRef.current; return done({ loc: 'done', abroad: true, airAuto: true, origin: bestAirport(st.corridor, mon(st)), oq: '', pickId: null, locNote: '' }); }
       const pick = (note?: string) => { const { city, d } = nearestCity(a, o); done({ loc: 'done', origin: city.n, oq: '', pickId: null, locNote: note || tx('Detected from GPS · {km} km from city centre', { km: Math.max(1, Math.round(d)) }) }); };
       if (nearestCity(a, o).d < 8) return pick();
       reverseGeo(a, o)!.then(() => pick(tx('Detected from GPS · place name from OpenStreetMap')), () => pick());

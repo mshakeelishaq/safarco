@@ -4,7 +4,7 @@ import { HAVE_VEHICLE, EDGES, MODES, MON, MONTH_FULL, NODES, NODE_INFO, POPULAR,
 import { FOOD } from './engine/food';
 import { canPrompt, dismissInstall, isIOS, isInstalled, promptInstall, wasDismissed } from './install';
 import { foodTipsFor } from './foodtips';
-import { DAY_OUT_H, SHORT2_H, MAX_DRIVE_H, plannedJeeps, roomPlan, circuit, sideTrips, dayTripOptions, tripFrom, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
+import { AIR_IN, bestAirport, DAY_OUT_H, SHORT2_H, MAX_DRIVE_H, plannedJeeps, roomPlan, circuit, sideTrips, dayTripOptions, tripFrom, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
 import { clock, dayLabel, dur, fmt, fmtN, isoAdd, isoOf, isoOff, kShort, mapsQ, mon } from './engine/format';
 import { LIVE, fxRate, placesKey, routeKey, type Spot } from './engine/live';
 import { sunTimes } from './engine/sun';
@@ -46,6 +46,8 @@ export interface Api {
 
 export function buildView(s: AppState, api: Api) {
   const { set } = api;
+  // From abroad, the trip starts at the airport that suits the destination (until the traveller picks one).
+  if (s.abroad && s.airAuto) s = { ...s, origin: bestAirport(s.corridor, mon(s)) };
   const M = mon(s), c0 = trip(s.corridor, s.origin, M), nights = Math.max(1, s.days - 1), sug = suggestions(s);
   // A circuit (more than one place) goes round once: its totals replace the one-place "each way" figures.
   const L = circuit(s), stopNames = L ? L.order.map(k => DST(k).name) : [];
@@ -114,7 +116,7 @@ export function buildView(s: AppState, api: Api) {
   const obTitles = [
     { title: t('What do you want to see?'), sub: t('Pick the trip you dream of. SafarCo suggests the best months and places for it.') },
     { title: t('Which city do you live in?'), sub: t('Your trip starts here. Distance, fuel, tolls and travel time are calculated from it.') },
-    { title: t('Where do you want to go?'), sub: t('From {origin}. Search any city or tourist spot, or let SafarCo suggest one.', { origin: s.origin || 'Islamabad' }) },
+    { title: t('Where do you want to go?'), sub: s.abroad ? t('Flying in from abroad. Search any city or tourist spot, or let SafarCo suggest one.') : t('From {origin}. Search any city or tourist spot, or let SafarCo suggest one.', { origin: s.origin || 'Islamabad' }) },
     { title: t('When are you going?'), sub: t('Tentative dates are fine. Roads, season and prices change with the month.') },
     { title: t('Who’s travelling, and how?'), sub: t('Fares, meals and rooms are worked out for each person.') },
     { title: t('How do you like to stay?'), sub: t('Prices are worked out for your trip. You can set a spending limit if you have one.') },
@@ -335,21 +337,23 @@ export function buildView(s: AppState, api: Api) {
   /** The plan "Plan it for me" builds: for each place that suits the mood, its best way to go; then the best place. */
   const quickPick = () => {
     const m = s.mood;
+    // From abroad, each place is timed from the airport that suits it.
+    const from = (k: string) => s.abroad && s.airAuto ? bestAirport(k, M) : s.origin, notHome = (k: string) => s.abroad || DST(k).name !== s.origin;
     // Short trips: a day out, a food town, or a scenic road, close enough to come home the same night (a drive may take two days).
     if (m === 'dayout' || m === 'food' || m === 'drive') {
       const CITY_PAGES = new Set(['lahore', 'islamabad', 'karachi', 'peshawar', 'multan', 'hyderabad', 'sukkur', 'bahawalpur', 'abbottabad', 'muzaffarabad', 'mingora', 'gilgit']);
       const FOOD_TOWNS = ['city:Gujranwala', 'peshawar', 'hyderabad', 'lahore', 'city:Faisalabad', 'city:Sialkot', 'city:Rawalpindi', 'multan'];
       const DRIVES = ['chakwal', 'nathia', 'murree', 'kundmalir', 'thandiani', 'shogran', 'khewra'];
       // A relaxed day out is up to about 2½ h each way; a food town at least an hour away (not the next-door city).
-      const far = m === 'drive' ? SHORT2_H : m === 'dayout' ? 2.6 : DAY_OUT_H, hrs = (k: string) => trip(k, s.origin, M).hours;
+      const far = m === 'drive' ? SHORT2_H : m === 'dayout' ? 2.6 : DAY_OUT_H, hrs = (k: string) => trip(k, from(k), M).hours;
       const ids = (m === 'food' ? FOOD_TOWNS : m === 'drive' ? DRIVES : DESTS.map(d => d.id))
-        .filter(k => DST(k).name !== s.origin && DST(k).hub === undefined && !(DST(k).warn && DST(k).warn![0].includes(M)) && hrs(k) <= far && (m !== 'food' || hrs(k) >= 1));
+        .filter(k => notHome(k) && DST(k).hub === undefined && !(DST(k).warn && DST(k).warn![0].includes(M)) && hrs(k) <= far && (m !== 'food' || hrs(k) >= 1));
       // A drive: the longest good road that's still a day out, else a two-day one; a food trip: the nearest food town;
       // a day out: places (not cities) SafarCo has checked first, then the nearest; a city only if nothing else is near.
       const day1 = (k: string) => +(hrs(k) <= DAY_OUT_H), city = (k: string) => +CITY_PAGES.has(k), known = (k: string) => +(DST(k).checked !== false);
       const order = ids.slice().sort((a, b) => m === 'drive' ? (day1(b) - day1(a)) || hrs(b) - hrs(a) : m === 'food' ? hrs(a) - hrs(b) : (city(a) - city(b)) || (known(b) - known(a)) || hrs(a) - hrs(b));
       for (const k of order) {
-        const days = hrs(k) <= DAY_OUT_H ? 1 : 2, st = { ...s, mode: 'know' as const, dest: k, corridor: k, days, capOn: false, pickId: null, extra: [] };
+        const days = (hrs(k) <= DAY_OUT_H ? 1 : 2) + (s.abroad ? 1 : 0), st = { ...s, mode: 'know' as const, dest: k, corridor: k, days, capOn: false, pickId: null, extra: [] };
         const ok = suggestions(st).list.filter(x => x.ok && x.vehicle !== 'air').sort((a, b) => a.total - b.total)[0];
         if (ok) return { ...ok, days };
       }
@@ -360,16 +364,16 @@ export function buildView(s: AppState, api: Api) {
     const easy = (k: string) => { const D = DST(k); return !(D.warn && D.warn[0].includes(M)) && D.hub === undefined && k !== 'mohenjo'; };
     // Scenic places for a feeling (no city breaks), in SafarCo's order of favourites; a season's or the sea's own places for those.
     const ids = (m === 'season' || m === 'sea' ? wishPlaces(s.wish as Parameters<typeof wishPlaces>[0]).map(p => p.id) : SUGGEST_POOL)
-      .filter(k => DST(k).name !== s.origin && (m !== 'north' || /Gilgit/.test(DST(k).region)) && (near ? easy(k) : inM_(k)));
+      .filter(k => notHome(k) && (m !== 'north' || /Gilgit/.test(DST(k).region)) && (near ? easy(k) : inM_(k)));
     const opts = ids.flatMap(k => { const l = suggestions({ ...s, mode: 'know', dest: k, corridor: k, capOn: false, pickId: null, extra: [] }).list.filter(x => x.ok);
       const road = l.filter(x => x.vehicle !== 'air'), roomy = (x: typeof l[number]) => s.days - x.minDays >= 1;
       const best = [road.filter(roomy), l.filter(roomy), road, l].find(x => x.length)?.slice().sort((a, b) => a.total - b.total)[0];
-      return best ? [{ ...best, roomy: roomy(best), known: DST(k).checked !== false, hours: trip(k, s.origin, M).hours }] : []; });
+      return best ? [{ ...best, roomy: roomy(best), known: DST(k).checked !== false, hours: trip(k, from(k), M).hours }] : []; });
     // Near and easy first for an escape, a slow trip or family time; otherwise SafarCo's favourites, then the best value.
     const fav = (k: string) => { const i = ids.indexOf(k); return i < 0 ? 99 : i; };
     return opts.sort((a, b) => +b.known - +a.known || +b.roomy - +a.roomy || (near ? a.hours - b.hours : fav(a.corridor) - fav(b.corridor)) || a.total - b.total)[0] || null;
   };
-  const wishPicks = W ? { label: t('Best for {wish}', { wish: lowerEn(t(W.label)) }), picks: wishPlaces(W.id).filter(p => DST(p.id).name !== s.origin).slice(0, 10)
+  const wishPicks = W ? { label: t('Best for {wish}', { wish: lowerEn(t(W.label)) }), picks: wishPlaces(W.id).filter(p => (s.abroad || DST(p.id).name !== s.origin)).slice(0, 10)
     .map(p => ({ key: p.id, name: p.name, icon: W.icon, color: W.color, ...pickCard(p.id, p.h), caution: !!p.h.caution, on: s.dest === p.id && s.mode === 'know', onClick: () => set({ mode: 'know', dest: p.id, corridor: p.id, pickId: null }) })) } : null;
   const wishNote = (() => {
     if (!W) return null;
@@ -476,6 +480,14 @@ export function buildView(s: AppState, api: Api) {
     stepBars: (s.quick ? [0, 1] : [0, 1, 2, 3, 4, 5, 6]).map(i => ({ bg: i <= s.step ? 'var(--bar)' : 'var(--line2)', glow: i <= s.step ? 'var(--barGlow)' : 'none' })),
     ob: s.quick && s.step === 0 ? { title: t('What does your heart want right now?'), sub: t('Pick a feeling. SafarCo finds the place, the way to go and the days.') } : s.quick && s.step === 1 ? { title: t('Your city, and how many days?'), sub: t('SafarCo picks the best place and way to go for your wish, and makes the plan. You can change anything after.') } : obTitles[s.step],
     cityCount: CITIES.length,
+    // Flying in: the arrival airport, picked for the destination or by the traveller.
+    abroad: s.abroad ? {
+      chips: [{ key: 'auto', label: t('Best for my trip'), on: s.airAuto, onClick: () => set({ airAuto: true, pickId: null }) },
+        ...AIR_IN.map(n => ({ key: n, label: n, on: !s.airAuto && s.origin === n, onClick: () => set({ airAuto: false, origin: n, pickId: null }) }))],
+      note: s.airAuto ? (s.step > 1 || s.chosen ? t('{city} suits this trip best. Pick another if your flight lands elsewhere.', { city: s.origin || '' }) : t('Once you choose a place, SafarCo picks the airport closest to it.')) : t('Your trip starts and ends in {city}.', { city: s.origin || '' }),
+      home: () => set({ abroad: false, airAuto: false, origin: null, loc: 'idle', locNote: '', pickId: null })
+    } : null,
+    goAbroad: () => set({ abroad: true, airAuto: true, origin: bestAirport(s.corridor, M), pickId: null, oq: '' }),
     listLabel: s.oq ? (geoOf(s.oq)?.status === 'loading' ? t('Matching places · searching all of Pakistan…') : t('Matching places')) : t('Popular cities'),
     cityRows: (() => {
       const q = oqT;
@@ -484,7 +496,7 @@ export function buildView(s: AppState, api: Api) {
       if (s.origin && !q && !POPULAR.includes(s.origin) && CITY[s.origin]) list = [CITY[s.origin], ...list];
       return list.map(c => {
         const on = s.origin === c.n;
-        return { key: c.n, name: c.n, prov: c.p, onClick: () => set({ origin: c.n, pickId: null, loc: s.loc === 'done' ? 'idle' : s.loc }),
+        return { key: c.n, name: c.n, prov: c.p, onClick: () => set({ origin: c.n, pickId: null, abroad: false, airAuto: false, loc: s.loc === 'done' ? 'idle' : s.loc }),
           bg: on ? 'rgba(46,229,157,.12)' : 'transparent', border: on ? 'rgba(46,229,157,.45)' : 'transparent', pinC: on ? 'var(--g)' : 'var(--mute)', checkOp: on ? 1 : 0 };
       });
     })(),
@@ -601,14 +613,14 @@ export function buildView(s: AppState, api: Api) {
     restart: () => api.newTrip(),
     budgetShadow: ring('budget'),     capPct: Math.round(pct * 100), totalNum: fmtN(total), totalUsd: usd(total), perPersonStr: `${fmt(total / s.groupSize)} (${usd(total / s.groupSize)})`, capStr: fmt(s.cap), barPct: Math.min(pct, 1) * 100,
     plan: (() => {
-      const p = plan, K: Record<string, [string, string]> = { drive: ['linear-gradient(135deg,#2EE59D,#0FA678)', t('Drive')], explore: ['linear-gradient(135deg,#9B7BFF,#5B6CFF)', t('Explore')], return: ['linear-gradient(135deg,#FFB547,#FF7A3D)', t('Return')], fly: ['linear-gradient(135deg,#6FD3FF,#3B8DFF)', t('Fly')] };
+      const p = plan, K: Record<string, [string, string]> = { drive: ['linear-gradient(135deg,#2EE59D,#0FA678)', t('Drive')], explore: ['linear-gradient(135deg,#9B7BFF,#5B6CFF)', t('Explore')], return: ['linear-gradient(135deg,#FFB547,#FF7A3D)', t('Return')], fly: ['linear-gradient(135deg,#6FD3FF,#3B8DFF)', t('Fly')], arrive: ['linear-gradient(135deg,#6FD3FF,#3B8DFF)', t('Arrive')] };
       const depChips = [null, 4.5, 5.5, 6.5, 7.5, 8.5].map(v => { const on = (s.depart ?? null) === v; return { key: String(v), label: v === null ? t('Auto · each day') : clock(v), onClick: () => set({ depart: v }), ...chip(on) }; });
-      return { summary: p.total === 1 ? t('A day out · home the same night') : t('{n} days · {m} nights', { n: p.total, m: p.total - 1 }), via: p.air ? t('Flights {from} ⇄ {to} · car and driver at the destination', { from: p.air.dep, to: p.air.arr }) : L ? t('{km} km round trip · {via}', { km: c.kmStr, via: c.via }) : t('{km} km each way by road · {via}', { km: c.kmStr, via: c.via }),
+      return { summary: p.total === 1 ? t('A day out · home the same night') : t('{n} days · {m} nights', { n: p.total, m: p.total - 1 }), via: (s.abroad ? t('Fly into {city}', { city: s.origin || '' }) + ' · ' : '') + (p.air ? t('Flights {from} ⇄ {to} · car and driver at the destination', { from: p.air.dep, to: p.air.arr }) : L ? t('{km} km round trip · {via}', { km: c.kmStr, via: c.via }) : c.hours < 0.5 ? t('Explore the city') : t('{km} km each way by road · {via}', { km: c.kmStr, via: c.via })),
         hasDep: !p.air && p.hasDrive, depChips, wxDepart: rw.depart && s.depart !== rw.depart.dep ? { ...rw.depart, label: clock(rw.depart.dep), apply: () => set({ depart: rw.depart!.dep }) } : null, depNoteC: p.late ? 'var(--amb)' : 'var(--mute)',
         depNote: p.late ? t('Some driving days end after sunset (about {time}).', { time: clock(p.sunset) }) + ' ' + (p.dep > p.rec ? t('Leave by {time}.', { time: clock(p.rec) }) : t('Consider an extra night stop.'))
           : s.depart == null ? t('Each driving day has its own suggested time, so it ends before sunset. Open a day to change it.')
           : t('Every driving day ends before sunset (the earliest is about {sunset}).', { sunset: clock(p.sunset) }),
-        days: p.days.map((d, i) => ({ ...d, flight: d.kind === 'fly' && p.air && d.iso ? (() => { const out = i === 0, from = out ? p.air!.dep : p.air!.arr, to = out ? p.air!.arr : p.air!.dep;
+        days: p.days.map((d, i) => ({ ...d, flight: d.kind === 'fly' && p.air && d.iso ? (() => { const out = i === p.days.findIndex(x => x.kind === 'fly'), from = out ? p.air!.dep : p.air!.arr, to = out ? p.air!.arr : p.air!.dep;
           return { from, to, fare: t('Tentative: about {fare} one way per adult', { fare: pkrUsd(p.air!.fare) }), href: flightSearchUrl(from, to, d.iso!, s.adults + s.elders, s.kids) }; })() : null, fuel: (() => { const f = fuel.get(i); if (!f || !(f.stops.length || f.notes.length || f.gaps.length || f.loading)) return null;
           return { ...f, stops: f.stops.map(x => ({ ...x, label: x.place || (x.name === 'Fuel station' ? t('Fuel station') : x.name), km: t('km {km}', { km: x.at }) })) }; })(), strip: rw.strips.get(i) || null, destWx: d.track ? null : rw.destDays.find(x => x.idx === i) || null, stay: d.stay && (() => {
           // Hotels for this night's town (live from OpenStreetMap), each linked to Booking.com for this exact night.
@@ -656,7 +668,7 @@ export function buildView(s: AppState, api: Api) {
           busy: edited[i].warn ? edited[i].warn : d.kind === 'explore' && edited[i].places > 4 ? t('Busy day: {n} places. Consider moving one to another day.', { n: edited[i].places }) : '',
           tile: K[d.kind][0], kindLabel: K[d.kind][1], lineOp: i === p.days.length - 1 ? 0 : 1 })) };
     })(),
-    rows: rows.map(r => ({ ...r, label: t(r.label), amount: fmtN(r.val), amountUsd: usd(r.val), color: CAT[r.label] || 'var(--sky)', grad: `linear-gradient(135deg,${CAT[r.label] || 'var(--sky)'},${CAT2[r.label] || '#3B8DFF'})` })),
+    rows: rows.map(r => ({ ...r, label: t(r.label), ...(r.label === 'Flight to Pakistan' ? { amount: t('Not included'), amountUsd: '' } : { amount: fmtN(r.val), amountUsd: usd(r.val) }), color: CAT[r.label] || 'var(--sky)', grad: `linear-gradient(135deg,${CAT[r.label] || 'var(--sky)'},${CAT2[r.label] || '#3B8DFF'})` })),
     vehChips: (Object.entries(VEH) as [VehicleId, typeof VEH[VehicleId]][]).map(([k, v]) => {
       const on = s.vehicle === k, off = k === 'air' && !air;
       return { key: k, icon: v.icon, label: t(v.short), full: t(v.label), onClick: () => { if (!off) set({ vehicle: k }); }, op: off ? .35 : 1,
@@ -694,7 +706,7 @@ export function buildView(s: AppState, api: Api) {
     // The way there in Google Maps, through each night's town (up to nine stops), for turn-by-turn directions.
     routeLink: (() => {
       if (isAir) return '';
-      const nights = plan.days.filter(d => (d.kind === 'drive' || d.kind === 'explore') && d.stay).map(d => `${d.stay!.lat.toFixed(4)},${d.stay!.lon.toFixed(4)}`).filter((x, i, a) => a.indexOf(x) === i);
+      const nights = plan.days.filter(d => (d.kind === 'drive' || d.kind === 'explore' || d.kind === 'arrive') && d.stay).map(d => `${d.stay!.lat.toFixed(4)},${d.stay!.lon.toFixed(4)}`).filter((x, i, a) => a.indexOf(x) === i);
       if (!nights.length) return '';
       const dest = nights[nights.length - 1], via = nights.slice(0, -1).slice(0, 9);
       return `https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=${encodeURIComponent(c.from + ', Pakistan')}&destination=${dest}${via.length ? `&waypoints=${encodeURIComponent(via.join('|'))}` : ''}`;

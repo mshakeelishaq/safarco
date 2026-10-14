@@ -9,10 +9,10 @@ const DEST_IDS = new Set(DESTS.map(d => d.id));
 
 /** The parts of the app state that describe a trip. */
 export type TripData = Pick<TripState, 'origin' | 'mode' | 'dest' | 'corridor' | 'startDate' | 'days' | 'depart' | 'vehicle' | 'tier' | 'adults' | 'kids' | 'elders' | 'groupSize' | 'rooms' | 'cap'>
-  & { places?: { n: string; p: string; lat: number; lon: number }[]; have?: TripState['have']; wish?: TripState['wish']; extra?: string[]; capOn?: boolean; overnight?: string | null; roomCount?: number | null; sleepAt?: string[]; breaks?: string[]; comfort?: boolean; dayTrips?: string[]; edits?: PlanEdits };
+  & { places?: { n: string; p: string; lat: number; lon: number }[]; have?: TripState['have']; wish?: TripState['wish']; extra?: string[]; capOn?: boolean; overnight?: string | null; roomCount?: number | null; sleepAt?: string[]; breaks?: string[]; comfort?: boolean; dayTrips?: string[]; abroad?: boolean; airAuto?: boolean; edits?: PlanEdits };
 export interface SavedTrip { id: string; name: string; data: TripData; savedAt: string; cloudId?: string }
 
-const KEYS: Exclude<keyof TripData, 'places'>[] = ['origin', 'mode', 'dest', 'corridor', 'startDate', 'days', 'depart', 'vehicle', 'tier', 'adults', 'kids', 'elders', 'groupSize', 'rooms', 'cap', 'capOn', 'overnight', 'roomCount', 'sleepAt', 'breaks', 'comfort', 'dayTrips', 'have', 'wish', 'extra', 'edits'];
+const KEYS: Exclude<keyof TripData, 'places'>[] = ['origin', 'mode', 'dest', 'corridor', 'startDate', 'days', 'depart', 'vehicle', 'tier', 'adults', 'kids', 'elders', 'groupSize', 'rooms', 'cap', 'capOn', 'overnight', 'roomCount', 'sleepAt', 'breaks', 'comfort', 'dayTrips', 'abroad', 'airAuto', 'have', 'wish', 'extra', 'edits'];
 const LIST = 'safarco-trips', CURRENT = 'safarco-current';
 
 /** Trip fields from app state, plus any searched places the trip needs (they aren't built in). */
@@ -65,6 +65,7 @@ export function cleanTrip(raw: unknown): TripData | null {
     sleepAt: (Array.isArray(r.sleepAt) ? r.sleepAt : []).filter((k: unknown): k is string => typeof k === 'string' && DEST_IDS.has(k)).slice(0, 3),
     breaks: (Array.isArray(r.breaks) ? r.breaks : []).filter((k: unknown): k is string => typeof k === 'string' && /^(out|back):/.test(k) && k.split(':')[1] in NODES).slice(0, 6),
     comfort: r.comfort === true,
+    abroad: r.abroad === true, airAuto: r.abroad === true && r.airAuto === true,
     dayTrips: (Array.isArray(r.dayTrips) ? r.dayTrips : []).filter((k: unknown): k is string => typeof k === 'string' && DEST_IDS.has(k)).slice(0, 3),
     roomCount: typeof r.roomCount === 'number' && r.roomCount >= 1 ? Math.min(20, Math.round(r.roomCount)) : null,
     overnight: typeof r.overnight === 'string' && DEST_IDS.has(r.overnight) ? r.overnight : null,
