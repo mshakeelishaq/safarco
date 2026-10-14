@@ -78,7 +78,7 @@ export function Onboarding({ v, api }: { v: View; api: Api }) {
           {s.step === 1 && <>
             {s.quick && <>
               <SectionLabel style="margin:0 4px 8px">{t('How many days?')}</SectionLabel>
-              <div style={css('display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px')}>
+              <div style={css('display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:14px')}>
                 {v.dayPresets.map(p => <button key={p.key} onClick={p.onClick} aria-pressed={p.bg === 'var(--cta)'} style={css(`height:44px;border-radius:14px;border:1px solid ${p.border};background:${p.bg};color:${p.fg};font-size:13px;font-weight:800;cursor:pointer;transition:all .2s`)}>{p.label}</button>)}
               </div>
               <SectionLabel style="margin:0 4px 8px">{t('Your city')}</SectionLabel>
@@ -163,7 +163,7 @@ export function Onboarding({ v, api }: { v: View; api: Api }) {
               <div style={css('text-align:center;min-width:96px')}><div style={css('font-family:var(--fontH);font-weight:600;font-size:64px;line-height:1;letter-spacing:-.04em;background:var(--ng1);-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums')}>{s.days}</div><div style={css('font-size:13px;font-weight:700;color:var(--mute);margin-top:6px')}>{v.nightsLabel}</div></div>
               <button onClick={v.incDays} aria-label={t('More days')} style={css('width:56px;height:56px;border-radius:50%;border:0;background:var(--cta);color:var(--onCta);cursor:pointer;font-size:20px;box-shadow:0 12px 26px -10px rgba(46,229,157,.8)')}><i className="ph-bold ph-plus" /></button>
             </div>
-            <div style={css('display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:22px')}>
+            <div style={css('display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:22px')}>
               {v.dayPresets.map(p => <button key={p.key} onClick={p.onClick} style={css(`height:44px;border-radius:14px;border:1px solid ${p.border};background:${p.bg};color:${p.fg};font-size:13px;font-weight:800;cursor:pointer;transition:all .2s`)}>{p.label}</button>)}
             </div>
             <div style={css('text-align:center;font-size:13px;font-weight:800;color:var(--amb2);margin-top:12px')}>{v.dateRange}</div>

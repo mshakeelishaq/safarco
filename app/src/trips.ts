@@ -54,7 +54,7 @@ export function cleanTrip(raw: unknown): TripData | null {
   return {
     origin, corridor, dest: dest!, mode: r.mode === 'suggest' ? 'suggest' : 'know',
     startDate: typeof r.startDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(r.startDate) ? r.startDate : new Date().toISOString().slice(0, 10),
-    days: int(r.days, 2, 14, 4), depart: typeof r.depart === 'number' && r.depart >= 3 && r.depart <= 11 ? r.depart : null,
+    days: int(r.days, 1, 14, 4), depart: typeof r.depart === 'number' && r.depart >= 3 && r.depart <= 11 ? r.depart : null,
     vehicle: (VEHICLES.includes(r.vehicle as string) ? r.vehicle : 'sedan') as TripData['vehicle'],
     tier: (TIERS.includes(r.tier as string) ? r.tier : 'standard') as TripData['tier'],
     adults, kids, elders, groupSize: adults + kids + elders, rooms: r.rooms === 'shared' ? 'shared' : 'separate', cap: int(r.cap, 20000, 5000000, 120000),

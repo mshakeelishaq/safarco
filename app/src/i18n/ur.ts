@@ -2021,4 +2021,11 @@ export const UR: Record<string, string> = {
   "Warm coast, quiet beaches.": "Garm sahil, pursukoon beaches.",
   "What does your heart want right now?": "Is waqt dil kya chahta hai?",
   "Pick a feeling. SafarCo finds the place, the way to go and the days.": "Aik ehsaas chunein. SafarCo jagah, safar ka tareeqa aur din dhoond leta hai.",
+  "1 day": "1 din",
+  "home the same night": "usi raat ghar wapsi",
+  "{from} → {to} and back": "{from} → {to} aur wapsi",
+  "{km} km each way · home the same night": "har taraf {km} km · usi raat ghar wapsi",
+  "At home": "Ghar par",
+  "day · home the same night": "din · usi raat ghar wapsi",
+  "A day out · home the same night": "Aik din ki sair · usi raat ghar wapsi",
 };

@@ -97,3 +97,20 @@ describe('a sensible trip length', () => {
     expect(usualDays('murree', 'Islamabad', 6)).toBeLessThan(7);
   });
 });
+
+describe('short trips', () => {
+  it('a day out: there and back the same day, no hotel', () => {
+    const s = { ...base, origin: 'Islamabad', dest: 'murree', corridor: 'murree', days: 1, startDate: '2026-11-10' };
+    const c = costFor(s); expect(c.ok).toBe(true); expect(c.rows.find(r => r.label === 'Stay')).toBeUndefined();
+    const days = buildPlan(s).days; expect(days).toHaveLength(1);
+    expect(days[0].stops.filter(x => x.kind === 'pin').length).toBeGreaterThan(1);
+    expect(days[0].stay).toBeNull();
+  });
+  it('Kallar Kahar from Lahore is on the M-2, about 2½ hours', async () => {
+    const { trip } = await import('../src/engine/engine');
+    const c = trip('chakwal', 'Lahore', 11); expect(c.hours).toBeLessThan(3); expect(c.via).toContain('M-2');
+  });
+  it('places too far for a day out still need more days', () => {
+    expect(costFor({ ...base, dest: 'hunza', corridor: 'hunza', days: 1 }).ok).toBe(false);
+  });
+});

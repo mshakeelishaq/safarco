@@ -481,6 +481,23 @@ function planOf(s: TripState): Plan {
       return finish({ air: a });
     }
   }
+  // A day out: there and back the same day (up to about 3 h each way), the places in between, dinner at home.
+  if (s.days === 1 && c.hours <= DAY_OUT_H && D.hub === undefined) {
+    const sun = sunOn('DEST', 0), back = legs.slice().reverse().map(l => ({ ...l, a: l.b, b: l.a })), backH = back.reduce((a, l) => a + l.h, 0);
+    const rec = Math.min(8.5, recDep(legs, sun.set)), dep = s.departAt?.[0] ?? s.depart ?? rec, r = dayStops(legs, c.from, D.town, dep, sun.set);
+    const items = r.items.filter(x => !(x.kind === 'food' && x.label === t('Dinner'))).map(x => x.kind === 'bed' ? { ...x, kind: 'go' as const, arrive: true, note: '' } : x);
+    // As many of the place's sights as fit before heading home by about an hour after sunset.
+    const list = placesFor(D, m).slice(0, 8), visitOf = (p: Place) => (PLACE_INFO[`${D.id}|${p[0]}`]?.visit || 60) / 60 + 0.33;
+    while (list.length > 1 && r.arrive + list.reduce((a, p) => a + visitOf(p), 0) + backH > sun.set + 1) list.pop();
+    const pins: StopItem[] = list.map(p => ({ time: '', kind: 'pin', label: p[0], note: [t(p[1]), t(p[2])].filter(Boolean).join(' · '), href: p[4] }));
+    // Lunch after the place where midday falls.
+    let h = r.arrive, at_ = pins.length; list.some((p, i) => { h += visitOf(p); if (h >= 12.5) { at_ = i + 1; return true; } return false; });
+    if (h >= 12 || r.arrive < 12) pins.splice(at_, 0, { time: '', kind: 'food', label: t('Lunch'), note: t('Near {place}', { place: (list[at_ - 1] || list[0])?.[0] || D.town }) });
+    days.push({ kind: 'drive', title: t('{from} → {to} and back', { from: c.from, to: D.town }), meta: t('{km} km each way · home the same night', { km: c.kmStr }), note: '', dest: D.id,
+      stops: [...items, ...pins, { time: '', kind: 'go', label: t('Back to {place}', { place: c.from }), note: t('About {time}', { time: dur(backH) }), driveH: backH }, { time: '8:30 pm', kind: 'food', label: t('Dinner'), note: t('At home') }],
+      stay: null, depart: { at: dep, rec, own: s.departAt?.[0] != null }, track: { legs, coords: [at(legs[0].a), ...legs.map(l => at(l.b))], marks: r.marks, dep, sunset: sun.set, sunrise: sun.rise } });
+    return finish({ sunset: sun.set, rec, dep, hasDrive: true });
+  }
   // Driving days, split where the day is too long and where the traveller chose to stop for the night (going and coming back can differ).
   const brk = (dir: 'out' | 'back') => breaksOf(s, dir);
   const split = (cuts: number[]) => {
@@ -545,8 +562,10 @@ export function costFor(o: TripState): Cost {
   const M = mon(o), c = trip(o.corridor, o.origin, M), L = circuit(o), sf = seasonFactor(c, M), sfTxt = sf > 1 ? ` · ${t('peak +{pct}%', { pct: Math.round((sf - 1) * 100) })}` : sf < 1 ? ` · ${t('off-season −{pct}%', { pct: Math.round((1 - sf) * 100) })}` : '';
   // A circuit goes round once; a single place is there and back.
   const flatKm = L ? L.flatKm : c.flatKm * 2, mtnKm = L ? L.mtnKm : c.mtnKm * 2, tollList = L ? L.tolls : c.tolls.concat(c.tolls);
-  const v = VEH[o.vehicle], tr = TIERS[o.tier], rt = L ? L.km : c.km * 2, rows: CostRow[] = [], nights = Math.max(1, o.days - 1);
-  let ok = o.days >= (L ? L.minDays : c.minDays), minDays = L ? L.minDays : c.minDays, why = '';
+  const v = VEH[o.vehicle], tr = TIERS[o.tier], rt = L ? L.km : c.km * 2, rows: CostRow[] = [], nights = Math.max(o.days === 1 ? 0 : 1, o.days - 1);
+  // Near places: a day out (up to about 3 h each way) or a two-day trip (up to about 4½ h).
+  const shortMin = L || c.hub !== undefined ? 0 : c.hours <= DAY_OUT_H ? 1 : c.hours <= SHORT2_H ? 2 : 0;
+  let minDays = L ? L.minDays : shortMin || c.minDays, ok = o.days >= minDays, why = '';
   const kidTxt = (pct: string) => K ? ` + ${K > 1 ? t('{n} kids at {pct}', { n: K, pct }) : t('{n} kid at {pct}', { n: K, pct })}` : '';
   const adults = (n: number) => n > 1 ? t('{n} adults', { n }) : t('{n} adult', { n });
   const jeeps = (n: number) => n > 1 ? t('{n} jeeps', { n }) : t('{n} jeep', { n });
@@ -572,7 +591,7 @@ export function costFor(o: TripState): Cost {
     else rows.push({ icon: 'ph-road-horizon', label: 'Tolls', detail: (tollList.length ? [...new Set(tollList.map(x => x[0]))].join(' + ') : t('No tolled roads')) + ` · ${L ? t('whole route') : t('return')}${units > 1 ? ` × ${units}` : ''}${v.tollX ? ` · ${t('coaster rate')}` : ''}`, val: tollSum });
   }
   const rp = roomPlan(o);
-  if (o.rooms === 'shared') {
+  if (!nights) { /* a day out: no hotel */ } else if (o.rooms === 'shared') {
     const { r, extra } = rp;
     rows.push({ icon: 'ph-bed', label: 'Stay', detail: `${r > 1 ? t('{n} family rooms (up to 4)', { n: r }) : t('{n} family room (up to 4)', { n: r })}${extra ? ` + ${extra > 1 ? t('{n} extra beds', { n: extra }) : t('{n} extra bed', { n: extra })}` : ''} × ${nightsTxt} · ${tr.label}${sfTxt}`, val: (r * tr.night * 1.5 + extra * tr.night * 0.2) * nights * sf });
   } else {
@@ -654,6 +673,8 @@ function hopOf(legs: Leg[], to: string, m: number): Hop {
 
 /** Places on the trip within 1½ hours' drive of another one: by default seen on a day trip from it. */
 const SIDE_H = 1.5, COMFORT_H = 3, DAYTRIP_H = 3.5;
+/** Short trips: there and back in a day up to this far (hours each way), or in two days up to SHORT2_H. */
+export const DAY_OUT_H = 3.25, SHORT2_H = 4.5;
 
 /** A sensible trip length: the driving days there and back, plus a few days to see the place (3 to 10 in all). */
 export function usualDays(dest: string, origin: string | null, month: number) {

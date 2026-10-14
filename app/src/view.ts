@@ -527,9 +527,9 @@ export function buildView(s: AppState, api: Api) {
       const pool = SUGGEST_POOL.filter(k => DST(k).name !== o), ok = pool.filter(k => s.days >= trip(k, o, M).minDays).length;
       return { text: t('{ok} of {total} popular destinations are reachable from {from} in {days} days, driving up to {max} h a day.', { ok, total: pool.length, from: o, days: s.days, max: MAX_DRIVE_H }), icon: 'ph-path', ...(ok ? okS : badS) };
     })(),
-    nightsLabel: nights > 1 ? t('days · {n} nights', { n: nights }) : t('days · {n} night', { n: nights }),
-    decDays: () => set({ days: Math.max(2, s.days - 1), daysSet: true }), incDays: () => set({ days: Math.min(14, s.days + 1), daysSet: true }),
-    dayPresets: [3, 5, 7, 10].map(d => ({ key: d, label: t('{n} days', { n: d }), onClick: () => set({ days: d, daysSet: true }), ...chip(s.days === d) })),
+    nightsLabel: s.days === 1 ? t('day · home the same night') : nights > 1 ? t('days · {n} nights', { n: nights }) : t('days · {n} night', { n: nights }),
+    decDays: () => set({ days: Math.max(1, s.days - 1), daysSet: true }), incDays: () => set({ days: Math.min(14, s.days + 1), daysSet: true }),
+    dayPresets: [1, 2, 3, 5, 7].map(d => ({ key: d, label: d === 1 ? t('1 day') : t('{n} days', { n: d }), onClick: () => set({ days: d, daysSet: true }), ...chip(s.days === d) })),
     capBig: fmtN(s.cap), capUsd: `≈ ${usd(s.cap)}`, capPer: t('{amount} ({usd}) per person · {days} days', { amount: fmt(s.cap / s.groupSize), usd: usd(s.cap / s.groupSize), days: s.days }),
     tripMeta: s.groupSize > 1 ? t('{n} travellers · {days} days', { n: s.groupSize, days: s.days }) : t('{n} traveller · {days} days', { n: s.groupSize, days: s.days }),
     sliderPct: (s.cap - 20000) / 480000 * 100,
@@ -578,7 +578,7 @@ export function buildView(s: AppState, api: Api) {
     plan: (() => {
       const p = plan, K: Record<string, [string, string]> = { drive: ['linear-gradient(135deg,#2EE59D,#0FA678)', t('Drive')], explore: ['linear-gradient(135deg,#9B7BFF,#5B6CFF)', t('Explore')], return: ['linear-gradient(135deg,#FFB547,#FF7A3D)', t('Return')], fly: ['linear-gradient(135deg,#6FD3FF,#3B8DFF)', t('Fly')] };
       const depChips = [null, 4.5, 5.5, 6.5, 7.5, 8.5].map(v => { const on = (s.depart ?? null) === v; return { key: String(v), label: v === null ? t('Auto · each day') : clock(v), onClick: () => set({ depart: v }), ...chip(on) }; });
-      return { summary: t('{n} days · {m} nights', { n: p.total, m: p.total - 1 }), via: p.air ? t('Flights {from} ⇄ {to} · car and driver at the destination', { from: p.air.dep, to: p.air.arr }) : L ? t('{km} km round trip · {via}', { km: c.kmStr, via: c.via }) : t('{km} km each way by road · {via}', { km: c.kmStr, via: c.via }),
+      return { summary: p.total === 1 ? t('A day out · home the same night') : t('{n} days · {m} nights', { n: p.total, m: p.total - 1 }), via: p.air ? t('Flights {from} ⇄ {to} · car and driver at the destination', { from: p.air.dep, to: p.air.arr }) : L ? t('{km} km round trip · {via}', { km: c.kmStr, via: c.via }) : t('{km} km each way by road · {via}', { km: c.kmStr, via: c.via }),
         hasDep: !p.air && p.hasDrive, depChips, wxDepart: rw.depart && s.depart !== rw.depart.dep ? { ...rw.depart, label: clock(rw.depart.dep), apply: () => set({ depart: rw.depart!.dep }) } : null, depNoteC: p.late ? 'var(--amb)' : 'var(--mute)',
         depNote: p.late ? t('Some driving days end after sunset (about {time}).', { time: clock(p.sunset) }) + ' ' + (p.dep > p.rec ? t('Leave by {time}.', { time: clock(p.rec) }) : t('Consider an extra night stop.'))
           : s.depart == null ? t('Each driving day has its own suggested time, so it ends before sunset. Open a day to change it.')
@@ -712,7 +712,7 @@ export function buildView(s: AppState, api: Api) {
       { key: 'a', label: t('Adults'), value: `${s.adults}`, dec: () => api.setPeople('adults', -1), inc: () => api.setPeople('adults', 1) },
       { key: 'k', label: t('Kids (under 12)'), value: `${s.kids}`, dec: () => api.setPeople('kids', -1), inc: () => api.setPeople('kids', 1) },
       { key: 'e', label: t('Elders (60+)'), value: `${s.elders}`, dec: () => api.setPeople('elders', -1), inc: () => api.setPeople('elders', 1) },
-      { key: 'd', label: t('Days'), value: `${s.days}`, dec: () => set({ days: Math.max(2, s.days - 1), daysSet: true }), inc: () => set({ days: Math.min(14, s.days + 1), daysSet: true }) },
+      { key: 'd', label: t('Days'), value: `${s.days}`, dec: () => set({ days: Math.max(1, s.days - 1), daysSet: true }), inc: () => set({ days: Math.min(14, s.days + 1), daysSet: true }) },
       { key: 'b', label: t('Budget cap'), value: capOn ? `${Math.round(s.cap / 1000)}k` : t('None'), dec: () => capOn && set(s.cap <= 40000 ? { capOn: false } : { cap: Math.max(40000, s.cap - 10000) }), inc: () => set(capOn ? { cap: s.cap + 10000 } : { capOn: true, cap: Math.max(40000, Math.ceil(total / 5000) * 5000) }) }
     ],
     helplines: [['1122', t('Rescue')], ['15', t('Police')], ['130', t('Motorway Police')], ['115', t('Edhi Ambulance')]].map(([num, label]) => ({ num, label, href: `tel:${num}` })),
