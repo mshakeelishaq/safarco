@@ -1959,4 +1959,6 @@ export const UR: Record<string, string> = {
   "Thari food (bajra roti, kadhi)": "Thari khana (bajray ki roti, kadhi)",
   "Nagarparkar and Mithi": "Nagarparkar aur Mithi",
   "Desert home cooking": "Registan ka ghar ka khana",
+  "Free afternoon": "Farigh dopahar",
+  "Rest, walk the bazaar, or add a place from the list below": "Aaram karein, bazaar ghoomein, ya neeche di gayi list se koi jagah shamil karein",
 };

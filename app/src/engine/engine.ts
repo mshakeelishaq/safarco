@@ -324,13 +324,30 @@ function exploreDays(D: Dest, m: number, n: number, tier: TierId, over?: string 
   // Day trips to nearby places on the trip (Shigar from Skardu) take a day each, leaving at least one here.
   const nSide = Math.min(sides.length, n > sides.length ? sides.length : Math.max(1, n - 1)), trips = sides.slice(0, nSide).map(k => sideDay(D, DST(k), m, tier));
   const skip = new Set([...(elsewhere || []), ...(SEEN || []), ...trips.flatMap(x => [...x.covered])]);
-  const g = dayGroups(D, m, Math.max(0, n - nSide - (K ? 2 : 0)), K ? K.id : '', skip), extra = g.extra.map(p => p[0]);
+  const g = dayGroups(D, m, Math.max(0, n - nSide - (K ? 2 : 0)), K ? K.id : '', skip), spare = [...g.extra];
+  const pinOf = (p: Place): StopItem => {
+    const jp = (D.jeeps || []).find(x => inM(m, x[4]) && jeepMatch(x, p));
+    return { time: '', kind: 'pin' as const, label: p[0], note: [t(p[1]), t(p[2])].filter(Boolean).join(' · ') + `${jp ? ` · ${t('local jeep {price}, included', { price: fmt(jp[3]) })}` : ''}`, href: p[4] };
+  };
+  // A full day the traveller can trim: a day back early gets places not yet in the plan, nearest first, while it ends by about 5:30 pm.
+  const end = Math.min(17.5, SUNSET[m - 1] - 0.5), clk = { dest: D.id, sunset: SUNSET[m - 1], sunrise: SUNRISE[m - 1] };
+  const near = (a: Place, b: Place) => { const i = PLACE_INFO[`${D.id}|${a[0]}`], j = PLACE_INFO[`${D.id}|${b[0]}`]; return i?.lat != null && j?.lat != null ? hav(i.lat, i.lon!, j.lat, j.lon!) : 50; };
+  g.days.forEach(day => {
+    if (!day.list.length || !spare.length) return;
+    const timed = (l: Place[]) => timeDay(l.map(pinOf), { ...clk, leave: day.leave ?? 9 }), backOf = (l: Place[]) => timed(l).back;
+    // Short, or waiting long for a sunset stop.
+    const short = (l: Place[]) => { const r = timed(l); return r.back < end - 1 || r.idle >= 1.5; };
+    while (spare.length && short(day.list)) {
+      const next = spare.slice().sort((a, b) => Math.min(...day.list.map(q => near(a, q))) - Math.min(...day.list.map(q => near(b, q))))
+        .find(p => backOf([...day.list, p]) <= Math.max(end, backOf(day.list)) && timed([...day.list, p]).idle <= timed(day.list).idle);
+      if (!next) break;
+      day.list = [...day.list, next]; spare.splice(spare.indexOf(next), 1);
+    }
+  });
+  const extra = spare.map(p => p[0]);
   g.days.forEach(day => {
     const list = day.list;
-    const stops: StopItem[] = list.length ? list.map((p, j) => {
-      const jp = (D.jeeps || []).find(x => inM(m, x[4]) && jeepMatch(x, p));
-      return { time: '', kind: 'pin' as const, label: p[0], note: [t(p[1]), t(p[2])].filter(Boolean).join(' · ') + `${jp ? ` · ${t('local jeep {price}, included', { price: fmt(jp[3]) })}` : ''}`, href: p[4] };
-    }) : [{ time: t('All day'), kind: 'pin', label: t('Free day'), note: t('Rest, shop, or go back to a favourite spot') }];
+    const stops: StopItem[] = list.length ? list.map(pinOf) : [{ time: t('All day'), kind: 'pin', label: t('Free day'), note: t('Rest, shop, or go back to a favourite spot') }];
     stops.push({ time: t('Food'), kind: 'food', label: t('Eat local'), note: D.eat ? t(D.eat) : D.eat });
     const tip = day.note ? t(day.note) : '';
     out.push({ kind: 'explore', title: list.length ? t('Explore {place}', { place: D.town }) : t('Free day in {place}', { place: D.town }), meta: list.length ? (list.length > 1 ? t('{n} places · local car or jeep', { n: list.length }) : t('{n} place · local car or jeep', { n: list.length })) : t('Nothing scheduled'), note: tip, tip, offer: day.stay || undefined, stops, stay: stayAt(null, D.id, tier, true), dest: D.id,

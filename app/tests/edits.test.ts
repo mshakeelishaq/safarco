@@ -71,3 +71,15 @@ describe('places added to a driving day', () => {
     expect(out.find(x => x.endsWith('Shigar Fort'))).toMatch(/^9:1\d am/);
   });
 });
+
+describe('full days', () => {
+  it('a day back early gets places not yet in the plan, or a free afternoon', async () => {
+    const { buildPlan } = await import('../src/engine/engine');
+    const { parseClock } = await import('../src/edits');
+    const days = buildPlan({ origin: 'Lahore', mode: 'know', dest: 'skardu', corridor: 'skardu', startDate: '2026-11-04', days: 8, depart: null, vehicle: 'suv', tier: 'standard', adults: 2, kids: 0, elders: 0, groupSize: 2, rooms: 'separate', cap: 5000000, capOn: false }).days;
+    for (const d of days.filter(x => x.timing)) {
+      const back = parseClock(d.stops.find(x => x.label === 'Back at your hotel')!.time)!;
+      expect(back >= 14.5 || d.stops.some(x => x.label === 'Free afternoon'), d.title).toBe(true);
+    }
+  });
+});

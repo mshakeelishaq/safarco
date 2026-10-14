@@ -28,7 +28,7 @@ function visitOf(name: string, note: string, i?: PlaceInfo) {
 }
 const atSunset = (name: string, i?: PlaceInfo) => /desert|sunset/i.test(name) || i?.tod === 'sunset';
 
-export interface TimedDay { stops: StopItem[]; back: number; warn: string }
+export interface TimedDay { stops: StopItem[]; back: number; warn: string; idle: number }
 
 /**
  * Times a day's places, in the order given (a sunset place last). Each pin keeps its label, note and link.
@@ -50,7 +50,7 @@ export function timeDay(pins: StopItem[], c: DayClock, rest: StopItem[] = []): T
     return !from ? Math.min(hoursIn(note.split('·')[0]) ?? 0.33, 3) : 0.25;
   };
   const out: StopItem[] = [];
-  let h = c.leave, lunch = false, prev: PlaceInfo | null = null, prevName = '';
+  let idle = 0, h = c.leave, lunch = false, prev: PlaceInfo | null = null, prevName = '';
   // A sunrise view is seen at first light, before breakfast.
   const dawn = list.filter(x => /sunrise/i.test(x.p.label));
   dawn.forEach(({ p }) => out.push({ ...p, time: clock((c.sunrise ?? 5.5) - 0.25), dur: t('At first light, before breakfast') }));
@@ -65,7 +65,7 @@ export function timeDay(pins: StopItem[], c: DayClock, rest: StopItem[] = []): T
     if (atSunset(p.label, i)) {
       // Arrive for the last hour of light; time to spare before that is free.
       const want = c.sunset - Math.max(stay, 1) - go;
-      if (want - h >= 1) { out.push({ time: clock(h), kind: 'tea', label: t('Free time'), note: t('Rest, or a cup of tea, before the sunset stop'), dur: dur(want - h) }); h = want; }
+      if (want - h >= 1) { out.push({ time: clock(h), kind: 'tea', label: t('Free time'), note: t('Rest, or a cup of tea, before the sunset stop'), dur: dur(want - h) }); idle += want - h; h = want; }
     }
     drive(go);
     out.push({ ...p, time: clock(h), dur: t('About {time} here', { time: dur(stay) }) });
@@ -76,7 +76,9 @@ export function timeDay(pins: StopItem[], c: DayClock, rest: StopItem[] = []): T
   else if (!lunch && c.leave < 12 && h > 15.5) out.splice(1, 0, { time: '', kind: 'food', label: t('Packed lunch'), note: t('Long stretch without a town at midday: carry food and water') });
   drive(prev ? legH(prev, { lat: D.lat, lon: D.lon }, '') : 0.33);
   out.push({ time: clock(h), kind: 'bed', label: t('Back at your hotel'), note: t('In {place}', { place: D.town }) });
+  // Back early with nothing more planned: the afternoon is free, and the places nearby can fill it.
+  if (h < Math.min(15, c.sunset - 2)) out.push({ time: clock(h + 0.5), kind: 'tea', label: t('Free afternoon'), note: t('Rest, walk the bazaar, or add a place from the list below') });
   const dark = h > c.sunset + 0.5, long = h - c.leave > 11;
   const warn = long ? t('Long day: back about {time}. Leave earlier or drop a place.', { time: clock(h) }) : dark ? t('Back about {time}, after dark. Keep a torch and drive slowly.', { time: clock(h) }) : '';
-  return { stops: [...out, ...rest.map(x => x.kind === 'food' && !x.time.includes(':') ? { ...x, time: clock(Math.max(h + 0.75, 19.5)) } : x)], back: h, warn };
+  return { stops: [...out, ...rest.map(x => x.kind === 'food' && !x.time.includes(':') ? { ...x, time: clock(Math.max(h + 0.75, 19.5)) } : x)], back: h, warn, idle };
 }
