@@ -270,11 +270,23 @@ export function dayGroups(D: Dest, m: number, n: number, skip = '', elsewhere?: 
     // A place on two of the given days (Passu Cones on the way to Khunjerab too) is shown on the first only.
     .map((d, _, all) => ({ ...d, list: d.list.filter(p => !all.slice(0, all.indexOf(d)).some(e => e.list.includes(p))) })).filter(d => d.list.length);
   const skipped = new Set((D.days || []).filter(d => skip && d.stay === skip).flatMap(d => d.places));
+  // Places in the same spot (two tombs in one complex) go on the same day.
+  const pin = (p: Place) => PLACE_INFO[`${D.id}|${p[0]}`];
+  const together = (p: Place, q: Place) => { const a = pin(p), b = pin(q); return a?.lat != null && b?.lat != null && hav(a.lat, a.lon!, b.lat, b.lon!) < 0.2; };
+  const given = new Set(fixed.flatMap(d => d.list.map(p => p[0])));
+  pl.filter(p => !given.has(p[0]) && !skipped.has(p[0])).forEach(p => { const d = fixed.find(d => d.list.some(q => together(p, q))); if (d) d.list.splice(d.list.findIndex(q => together(p, q)) + 1, 0, p); });
   const used = new Set(fixed.flatMap(d => d.list.map(p => p[0]))), rest = pl.filter(p => !used.has(p[0]) && !skipped.has(p[0]));
   const days = fixed.slice(0, n), left = n - days.length;
   if (left > 0 && rest.length) {
     const per = Math.max(1, Math.min(4, Math.ceil(rest.length / left)));
-    for (let i = 0; i < left; i++) days.push({ list: rest.slice(i * per, i * per + per), note: '', stay: '' });
+    const groups: Place[][] = [];
+    rest.forEach(p => { const g = groups.find(g => g.some(q => together(p, q))); if (g) g.push(p); else groups.push([p]); });
+    let cur: Place[] = [];
+    groups.forEach(g => {
+      if (cur.length && cur.length + g.length > per) { if (days.length >= n - 1) return; days.push({ list: cur, note: '', stay: '' }); cur = []; }
+      cur.push(...g);
+    });
+    if (cur.length) days.push({ list: cur, note: '', stay: '' });
   }
   while (days.length < n) days.push({ list: [], note: '', stay: '' });
   const shown = new Set(days.flatMap(d => d.list.map(p => p[0])));

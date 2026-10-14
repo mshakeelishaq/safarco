@@ -60,3 +60,11 @@ describe('every sight once per trip', () => {
     expect(naltar.filter(n => /satrangi|bodlok/i.test(n))).toHaveLength(1);
   });
 });
+
+describe('places in one spot', () => {
+  it('the two Uch tombs are seen together', () => {
+    const days = buildPlan({ origin: 'Lahore', mode: 'know', dest: 'uch', corridor: 'uch', startDate: '2026-12-10', days: 4, depart: null, vehicle: 'suv', tier: 'standard', adults: 2, kids: 0, elders: 0, groupSize: 2, rooms: 'separate', cap: 5000000, capOn: false }).days;
+    const day = days.find(d => d.stops.some(x => /Bibi Jawindi/.test(x.label)))!.stops.map(x => x.label);
+    expect(day.findIndex(l => /Baha/.test(l)) - day.findIndex(l => /Bibi Jawindi/.test(l))).toBe(1);
+  });
+});

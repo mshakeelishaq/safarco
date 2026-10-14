@@ -272,6 +272,16 @@ const OWN_INFO: Record<string, PlaceInfo> = {
   'lahore|Badshahi Mosque': { lat: 31.5885, lon: 74.3111, visit: 60, access: 'walk', tod: 'morning', months: [11, 12, 1, 2, 3], checked: true },
   'lahore|Lahore Fort & Sheesh Mahal': { lat: 31.5895, lon: 74.3123, visit: 120, access: 'walk', tod: 'morning', months: [11, 12, 1, 2, 3], checked: true },
   'lahore|Walled City food street': { lat: 31.5868, lon: 74.3104, visit: 90, access: 'walk', tod: 'evening', months: [11, 12, 1, 2, 3], checked: true },
+  'lahore|Wazir Khan Mosque': { lat: 31.5833, lon: 74.321, visit: 45, access: "walk", tod: "morning", months: [11, 12, 1, 2, 3], checked: true },
+  'lahore|Shahi Hammam': { lat: 31.5823, lon: 74.326, visit: 60, access: "walk", tod: "morning", months: [11, 12, 1, 2, 3], checked: true },
+  'lahore|Chitta Gate': { lat: 31.5833, lon: 74.3245, visit: 30, access: "walk", tod: "any", months: [11, 12, 1, 2, 3], checked: true },
+  'multan|Shah Rukn-e-Alam shrine': { lat: 30.1991, lon: 71.4717, visit: 45, access: "walk", tod: "morning", months: [11, 12, 1, 2], checked: true },
+  'multan|Bahauddin Zakariya shrine': { lat: 30.2007, lon: 71.4764, visit: 45, access: "walk", tod: "morning", months: [11, 12, 1, 2], checked: true },
+  'multan|Qila Kohna Qasim Bagh': { lat: 30.1986, lon: 71.474, visit: 60, access: "walk", tod: "afternoon", months: [11, 12, 1, 2], checked: true },
+  'uch|Tomb of Bibi Jawindi': { lat: 29.2317, lon: 71.0594, visit: 45, access: "walk", tod: "morning", months: [11, 12, 1, 2], checked: true },
+  'uch|Tomb of Baha’al-Halim': { lat: 29.2322, lon: 71.06, visit: 30, access: "walk", tod: "morning", months: [11, 12, 1, 2], checked: true },
+  'hyderabad|Pakka Qila': { lat: 25.3942, lon: 68.3756, visit: 60, access: "walk", tod: "morning", months: [11, 12, 1, 2], checked: true },
+  'hyderabad|Shahi Bazaar': { lat: 25.3882, lon: 68.3726, visit: 60, access: "walk", tod: "afternoon", months: [11, 12, 1, 2], checked: true },
   'skardu|Blind Lake': { lat: 35.4216, lon: 75.6414, km: 45, min: 100, visit: 60, access: 'car', checked: true },
   'shigar|Blind Lake (Zharba Tso)': { lat: 35.4216, lon: 75.6414, km: 19, min: 50, visit: 60, access: 'car', checked: true }
 };
