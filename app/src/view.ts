@@ -1,7 +1,7 @@
 // Everything the screens display, derived from app state. Ported from the
 // design's renderVals(); the screens in components/ read from this.
 import { HAVE_VEHICLE, EDGES, MODES, MON, MONTH_FULL, NODES, NODE_INFO, POPULAR, POP_DEST, SUGGEST_POOL, SUNRISE, SUNSET, TIERS, TIER_G, VEH, CAT, CAT2, GRADS, DESTS, STOP_KIND, type VehicleId } from './engine/data';
-import { MAX_DRIVE_H, plannedJeeps, roomPlan, circuit, tripFrom, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
+import { MAX_DRIVE_H, plannedJeeps, roomPlan, circuit, sideTrips, tripFrom, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
 import { clock, dayLabel, dur, fmt, fmtN, isoAdd, isoOf, isoOff, kShort, mapsQ, mon } from './engine/format';
 import { LIVE, fxRate, placesKey, routeKey, type Spot } from './engine/live';
 import { sunTimes } from './engine/sun';
@@ -498,6 +498,11 @@ export function buildView(s: AppState, api: Api) {
     sliderPct: (s.cap - 20000) / 480000 * 100,
     capPresets: [50000, 100000, 200000, 350000].map(v => ({ key: v, label: `${v / 1000}k`, onClick: () => set({ cap: v, pickId: null }), ...chip(s.cap === v) })),
     // Guides imported from research and not yet checked by SafarCo say so.
+    // Fewer hotel changes: shown when it would change this trip (or is on).
+    comfort: s.vehicle !== 'air' && (s.extra || []).length && (s.comfort || JSON.stringify(sideTrips({ ...s, comfort: true })) !== JSON.stringify(sideTrips({ ...s, comfort: false }))) ? {
+      on: s.comfort, toggle: () => set({ comfort: !s.comfort, dayOpen: null, toast: s.comfort ? t('Moving on to each place again.') : t('Fewer hotel changes: nearby places are day trips now.') }),
+      sub: (() => { const st = sideTrips({ ...s, comfort: true }), bases = Object.keys(st).filter(b => st[b].length); return bases.length ? t('Stay in {base} and see {list} on day trips. More driving back and forth, fewer check-ins.', { base: bases.map(b => DST(b).name).join(', '), list: bases.flatMap(b => st[b]).map(k => DST(k).name).join(', ') }) : ''; })()
+    } : null,
     draftGuide: [s.corridor, ...(s.extra || [])].some(k => DST(k).checked === false) ? [t('New guide from research, not checked by SafarCo yet. Check opening times and roads locally.'), ...[s.corridor, ...(s.extra || [])].map(k => DST(k).guideNote).filter(Boolean)].join(' ') : '',
     stayOpts, capOn,
     capToggle: capOn ? { label: t('Remove the limit'), onClick: () => set({ capOn: false, pickId: null }) }

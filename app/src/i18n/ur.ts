@@ -1436,4 +1436,8 @@ export const UR: Record<string, string> = {
   "Drive through (−1 day)": "Seedha chalein (−1 din)",
   "No night on the road here.": "Yahan raste mein raat nahi.",
   "Long drive? Break it with a night in (+1 day):": "Lamba safar? Beech mein aik raat rukein (+1 din):",
+  "Comfort: fewer hotel changes": "Aaram: kam hotel badlein",
+  "Stay in {base} and see {list} on day trips. More driving back and forth, fewer check-ins.": "{base} mein rukein aur {list} din ke safar par dekhein. Aana jana zyada, check-in kam.",
+  "Moving on to each place again.": "Har jagah phir se aage barhenge.",
+  "Fewer hotel changes: nearby places are day trips now.": "Kam hotel badlein: qareebi jagahen ab din ke safar hain.",
 };

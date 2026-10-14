@@ -63,3 +63,17 @@ describe('places close together on one trip', () => {
     expect(pins.filter(x => x.startsWith('shigar fort')).length).toBe(1);
   });
 });
+
+describe('comfort: fewer hotel changes', () => {
+  it('sees nearby places on day trips from one hotel, only when asked', () => {
+    const s = { ...base, dest: 'naran', corridor: 'naran', extra: ['shogran'], days: 9 };
+    expect(buildPlan(s).days.some(d => d.side && !d.side.sleeping)).toBe(false);
+    const days = buildPlan({ ...s, comfort: true }).days;
+    expect(days.find(d => d.side && !d.side.sleeping)?.side?.id).toBe('shogran');
+    expect(days.filter(d => d.stay?.town && d.kind !== 'return').every(d => d.stay!.town === 'Naran')).toBe(true);
+  });
+  it('makes Khaplu a day trip from Skardu', () => {
+    const days = buildPlan({ ...base, dest: 'skardu', corridor: 'skardu', extra: ['khaplu'], days: 9, comfort: true }).days;
+    expect(days.find(d => d.side && !d.side.sleeping)?.side?.id).toBe('khaplu');
+  });
+});

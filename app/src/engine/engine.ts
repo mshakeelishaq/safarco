@@ -33,6 +33,8 @@ export interface TripState {
   overnight?: string | null;
   /** Towns on the road where the traveller chose to break a drive for the night: 'out:CHL' going, 'back:ORM' coming home. */
   breaks?: string[];
+  /** Fewer hotel changes: places up to 3 h from a base are seen on day trips from it. */
+  comfort?: boolean;
 }
 
 /** Trip styles to compare: the traveller's own vehicle only, or every style SafarCo knows. */
@@ -624,17 +626,17 @@ function hopOf(legs: Leg[], to: string, m: number): Hop {
 }
 
 /** Places on the trip within 1½ hours' drive of another one: by default seen on a day trip from it. */
-const SIDE_H = 1.5;
+const SIDE_H = 1.5, COMFORT_H = 3;
 const SIDES: Record<string, Record<string, string[]>> = {};
 export function sideTrips(s: TripState): Record<string, string[]> {
   const extra = (s.extra || []).filter((k, i, a) => k && k !== s.corridor && a.indexOf(k) === i).slice(0, 3), m = mon(s);
-  const ck = `${s.corridor}|${extra.join(',')}|${(s.sleepAt || []).join(',')}|${m}`; if (ck in SIDES) return SIDES[ck];
+  const ck = `${s.corridor}|${extra.join(',')}|${(s.sleepAt || []).join(',')}|${m}|${s.comfort ? 'c' : ''}`; if (ck in SIDES) return SIDES[ck];
   const out: Record<string, string[]> = {}, bases = [s.corridor, ...extra];
   extra.forEach(k => {
     // Places reached by jeep and a hike (Fairy Meadows) are never a day trip: people stay the night.
     if ((s.sleepAt || []).includes(k) || DST(k).hub !== undefined) return;
     const near = bases.filter(b => b !== k && !Object.values(out).flat().includes(b)).map(b => ({ b, h: tripFrom(k, pointOf(b), m).hours })).sort((a, b) => a.h - b.h)[0];
-    if (near && near.h <= SIDE_H) (out[near.b] = out[near.b] || []).push(k);
+    if (near && near.h <= (s.comfort ? COMFORT_H : SIDE_H)) (out[near.b] = out[near.b] || []).push(k);
   });
   return (SIDES[ck] = out);
 }
