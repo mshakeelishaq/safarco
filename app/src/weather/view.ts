@@ -103,7 +103,7 @@ export function weatherView(s: TripState, plan: Plan, points: RoutePoint[], w: W
   if (s.kids && north) add('kids', t('Snacks and travel-sickness tablets for winding roads'), t('Kids on mountain roads'));
   if (aq.rows.some(r => r.bad) || smogSeason) add('mask', t('N95 masks'), smogSeason ? t('Smog season in Punjab') : t('Unhealthy air forecast'));
   add('id', t('CNIC (and passport for foreign visitors)'), north ? t('Checkposts on northern roads') : t('Hotels ask for ID'));
-  add('power', t('Power bank and the offline map (Offline tab)'), north ? t('Little signal past Chilas and in valleys') : t('For long drives'));
+  add('power', t('Power bank and the offline map (Prepare tab)'), north ? t('Little signal past Chilas and in valleys') : t('For long drives'));
   if (north) add('cash', t('Enough cash'), t('ATMs are few in the mountains'));
   add('firstaid', t('First-aid kit'), t('Always'));
 

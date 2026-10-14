@@ -1987,4 +1987,7 @@ export const UR: Record<string, string> = {
   "60 km · 2 h": "60 km · 2 h",
   "Paved road past Hub, fine by car": "Hub ke baad pakki sarak, car ke liye theek",
   "40 km · 1 h 30 min": "40 km · 1 h 30 min",
+  "Power bank and the offline map (Prepare tab)": "Power bank aur offline map (Prepare tab)",
+  "{litres} L diesel (about {flat} km/L on the plains, {mtn} in the mountains)": "{litres} L diesel (maidani ilaqon mein taqreeban {flat} km/L, pahaaron mein {mtn})",
+  "{litres} L petrol (about {flat} km/L on the plains, {mtn} in the mountains)": "{litres} L petrol (maidani ilaqon mein taqreeban {flat} km/L, pahaaron mein {mtn})",
 };

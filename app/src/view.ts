@@ -392,7 +392,7 @@ export function buildView(s: AppState, api: Api) {
     const segs = BUD.map(([k, label], i) => ({ key: k, label: t(label), val: sums.get(k) || 0, color: SER[i] })).filter(x => x.val > 0)
       .map(x => ({ ...x, pct: total ? x.val / total * 100 : 0, amount: fmt(x.val), share: total ? `${Math.max(1, Math.round(x.val / total * 100))}%` : '' }));
     const others = opts.filter(o => !(o.vehicle === s.vehicle && o.tier === s.tier)).map(o => ({ key: o.id, name: t(o.name), sub: t('{vehicle} · {tier} stays', { vehicle: t(VEH[o.vehicle].short), tier: t(TIERS[o.tier].label) }),
-      amount: fmt(o.total), diff: o.total < total ? t('Save {amount}', { amount: kShort(total - o.total) }) : t('+{amount}', { amount: kShort(o.total - total) }), cheaper: o.total < total, fits: o.total <= s.cap, onClick: applyCfg(o) }));
+      amount: fmt(o.total), diff: o.total < total ? t('Save {amount}', { amount: kShort(total - o.total) }) : t('+{amount}', { amount: kShort(o.total - total) }), cheaper: o.total < total, fits: !s.capOn || o.total <= s.cap, onClick: applyCfg(o) }));
     return { segs, others };
   })();
 

@@ -57,7 +57,8 @@ export function Onboarding({ v, api }: { v: View; api: Api }) {
       <div className="sc-colp" style={css('position:absolute;left:0;right:0;top:var(--ob-top,262px);bottom:0;padding:26px 22px calc(30px + env(safe-area-inset-bottom));display:flex;flex-direction:column;pointer-events:auto;background:linear-gradient(180deg,var(--bg0) 0,var(--bg) 44px)')}>
         <h1 style={css('margin:0;font-family:var(--fontH);font-weight:600;font-size:24px;line-height:1.2;letter-spacing:-.02em;text-wrap:pretty')}>{v.ob.title}</h1>
         <div style={css('font-size:14px;color:var(--mute);margin-top:8px;font-weight:500;line-height:1.4')}>{v.ob.sub}</div>
-        <div style={css('flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;margin:16px -22px 12px;padding:2px 22px 8px;perspective:900px')}>
+        {/* A new step starts at its top (not where the last step was scrolled to). */}
+        <div key={s.step} style={css('flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;margin:16px -22px 12px;padding:2px 22px 8px;perspective:900px')}>
 
           {s.step === 0 && (
             <div role="radiogroup" aria-label={t('What do you want to see?')} style={css('display:flex;flex-direction:column;gap:10px')}>
