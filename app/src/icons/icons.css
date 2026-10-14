@@ -282,6 +282,9 @@
 .ph-fill.ph-phone-call:before {
   content: "\e3ba";
 }
+.ph-fill.ph-plant:before {
+  content: "\ebae";
+}
 .ph-fill.ph-plus:before {
   content: "\e3d4";
 }
@@ -690,6 +693,9 @@
 }
 .ph-bold.ph-phone-call:before {
   content: "\e3ba";
+}
+.ph-bold.ph-plant:before {
+  content: "\ebae";
 }
 .ph-bold.ph-plus:before {
   content: "\e3d4";
@@ -1518,6 +1524,14 @@
 }
 .ph-duotone.ph-phone-call:after {
   content: "\e3bb";
+  margin-left: -1em;
+}
+.ph-duotone.ph-plant:before {
+  content: "\ebae";
+  opacity: 0.2;
+}
+.ph-duotone.ph-plant:after {
+  content: "\ebaf";
   margin-left: -1em;
 }
 .ph-duotone.ph-plus:before {

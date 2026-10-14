@@ -78,3 +78,17 @@ describe('expenses and the trip summary', () => {
     expect(v.trip.memories!.money).toMatch(/under the plan/);
   });
 });
+
+describe('Plan it for me', () => {
+  const pick = async (origin: string, mood: string, start: string) => {
+    const { buildView } = await import('../src/view'); const { initialState } = await import('../src/state');
+    let st: any = { ...initialState(), screen: 'onboard', quick: true, step: 0, origin, startDate: start };
+    const api: any = { set: (p: any) => { st = { ...st, ...p }; } };
+    buildView(st, api).wishOpts.find((w: any) => w.key === mood)!.onClick(); st.step = 1; buildView(st, api).next();
+    return st;
+  };
+  it('a quick escape from Islamabad is Murree for 3 days, the northern adventure is Hunza', async () => {
+    const a = await pick('Islamabad', 'escape', '2026-11-06'); expect([a.dest, a.days, a.screen]).toEqual(['murree', 3, 'app']);
+    const b = await pick('Lahore', 'north', '2027-07-10'); expect([b.dest, b.vehicle]).toEqual(['hunza', 'sedan']);
+  }, 60000);
+});

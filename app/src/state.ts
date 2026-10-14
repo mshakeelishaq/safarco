@@ -45,6 +45,8 @@ export interface AppState extends TripState {
   daysSet: boolean;
   /** "Plan it for me": two questions (what to see; city and days), then SafarCo picks the rest. */
   quick: boolean;
+  /** In "Plan it for me": what the traveller feels like (a quick escape, slowing down, family time…). */
+  mood: string | null;
   sleepAt: string[];
   /** Towns where a drive stops for the night by choice: 'out:CHL', 'back:ORM'. */
   breaks: string[];
@@ -89,7 +91,7 @@ export const initialState = (): AppState => ({
   corridor: 'hunza', tab: 'trip', settings: false, flash: null,
   offline: 'off', progress: 0, offlineMB: 0, offlineErr: '', mapFail: false, theme: savedTheme(),
   sheet: 'none', savedId: null, toast: null, lite: prefersLite(), chosen: null, reviewFor: null, foodFor: null, welcome: false, guide: false, lang: currentLang(),
-  have: 'any', wish: null, extra: [], capOn: false, overnight: null, roomCount: null, sleepAt: [], daysSet: false, quick: false, breaks: [], comfort: false, dayTrips: [], here: null, building: null, dayOpen: null, edits: NO_EDITS
+  have: 'any', wish: null, extra: [], capOn: false, overnight: null, roomCount: null, sleepAt: [], daysSet: false, quick: false, mood: null, breaks: [], comfort: false, dayTrips: [], here: null, building: null, dayOpen: null, edits: NO_EDITS
 });
 
 export type Patch = Partial<AppState>;

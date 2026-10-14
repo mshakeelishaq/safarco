@@ -108,7 +108,7 @@ export function buildView(s: AppState, api: Api) {
     if (capOn && up.length && s.cap - total > s.cap * .15) { const o = up[up.length - 1]; tip = { show: true, ...good, title: t('{amount} to spare', { amount: fmt(s.cap - total) }), msg: t('Upgrade to {name} ({vehicle}, {tier} stays) for {amount}.', { name: t(o.name), vehicle: t(VEH[o.vehicle].short), tier: t(TIERS[o.tier].label).toLowerCase(), amount: fmt(o.total) }), cta: t('Upgrade'), apply: applyCfg(o) }; }
   }
 
-  const canNext = s.step === 0 ? !!s.wish : s.step === 1 ? !!s.origin : s.step === 2 ? !!s.mode : true;
+  const canNext = s.step === 0 ? (s.quick ? !!s.mood : !!s.wish) : s.step === 1 ? !!s.origin : s.step === 2 ? !!s.mode : true;
   const chip = (on: boolean) => ({ bg: on ? 'var(--cta)' : 'var(--fill)', fg: on ? 'var(--onCta)' : 'var(--ink2)', border: on ? 'transparent' : 'var(--line2)' });
   const fitCount = s.mode === 'know' ? 0 : sug.list.filter(fitsS).length;
   const obTitles = [
@@ -317,6 +317,34 @@ export function buildView(s: AppState, api: Api) {
       places: wishPlaces(w.id).slice(0, 4).map(p => p.name).join(' · '), on: s.wish === w.id,
       onClick: () => set({ wish: w.id, pickId: null, startDate: w.months.includes(M) && s.startDate >= isoAdd(3) ? s.startDate : nextStartIn(w.months) }) })),
     { key: 'any', now: false, icon: 'ph-compass', grad: 'linear-gradient(160deg,#9AA5B1,#5F6B78)', label: t('Show me everything'), tagline: t('Not sure yet? See what’s best for your dates.'), when: '', places: '', on: s.wish === 'any', onClick: () => set({ wish: 'any', pickId: null }) }];
+  // "Plan it for me" starts with how the traveller feels, not with a kind of scenery.
+  const seasonW = WISHES.find(w => w.months.includes(nowM)) || WISHES[0], beach = WISHES.find(w => w.id === 'beach');
+  const MOODS = [
+    { key: 'escape', icon: 'ph-coffee', grad: 'linear-gradient(160deg,#FFB547,#E07A2E)', label: t('A quick escape'), tagline: t('Two or three days away from the city’s noise.'), wish: 'any' as const, days: 3, tier: 'standard' as const },
+    { key: 'relax', icon: 'ph-plant', grad: 'linear-gradient(160deg,#5ED3A6,#1E9C77)', label: t('Slow down and breathe'), tagline: t('Easy drives, good hotels, no rushing.'), wish: 'any' as const, days: 5, tier: 'premium' as const },
+    { key: 'family', icon: 'ph-users-three', grad: 'linear-gradient(160deg,#F59AC0,#D9468A)', label: t('Family time'), tagline: t('Easy for kids and elders, no hard hikes.'), wish: 'any' as const, days: 5, tier: 'standard' as const },
+    { key: 'north', icon: 'ph-mountains', grad: 'linear-gradient(160deg,#7FA7FF,#3B5BDB)', label: t('The big northern adventure'), tagline: t('Hunza, Skardu, the mountains you dream of.'), wish: 'any' as const, days: 8, tier: 'standard' as const },
+    { key: 'season', icon: seasonW.icon, grad: seasonW.grad, label: t('Chase the season: {wish}', { wish: lowerEn(t(seasonW.label)) }), tagline: t(seasonW.tagline), wish: seasonW.id, days: 5, tier: 'standard' as const },
+    ...(beach && beach.id !== seasonW.id ? [{ key: 'sea', icon: beach.icon, grad: beach.grad, label: t('Sea and sunsets'), tagline: t('Warm coast, quiet beaches.'), wish: beach.id, days: 5, tier: 'standard' as const }] : [])
+  ];
+  const moodOpts = MOODS.map(m => ({ key: m.key, now: false, icon: m.icon, grad: m.grad, label: m.label, tagline: m.tagline, when: t('{n} days', { n: m.days }), places: '', on: s.mood === m.key,
+    onClick: () => { const w = WISHES.find(x => x.id === m.wish); set({ mood: m.key, wish: m.wish, tier: m.tier, comfort: m.key === 'relax', pickId: null, ...(s.daysSet ? {} : { days: m.days }), ...(w ? { startDate: w.months.includes(M) && s.startDate >= isoAdd(3) ? s.startDate : nextStartIn(w.months) } : {}) }); } }));
+  /** The plan "Plan it for me" builds: for each place that suits the mood, its best way to go; then the best place. */
+  const quickPick = () => {
+    const m = s.mood, near = m === 'escape' || m === 'relax' || m === 'family', inM_ = (k: string) => { const b = DST(k).best; return !b || b.includes(M); };
+    // An escape, a slow trip or family time: any month without a warning (Murree in November is lovely), no jeep-and-hike places, no ruins.
+    const easy = (k: string) => { const D = DST(k); return !(D.warn && D.warn[0].includes(M)) && D.hub === undefined && k !== 'mohenjo'; };
+    // Scenic places for a feeling (no city breaks), in SafarCo's order of favourites; a season's or the sea's own places for those.
+    const ids = (m === 'season' || m === 'sea' ? wishPlaces(s.wish as Parameters<typeof wishPlaces>[0]).map(p => p.id) : SUGGEST_POOL)
+      .filter(k => DST(k).name !== s.origin && (m !== 'north' || /Gilgit/.test(DST(k).region)) && (near ? easy(k) : inM_(k)));
+    const opts = ids.flatMap(k => { const l = suggestions({ ...s, mode: 'know', dest: k, corridor: k, capOn: false, pickId: null, extra: [] }).list.filter(x => x.ok);
+      const road = l.filter(x => x.vehicle !== 'air'), roomy = (x: typeof l[number]) => s.days - x.minDays >= 1;
+      const best = [road.filter(roomy), l.filter(roomy), road, l].find(x => x.length)?.slice().sort((a, b) => a.total - b.total)[0];
+      return best ? [{ ...best, roomy: roomy(best), known: DST(k).checked !== false, hours: trip(k, s.origin, M).hours }] : []; });
+    // Near and easy first for an escape, a slow trip or family time; otherwise SafarCo's favourites, then the best value.
+    const fav = (k: string) => { const i = ids.indexOf(k); return i < 0 ? 99 : i; };
+    return opts.sort((a, b) => +b.known - +a.known || +b.roomy - +a.roomy || (near ? a.hours - b.hours : fav(a.corridor) - fav(b.corridor)) || a.total - b.total)[0] || null;
+  };
   const wishPicks = W ? { label: t('Best for {wish}', { wish: lowerEn(t(W.label)) }), picks: wishPlaces(W.id).filter(p => DST(p.id).name !== s.origin).slice(0, 10)
     .map(p => ({ key: p.id, name: p.name, icon: W.icon, color: W.color, ...pickCard(p.id, p.h), caution: !!p.h.caution, on: s.dest === p.id && s.mode === 'know', onClick: () => set({ mode: 'know', dest: p.id, corridor: p.id, pickId: null }) })) } : null;
   const wishNote = (() => {
@@ -403,7 +431,7 @@ export function buildView(s: AppState, api: Api) {
   const editCount = edits.picks.length + edits.drops.length;
 
   const view = {
-    wishOpts, wishPicks, wishNote, wishFit, tripPlaces, travelOpts, buildSteps, photo: destPhoto(s.corridor, M, s.startDate), cardPhoto: cardPhoto(s.corridor, M, s.startDate),
+    wishOpts: s.quick ? moodOpts : wishOpts, wishPicks, wishNote, wishFit, tripPlaces, travelOpts, buildSteps, photo: destPhoto(s.corridor, M, s.startDate), cardPhoto: cardPhoto(s.corridor, M, s.startDate),
     cardStops: (() => {
       // The trip as a line of stops for the share card: home, the nights on the way, the place (and home again on a circuit).
       const home = s.origin || '', dests = [s.corridor, ...(s.extra || [])].map(k => DST(k)), nameOf = (tw: string) => dests.find(x => x.town === tw)?.name || tw;
@@ -422,7 +450,7 @@ export function buildView(s: AppState, api: Api) {
     wiki: { loading: !wikiE || wikiE.status === 'loading', info: wikiE && wikiE.status === 'ok' ? wikiE.data : null },
     stepLabel: s.quick ? `${s.step + 1} / 2` : `${s.step + 1} / 7`,
     stepBars: (s.quick ? [0, 1] : [0, 1, 2, 3, 4, 5, 6]).map(i => ({ bg: i <= s.step ? 'var(--bar)' : 'var(--line2)', glow: i <= s.step ? 'var(--barGlow)' : 'none' })),
-    ob: s.quick && s.step === 1 ? { title: t('Your city, and how many days?'), sub: t('SafarCo picks the best place and way to go for your wish, and makes the plan. You can change anything after.') } : obTitles[s.step],
+    ob: s.quick && s.step === 0 ? { title: t('What does your heart want right now?'), sub: t('Pick a feeling. SafarCo finds the place, the way to go and the days.') } : s.quick && s.step === 1 ? { title: t('Your city, and how many days?'), sub: t('SafarCo picks the best place and way to go for your wish, and makes the plan. You can change anything after.') } : obTitles[s.step],
     cityCount: CITIES.length,
     listLabel: s.oq ? (geoOf(s.oq)?.status === 'loading' ? t('Matching places · searching all of Pakistan…') : t('Matching places')) : t('Popular cities'),
     cityRows: (() => {
@@ -536,14 +564,9 @@ export function buildView(s: AppState, api: Api) {
       if (!canNext) return;
       // "Plan it for me": after the city and days, the best match for the wish becomes the plan.
       if (s.quick && s.step === 1) {
-        // The cheapest way that works in these days, by road when there is one (a first trip shouldn't default to flying).
-        // Places SafarCo has checked come first.
-        const all = suggestions({ ...s, mode: 'suggest', capOn: false, pickId: null }), ok = all.list.filter(x => x.ok), road = ok.filter(x => x.vehicle !== 'air');
-        // and at least two days there to look around (not a week of driving for one day in Hunza).
-        const known = (l: typeof ok) => l.filter(x => DST(x.corridor).checked !== false), roomy = (l: typeof ok) => l.filter(x => s.days - x.minDays >= 1);
-        const pool = [known(roomy(road)), roomy(road), known(roomy(ok)), known(road), road, known(ok), ok].find(l => l.length) || [];
-        const q = pool.slice().sort((a, b) => a.total - b.total)[0] || all.sel;
-        if (q) set({ screen: 'app', tab: 'trip', mode: 'suggest', quick: false, chosen: q.corridor, corridor: q.corridor, dest: q.corridor, vehicle: q.vehicle, tier: q.tier, extra: [], building: Date.now(), dayOpen: null });
+        // Places SafarCo has checked, at least two days there, by road when it fits; then by the mood.
+        const q = quickPick();
+        if (q) set({ screen: 'app', tab: 'trip', mode: 'know', quick: false, chosen: q.corridor, corridor: q.corridor, dest: q.corridor, vehicle: q.vehicle, tier: q.tier, extra: [], building: Date.now(), dayOpen: null });
         return;
       }
       if (s.step < 6) set({ step: s.step + 1, pickId: null });
