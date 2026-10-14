@@ -33,6 +33,7 @@ RENAMED = {'passu cones & hussaini bridge': 'Passu Cones viewpoint', 'hopper gla
            'tomb of mian ghulam shah kalhoro': 'Tomb of Mian Ghulam Nabi Kalhoro'}
 # Owner: separate places, even though the names look alike.
 KEEP_BOTH = {frozenset(['handrap village', 'phander village'])}
+ON_ROAD = {'ormara beach'}  # the owner made these road stops (Ormara on the Makran coast), not places to visit
 NOT_DESTS = {'machlu': 'khaplu'}  # day plans the owner gave; never replaced by an import
 # What the owner has told us; an import never overrides these.
 OWNER_BEST = {'skardu': [4, 5, 6, 7, 8, 9, 10, 11], 'khaplu': [4, 5, 6, 7, 8, 9, 10, 11]}
@@ -268,7 +269,7 @@ def main():
             other = next((o for o in dests.values() if o['id'] != did and any(same(p[0], name) for p in o['places'])), None)
             if other:
                 note(dname, f'"{name}" is already a place in {other["name"]}; not added twice.'); continue
-            if norm(name) in road_names or any(same(name, rn) for rn in road_names):
+            if norm(name) in road_names or norm(name) in ON_ROAD or any(same(name, rn) for rn in road_names):
                 note(dname, f'"{name}" is already a stop on the road; not added as a place.'); continue
             if any(same(p[0], name) for p in dests[did]['places']):
                 note(dname, f'"{name}" looks like a place the app already has; not added twice.'); continue
@@ -625,7 +626,9 @@ def write_ts(new_dests, patch, info, stops, source, highlights=None):
         if d['hotels']:
             o['hotels'] = d['hotels']
         way = d['wayIn'] or (d['road'] if not d['road'].lower().startswith('check current') else '')
-        note = ' '.join(x.strip().rstrip('.') + '.' for x in [way.split('\n')[0], d['winter'].split('\n')[0] if d['winter'] else '', f"Avoid {d['avoid']}" if d['avoid'] else ''] if x)
+        # "open — normally year-round" reads as "Open: normally year-round".
+        plain = lambda s: (lambda r: r[:1].upper() + r[1:])(re.sub(r'\s*—\s*', ': ', s.strip()))
+        note = ' '.join(plain(x).rstrip('.') + '.' for x in [way.split('\n')[0], d['winter'].split('\n')[0] if d['winter'] else '', f"Avoid {d['avoid']}" if d['avoid'] else ''] if x)
         if note:
             o['guideNote'] = note[:400]
         o = {k: v for k, v in o.items() if v is not None}

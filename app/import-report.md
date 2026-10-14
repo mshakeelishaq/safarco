@@ -231,7 +231,7 @@ Imported on 2026-10-14.
 - Highlight "festival: Shandur polo festival excursion; 2026 event was scheduled for 11–13 Ju" not added: the app has its own highlights here. Mark Sure to add.
 
 **Kund Malir**
-- "Ormara beach" is already a place in Gwadar; not added twice.
+- "Ormara beach" is already a stop on the road; not added as a place.
 - Highlight "sea and beaches: Kund Malir beach on the Makran Coastal Highway." not added: the app has its own highlights here. Mark Sure to add.
 
 **Kumrat Valley**
