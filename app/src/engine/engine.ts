@@ -332,16 +332,20 @@ function exploreDays(D: Dest, m: number, n: number, tier: TierId, over?: string 
   // A full day the traveller can trim: a day back early gets places not yet in the plan, nearest first, while it ends by about 5:30 pm.
   const end = Math.min(17.5, SUNSET[m - 1] - 0.5), clk = { dest: D.id, sunset: SUNSET[m - 1], sunrise: SUNRISE[m - 1] };
   const near = (a: Place, b: Place) => { const i = PLACE_INFO[`${D.id}|${a[0]}`], j = PLACE_INFO[`${D.id}|${b[0]}`]; return i?.lat != null && j?.lat != null ? hav(i.lat, i.lon!, j.lat, j.lon!) : 50; };
-  g.days.forEach(day => {
-    if (!day.list.length || !spare.length) return;
+  g.days.forEach((day, di) => {
+    // Places spread over later days (not the usual day plans) can move up, so days come full and the rest are free.
+    const later = () => g.days.slice(di + 1).filter(d => !d.fixed);
+    const pool = () => [...spare, ...later().flatMap(d => d.list)];
+    if (!day.list.length || !pool().length) return;
     const timed = (l: Place[]) => timeDay(l.map(pinOf), { ...clk, leave: day.leave ?? 9 }), backOf = (l: Place[]) => timed(l).back;
     // Short, or waiting long for a sunset stop.
     const short = (l: Place[]) => { const r = timed(l); return r.back < end - 1 || r.idle >= 1.5; };
-    while (spare.length && short(day.list)) {
-      const next = spare.slice().sort((a, b) => Math.min(...day.list.map(q => near(a, q))) - Math.min(...day.list.map(q => near(b, q))))
+    while (pool().length && short(day.list)) {
+      const next = pool().sort((a, b) => Math.min(...day.list.map(q => near(a, q))) - Math.min(...day.list.map(q => near(b, q))))
         .find(p => backOf([...day.list, p]) <= Math.max(end, backOf(day.list)) && timed([...day.list, p]).idle <= timed(day.list).idle);
       if (!next) break;
-      day.list = [...day.list, next]; spare.splice(spare.indexOf(next), 1);
+      day.list = [...day.list, next];
+      if (spare.includes(next)) spare.splice(spare.indexOf(next), 1); else later().forEach(d => { d.list = d.list.filter(p => p !== next); });
     }
   });
   const extra = spare.map(p => p[0]);

@@ -30,7 +30,9 @@ describe('parity with the v7 prototype engine', () => {
       // New places can add jeep trips (Basho Valley in summer); everything else must match.
       const noJeeps = (c: { total: number; rows: { label: string; val: number }[] }) => newPlaces.has(dest) ? c.total - (c.rows.find(r => r.label === 'Jeep trips')?.val || 0) : c.total;
       expect(noJeeps(costFor(s))).toBeCloseTo(noJeeps(orig.costFor(s)), 6);
-      if (!newPlaces.has(dest)) expect(buildPlan(s).days.map(d => d.title)).toEqual(orig.buildPlan(s).days.map((d: { title: string }) => d.title));
+      // Same days in the same order; places are now packed into full days, so a sightseeing day may have become a free one.
+      const day = (x: string) => x.replace(/^Free day in /, 'Explore ');
+      if (!newPlaces.has(dest)) expect(buildPlan(s).days.map(d => day(d.title))).toEqual(orig.buildPlan(s).days.map((d: { title: string }) => day(d.title)));
     }
   });
 
