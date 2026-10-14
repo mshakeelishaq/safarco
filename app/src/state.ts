@@ -14,11 +14,13 @@ export interface AppState extends TripState {
   flash: 'budget' | null; offline: 'off' | 'downloading' | 'ready'; progress: number;
   offlineMB: number; offlineErr: string; mapFail: boolean; theme: Theme;
   /** Which bottom sheet is open besides Edit trip. */
-  sheet: 'none' | 'trips' | 'save' | 'signin' | 'feedback' | 'review' | 'share' | 'sos' | 'expense';
+  sheet: 'none' | 'trips' | 'save' | 'signin' | 'feedback' | 'review' | 'share' | 'sos' | 'expense' | 'food';
   /** Where the phone was last found on the road (GPS), for progress along today's drive. */
   here: { lat: number; lon: number; at: number } | null;
   /** The trusted hotel or driver being rated in the review sheet. */
   reviewFor: { kind: 'hotel' | 'driver'; id: string; name: string; date: string } | null;
+  /** The place a traveller is suggesting somewhere to eat for. */
+  foodFor: { dest: string; name: string } | null;
   /** The welcome screen explaining what SafarCo is for. */
   welcome: boolean;
   /** The season guide: best places by season. */
@@ -80,7 +82,7 @@ export const initialState = (): AppState => ({
   vehicle: 'sedan', tier: 'standard', groupSize: 2, adults: 2, kids: 0, elders: 0, rooms: 'separate', days: 4, cap: 120000,
   corridor: 'hunza', tab: 'trip', settings: false, flash: null,
   offline: 'off', progress: 0, offlineMB: 0, offlineErr: '', mapFail: false, theme: savedTheme(),
-  sheet: 'none', savedId: null, toast: null, lite: prefersLite(), chosen: null, reviewFor: null, welcome: false, guide: false, lang: currentLang(),
+  sheet: 'none', savedId: null, toast: null, lite: prefersLite(), chosen: null, reviewFor: null, foodFor: null, welcome: false, guide: false, lang: currentLang(),
   have: 'any', wish: null, extra: [], capOn: false, overnight: null, roomCount: null, sleepAt: [], breaks: [], comfort: false, here: null, building: null, dayOpen: null, edits: NO_EDITS
 });
 

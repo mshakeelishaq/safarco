@@ -131,6 +131,33 @@ export async function deleteReview(id: number) {
   if (!sb) return; const { error } = await sb.from('reviews').delete().eq('id', id); if (error) throw error;
 }
 
+// ---- Places to eat suggested by travellers (supabase/food.sql; shown once an admin approves them) ----
+export interface FoodTip { id: number; created_at: string; dest: string; name: string; dish: string; note: string; rating: number | null; author: string; status: 'pending' | 'approved' | 'hidden' }
+const FOOD_COLS = 'id,created_at,dest,name,dish,note,rating,author,status';
+export async function loadFoodTips(): Promise<FoodTip[] | null> {
+  if (!sb) return null;
+  const { data, error } = await sb.from('food_tips').select(FOOD_COLS).eq('status', 'approved').order('created_at', { ascending: false }).limit(2000);
+  if (error) throw error;
+  return data as FoodTip[];
+}
+export async function submitFoodTip(t: { dest: string; name: string; dish: string; note: string; rating: number | null }, author: string) {
+  if (!sb) throw new Error('Food tips are not set up');
+  const { error } = await sb.from('food_tips').insert({ dest: t.dest, name: t.name.slice(0, 80), dish: t.dish.slice(0, 80), note: t.note.slice(0, 300), rating: t.rating, author: author.slice(0, 60), status: 'pending' });
+  if (error) throw error;
+}
+export async function listAllFoodTips(): Promise<FoodTip[]> {
+  if (!sb) return [];
+  const { data, error } = await sb.from('food_tips').select(FOOD_COLS).order('created_at', { ascending: false }).limit(500);
+  if (error) throw error;
+  return data as FoodTip[];
+}
+export async function setFoodTipStatus(id: number, status: FoodTip['status']) {
+  if (!sb) return; const { error } = await sb.from('food_tips').update({ status }).eq('id', id); if (error) throw error;
+}
+export async function deleteFoodTip(id: number) {
+  if (!sb) return; const { error } = await sb.from('food_tips').delete().eq('id', id); if (error) throw error;
+}
+
 // ---- Family "follow our trip" links (supabase/follow.sql) ----------------------------
 export interface FollowView { data: unknown; expired: boolean; checkins: { place: string; lat: number | null; lon: number | null; created_at: string }[] }
 /** Makes a follow link for this trip (signed in only); returns its id. */

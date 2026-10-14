@@ -282,6 +282,9 @@
 .ph-fill.ph-plus:before {
   content: "\e3d4";
 }
+.ph-fill.ph-plus-circle:before {
+  content: "\e3d6";
+}
 .ph-fill.ph-prohibit:before {
   content: "\e3de";
 }
@@ -684,6 +687,9 @@
 }
 .ph-bold.ph-plus:before {
   content: "\e3d4";
+}
+.ph-bold.ph-plus-circle:before {
+  content: "\e3d6";
 }
 .ph-bold.ph-prohibit:before {
   content: "\e3de";
@@ -1506,6 +1512,14 @@
 }
 .ph-duotone.ph-plus:after {
   content: "\e3d5";
+  margin-left: -1em;
+}
+.ph-duotone.ph-plus-circle:before {
+  content: "\e3d6";
+  opacity: 0.2;
+}
+.ph-duotone.ph-plus-circle:after {
+  content: "\e3d7";
   margin-left: -1em;
 }
 .ph-duotone.ph-prohibit:before {

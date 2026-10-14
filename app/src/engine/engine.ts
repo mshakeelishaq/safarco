@@ -259,7 +259,7 @@ function stayAt(node: string | null, key: string, tier: TierId, isDest: boolean)
 export type DayKind = 'drive' | 'explore' | 'return' | 'fly';
 /** Where a driving day goes and when: used for weather along the road. */
 export interface Track { legs: Leg[]; coords: [number, number][]; marks: [number, number][]; dep: number; sunset: number; sunrise: number }
-export interface PlanDay { kind: DayKind; title: string; meta: string; note: string; stops: StopItem[]; stay: Stay | null; tip?: string; offer?: string; side?: { id: string; base: string; sleeping: boolean }; roadNight?: RoadNight; timing?: DayClock; long?: string; depart?: { at: number; rec: number; own: boolean }; num?: number; date?: string; iso?: string; track?: Track }
+export interface PlanDay { kind: DayKind; title: string; meta: string; note: string; stops: StopItem[]; stay: Stay | null; tip?: string; offer?: string; side?: { id: string; base: string; sleeping: boolean }; roadNight?: RoadNight; dest?: string; timing?: DayClock; long?: string; depart?: { at: number; rec: number; own: boolean }; num?: number; date?: string; iso?: string; track?: Track }
 
 /**
  * The places for each of n days at a destination: its usual day trips first (the places open this
@@ -333,7 +333,7 @@ function exploreDays(D: Dest, m: number, n: number, tier: TierId, over?: string 
     }) : [{ time: t('All day'), kind: 'pin', label: t('Free day'), note: t('Rest, shop, or go back to a favourite spot') }];
     stops.push({ time: t('Food'), kind: 'food', label: t('Eat local'), note: D.eat ? t(D.eat) : D.eat });
     const tip = day.note ? t(day.note) : '';
-    out.push({ kind: 'explore', title: list.length ? t('Explore {place}', { place: D.town }) : t('Free day in {place}', { place: D.town }), meta: list.length ? (list.length > 1 ? t('{n} places · local car or jeep', { n: list.length }) : t('{n} place · local car or jeep', { n: list.length })) : t('Nothing scheduled'), note: tip, tip, offer: day.stay || undefined, stops, stay: stayAt(null, D.id, tier, true),
+    out.push({ kind: 'explore', title: list.length ? t('Explore {place}', { place: D.town }) : t('Free day in {place}', { place: D.town }), meta: list.length ? (list.length > 1 ? t('{n} places · local car or jeep', { n: list.length }) : t('{n} place · local car or jeep', { n: list.length })) : t('Nothing scheduled'), note: tip, tip, offer: day.stay || undefined, stops, stay: stayAt(null, D.id, tier, true), dest: D.id,
       ...(list.length ? { timing: { dest: D.id, leave: day.leave ?? 9, sunset: SUNSET[m - 1], sunrise: SUNRISE[m - 1] } } : {}) });
   });
   // This place's own sights count as shown first, so a day trip's drive doesn't stop at them on the way past.
@@ -378,7 +378,7 @@ function sideDay(B: Dest, X: Dest, m: number, tier: TierId) {
     const desert = list.find(p => /desert/i.test(p[0]));
     return { kind: 'drive', title: t('Day trip to {place}', { place: X.name }), meta: t('{km} km each way · back to {place} for the night', { km: fmtN(Math.round(r.km)), place: B.town }), note: desert ? t('{place} on the way back: best in the late-afternoon light.', { place: desert[0] }) : '',
       stops: [...items, ...pins, { time: '', kind: 'go', label: t('Back to {place}', { place: B.town }), note: t('About {time}', { time: dur(backH) }), driveH: backH }, { time: '7:30 pm', kind: 'food', label: t('Dinner'), note: t('In {place}', { place: B.town }) }],
-      stay: stayAt(null, B.id, tier, true), side: { id: X.id, base: B.id, sleeping: false }, depart: { at: dep, rec: Math.min(rec, 8.5), own: own != null } };
+      stay: stayAt(null, B.id, tier, true), dest: X.id, side: { id: X.id, base: B.id, sleeping: false }, depart: { at: dep, rec: Math.min(rec, 8.5), own: own != null } };
   };
   return { covered, make };
 }

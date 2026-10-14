@@ -115,6 +115,25 @@ export function DayPage({ v }: { v: View }) {
       )}
       {d.busy && <div style={css('display:flex;gap:6px;align-items:flex-start;margin-top:8px;font-size:12px;font-weight:700;line-height:1.45;color:var(--amb2)')}><i className="ph-fill ph-warning" style={css('margin-top:2px;flex:none')} />{d.busy}</div>}
       {d.savedMin > 0 && <div style={css('font-size:12px;font-weight:700;color:var(--g);margin-top:8px')}>{t('Skipped stops save about {n} min. Times above are updated.', { n: d.savedMin })}</div>}
+      {d.food && (
+        <div style={css('margin-top:12px;padding:12px;border-radius:18px;background:var(--card);border:1px solid var(--line)')}>
+          <div style={css('display:flex;align-items:center;gap:8px')}><i className="ph-fill ph-fork-knife" style={css('font-size:18px;color:var(--cor);flex:none')} /><div style={css('flex:1;font-size:14px;font-weight:800')}>{d.food.title}</div></div>
+          <div style={css('display:flex;flex-direction:column;gap:8px;margin-top:8px')}>
+            {d.food.items.map(f => <div key={f.key} style={css('font-size:13px;line-height:1.4')}><b>{f.dish}</b>{f.where && <span style={css('color:var(--ink2);font-weight:600')}> · {f.where}</span>}{f.note && <div style={css('font-size:12px;color:var(--mute);font-weight:600')}>{f.note}</div>}</div>)}
+          </div>
+          {d.food.tips.length > 0 && <>
+            <div style={css('font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin-top:12px')}>{t('Travellers recommend')}</div>
+            <div style={css('display:flex;flex-direction:column;gap:8px;margin-top:6px')}>
+              {d.food.tips.map(f => <a key={f.key} href={f.href} target="_blank" rel="noopener" style={css('display:block;padding:8px 10px;border-radius:12px;background:var(--fill);text-decoration:none;color:var(--ink);font-size:13px;line-height:1.4')}>
+                <b>{f.name}</b>{f.stars > 0 && <span style={css('color:#F2A007;margin-left:6px')} aria-label={t('{n} stars', { n: f.stars })}>{'★'.repeat(f.stars)}</span>}
+                {f.dish && <div style={css('font-weight:700;color:var(--ink2)')}>{t('Order: {dish}', { dish: f.dish })}</div>}
+                {f.note && <div style={css('font-size:12px;color:var(--mute);font-weight:600')}>“{f.note}” · {f.author}</div>}
+              </a>)}
+            </div>
+          </>}
+          <button onClick={d.food.suggest} style={css('display:flex;align-items:center;gap:6px;min-height:40px;margin-top:8px;padding:0;border:0;background:none;color:var(--g);font-size:13px;font-weight:800;cursor:pointer')}><i className="ph-bold ph-plus-circle" />{t('Suggest a place to eat')}</button>
+        </div>
+      )}
       {(d.suggest.list.length > 0 || d.suggest.loading) && (
         <div style={css('margin-top:12px')}>
           <div style={css('font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)')}>{d.suggest.title}</div>

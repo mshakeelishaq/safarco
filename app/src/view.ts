@@ -1,6 +1,8 @@
 // Everything the screens display, derived from app state. Ported from the
 // design's renderVals(); the screens in components/ read from this.
 import { HAVE_VEHICLE, EDGES, MODES, MON, MONTH_FULL, NODES, NODE_INFO, POPULAR, POP_DEST, SUGGEST_POOL, SUNRISE, SUNSET, TIERS, TIER_G, VEH, CAT, CAT2, GRADS, DESTS, STOP_KIND, type VehicleId } from './engine/data';
+import { FOOD } from './engine/food';
+import { foodTipsFor } from './foodtips';
 import { MAX_DRIVE_H, plannedJeeps, roomPlan, circuit, sideTrips, tripFrom, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
 import { clock, dayLabel, dur, fmt, fmtN, isoAdd, isoOf, isoOff, kShort, mapsQ, mon } from './engine/format';
 import { LIVE, fxRate, placesKey, routeKey, type Spot } from './engine/live';
@@ -554,6 +556,11 @@ export function buildView(s: AppState, api: Api) {
           return { ...st, range: t('{tier} · {range} ({usd}) a night', { tier: t(TIERS[s.tier].label), range: nr.text, usd: nr.usd }), href: check(st.town, night, 1), options, loading: live.loading && !picks.length, source: live.list.length ? 'OpenStreetMap, via Geoapify' : '' };
         })(), stops: edited[i].stops.map(x => ({ ...x, icon: STOP_KIND[x.kind][0], color: STOP_KIND[x.kind][1], remove: x.removable ? () => removeStop(i, x) : null })),
           places: edited[i].places, savedMin: edited[i].saved, suggest: suggestFor(d, i),
+          // What to eat here: the guide's dishes, then places travellers suggested (approved by the admin).
+          food: d.dest ? (() => { const F = DST(d.dest!); return { title: t('What to eat in {place}', { place: F.name }),
+            items: (FOOD[d.dest!] || (F.eat ? [[F.eat, '', ''] as const] : [])).map(([dish, where, note]) => ({ key: dish, dish: t(dish), where: where ? t(where) : '', note: note ? t(note) : '' })),
+            tips: foodTipsFor(d.dest!).map(x => ({ key: String(x.id), name: x.name, dish: x.dish, note: x.note, stars: x.rating || 0, author: x.author.split(' ')[0] || t('Traveller'), href: mapsQ(`${x.name}, ${F.town}`) })),
+            suggest: () => set({ sheet: 'food', foodFor: { dest: d.dest!, name: F.name } }) }; })() : null,
           // When to leave this day: the suggested time, or the traveller's own, in 15-minute steps.
           departCtl: d.depart ? (() => { const dp = d.depart!, arrive = d.track ? d.track.dep + d.track.marks[d.track.marks.length - 1][1] : null;
             return { time: clock(dp.at), suggested: t('Suggested {time}', { time: clock(dp.rec) }), own: dp.own, earlier: () => setDepart(i, dp.at - 0.25), later: () => setDepart(i, dp.at + 0.25), reset: dp.own ? () => setDepart(i, null) : null,

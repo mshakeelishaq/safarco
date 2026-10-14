@@ -68,3 +68,12 @@ describe('places in one spot', () => {
     expect(day.findIndex(l => /Baha/.test(l)) - day.findIndex(l => /Bibi Jawindi/.test(l))).toBe(1);
   });
 });
+
+describe('what to eat', () => {
+  it('every destination has a food guide, and sightseeing days know their place', async () => {
+    const { FOOD } = await import('../src/engine/food');
+    expect(DESTS.filter(d => !FOOD[d.id]).map(d => d.id)).toEqual([]);
+    const days = buildPlan({ origin: 'Lahore', mode: 'know', dest: 'skardu', corridor: 'skardu', startDate: '2026-11-03', days: 6, depart: null, vehicle: 'suv', tier: 'standard', adults: 2, kids: 0, elders: 0, groupSize: 2, rooms: 'separate', cap: 5000000, capOn: false }).days;
+    expect(days.filter(d => d.kind === 'explore').every(d => d.dest === 'skardu')).toBe(true);
+  });
+});

@@ -45,7 +45,7 @@ describe('Roman Urdu', () => {
 });
 
 describe('Roman Urdu for guide texts', () => {
-  it('has a translation for every place note, day tip, road stop and season note, imported ones too', async () => {
+  it('has a translation for every place note, day tip, road stop, season note and food tip, imported ones too', async () => {
     const { DESTS, EDGE_STOPS } = await import('../src/engine/data');
     const { HIGHLIGHTS } = await import('../src/engine/seasons');
     const all = new Set<string>(), add = (x?: string | null) => { if (x && /[a-z]/i.test(x) && !(x in UR)) all.add(x); };
@@ -55,6 +55,8 @@ describe('Roman Urdu for guide texts', () => {
     }
     Object.values(EDGE_STOPS).flat().forEach(x => add(x[3]));
     Object.values(HIGHLIGHTS).flat().forEach(h => { add(h.text); add(h.caution); });
+    const { FOOD } = await import('../src/engine/food');
+    Object.values(FOOD).flat().forEach(f => f.forEach(add));
     expect([...all]).toEqual([]);
   });
 });

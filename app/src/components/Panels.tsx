@@ -165,3 +165,42 @@ export function ReviewSheet({ open, target, user, onGoogle, onSend, onClose }: {
     </Panel>
   );
 }
+
+/** Suggest a place to eat: it shows for everyone once SafarCo has checked it. */
+export function FoodSheet({ open, target, user, onGoogle, onSend, onClose }: {
+  open: boolean; target: { dest: string; name: string } | null; user: User | null;
+  onGoogle: () => void; onSend: (tip: { name: string; dish: string; note: string; rating: number | null }) => Promise<void>; onClose: () => void;
+}) {
+  const [name, setName] = useState(''), [dish, setDish] = useState(''), [note, setNote] = useState(''), [stars, setStars] = useState(0);
+  const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle'), [busy, setBusy] = useState(false);
+  useEffect(() => { if (open) { setState('idle'); setName(''); setDish(''); setNote(''); setStars(0); setBusy(false); } }, [open, target?.dest]);
+  const field = css('width:100%;box-sizing:border-box;min-height:48px;border-radius:16px;border:1px solid var(--line2);background:var(--fill);padding:12px 14px;font:600 15px/1.45 var(--font);color:var(--ink);outline:none');
+  const lbl = css('display:block;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin:14px 4px 8px');
+  return (
+    <Panel open={open} onClose={onClose} height={620} title={target ? t('A place to eat in {place}', { place: target.name }) : t('A place to eat')} sub={t('Tell other travellers where you ate well. SafarCo checks every suggestion before it shows.')}>
+      {!cloudEnabled ? <div style={css('font-size:14px;font-weight:600;color:var(--mute);padding:12px 4px')}>{t('Suggestions aren’t set up yet.')}</div>
+      : !user ? (
+        <div style={css('display:flex;flex-direction:column;gap:12px;margin-top:6px')}>
+          <div style={css('font-size:14px;font-weight:600;line-height:1.5;color:var(--ink2)')}>{t('Sign in with Google to suggest a place. Only your first name is shown with it.')}</div>
+          <GoogleButton busy={busy} onClick={() => { setBusy(true); onGoogle(); }} />
+          <button onClick={onClose} style={btn(false)}>{t('Not now')}</button>
+        </div>
+      ) : state === 'sent' ? (
+        <div style={css('padding:30px 6px;text-align:center')}><i className="ph-fill ph-check-circle" style={css('font-size:44px;color:var(--g)')} /><div style={css('font-size:16px;font-weight:800;margin-top:10px')}>{t('Thank you!')}</div><div style={css('font-size:13px;color:var(--mute);font-weight:600;margin-top:4px')}>{t('Your suggestion shows once SafarCo has checked it.')}</div><div style={css('margin-top:18px')}><button onClick={onClose} style={btn(true)}>{t('Done')}</button></div></div>
+      ) : <>
+        <label htmlFor="fd-name" style={lbl}>{t('Restaurant or dhaba')}</label>
+        <input id="fd-name" value={name} onChange={e => setName(e.target.value)} maxLength={80} placeholder={t('Name and area, e.g. Café on Karimabad bazaar')} style={field} className="focus-g" />
+        <label htmlFor="fd-dish" style={lbl}>{t('What to order (optional)')}</label>
+        <input id="fd-dish" value={dish} onChange={e => setDish(e.target.value)} maxLength={80} placeholder={t('e.g. Trout, chapshuro')} style={field} className="focus-g" />
+        <div style={lbl}>{t('How good was it? (optional)')}</div>
+        <div role="radiogroup" aria-label={t('Stars')} style={css('display:flex;gap:6px')}>
+          {[1, 2, 3, 4, 5].map(i => <button key={i} role="radio" aria-checked={stars === i} aria-label={i > 1 ? t('{n} stars', { n: i }) : t('1 star')} onClick={() => setStars(stars === i ? 0 : i)} style={css(`width:48px;height:48px;border-radius:16px;border:1px solid var(--line2);background:var(--fill);font-size:24px;cursor:pointer;color:${i <= stars ? '#F2A007' : 'var(--line2)'}`)}><i className={`${i <= stars ? 'ph-fill' : 'ph-bold'} ph-star`} /></button>)}
+        </div>
+        <label htmlFor="fd-note" style={lbl}>{t('Anything else? (optional)')}</label>
+        <textarea id="fd-note" value={note} onChange={e => setNote(e.target.value)} maxLength={300} rows={3} placeholder={t('e.g. Clean, family area, fair prices')} style={{ ...field, resize: 'vertical' }} className="focus-g" />
+        {state === 'error' && <div role="alert" style={css('font-size:13px;font-weight:700;color:var(--cor);margin-top:10px')}>{t('Couldn’t send. Check your connection and try again.')}</div>}
+        <div style={css('margin-top:16px')}><button disabled={name.trim().length < 2 || state === 'sending'} onClick={() => { setState('sending'); onSend({ name: name.trim(), dish: dish.trim(), note: note.trim(), rating: stars || null }).then(() => setState('sent'), () => setState('error')); }} style={{ ...btn(true), opacity: name.trim().length >= 2 ? 1 : .5 }}><i className="ph-fill ph-paper-plane-right" />{state === 'sending' ? t('Sending…') : t('Send suggestion')}</button></div>
+      </>}
+    </Panel>
+  );
+}

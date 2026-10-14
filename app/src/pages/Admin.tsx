@@ -1,7 +1,8 @@
 // /admin: edit the price list, trusted hotels and drivers, and road alerts, and read feedback.
 // Only emails listed in the Supabase "admins" table can save (enforced by the database).
+import { DST } from '../engine/places';
 import { useEffect, useState } from 'react';
-import { cloudEnabled, currentUser, deleteReview, isAdmin, listAllReviews, listFeedback, loadPriceList, onUserChange, savePriceList, setReviewStatus, signInWithGoogle, signOut, type FeedbackRow, type Review, type User } from '../cloud';
+import { cloudEnabled, currentUser, deleteFoodTip, deleteReview, listAllFoodTips, setFoodTipStatus, type FoodTip, isAdmin, listAllReviews, listFeedback, loadPriceList, onUserChange, savePriceList, setReviewStatus, signInWithGoogle, signOut, type FeedbackRow, type Review, type User } from '../cloud';
 import { AIRPORTS, DESTS } from '../engine/data';
 import { highlightsOf, monthsLabel } from '../engine/seasons';
 import { css } from '../lib/css';
@@ -59,6 +60,7 @@ export function Admin() {
   const [user, setUser] = useState<User | null>(null), [admin, setAdmin] = useState<boolean | null>(null);
   const [list, setList] = useState<PriceList | null>(null), [status, setStatus] = useState(''), [fb, setFb] = useState<FeedbackRow[]>([]);
   const [reviews, setRv] = useState<Review[] | null>(null), [rvErr, setRvErr] = useState('');
+  const [tips, setTips] = useState<FoodTip[] | null>(null), [tipErr, setTipErr] = useState('');
 
   useEffect(() => { currentUser().then(setUser); return onUserChange(setUser); }, []);
   useEffect(() => {
@@ -67,6 +69,7 @@ export function Admin() {
     loadPriceList().then(v => setList(JSON.parse(JSON.stringify(applyPrices(v))))).catch(() => setList(JSON.parse(JSON.stringify(DEFAULT_PRICES))));
     listFeedback().then(setFb).catch(() => {});
     listAllReviews().then(setRv).catch(() => setRvErr('Reviews aren’t set up yet: run supabase/reviews.sql in Supabase (see SETUP.md).'));
+    listAllFoodTips().then(setTips).catch(() => setTipErr('Food tips aren’t set up yet: run supabase/food.sql in Supabase (SQL Editor → New query → Run).'));
   }, [user?.id]);
 
   const save = async () => {
@@ -254,6 +257,31 @@ export function Admin() {
               {r.status !== 'approved' && <button onClick={() => act(() => setReviewStatus(r.id, 'approved'), (reviews || []).map(x => x.id === r.id ? { ...x, status: 'approved' } : x))} style={btn(true)}>Approve</button>}
               {r.status !== 'hidden' && <button onClick={() => act(() => setReviewStatus(r.id, 'hidden'), (reviews || []).map(x => x.id === r.id ? { ...x, status: 'hidden' } : x))} style={btn(false)}>Hide</button>}
               <button onClick={() => { if (confirm('Delete this review for good?')) act(() => deleteReview(r.id), (reviews || []).filter(x => x.id !== r.id)); }} style={btn(false)}>Delete</button>
+            </div>
+          </div>
+        );
+      })}
+    </section>
+    <section style={box}><h2 style={css('margin:0 0 4px;font-size:18px')}>Places to eat{tips ? ` (${tips.filter(r => r.status === 'pending').length} waiting)` : ''}</h2>
+      <p style={css('font-size:13px;color:var(--mute);margin:4px 0 10px')}>Restaurants and dhabas travellers suggest. They show on that place’s days only after you approve them.</p>
+      {tipErr && <p style={css('font-size:13px;font-weight:700;color:var(--cor);margin:0')}>{tipErr}</p>}
+      {tips && !tips.length && <p style={css('color:var(--mute);margin:0')}>No suggestions yet.</p>}
+      {(tips || []).slice().sort((a, b) => +(b.status === 'pending') - +(a.status === 'pending')).map(r => {
+        const act = (f: () => Promise<void>, next: FoodTip[]) => f().then(() => setTips(next)).catch(e => setStatus('Couldn’t update the suggestion: ' + ((e as Error).message || 'unknown error')));
+        return (
+          <div key={r.id} style={css(`padding:10px 0;border-bottom:1px solid var(--line);opacity:${r.status === 'hidden' ? .55 : 1}`)}>
+            <div style={css('display:flex;gap:8px;align-items:baseline;flex-wrap:wrap')}>
+              <b>{r.name}</b><span style={css('font-size:13px;color:var(--mute)')}>{DST(r.dest).name}</span>
+              {r.rating ? <span style={css('color:#F2A007;font-weight:800')}>{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</span> : null}
+              <span style={css(`font-size:12px;font-weight:800;color:${r.status === 'approved' ? 'var(--g)' : r.status === 'pending' ? 'var(--amb2)' : 'var(--mute)'}`)}>{r.status === 'pending' ? 'Waiting' : r.status === 'approved' ? 'Shown' : 'Hidden'}</span>
+            </div>
+            {r.dish && <div style={css('font-size:14px;margin-top:4px')}>Order: {r.dish}</div>}
+            {r.note && <div style={css('font-size:14px;margin-top:4px;line-height:1.45;white-space:pre-wrap')}>{r.note}</div>}
+            <div style={css('font-size:12px;color:var(--mute);margin-top:4px')}>{r.author || 'Traveller'} · {new Date(r.created_at).toLocaleString('en-GB')}</div>
+            <div style={css('display:flex;gap:8px;margin-top:8px;flex-wrap:wrap')}>
+              {r.status !== 'approved' && <button onClick={() => act(() => setFoodTipStatus(r.id, 'approved'), (tips || []).map(x => x.id === r.id ? { ...x, status: 'approved' } : x))} style={btn(true)}>Approve</button>}
+              {r.status !== 'hidden' && <button onClick={() => act(() => setFoodTipStatus(r.id, 'hidden'), (tips || []).map(x => x.id === r.id ? { ...x, status: 'hidden' } : x))} style={btn(false)}>Hide</button>}
+              <button onClick={() => { if (confirm('Delete this suggestion for good?')) act(() => deleteFoodTip(r.id), (tips || []).filter(x => x.id !== r.id)); }} style={btn(false)}>Delete</button>
             </div>
           </div>
         );

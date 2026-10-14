@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { EditSheet } from './components/Sheets';
-import { FeedbackSheet, ReviewSheet, SaveSheet, SignInSheet, TripsSheet } from './components/Panels';
+import { FeedbackSheet, FoodSheet, ReviewSheet, SaveSheet, SignInSheet, TripsSheet } from './components/Panels';
 import { WELCOMED, Welcome, seenWelcome } from './components/Welcome';
 import { SeasonGuide } from './components/SeasonGuide';
-import { addCheckin, cloudDelete, cloudEnabled, cloudSave, cloudTrips, createFollow, currentUser, loadPriceList, loadReviews, onUserChange, sendFeedback, signInWithGoogle, signOut, stopFollow, submitReview, updateFollow, type User } from './cloud';
+import { addCheckin, cloudDelete, cloudEnabled, cloudSave, cloudTrips, createFollow, currentUser, loadFoodTips, loadPriceList, loadReviews, submitFoodTip, onUserChange, sendFeedback, signInWithGoogle, signOut, stopFollow, submitReview, updateFollow, type User } from './cloud';
 import { ExpenseSheet, ShareSheet, SosSheet } from './components/TripMode';
 import { RUN_SUBS, getRun, runKey, updateRun } from './run';
 import { followLink } from './view-trip';
@@ -13,6 +13,7 @@ import { isoOff, mon as monthOf } from './engine/format';
 import { MONTH_FULL } from './engine/data';
 import { markRated, ratedKey } from './rated';
 import { setReviews } from './reviews';
+import { setFoodTips } from './foodtips';
 import { t as tx } from './i18n';
 import { applyPrices } from './prices';
 import { clearCurrent, cloudMerge, defaultName, deleteLocal, loadCurrent, localTrips, newId, saveCurrent, saveLocal, shareUrl, tripData, tripFromUrl, type SavedTrip } from './trips';
@@ -101,6 +102,8 @@ export function App() {
   useEffect(() => {
     try { const c = JSON.parse(localStorage.getItem('safarco-prices') || 'null'); if (c) { applyPrices(c); bump(); } } catch { /* storage blocked */ }
     try { const r = JSON.parse(localStorage.getItem('safarco-reviews') || 'null'); if (r) setReviews(r); } catch { /* storage blocked */ }
+    try { const r = JSON.parse(localStorage.getItem('safarco-food') || 'null'); if (r) setFoodTips(r); } catch { /* storage blocked */ }
+    loadFoodTips().then(r => { if (!r) return; setFoodTips(r); bump(); try { localStorage.setItem('safarco-food', JSON.stringify(r)); } catch { /* storage blocked */ } }).catch(() => {});
     loadReviews().then(r => { if (!r) return; setReviews(r); bump(); try { localStorage.setItem('safarco-reviews', JSON.stringify(r)); } catch { /* storage blocked */ } }).catch(() => {});
     loadPriceList().then(v => { if (!v) return; applyPrices(v); bump(); try { localStorage.setItem('safarco-prices', JSON.stringify(v)); } catch { /* storage blocked */ } }).catch(() => {});
   }, []);
@@ -355,6 +358,8 @@ export function App() {
             <SosSheet v={view} open={s.sheet === 'sos'} onClose={() => set({ sheet: 'none' })} />
             <ExpenseSheet v={view} open={s.sheet === 'expense'} onClose={() => set({ sheet: 'none' })} />
           </>}
+          <FoodSheet open={s.sheet === 'food'} target={s.foodFor} user={user} onGoogle={google} onClose={() => set({ sheet: 'none' })}
+            onSend={tip => s.foodFor ? submitFoodTip({ ...tip, dest: s.foodFor.dest }, user?.name.split(' ')[0] || 'Traveller') : Promise.reject(new Error('No place'))} />
           <ReviewSheet open={s.sheet === 'review'} target={s.reviewFor} user={user} onGoogle={google} onClose={() => set({ sheet: 'none' })}
             onSend={(rating, comment) => { const r = s.reviewFor; if (!r) return Promise.reject(new Error('Nothing to rate'));
               return submitReview(r.kind, r.id, rating, comment, user?.name.split(' ')[0] || 'Traveller', r.date).then(() => markRated(ratedKey(r.kind, r.id))); }} />
