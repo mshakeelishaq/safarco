@@ -1,11 +1,11 @@
-# Import report: v3.xlsx
+# Import report: v4.xlsx
 
-Imported on 2026-10-13.
+Imported on 2026-10-14.
 
 - **24 new destinations:** Gilgit, Shigar, Hushe Valley, Nagar & Minapin, Yasin Valley, Ishkoman Valley, Peshawar, Taxila, Mingora & Saidu Sharif, Abbottabad, Thandiani, Muzaffarabad, Rawalakot, Bagh & Sudhan Gali, Multan, Bahawalpur & Cholistan, Uch Sharif, Chakwal & Kallar Kahar, Khewra, Thatta & Keenjhar, Hyderabad, Sukkur & Rohri, Sehwan Sharif, Nagarparkar
-- **18 new places** for the app's destinations
-- **204 places with a map pin**, 202 with a visit length, 37 with a drive time
-- **23 things to check** (below). Everything else is in the app as "not checked yet", unless marked Sure.
+- **129 new places** for the app's destinations
+- **204 places with a map pin**, 452 with a visit length, 37 with a drive time
+- **27 things to check** (below). Everything else is in the app as "not checked yet", unless marked Sure.
 
 ## Check these
 
@@ -16,14 +16,24 @@ Imported on 2026-10-13.
 **Gwadar**
 - "Ormara beach": the pin is 234 km from Gwadar, too far to be one of its places. Pin left out.
 
+**Hushe Valley**
+- "K7 Base Camp" and "K6 Base Camp" look like the same place. Only the first is imported.
+
+**Naltar Valley**
+- "Naltar Paain village" and "Naltar Bala village" look like the same place. Only the first is imported.
+
+**Phander & Ghizer**
+- "Handrap village" and "Phander village" look like the same place. Only the first is imported.
+
+**Hyderabad**
+- "Tomb of Mian Ghulam Nabi Kalhoro" and "Tomb of Mian Ghulam Shah Kalhoro" look like the same place. Only the first is imported.
+- Day plan "Sindh Museum, Pakka Qila, Shahi Bazaar, Rani Bagh" goes back and forth; a different order saves a lot of driving.
+
 **Nathia Gali**
 - Day plan "Pipeline Track from Dunga Gali to Ayubia": Pipeline Track from Dunga Gali to Ayubia is not on the Places sheet for Nathia Gali. Left out of the day.
 
 **Lahore**
 - Day plan "Wagah border ceremony": leaving at 2:00 pm gets back around 6:09 pm, after sunset (5:12 pm) in Nov. Leave earlier or drop a place.
-
-**Hyderabad**
-- Day plan "Sindh Museum, Pakka Qila, Shahi Bazaar, Rani Bagh" goes back and forth; a different order saves a lot of driving.
 
 **Lahore → Islamabad**
 - New stop "Sukheki North service area (M-2)": km from start missing is not on this stretch (375 km). Not added.
@@ -85,11 +95,15 @@ Imported on 2026-10-13.
 
 **Naran**
 - Best months: the sheet suggests Jun–Sep (app has May–Sep). Mark Sure to apply.
+- "Dudipatsar Lake trek" is a trek, not a day visit; not added to the day plans.
+- "Saral Lake trek" is a trek, not a day visit; not added to the day plans.
 - Highlight "lush green: Green Kaghan valley and alpine scenery above Naran." not added: the app has its own highlights here. Mark Sure to add.
 - Highlight "waterfalls and lakes: Saif-ul-Malook and Lulusar lakes when jeep tracks and the highway are " not added: the app has its own highlights here. Mark Sure to add.
 
 **Kalam**
 - Best months: the sheet suggests Jun–Sep (app has May–Sep). Mark Sure to apply.
+- "Kundol Lake trek" is a trek, not a day visit; not added to the day plans.
+- "Izmis Lake trek" is a trek, not a day visit; not added to the day plans.
 - Highlight "lush green: Ushu forest and green meadows around Kalam and Utror." not added: the app has its own highlights here. Mark Sure to add.
 - Highlight "waterfalls and lakes: Mahodand Lake and streams along the Ushu–Matiltan road." not added: the app has its own highlights here. Mark Sure to add.
 
@@ -100,6 +114,7 @@ Imported on 2026-10-13.
 
 **Neelum Valley**
 - Best months: the sheet suggests May–Oct (app has Apr–Oct). Mark Sure to apply.
+- "Chitta Katha Lake trek" is a trek, not a day visit; not added to the day plans.
 - Highlight "lush green: Green river valley, forest and Arang Kel meadows." not added: the app has its own highlights here. Mark Sure to add.
 - Highlight "waterfalls and lakes: Ratti Gali alpine lake excursion from Dowarian." not added: the app has its own highlights here. Mark Sure to add.
 
@@ -117,6 +132,8 @@ Imported on 2026-10-13.
 
 **Shogran**
 - Best months: the sheet suggests May–Oct (app has Apr–Oct). Mark Sure to apply.
+- "Makra Peak trek" is a trek, not a day visit; not added to the day plans.
+- "Kaghan town" is already a stop on the road; not added as a place.
 - Highlight "lush green: Shogran forest and Siri Paye meadows when the track is open." not added: the app has its own highlights here. Mark Sure to add.
 
 **Malam Jabba**
@@ -130,6 +147,7 @@ Imported on 2026-10-13.
 - Suggested removing "Naltar lakes (Satrangi, Bodlok)": Separate lakes need separate pins; use the split lake rows below after confirming local names. Mark Sure to apply.
 - "Satrangi Lake" is already part of "Naltar lakes (Satrangi, Bodlok)"; not added twice.
 - "Bodlok Lake" is already part of "Naltar lakes (Satrangi, Bodlok)"; not added twice.
+- "Naltar Pass trek" is a trek, not a day visit; not added to the day plans.
 - Highlight "lush green: Naltar forest and upper valley summer scenery." not added: the app has its own highlights here. Mark Sure to add.
 - Highlight "waterfalls and lakes: Satrangi and Bodlok lake excursions by local jeep and walking." not added: the app has its own highlights here. Mark Sure to add.
 
@@ -155,6 +173,8 @@ Imported on 2026-10-13.
 
 **Nagar & Minapin**
 - Only 13 km from Hunza: it may fit better as places on the Hunza trip.
+- "Rakaposhi Base Camp (Tagaphari)" is a trek, not a day visit; not added to the day plans.
+- "Hapakun campsite" is a trek, not a day visit; not added to the day plans.
 
 **Taxila**
 - Only 23 km from Islamabad: it may fit better as places on the Islamabad trip.
@@ -167,6 +187,8 @@ Imported on 2026-10-13.
 
 **Thandiani**
 - Only 18 km from Nathia Gali: it may fit better as places on the Nathia Gali trip.
+- "Thandiani–Biran Gali trail" is a trek, not a day visit; not added to the day plans.
+- "Dagri Bangla trek" is a trek, not a day visit; not added to the day plans.
 
 **Hunza**
 - Suggested renaming "Passu Cones viewpoint" to "Passu Cones Viewpoint". Mark Sure to apply.
@@ -192,10 +214,43 @@ Imported on 2026-10-13.
 - Suggested removing "Larkana": Transfer and meal base; select a specific attraction before adding a tourist pin. Mark Sure to apply.
 - Highlight "heritage: Mohenjo-daro archaeological ruins and site museum." not added: the app has its own highlights here. Mark Sure to add.
 
+**Hushe Valley**
+- "Masherbrum Base Camp trek" is a trek, not a day visit; not added to the day plans.
+- "Saicho campsite" is a trek, not a day visit; not added to the day plans.
+- "Dumsum campsite" is a trek, not a day visit; not added to the day plans.
+- "K6 Base Camp" is a trek, not a day visit; not added to the day plans.
+- "Gondogoro La" is a trek, not a day visit; not added to the day plans.
+- "Khuspang campsite" is a trek, not a day visit; not added to the day plans.
+- "Dalsanpa campsite" is a trek, not a day visit; not added to the day plans.
+
 **Astore & Rama Meadows**
 - "Chilam village" is already part of "Deosai Plains via Chilam"; not added twice.
+- "Nanga Parbat Rupal Base Camp" is already a place in Fairy Meadows; not added twice.
 - Highlight "lush green: Rama Meadows grassland and forest above Astore." not added: the app has its own highlights here. Mark Sure to add.
 - Highlight "waterfalls and lakes: Rama Lake walk above Rama Meadows." not added: the app has its own highlights here. Mark Sure to add.
+
+**Gilgit**
+- "Jutial valley trek" is a trek, not a day visit; not added to the day plans.
+
+**Ishkoman Valley**
+- "Qurumber Lake trek" is a trek, not a day visit; not added to the day plans.
+- "Naltar Pass trek" is a trek, not a day visit; not added to the day plans.
+
+**Phander & Ghizer**
+- "Gupis Fort" is already part of "Khalti Lake, Gupis"; not added twice.
+- "Handrap Lake trek" is a trek, not a day visit; not added to the day plans.
+- Highlight "lush green: Green Phander valley, river channels and lake surroundings." not added: the app has its own highlights here. Mark Sure to add.
+- Highlight "autumn colours: Golden riverside trees around Phander Lake and village." not added: the app has its own highlights here. Mark Sure to add.
+- Highlight "waterfalls and lakes: Phander Lake and the nearby Ghizer river landscape." not added: the app has its own highlights here. Mark Sure to add.
+- Highlight "festival: Shandur polo festival excursion; 2026 event was scheduled for 11–13 Ju" not added: the app has its own highlights here. Mark Sure to add.
+
+**Kund Malir**
+- "Ormara beach" is already a place in Gwadar; not added twice.
+- Highlight "sea and beaches: Kund Malir beach on the Makran Coastal Highway." not added: the app has its own highlights here. Mark Sure to add.
+
+**Kumrat Valley**
+- "Katora Lake trek" is a trek, not a day visit; not added to the day plans.
+- Highlight "lush green: Kumrat forest, river and Jahaz Banda meadows." not added: the app has its own highlights here. Mark Sure to add.
 
 **Lahore → Islamabad**
 - New stop "Sial North service area (M-2)" at km 141: not added until marked Sure (each stop adds time to the drive).
@@ -256,23 +311,11 @@ Imported on 2026-10-13.
 - New stop "Hub (N-25 fuel/supplies stop)" at km 30: not added until marked Sure (each stop adds time to the drive).
 - New stop "Winder (N-25 town supplies stop)" at km 101: not added until marked Sure (each stop adds time to the drive).
 
-**Kumrat Valley**
-- Highlight "lush green: Kumrat forest, river and Jahaz Banda meadows." not added: the app has its own highlights here. Mark Sure to add.
-
-**Phander & Ghizer**
-- Highlight "lush green: Green Phander valley, river channels and lake surroundings." not added: the app has its own highlights here. Mark Sure to add.
-- Highlight "autumn colours: Golden riverside trees around Phander Lake and village." not added: the app has its own highlights here. Mark Sure to add.
-- Highlight "waterfalls and lakes: Phander Lake and the nearby Ghizer river landscape." not added: the app has its own highlights here. Mark Sure to add.
-- Highlight "festival: Shandur polo festival excursion; 2026 event was scheduled for 11–13 Ju" not added: the app has its own highlights here. Mark Sure to add.
-
 **Ziarat**
 - Highlight "heritage: Quaid-e-Azam Residency and historic juniper landscape." not added: the app has its own highlights here. Mark Sure to add.
 
 **Gwadar**
 - Highlight "sea and beaches: Gwadar shoreline and West Bay coastal scenery." not added: the app has its own highlights here. Mark Sure to add.
-
-**Kund Malir**
-- Highlight "sea and beaches: Kund Malir beach on the Makran Coastal Highway." not added: the app has its own highlights here. Mark Sure to add.
 
 **Islamabad**
 - Highlight "heritage: Faisal Mosque, Pakistan Monument and Lok Virsa Museum." not added: the app has its own highlights here. Mark Sure to add.
@@ -296,81 +339,194 @@ Imported on 2026-10-13.
 
 **Kalam**
 - Added "Utror village" (not checked yet).
+- Added "Gabral Valley" (not checked yet).
+- Added "Desan Meadows" (not checked yet).
+- Added "Blue Water, Kalam" (not checked yet).
 - 2 day plans added (not checked yet).
 
 **Kalash Valleys**
 - Added "Birir valley" (not checked yet).
+- Added "Krakal village" (not checked yet).
+- Added "Balanguru village" (not checked yet).
+- Added "Kalash cemetery, Bumburet" (not checked yet).
+- Added "Ayun village" (not checked yet).
+- Added "Chitral Museum" (not checked yet).
 - 2 day plans added (not checked yet).
 
 **Lahore**
 - Added "Wazir Khan Mosque" (not checked yet).
 - Added "Shahi Hammam" (not checked yet).
 - Added "Chitta Gate" (not checked yet).
+- Added "Shalimar Gardens" (not checked yet).
+- Added "Jahangir's Tomb" (not checked yet).
+- Added "Lahore Museum" (not checked yet).
 - 3 day plans added (not checked yet).
 
 **Chitral**
 - Added "Ayun village" (not checked yet).
+- Added "Chitral Museum" (not checked yet).
+- Added "Birmoghlasht" (not checked yet).
+- Added "Chitral Gol National Park" (not checked yet).
+- Added "Mastuj Fort" (not checked yet).
 - Added "Kalasha Dur museum" (from Kalash Valleys) for a day plan.
 - 3 day plans added (not checked yet).
 
 **Passu**
 - Added "Sost bazaar" (not checked yet).
+- Added "Passu Glacier viewpoint" (not checked yet).
+- Added "Gulmit village" (not checked yet).
+- Added "Ghulkin village" (not checked yet).
+- Added "Shimshal village" (not checked yet).
+- Added "Ondra Poygah steps" (not checked yet).
 - 2 day plans added (not checked yet).
 
 **Neelum Valley**
 - Added "Kel town" (not checked yet).
 - Added "Dowarian village" (not checked yet).
+- Added "Kutton Jagran Valley" (not checked yet).
+- Added "Kundal Shahi Waterfall" (not checked yet).
+- Added "Taobat village" (not checked yet).
 - 3 day plans added (not checked yet).
 
 **Phander & Ghizer**
 - Added "Phander village" (not checked yet).
+- Added "Gahkuch town" (not checked yet).
+- Added "Teru village" (not checked yet).
+- Added "Yasin Valley" (not checked yet).
 - 2 day plans added (not checked yet).
 
 **Kumrat Valley**
 - Added "Jandrai mountain hut (Jahaz Banda route)" (not checked yet).
-- 2 day plans added (not checked yet).
-
-**Naran**
-- 3 day plans added (not checked yet).
-
-**Fairy Meadows**
+- Added "Do Janga" (not checked yet).
+- Added "Kumrat Waterfall" (not checked yet).
+- Added "Badgoi Pass" (not checked yet).
+- Added "Panjkora riverside" (not checked yet).
 - 2 day plans added (not checked yet).
 
 **Shogran**
+- Added "Sharan Forest" (not checked yet).
+- Added "Manshi Top" (not checked yet).
+- Added "Manoor Valley" (not checked yet).
+- Added "Paras village" (not checked yet).
+- Added "Balakot riverside" (not checked yet).
 - 1 day plan added (not checked yet).
-
-**Malam Jabba**
-- 2 day plans added (not checked yet).
-
-**Astore & Rama Meadows**
-- 2 day plans added (not checked yet).
 
 **Naltar Valley**
+- Added "Firoza Lake" (not checked yet).
+- Added "Naltar Bala village" (not checked yet).
+- Added "Nomal village" (not checked yet).
+- Added "Gilgit polo ground" (not checked yet).
+- Added "Danyore Chinese Cemetery" (not checked yet).
 - 1 day plan added (not checked yet).
 
-**Murree**
-- 2 day plans added (not checked yet).
-
-**Nathia Gali**
-- 2 day plans added (not checked yet).
-
 **Ziarat**
+- Added "Sandeman Tangi" (not checked yet).
+- Added "Chutair Tangi" (not checked yet).
+- Added "Fern Tangi" (not checked yet).
+- Added "Kawas Tangi" (not checked yet).
+- Added "Kahn Tangi" (not checked yet).
+- Added "Kharwari Baba shrine" (not checked yet).
+- Added "Zizri valley" (not checked yet).
 - 1 day plan added (not checked yet).
 
 **Gwadar**
+- Added "Pishukan beach" (not checked yet).
+- Added "Ganz beach" (not checked yet).
+- Added "Jiwani coast" (not checked yet).
+- Added "Surbandar fishing harbour" (not checked yet).
+- Added "Padizer Park" (not checked yet).
+- Added "Gwadar old town" (not checked yet).
+- Added "Daran beach" (not checked yet).
 - 1 day plan added (not checked yet).
-
-**Kund Malir**
-- 2 day plans added (not checked yet).
 
 **Mohenjo-daro**
+- Added "Great Bath" (not checked yet).
+- Added "Great Granary remains" (not checked yet).
+- Added "Buddhist stupa mound" (not checked yet).
+- Added "Assembly Hall remains" (not checked yet).
+- Added "Lower Town residential streets" (not checked yet).
+- Added "Garhi Khuda Bakhsh mausoleum" (not checked yet).
+- Added "Ratodero town" (not checked yet).
 - 1 day plan added (not checked yet).
 
+**Fairy Meadows**
+- Added "Raikot Bridge" (not checked yet).
+- Added "Tattu village" (not checked yet).
+- Added "Beyal-to-base-camp viewpoint" (not checked yet).
+- Added "Raikot Glacier viewpoint" (not checked yet).
+- Added "Chilas rock carvings" (not checked yet).
+- Added "Thalpan rock carvings" (not checked yet).
+- 2 day plans added (not checked yet).
+
+**Malam Jabba**
+- Added "Malam Jabba village" (not checked yet).
+- Added "Manglawar village" (not checked yet).
+- Added "Jahanabad Buddha carving" (not checked yet).
+- Added "Shangla Pass" (not checked yet).
+- Added "Fizagat Park" (not checked yet).
+- Added "Udegram archaeological site" (not checked yet).
+- 2 day plans added (not checked yet).
+
+**Astore & Rama Meadows**
+- Added "Rupal Valley" (not checked yet).
+- Added "Tarishing village" (not checked yet).
+- Added "Minimarg" (not checked yet).
+- Added "Domel Rainbow Lake" (not checked yet).
+- Added "Gorikot village" (not checked yet).
+- 2 day plans added (not checked yet).
+
+**Murree**
+- Added "Bhurban" (not checked yet).
+- Added "Lawrence College Ghora Gali" (not checked yet).
+- Added "Murree Brewery ruins, Ghora Gali" (not checked yet).
+- Added "Holy Trinity Church" (not checked yet).
+- Added "Rawat village" (not checked yet).
+- Added "Upper Jhika Gali" (not checked yet).
+- 2 day plans added (not checked yet).
+
+**Nathia Gali**
+- Added "St Matthew's Church" (not checked yet).
+- Added "Nathia Gali bazaar" (not checked yet).
+- Added "Namli Maira" (not checked yet).
+- Added "Dagri Bangla" (not checked yet).
+- Added "Changla Gali" (not checked yet).
+- Added "Khanspur" (not checked yet).
+- 2 day plans added (not checked yet).
+
+**Kund Malir**
+- Added "Balochistan Sphinx rock formation" (not checked yet).
+- Added "Hingol River estuary" (not checked yet).
+- Added "Aghor village" (not checked yet).
+- Added "Buzi Pass" (not checked yet).
+- Added "Golden Beach, Makran coast" (not checked yet).
+- 2 day plans added (not checked yet).
+
+**Naran**
+- Added "Batakundi village" (not checked yet).
+- Added "Jalkhad" (not checked yet).
+- Added "Besal" (not checked yet).
+- 3 day plans added (not checked yet).
+
 **Islamabad**
+- Added "Saidpur village" (not checked yet).
+- Added "Shah Allah Ditta caves" (not checked yet).
+- Added "Lake View Park" (not checked yet).
+- Added "Shakarparian gardens" (not checked yet).
+- Added "Fatima Jinnah Park" (not checked yet).
 - 3 day plans added (not checked yet).
 
 **Karachi**
+- Added "National Museum of Pakistan" (not checked yet).
+- Added "PAF Museum" (not checked yet).
+- Added "Pakistan Maritime Museum" (not checked yet).
+- Added "Masjid-e-Tooba" (not checked yet).
+- Added "Chaukhandi Tombs" (not checked yet).
 - 2 day plans added (not checked yet).
+
+**Khaplu**
+- Added "Haldi village" (not checked yet).
+- Added "Khanqah-e-Mualla, Khaplu" (not checked yet).
+- Added "Kharfaq Lake" (not checked yet).
 
 **What to see**
 - 34 seasonal highlights for 24 destinations (not checked yet).

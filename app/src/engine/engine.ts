@@ -348,6 +348,8 @@ function exploreDays(D: Dest, m: number, n: number, tier: TierId, over?: string 
       if (spare.includes(next)) spare.splice(spare.indexOf(next), 1); else later().forEach(d => { d.list = d.list.filter(p => p !== next); });
     }
   });
+  // Days left with nothing to see go last, as free days at the end of the stay.
+  g.days.sort((a, b) => +!a.list.length - +!b.list.length);
   const extra = spare.map(p => p[0]);
   g.days.forEach(day => {
     const list = day.list;

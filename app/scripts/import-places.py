@@ -147,8 +147,9 @@ def main():
         pw = load_workbook(args[args.index('--pins') + 1], data_only=True)
         for r in pw[pw.sheetnames[0]].iter_rows(min_row=2, values_only=True):
             c = coords(r[5], r[6], r[7]) if len(r) > 7 else None
-            if r[0] and r[2] and c:
-                extra_pins[(s(r[0]), norm(r[2]))] = (c, s(r[8]).lower() == 'sure' if len(r) > 8 else False)
+            # Optional columns K and L: road km and drive minutes from the base town.
+            if r[0] and r[2] and (c or (len(r) > 11 and num(r[10]))):
+                extra_pins[(s(r[0]), norm(r[2]))] = (c, s(r[8]).lower() == 'sure' if len(r) > 8 else False, num(r[10]) if len(r) > 10 else None, num(r[11]) if len(r) > 11 else None)
     # Row 2 is the format example on every sheet; on New destinations the research put Machlu there, so it is read.
     rows = lambda name: [r for r in wb[name].iter_rows(min_row=2 if name == 'New destinations' else 3, values_only=True) if any(v not in (None, '') for v in r)]
     is_example = lambda r: s(r[0]).startswith('(example)')
@@ -220,6 +221,13 @@ def main():
     def base_of(did):
         d = dests.get(did) or new_dests.get(did)
         return (d['lat'], d['lon']) if d else None
+
+    # The same tip on three or more new places of one destination is a research note, not about the place.
+    same_tip = {}
+    for r in place_rows:
+        if not s(r[2]) and s(r[7]):
+            k = (s(r[0]), clean_tip(r[18])); same_tip[k] = same_tip.get(k, 0) + 1
+
     for r in place_rows:
         did = s(r[0])
         if did not in dests and did not in new_dests:
@@ -271,10 +279,11 @@ def main():
 
         # Numbers, with checks.
         c, base = coords(r[8], r[9], r[10]), base_of(did)
-        if not c and (did, norm(name)) in extra_pins:
-            c, pin_sure = extra_pins[(did, norm(name))]
-            sure = sure or pin_sure
+        xp = extra_pins.get((did, norm(name)))
+        if not c and xp and xp[0]:
+            c = xp[0]; sure = sure or xp[1]
         km, mins, visit, fee = num(r[11]), num(r[12]), num(r[14]), num(r[17])
+        if xp and not km: km, mins = xp[2], mins or xp[3]
         acc, tod = ACCESS.get(s(r[13]).lower()), TOD.get(s(r[15]).lower())
         if c and not (PK[0] <= c[0] <= PK[1] and PK[2] <= c[1] <= PK[3]):
             chk(dname, f'"{name}": pin {c[0]}, {c[1]} is outside Pakistan. Left out.'); c = None
@@ -307,8 +316,12 @@ def main():
         # New places: added to the destination (not checked unless Sure).
         if not app_name:
             how = {'car': 'By car', 'rough': 'By car, rough road', '4x4': 'By 4x4', 'jeep': 'By local jeep', 'walk': 'On foot', 'boat': 'By boat', 'chairlift': 'By chairlift'}
-            dist = f'{km:.0f} km' + (f' · {mins:.0f} min' if mins else '') if km else how.get(acc, 'Nearby')
-            place = [name, dist, clean_tip(r[18])]
+            dist = f'{km:.0f} km' + (f' · {mins:.0f} min' if mins else '') if km else how.get(acc, '')
+            # Multi-day treks (base camps, high passes on foot) aren't a day's sightseeing from the town.
+            tip = clean_tip(r[18]); shared = same_tip.get((did, tip), 0) >= 3
+            if (TREK.search(s(r[18])) and not shared) or (re.search(r'base camp|\btrek\b|campsite|\bLa$', name, re.I) and acc not in ('car', 'rough', '4x4', 'jeep')):
+                note(dname, f'"{name}" is a trek, not a day visit; not added to the day plans.'); continue
+            place = [name, dist, '' if shared else tip]
             pm = months(r[16]) if sure else None
             place += [pm, maps(*c) if c else None]
             if did in new_dests:
@@ -509,12 +522,14 @@ def main():
           f'{sum(1 for v in info.values() if "lat" in v)} places pinned · {len(changed)} road stretches changed · {len(checks)} to check')
 
 
+TREK = re.compile(r'not a vehicle-accessible|expedition|multi-stage trek|multi-day|trekking route stop', re.I)
+
 def clean_tip(text, limit=150):
     """Only what a traveller needs: drops the research notes (visit allowances, pins, sources) and cuts at a sentence."""
     skip = re.compile(r'^(family visit allowance|no routine|pin:|source|visit length|routing|coordinates|confidence|checked|estimate)', re.I)
     lines = [x.strip() for x in s(text).split('\n') if x.strip() and not skip.match(x.strip())]
     noise = re.compile(r'verified map point|map point|area point|brochure|approximate|estimate|routing|openstreetmap|\bosm\b|think so|not sure|checked \d|\bsource\b|https?://'
-                       r'|added to match|^pin\b|unconfirmed|residents|wikipedia|\bdutch\b|\*|hotel-to-gate|day plans|reconciliation|provisional|route legs|confirmed\.$|not the hike|column g|back by|\bassumed\b|still needed|allowance|buffer|\bvisits \d|min \+|daylight|solcalc|\b(january|february|march|april|may|june|july|august|september|october|november|december) plan\b', re.I)
+                       r'|added to match|^pin\b|unconfirmed|residents|wikipedia|\bdutch\b|\*|hotel-to-gate|day plans|reconciliation|provisional|route legs|confirmed\.$|not the hike|column g|back by|added \d|draft for review|intentionally blank|approach/transit|maps link|before import|planning (estimate|suggestion)|remain unverified|candidate|sub-stop|double-count|regional extension|guide-defined|stop points|before building|wider district|excursion or|or regional|or separate|extension\.|\bassumed\b|still needed|allowance|buffer|\bvisits \d|min \+|daylight|solcalc|\b(january|february|march|april|may|june|july|august|september|october|november|december) plan\b', re.I)
     sentences = re.split(r'(?<=[.!?])\s+', ' '.join(lines))
     # One- or two-word labels ("Fort.", "Tourist attraction.") are map categories, not tips.
     out = ' '.join(x for x in sentences if x and len(x.split()) > 2 and not noise.search(x)).strip()
