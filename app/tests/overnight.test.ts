@@ -31,3 +31,19 @@ describe('a night at a nearby place', () => {
     expect(b.days.map(x => x.title)).toEqual(a.days.map(x => x.title));
   });
 });
+
+describe('a night on the road, by choice', () => {
+  const g: TripState = { ...base, vehicle: 'suv', origin: 'Karachi', dest: 'gwadar', corridor: 'gwadar', days: 5, startDate: '2026-11-10', overnight: null };
+  it('offers Ormara on the long drive to Gwadar, never adding it by itself', () => {
+    const days = buildPlan(g).days;
+    expect(days[0].title).toBe('Karachi → Gwadar');
+    expect(days[0].roadNight?.options.map(o => o.town)).toContain('Ormara');
+  });
+  it('breaks the drive there when chosen, going only, and offers to drive through again', () => {
+    const days = buildPlan({ ...g, days: 6, breaks: ['out:ORM'] }).days;
+    expect(days.slice(0, 2).map(d => d.title)).toEqual(['Karachi → Ormara', 'Ormara → Gwadar']);
+    expect(days[0].roadNight?.chosen).toBe('ORM');
+    expect(days[days.length - 1].title).toBe('Gwadar → Karachi');
+    expect(days.filter(d => d.kind === 'explore')).toHaveLength(3);
+  });
+});

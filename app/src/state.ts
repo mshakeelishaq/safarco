@@ -40,6 +40,8 @@ export interface AppState extends TripState {
   overnight: string | null;
   roomCount: number | null;
   sleepAt: string[];
+  /** Towns where a drive stops for the night by choice: 'out:CHL', 'back:ORM'. */
+  breaks: string[];
   /** What they want to see, from the first question; null until answered. */
   wish: WishId | null;
   /** When the "getting your plan ready" screen opened (ms), or null when it isn't showing. */
@@ -77,7 +79,7 @@ export const initialState = (): AppState => ({
   corridor: 'hunza', tab: 'trip', settings: false, flash: null,
   offline: 'off', progress: 0, offlineMB: 0, offlineErr: '', mapFail: false, theme: savedTheme(),
   sheet: 'none', savedId: null, toast: null, lite: prefersLite(), chosen: null, reviewFor: null, welcome: false, guide: false, lang: currentLang(),
-  have: 'any', wish: null, extra: [], capOn: false, overnight: null, roomCount: null, sleepAt: [], here: null, building: null, dayOpen: null, edits: NO_EDITS
+  have: 'any', wish: null, extra: [], capOn: false, overnight: null, roomCount: null, sleepAt: [], breaks: [], here: null, building: null, dayOpen: null, edits: NO_EDITS
 });
 
 export type Patch = Partial<AppState>;

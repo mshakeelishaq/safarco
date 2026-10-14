@@ -31,6 +31,8 @@ export interface TripState {
   departAt?: Record<number, number>;
   /** A night at a nearby place instead of its day trip (Khaplu from Skardu). */
   overnight?: string | null;
+  /** Towns on the road where the traveller chose to break a drive for the night: 'out:CHL' going, 'back:ORM' coming home. */
+  breaks?: string[];
 }
 
 /** Trip styles to compare: the traveller's own vehicle only, or every style SafarCo knows. */
@@ -157,6 +159,25 @@ export function airFor(key: string, origin: string | null): AirOption | null {
 }
 
 const legStopH = (l: Leg) => stopsOn(l).reduce((a, x) => a + (STOP_DUR[x[1]] || 15), 0) / 60;
+/** A night on the road the traveller can add to a driving day (towns about halfway), or the one they chose. */
+export interface RoadNight { dir: 'out' | 'back'; options: { node: string; town: string }[]; chosen: string | null }
+const CANT_SLEEP = new Set(['RKT', 'DEST', 'HOME']);
+/** Cuts (after leg i) with the traveller's chosen towns added. */
+function withBreaks(legs: Leg[], cuts: number[], nodes: string[]) {
+  const out = new Set(cuts);
+  nodes.forEach(n => { const i = legs.findIndex((l, j) => l.b === n && j < legs.length - 1); if (i >= 0) out.add(i); });
+  return [...out].sort((a, b) => a - b);
+}
+/** Towns where a long driving day could stop for the night: at least 1.5 h from either end, nearest the middle first. */
+function roadNight(ls: Leg[], dir: 'out' | 'back', chosen: string[], endsAt: string): RoadNight | undefined {
+  const mine = chosen.find(n => n === endsAt) || null, total = ls.reduce((a, l) => a + l.h, 0);
+  if (!mine && total < 4.5) return undefined;
+  let h = 0; const opts: { node: string; town: string; d: number }[] = [];
+  ls.slice(0, -1).forEach(l => { h += l.h; const n = l.b; if (!CANT_SLEEP.has(n) && !n.startsWith('@') && NODE_INFO[n] && h >= 1.5 && total - h >= 1.5) opts.push({ node: n, town: NODE_INFO[n][0], d: Math.abs(h - total / 2) }); });
+  if (!mine && !opts.length) return undefined;
+  return { dir, options: opts.sort((a, b) => a.d - b.d).slice(0, 3).map(({ node, town }) => ({ node, town })), chosen: mine };
+}
+
 /** Fewest driving days so each day fits ≤10 h at the wheel and ends before the daylight window W closes. */
 function splitDays(legs: Leg[], W: number) {
   const n = legs.length, canCut = (i: number) => !['RKT', 'DEST', 'HOME'].includes(legs[i].b) && !legs[i].b.startsWith('@'), pre = [0], preS = [0];
@@ -236,7 +257,7 @@ function stayAt(node: string | null, key: string, tier: TierId, isDest: boolean)
 export type DayKind = 'drive' | 'explore' | 'return' | 'fly';
 /** Where a driving day goes and when: used for weather along the road. */
 export interface Track { legs: Leg[]; coords: [number, number][]; marks: [number, number][]; dep: number; sunset: number; sunrise: number }
-export interface PlanDay { kind: DayKind; title: string; meta: string; note: string; stops: StopItem[]; stay: Stay | null; tip?: string; offer?: string; side?: { id: string; base: string; sleeping: boolean }; timing?: DayClock; long?: string; depart?: { at: number; rec: number; own: boolean }; num?: number; date?: string; iso?: string; track?: Track }
+export interface PlanDay { kind: DayKind; title: string; meta: string; note: string; stops: StopItem[]; stay: Stay | null; tip?: string; offer?: string; side?: { id: string; base: string; sleeping: boolean }; roadNight?: RoadNight; timing?: DayClock; long?: string; depart?: { at: number; rec: number; own: boolean }; num?: number; date?: string; iso?: string; track?: Track }
 
 /**
  * The places for each of n days at a destination: its usual day trips first (the places open this
@@ -431,21 +452,27 @@ function planOf(s: TripState): Plan {
       return finish({ air: a });
     }
   }
-  const bounds = [-1, ...c.cuts, legs.length - 1], segs: { ls: Leg[]; roads: string[]; last: boolean; toNode: string; from: string; to: string }[] = [];
-  for (let i = 0; i < bounds.length - 1; i++) {
-    const ls = legs.slice(bounds[i] + 1, bounds[i + 1] + 1), last = i === bounds.length - 2, toNode = legs[bounds[i + 1]].b;
-    segs.push({ ls, roads: [...new Set(ls.map(l => l.road))], last, toNode, from: i === 0 ? c.from : nm(legs[bounds[i]].b), to: last ? D.town : nm(toNode) });
-  }
-  const free = Math.max(0, s.days - 2 * segs.length);
+  // Driving days, split where the day is too long and where the traveller chose to stop for the night (going and coming back can differ).
+  const brk = (dir: 'out' | 'back') => breaksOf(s, dir);
+  const split = (cuts: number[]) => {
+    const bounds = [-1, ...cuts, legs.length - 1], segs: { ls: Leg[]; roads: string[]; last: boolean; toNode: string; from: string; to: string }[] = [];
+    for (let i = 0; i < bounds.length - 1; i++) {
+      const ls = legs.slice(bounds[i] + 1, bounds[i + 1] + 1), last = i === bounds.length - 2, toNode = legs[bounds[i + 1]].b;
+      segs.push({ ls, roads: [...new Set(ls.map(l => l.road))], last, toNode, from: i === 0 ? c.from : nm(legs[bounds[i]].b), to: last ? D.town : nm(toNode) });
+    }
+    return { bounds, segs };
+  };
+  const { segs } = split(withBreaks(legs, c.cuts, brk('out'))), { segs: bsegs, bounds: bb } = split(withBreaks(legs, c.cuts, brk('back')));
+  const free = Math.max(0, s.days - segs.length - bsegs.length);
   // Day index and end point of every driving day, out and back.
   const outDays = segs.map((g, i) => ({ g, day: i, end: g.toNode === legs[legs.length - 1].b && g.last ? 'DEST' : g.toNode }));
-  const backDays = segs.map((g, i) => ({ g, day: segs.length + free + (segs.length - 1 - i), end: i === 0 ? 'HOME' : legs[bounds[i]].b }));
+  const backDays = bsegs.map((g, i) => ({ g, day: segs.length + free + (bsegs.length - 1 - i), end: i === 0 ? 'HOME' : legs[bb[i]].b }));
   const suns = new Map([...outDays, ...backDays].map(x => [x.day, sunOn(x.end, x.day)]));
   sunset = Math.min(...[...suns.values()].map(x => x.set));
   const spans = [...outDays, ...backDays].map(x => ({ span: dayStops(x.g.ls, '', '', 6, 30).arrive - 6, set: suns.get(x.day)!.set }));
   const rec = Math.max(4.5, Math.min(8, Math.floor(Math.min(...spans.map(x => x.set - 0.5 - x.span)) * 2) / 2)), dep = s.depart ?? rec;
   // Each driving day has its own suggested time; a time chosen for the day, or for the whole trip, wins.
-  const recAt = new Map([...outDays.map(x => [x.day, recDep(x.g.ls, suns.get(x.day)!.set)] as const), ...backDays.map((x, i) => [x.day, recDep(segs[i].ls.slice().reverse().map(l => ({ ...l, a: l.b, b: l.a })), suns.get(x.day)!.set)] as const)]);
+  const recAt = new Map([...outDays.map(x => [x.day, recDep(x.g.ls, suns.get(x.day)!.set)] as const), ...backDays.map((x, i) => [x.day, recDep(bsegs[i].ls.slice().reverse().map(l => ({ ...l, a: l.b, b: l.a })), suns.get(x.day)!.set)] as const)]);
   const depAt = (day: number) => s.departAt?.[day] ?? s.depart ?? recAt.get(day) ?? rec;
   const departOf = (day: number) => ({ at: depAt(day), rec: recAt.get(day) ?? rec, own: s.departAt?.[day] != null });
   const coordsOf = (ls: Leg[]): [number, number][] => [at(ls[0].a), ...ls.map(l => at(l.b))];
@@ -453,15 +480,15 @@ function planOf(s: TripState): Plan {
   const meta = (r: ReturnType<typeof dayStops>) => t('{km} km · {drive} driving + {stops} stops', { km: fmtN(r.km < 20 ? r.km : Math.round(r.km / 5) * 5), drive: dur(r.driveH), stops: dur(r.stopMin / 60) });
   outDays.forEach(({ g, day }) => {
     const sun = suns.get(day)!, r = dayStops(g.ls, g.from, g.to, depAt(day), sun.set); late = late || r.late;
-    days.push({ kind: 'drive', title: `${g.from} → ${g.to}`, meta: meta(r), stops: r.items, depart: departOf(day), track: { legs: g.ls, coords: coordsOf(g.ls), marks: r.marks, dep: depAt(day), sunset: sun.set, sunrise: sun.rise },
+    days.push({ kind: 'drive', title: `${g.from} → ${g.to}`, meta: meta(r), stops: r.items, depart: departOf(day), roadNight: roadNight(g.ls, 'out', brk('out'), g.toNode), track: { legs: g.ls, coords: coordsOf(g.ls), marks: r.marks, dep: depAt(day), sunset: sun.set, sunrise: sun.rise },
       note: [notes(g.roads), g.last && D.hub !== undefined ? t('Park at Raikot Bridge, jeep to Tato (1.5 h), then a 2–3 h hike.') : '', elderNote(g.roads, g.last)].filter(Boolean).join(' '),
       stay: g.last ? stayAt(null, key, s.tier, true) : stayAt(g.toNode, key, s.tier, false) });
   });
   if (!free && days.length) { const pl = placesFor(D, m).find(p => !SEEN?.has(placeKey(p[0]))); if (pl) SEEN?.add(placeKey(pl[0])); if (pl) days[days.length - 1].stops.push({ time: t('Evening'), kind: 'pin', label: pl[0], note: [pl[1], pl[2]].filter(Boolean).join(' · '), href: pl[4] }); }
   days.push(...exploreDays(D, m, free, s.tier, s.overnight, days.length, s.departAt, undefined, sideTrips(s)[key]));
-  for (let i = segs.length - 1; i >= 0; i--) {
-    const g = segs[i], bd = backDays[i].day, back = g.ls.slice().reverse().map(l => ({ ...l, a: l.b, b: l.a })), sun = suns.get(bd)!, r = dayStops(back, g.to, g.from, depAt(bd), sun.set); late = late || r.late;
-    days.push({ kind: 'return', title: `${g.to} → ${g.from}`, meta: meta(r), stops: r.items, note: '', depart: departOf(bd), stay: i === 0 ? null : stayAt(segs[i - 1].toNode, key, s.tier, false),
+  for (let i = bsegs.length - 1; i >= 0; i--) {
+    const g = bsegs[i], bd = backDays[i].day, back = g.ls.slice().reverse().map(l => ({ ...l, a: l.b, b: l.a })), sun = suns.get(bd)!, r = dayStops(back, g.to, g.from, depAt(bd), sun.set); late = late || r.late;
+    days.push({ kind: 'return', title: `${g.to} → ${g.from}`, meta: meta(r), stops: r.items, note: '', depart: departOf(bd), stay: i === 0 ? null : stayAt(bsegs[i - 1].toNode, key, s.tier, false), roadNight: roadNight(back, 'back', brk('back'), back[back.length - 1].b),
       track: { legs: back, coords: coordsOf(back), marks: r.marks, dep: depAt(bd), sunset: sun.set, sunrise: sun.rise } });
   }
   return finish({ rec, dep, late, hasDrive: segs.length > 0 });
@@ -638,8 +665,18 @@ export function circuit(s: TripState): Circuit | null {
 }
 
 /** Free days at each place on a circuit: everyone gets one if there are enough, the rest go to places with more to see. */
+/** Towns the traveller chose to stop at for the night, going ('out') or on the way home ('back'). */
+const breaksOf = (s: TripState, dir: 'out' | 'back') => (s.breaks || []).filter(b => b.startsWith(dir + ':')).map(b => b.slice(dir.length + 1));
+/** Where a circuit's stretch is split into driving days: where it must be, and where the traveller chose. */
+function hopCuts(s: TripState, L: Circuit, h: Hop, m: number) {
+  const sp = splitDays(h.legs, W_OF(m));
+  return { cuts: withBreaks(h.legs, sp.cuts, breaksOf(s, h === L.hops[L.hops.length - 1] ? 'back' : 'out')), base: sp.cuts.length };
+}
+
 export function circuitAlloc(s: TripState, L: Circuit) {
-  let free = Math.max(0, s.days - L.legDays);
+  // Nights the traveller added on the road take days from the places.
+  const m0 = mon(s), added = L.hops.filter(h => !h.short).reduce((a, h) => { const c = hopCuts(s, L, h, m0); return a + c.cuts.length - c.base; }, 0);
+  let free = Math.max(0, s.days - L.legDays - added);
   const m = mon(s), st = sideTrips(s), w = L.order.map(k => Math.max(1, placesFor(DST(k), m).length) + (st[k] || []).length * 3), out = L.order.map(() => 0);
   for (let i = 0; i < out.length && free > 0; i++) { out[i]++; free--; }
   while (free > 0) { const i = w.map((x, j) => x / (out[j] + 1)).reduce((b, x, j, a) => x > a[b] ? j : b, 0); out[i]++; free--; }
@@ -655,7 +692,7 @@ function buildCircuitPlan(s: TripState, L: Circuit): Plan {
   const coordsOf = (ls: Leg[]): [number, number][] => [at(ls[0].a), ...ls.map(l => at(l.b))];
   // Each stretch split into driving days.
   const segsOf = (h: Hop) => {
-    const sp = splitDays(h.legs, W_OF(m)), bounds = [-1, ...sp.cuts, h.legs.length - 1];
+    const bounds = [-1, ...hopCuts(s, L, h, m).cuts, h.legs.length - 1];
     return bounds.slice(0, -1).map((b, i) => { const ls = h.legs.slice(b + 1, bounds[i + 1] + 1); return { ls, roads: [...new Set(ls.map(l => l.road))], from: nm(ls[0].a), to: nm(ls[ls.length - 1].b), end: ls[ls.length - 1].b }; });
   };
   type Seg = ReturnType<typeof segsOf>[number];
@@ -699,7 +736,7 @@ function buildCircuitPlan(s: TripState, L: Circuit): Plan {
       const arrives = gi === segs.length - 1;
       // Nights: at the next place when a stretch ends there, else in the town where the day's drive stops.
       const stay = arrives ? (last ? null : stayAt(null, h.to, s.tier, true)) : stayAt(g.end, s.corridor, s.tier, false);
-      days.push({ kind: x.kind, title: `${g.from} → ${g.to}`, meta: meta(r), stops: r.items, note: notes(g.roads), stay, depart: { at: depAt(x.day), rec: recAt.get(x.day) ?? rec, own: s.departAt?.[x.day] != null }, track: { legs: g.ls, coords: coordsOf(g.ls), marks: r.marks, dep: depAt(x.day), sunset: sun.set, sunrise: sun.rise } });
+      days.push({ kind: x.kind, title: `${g.from} → ${g.to}`, meta: meta(r), stops: r.items, note: notes(g.roads), stay, roadNight: roadNight(g.ls, last ? 'back' : 'out', breaksOf(s, last ? 'back' : 'out'), g.end), depart: { at: depAt(x.day), rec: recAt.get(x.day) ?? rec, own: s.departAt?.[x.day] != null }, track: { legs: g.ls, coords: coordsOf(g.ls), marks: r.marks, dep: depAt(x.day), sunset: sun.set, sunrise: sun.rise } });
     });
     if (last) return;
     const D = DST(h.to);

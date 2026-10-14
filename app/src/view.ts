@@ -553,6 +553,13 @@ export function buildView(s: AppState, api: Api) {
           departCtl: d.depart ? (() => { const dp = d.depart!, arrive = d.track ? d.track.dep + d.track.marks[d.track.marks.length - 1][1] : null;
             return { time: clock(dp.at), suggested: t('Suggested {time}', { time: clock(dp.rec) }), own: dp.own, earlier: () => setDepart(i, dp.at - 0.25), later: () => setDepart(i, dp.at + 0.25), reset: dp.own ? () => setDepart(i, null) : null,
               warn: arrive != null && d.track && arrive > d.track.sunset ? t('You arrive after sunset with this time. Leave by {time}.', { time: clock(dp.rec) }) : '' }; })() : null,
+          // A night in a town on the road (+1 day), offered on long drives; or the one chosen, to drive through again.
+          roadOffer: d.roadNight ? (() => {
+            const rn = d.roadNight!, key = (n: string) => `${rn.dir}:${n}`;
+            if (rn.chosen) return { text: t('Night in {place}, your stop on the road.', { place: d.stay?.town || rn.chosen }), chips: [{ label: t('Drive through (−1 day)'), apply: () => set({ breaks: s.breaks.filter(b => b !== key(rn.chosen!)), days: Math.max(2, s.days - 1), dayOpen: null, toast: t('No night on the road here.') }) }] };
+            if (!rn.options.length) return null;
+            return { text: t('Long drive? Break it with a night in (+1 day):'), chips: rn.options.map(o => ({ label: o.town, apply: () => set({ breaks: [...s.breaks, key(o.node)], days: Math.min(14, s.days + 1), dayOpen: null, toast: t('A night in {place} is in the plan.', { place: o.town }) }) })) };
+          })() : null,
           // A night at a nearby place instead of its long day trip (+1 day), or back to the day trip.
           stayOffer: d.side ? (d.side.sleeping
             ? { text: t('Night in {place}.', { place: DST(d.side.id).name }), cta: t('Make it a day trip from {place}', { place: DST(d.side.base).name }), apply: () => set({ sleepAt: s.sleepAt.filter(k => k !== d.side!.id), dayOpen: null, toast: t('{place} is a day trip from {base} again.', { place: DST(d.side!.id).name, base: DST(d.side!.base).name }) }) }

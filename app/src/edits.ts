@@ -8,7 +8,7 @@ import type { PlanEdits } from './state';
 import { t } from './i18n';
 
 /** Which plan a set of edits belongs to: same start, destination, length and way of travel. */
-export const planKey = (s: { origin: string | null; corridor: string; days: number; vehicle: string; extra?: string[]; overnight?: string | null; sleepAt?: string[] }) => `${s.origin}|${s.corridor}|${s.days}|${s.vehicle === 'air' ? 'air' : 'road'}${s.extra?.length ? '|' + s.extra.join(',') : ''}${s.overnight ? '|night:' + s.overnight : ''}${s.sleepAt?.length ? '|sleep:' + s.sleepAt.join(',') : ''}`;
+export const planKey = (s: { origin: string | null; corridor: string; days: number; vehicle: string; extra?: string[]; overnight?: string | null; sleepAt?: string[]; breaks?: string[] }) => `${s.origin}|${s.corridor}|${s.days}|${s.vehicle === 'air' ? 'air' : 'road'}${s.extra?.length ? '|' + s.extra.join(',') : ''}${s.overnight ? '|night:' + s.overnight : ''}${s.sleepAt?.length ? '|sleep:' + s.sleepAt.join(',') : ''}${s.breaks?.length ? '|road:' + s.breaks.join(',') : ''}`;
 export const dropKey = (day: number, label: string) => `${day}|${label}`;
 
 /** "6:30 am" → 6.5 */

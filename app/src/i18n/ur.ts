@@ -1432,4 +1432,8 @@ export const UR: Record<string, string> = {
   "Back at your hotel": "Hotel wapsi",
   "Long day: back about {time}. Leave earlier or drop a place.": "Lamba din: wapsi taqreeban {time}. Jaldi niklein ya koi jagah chhor dein.",
   "Back about {time}, after dark. Keep a torch and drive slowly.": "Wapsi taqreeban {time}, andhere ke baad. Torch saath rakhein aur aahista chalayein.",
+  "Night in {place}, your stop on the road.": "{place} mein raat, raste ka aap ka padao.",
+  "Drive through (−1 day)": "Seedha chalein (−1 din)",
+  "No night on the road here.": "Yahan raste mein raat nahi.",
+  "Long drive? Break it with a night in (+1 day):": "Lamba safar? Beech mein aik raat rukein (+1 din):",
 };

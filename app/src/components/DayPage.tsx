@@ -65,6 +65,15 @@ export function DayPage({ v }: { v: View }) {
         <div style={css('flex:1;min-width:0;font-size:13px;font-weight:700;line-height:1.4')}>{d.stayOffer.text}</div>
         <button onClick={d.stayOffer.apply} style={css('flex:none;height:38px;padding:0 12px;border-radius:12px;border:0;background:var(--ink);color:var(--bg);font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap')}>{d.stayOffer.cta}</button>
       </div>}
+      {d.roadOffer && <div style={css('margin-top:10px;padding:10px 12px;border-radius:16px;background:rgba(46,229,157,.1);border:1px solid rgba(46,229,157,.35)')}>
+        <div style={css('display:flex;align-items:center;gap:10px')}>
+          <i className="ph-fill ph-bed" style={css('font-size:20px;color:var(--g);flex:none')} />
+          <div style={css('flex:1;min-width:0;font-size:13px;font-weight:700;line-height:1.4')}>{d.roadOffer.text}</div>
+        </div>
+        <div style={css('display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;padding-left:30px')}>
+          {d.roadOffer.chips.map(c => <button key={c.label} onClick={c.apply} style={css('height:38px;padding:0 14px;border-radius:12px;border:0;background:var(--ink);color:var(--bg);font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap')}>{c.label}</button>)}
+        </div>
+      </div>}
       {d.destWx && <div style={css('display:flex;align-items:center;gap:6px;margin-top:6px;font-size:12px;font-weight:700;color:var(--ink2)')}><i className={`ph-duotone ${d.destWx.icon}`} style={css(`font-size:17px;color:${d.destWx.color}`)} />{d.destWx.typical ? t('Usually') + ' ' : ''}{d.destWx.hi}° / {d.destWx.lo}°{d.destWx.wet ? ` · ${d.destWx.wet}` : ''}</div>}
       {d.strip && d.strip.samples.length > 0 && (
         <div style={css('margin-top:10px')}>
