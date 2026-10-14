@@ -77,3 +77,15 @@ describe('comfort: fewer hotel changes', () => {
     expect(days.find(d => d.side && !d.side.sleeping)?.side?.id).toBe('khaplu');
   });
 });
+
+describe('a day trip on a free day', () => {
+  it('offers nearby places and turns a free day into the trip, same length', async () => {
+    const { dayTripOptions } = await import('../src/engine/engine');
+    expect(dayTripOptions('hunza', 7, ['hunza']).map(o => o.id)).toContain('nagar');
+    const s = { ...base, dest: 'naran', corridor: 'naran', days: 7 };
+    const before = buildPlan(s).days, after = buildPlan({ ...s, extra: ['shogran'], dayTrips: ['shogran'] }).days;
+    expect(after).toHaveLength(before.length);
+    expect(after.find(d => d.side && !d.side.sleeping)?.side?.id).toBe('shogran');
+    expect(after.filter(d => d.title.startsWith('Free day')).length).toBe(before.filter(d => d.title.startsWith('Free day')).length - 1);
+  });
+});

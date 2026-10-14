@@ -3,7 +3,7 @@
 import { HAVE_VEHICLE, EDGES, MODES, MON, MONTH_FULL, NODES, NODE_INFO, POPULAR, POP_DEST, SUGGEST_POOL, SUNRISE, SUNSET, TIERS, TIER_G, VEH, CAT, CAT2, GRADS, DESTS, STOP_KIND, type VehicleId } from './engine/data';
 import { FOOD } from './engine/food';
 import { foodTipsFor } from './foodtips';
-import { MAX_DRIVE_H, plannedJeeps, roomPlan, circuit, sideTrips, tripFrom, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
+import { MAX_DRIVE_H, plannedJeeps, roomPlan, circuit, sideTrips, dayTripOptions, tripFrom, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
 import { clock, dayLabel, dur, fmt, fmtN, isoAdd, isoOf, isoOff, kShort, mapsQ, mon } from './engine/format';
 import { LIVE, fxRate, placesKey, routeKey, type Spot } from './engine/live';
 import { sunTimes } from './engine/sun';
@@ -571,7 +571,14 @@ export function buildView(s: AppState, api: Api) {
             return { time: clock(dp.at), suggested: t('Suggested {time}', { time: clock(dp.rec) }), own: dp.own, earlier: () => setDepart(i, dp.at - 0.25), later: () => setDepart(i, dp.at + 0.25), reset: dp.own ? () => setDepart(i, null) : null,
               warn: arrive != null && d.track && arrive > d.track.sunset ? t('You arrive after sunset with this time. Leave by {time}.', { time: clock(dp.rec) }) : '' }; })() : null,
           // A night in a town on the road (+1 day), offered on long drives; or the one chosen, to drive through again.
-          roadOffer: d.roadNight ? (() => {
+          roadOffer: d.kind === 'explore' && !d.timing && d.dest ? (() => {
+            // A free day: a day trip to a place nearby, back to the same hotel at night.
+            const opts = dayTripOptions(d.dest!, M, [s.corridor, ...(s.extra || [])]);
+            return opts.length ? { icon: 'ph-car-profile', text: t('Free day. Take a day trip, back here for the night:'), chips: opts.map(o => ({ label: t('{place} · {time}', { place: o.name, time: dur(o.hours) }),
+              apply: () => set({ extra: [...(s.extra || []), o.id].slice(-3), dayTrips: [...s.dayTrips, o.id], dayOpen: null, toast: t('A day trip to {place} is in the plan.', { place: o.name }) }) })) } : null;
+          })() : d.side && !d.side.sleeping && s.dayTrips.includes(d.side.id) ? { icon: 'ph-car-profile', text: t('Day trip you added.'), chips: [{ label: t('Remove day trip'),
+            apply: () => set({ extra: (s.extra || []).filter(k => k !== d.side!.id), dayTrips: s.dayTrips.filter(k => k !== d.side!.id), dayOpen: null, toast: t('Day trip removed. That day is free again.') }) }] }
+          : d.roadNight ? (() => {
             const rn = d.roadNight!, key = (n: string) => `${rn.dir}:${n}`;
             if (rn.chosen) return { text: t('Night in {place}, your stop on the road.', { place: d.stay?.town || rn.chosen }), chips: [{ label: t('Drive through (−1 day)'), apply: () => set({ breaks: s.breaks.filter(b => b !== key(rn.chosen!)), days: Math.max(2, s.days - 1), dayOpen: null, toast: t('No night on the road here.') }) }] };
             if (!rn.options.length) return null;

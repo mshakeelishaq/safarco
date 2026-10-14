@@ -67,7 +67,7 @@ export function DayPage({ v }: { v: View }) {
       </div>}
       {d.roadOffer && <div style={css('margin-top:10px;padding:10px 12px;border-radius:16px;background:rgba(46,229,157,.1);border:1px solid rgba(46,229,157,.35)')}>
         <div style={css('display:flex;align-items:center;gap:10px')}>
-          <i className="ph-fill ph-bed" style={css('font-size:20px;color:var(--g);flex:none')} />
+          <i className={`ph-fill ${'icon' in d.roadOffer && d.roadOffer.icon ? d.roadOffer.icon : 'ph-bed'}`} style={css('font-size:20px;color:var(--g);flex:none')} />
           <div style={css('flex:1;min-width:0;font-size:13px;font-weight:700;line-height:1.4')}>{d.roadOffer.text}</div>
         </div>
         <div style={css('display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;padding-left:30px')}>

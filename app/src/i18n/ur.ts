@@ -1961,4 +1961,10 @@ export const UR: Record<string, string> = {
   "Desert home cooking": "Registan ka ghar ka khana",
   "Free afternoon": "Farigh dopahar",
   "Rest, walk the bazaar, or add a place from the list below": "Aaram karein, bazaar ghoomein, ya neeche di gayi list se koi jagah shamil karein",
+  "Free day. Take a day trip, back here for the night:": "Farigh din. Din ka safar karein, raat ko yahin wapsi:",
+  "{place} · {time}": "{place} · {time}",
+  "A day trip to {place} is in the plan.": "{place} ka din ka safar plan mein shamil hai.",
+  "Day trip you added.": "Aap ka shamil kiya hua din ka safar.",
+  "Remove day trip": "Din ka safar hatayein",
+  "Day trip removed. That day is free again.": "Din ka safar hata diya. Woh din phir farigh hai.",
 };

@@ -1,7 +1,7 @@
 // Trip engine: road routing, day-by-day plan, costs, season notes and suggestions.
 // Ported from the SafarCo App v7 design; all figures are estimates.
 import {
-  AIRPORTS, CONFIGS, EDGES, EDGE_STOPS, FARES, MONTH_FULL, MTN_NODES, NODES, NODE_INFO, P as PR, PLACE_INFO, ROAD_NOTE, SLOTS, STOP_DUR, STOP_HOTELS,
+  AIRPORTS, CONFIGS, DESTS, EDGES, EDGE_STOPS, FARES, MONTH_FULL, MTN_NODES, NODES, NODE_INFO, P as PR, PLACE_INFO, ROAD_NOTE, SLOTS, STOP_DUR, STOP_HOTELS,
   SUGGEST_POOL, SUNRISE, SUNSET, TIERS, VEH, OWN_CONFIGS, type Have, type Edge, type EdgeStop, type Hotel, type Jeep, type Mode, type Place, type StopKind, type TierId, type TripConfig, type VehicleId
 } from './data';
 import { clock, dayLabel, dur, fmt, fmtN, hav, inM, isoOff, mapsQ, mon } from './format';
@@ -35,6 +35,8 @@ export interface TripState {
   breaks?: string[];
   /** Fewer hotel changes: places up to 3 h from a base are seen on day trips from it. */
   comfort?: boolean;
+  /** Places the traveller chose to see on a day trip from where they're staying (on a free day), whatever the distance. */
+  dayTrips?: string[];
 }
 
 /** Trip styles to compare: the traveller's own vehicle only, or every style SafarCo knows. */
@@ -650,17 +652,25 @@ function hopOf(legs: Leg[], to: string, m: number): Hop {
 }
 
 /** Places on the trip within 1½ hours' drive of another one: by default seen on a day trip from it. */
-const SIDE_H = 1.5, COMFORT_H = 3;
+const SIDE_H = 1.5, COMFORT_H = 3, DAYTRIP_H = 3.5;
+
+/** Day trips to offer on a free day at `base`: other places within about 3 h, good this month and not on the trip yet, nearest first. */
+export function dayTripOptions(base: string, m: number, skip: string[]): { id: string; name: string; hours: number }[] {
+  const B = DST(base);
+  return DESTS.filter(d => d.id !== base && !skip.includes(d.id) && DST(d.id).hub === undefined && inM(m, d.best) && hav(B.lat, B.lon, d.lat, d.lon) < 110)
+    .map(d => ({ id: d.id, name: d.name, hours: tripFrom(d.id, pointOf(base), m).hours }))
+    .filter(x => x.hours <= 3).sort((a, b) => a.hours - b.hours).slice(0, 3);
+}
 const SIDES: Record<string, Record<string, string[]>> = {};
 export function sideTrips(s: TripState): Record<string, string[]> {
   const extra = (s.extra || []).filter((k, i, a) => k && k !== s.corridor && a.indexOf(k) === i).slice(0, 3), m = mon(s);
-  const ck = `${s.corridor}|${extra.join(',')}|${(s.sleepAt || []).join(',')}|${m}|${s.comfort ? 'c' : ''}`; if (ck in SIDES) return SIDES[ck];
+  const ck = `${s.corridor}|${extra.join(',')}|${(s.sleepAt || []).join(',')}|${m}|${s.comfort ? 'c' : ''}|${(s.dayTrips || []).join(',')}`; if (ck in SIDES) return SIDES[ck];
   const out: Record<string, string[]> = {}, bases = [s.corridor, ...extra];
   extra.forEach(k => {
     // Places reached by jeep and a hike (Fairy Meadows) are never a day trip: people stay the night.
     if ((s.sleepAt || []).includes(k) || DST(k).hub !== undefined) return;
     const near = bases.filter(b => b !== k && !Object.values(out).flat().includes(b)).map(b => ({ b, h: tripFrom(k, pointOf(b), m).hours })).sort((a, b) => a.h - b.h)[0];
-    if (near && near.h <= (s.comfort ? COMFORT_H : SIDE_H)) (out[near.b] = out[near.b] || []).push(k);
+    if (near && near.h <= ((s.dayTrips || []).includes(k) ? DAYTRIP_H : s.comfort ? COMFORT_H : SIDE_H)) (out[near.b] = out[near.b] || []).push(k);
   });
   return (SIDES[ck] = out);
 }
