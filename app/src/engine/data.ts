@@ -260,7 +260,7 @@ export const BASE_DESTS: DestInput[] = [
     eat: 'Karahi and barbecue at Melody food street' },
   { id: 'karachi', name: 'Karachi', town: 'Karachi', region: 'Sindh', lat: 24.86, lon: 67.01, ft: 30, node: 'KHI', icon: 'ph-buildings', air: 'Karachi', best: R(11, 2), warn: [R(5, 8), 'Hot and humid.'],
     hotels: [['Pearl Continental Karachi', 'Premium', 'Club Road']],
-    places: [['Mazar-e-Quaid', 'Central', 'Jinnah’s mausoleum'], ['Frere Hall', 'Saddar', 'Colonial hall and gardens'], ['Mohatta Palace', 'Clifton', 'Museum in a stone palace'], ['Clifton Beach & Sea View', 'Clifton', 'Sunset by the sea'], ['Burns Road food street', 'Saddar', 'Nihari, rabri and bun kebab'], ['Gadani beach', 'Off the RCD highway past Hub', 'Long beach by the ship-breaking yards (the yards need permission)'], ['Sonmiani beach & Miani Hor', 'Past Hub · permit', 'Lagoon with mangroves and flamingos. Military area: book or get a permit first']],
+    places: [['Mazar-e-Quaid', 'Central', 'Jinnah’s mausoleum'], ['Frere Hall', 'Saddar', 'Colonial hall and gardens'], ['Mohatta Palace', 'Clifton', 'Museum in a stone palace'], ['Clifton Beach & Sea View', 'Clifton', 'Sunset by the sea'], ['Burns Road food street', 'Saddar', 'Nihari, rabri and bun kebab'], ['Gadani beach', 'Paved road past Hub, fine by car', 'Long beach by the ship-breaking yards (the yards need permission)'], ['Sonmiani beach & Miani Hor', 'Past Hub · permit', 'Lagoon with mangroves and flamingos. Military area: book or get a permit first']],
     eat: 'Burns Road nihari and Boat Basin barbecue' }];
 export const CITY_AIR: Record<string, string> = { Karachi: 'Karachi', Lahore: 'Lahore', Islamabad: 'Islamabad', Rawalpindi: 'Islamabad', Quetta: 'Quetta', Peshawar: 'Peshawar', Multan: 'Multan', Gilgit: 'Gilgit', Skardu: 'Skardu', Chitral: 'Chitral', Gwadar: 'Gwadar' };
 export const PROV_FT: Record<string, number> = { 'Gilgit-Baltistan': 7000, 'Azad Kashmir': 3500, 'Khyber Pakhtunkhwa': 2500, Balochistan: 2000, Punjab: 650, Sindh: 100, Capital: 1770 };
@@ -285,12 +285,12 @@ const OWN_INFO: Record<string, PlaceInfo> = {
   'hyderabad|Shahi Bazaar': { lat: 25.3882, lon: 68.3726, visit: 60, access: "walk", tod: "afternoon", months: [11, 12, 1, 2], checked: true },
   // Owner: Buzi Pass is on the climb west of Kund Malir.
   'kundmalir|Buzi Pass': { lat: 25.4442, lon: 65.2475, visit: 15, access: 'car', checked: true },
-  // Makran coast list from the owner (approximate pins, not checked yet).
-  'kundmalir|Sapat beach (Buji Koh)': { lat: 25.46, lon: 65.93, km: 60, min: 120, visit: 90, access: '4x4', checked: false },
+  // Makran coast from the owner: verified pins for Sapat, West Bay, Gadani and Sonmiani; the mud volcanoes' pin is approximate.
+  'kundmalir|Sapat beach (Buji Koh)': { lat: 25.384, lon: 65.7267, km: 40, min: 90, visit: 90, access: '4x4', checked: true },
   'kundmalir|Hingol mud volcanoes': { lat: 25.4454, lon: 65.8654, km: 55, min: 100, visit: 60, access: '4x4', checked: false },
-  'gwadar|West Bay (Paddi Zir)': { lat: 25.16, lon: 62.29, visit: 60, tod: 'sunset', checked: false },
-  'karachi|Gadani beach': { lat: 25.04, lon: 66.73, visit: 90, access: 'car', checked: false },
-  'karachi|Sonmiani beach & Miani Hor': { lat: 25.19, lon: 66.58, visit: 120, access: 'car', checked: false },
+  'gwadar|West Bay (Paddi Zir)': { lat: 25.1225, lon: 62.3203, visit: 60, tod: 'sunset', checked: true },
+  'karachi|Gadani beach': { lat: 25.1187, lon: 66.7267, visit: 90, access: 'car', checked: true },
+  'karachi|Sonmiani beach & Miani Hor': { lat: 25.4222, lon: 66.6, visit: 120, access: 'car', checked: true },
   'skardu|Blind Lake': { lat: 35.4216, lon: 75.6414, km: 45, min: 100, visit: 60, access: 'car', checked: true },
   'shigar|Blind Lake (Zharba Tso)': { lat: 35.4216, lon: 75.6414, km: 19, min: 50, visit: 60, access: 'car', checked: true }
 };

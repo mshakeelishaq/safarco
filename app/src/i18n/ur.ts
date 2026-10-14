@@ -1985,4 +1985,6 @@ export const UR: Record<string, string> = {
   "Fuel and food in Pasni town, a short exit off the highway. Juddi beach has dunes; boats to Astola Island (3 h each way, camping only) must be booked ahead": "Pasni shehar mein petrol aur khana, highway se thora sa hat kar. Juddi beach par ret ke teelay hain; Astola Island ki kashti (har taraf 3 h, sirf camping) pehle book karein",
   "55 km · 1 h 40 min": "55 km · 1 h 40 min",
   "60 km · 2 h": "60 km · 2 h",
+  "Paved road past Hub, fine by car": "Hub ke baad pakki sarak, car ke liye theek",
+  "40 km · 1 h 30 min": "40 km · 1 h 30 min",
 };
