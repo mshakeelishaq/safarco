@@ -1,6 +1,6 @@
 // Everything the screens display, derived from app state. Ported from the
 // design's renderVals(); the screens in components/ read from this.
-import { HAVE_VEHICLE, EDGES, MODES, MON, MONTH_FULL, NODES, NODE_INFO, POPULAR, POP_DEST, SUGGEST_POOL, SUNRISE, SUNSET, TIERS, TIER_G, VEH, CAT, CAT2, GRADS, DESTS, STOP_KIND, type VehicleId } from './engine/data';
+import { SECURITY, HAVE_VEHICLE, EDGES, MODES, MON, MONTH_FULL, NODES, NODE_INFO, POPULAR, POP_DEST, SUGGEST_POOL, SUNRISE, SUNSET, TIERS, TIER_G, VEH, CAT, CAT2, GRADS, DESTS, STOP_KIND, type VehicleId } from './engine/data';
 import { FOOD } from './engine/food';
 import { canPrompt, dismissInstall, isIOS, isInstalled, promptInstall, wasDismissed } from './install';
 import { foodTipsFor } from './foodtips';
@@ -48,6 +48,8 @@ export function buildView(s: AppState, api: Api) {
   const { set } = api;
   // From abroad, the trip starts at the airport that suits the destination (until the traveller picks one).
   if (s.abroad && s.airAuto) s = { ...s, origin: bestAirport(s.corridor, mon(s)) };
+  /** Places with a security advisory: still offered, after the others, and always marked. */
+  const risky = (id: string) => SECURITY.dests.includes(id);
   const M = mon(s), c0 = trip(s.corridor, s.origin, M), nights = Math.max(1, s.days - 1), sug = suggestions(s);
   // A circuit (more than one place) goes round once: its totals replace the one-place "each way" figures.
   const L = circuit(s), stopNames = L ? L.order.map(k => DST(k).name) : [];
@@ -153,7 +155,7 @@ export function buildView(s: AppState, api: Api) {
     return ids.slice(0, 30).map(id => {
       const D = DST(id), tr = trip(id, o, M), on = s.dest === id;
       const fitTxt = s.have === 'car' || s.have === 'bike' ? roadFit(HAVE_VEHICLE[s.have], id, o, M)?.text || '' : '';
-      return { key: id, name: D.name, fit: fitTxt, sub: (D.ft != null && !D.generic ? t('{region} · {ft} ft', { region: D.region, ft: fmtN(D.ft) }) : D.region) + (D.checked === false ? ' · ' + t('not checked yet') : ''), meta: t('{km} km · {h} h', { km: tr.kmStr, h: Math.round(tr.hours) }), icon: D.icon, onClick: () => set({ dest: id, corridor: id, pickId: null, ...(id !== s.corridor ? { extra: [] } : {}) }),
+      return { key: id, name: D.name, fit: fitTxt, risk: SECURITY.dests.includes(id) ? t(SECURITY.short) : '', sub: (D.ft != null && !D.generic ? t('{region} · {ft} ft', { region: D.region, ft: fmtN(D.ft) }) : D.region) + (D.checked === false ? ' · ' + t('not checked yet') : ''), meta: t('{km} km · {h} h', { km: tr.kmStr, h: Math.round(tr.hours) }), icon: D.icon, onClick: () => set({ dest: id, corridor: id, pickId: null, ...(id !== s.corridor ? { extra: [] } : {}) }),
         bg: on ? 'rgba(255,181,71,.12)' : 'transparent', border: on ? 'rgba(255,181,71,.5)' : 'transparent', iconC: on ? 'var(--amb)' : 'var(--mute)', checkOp: on ? 1 : 0 };
     });
   })();
@@ -200,17 +202,17 @@ export function buildView(s: AppState, api: Api) {
   };
   const guide = {
     initial: seasonOf(M).id,
-    seasons: SEASONS.map(se => ({ ...se, label: t(se.label), blurb: t(se.blurb), picks: seasonPicks(se.id).filter(p => DST(p.id).name !== s.origin).sort((a, b) => +!!a.h.caution - +!!b.h.caution || kmFrom(a.id) - kmFrom(b.id))
-      .map(p => ({ key: p.id + se.id, name: p.name, region: p.region, text: t(p.h.text), ...iconFor(p.h), when: monthsLabel(p.h.months), caution: p.h.caution ? t(p.h.caution) : '', note: note(p.id), km: t('{km} km', { km: fmtN(kmFrom(p.id)) }), onPick: () => goTo(p.id, p.h.months) })) })),
+    seasons: SEASONS.map(se => ({ ...se, label: t(se.label), blurb: t(se.blurb), picks: seasonPicks(se.id).filter(p => DST(p.id).name !== s.origin).sort((a, b) => +risky(a.id) - +risky(b.id) || +!!a.h.caution - +!!b.h.caution || kmFrom(a.id) - kmFrom(b.id))
+      .map(p => ({ key: p.id + se.id, name: p.name, region: p.region, text: t(p.h.text), ...iconFor(p.h), when: monthsLabel(p.h.months), caution: [p.h.caution ? t(p.h.caution) : '', risky(p.id) ? t(SECURITY.short) : ''].filter(Boolean).join(' · '), note: note(p.id), km: t('{km} km', { km: fmtN(kmFrom(p.id)) }), onPick: () => goTo(p.id, p.h.months) })) })),
     open: () => set({ guide: true, sheet: 'none', settings: false }), close: () => set({ guide: false })
   };
   /** A suggestion card: the place's guide photo once loaded (else ours for the season), what's special, when, how far. */
   const pickCard = (id: string, h: { text: string; months: number[]; caution?: string }) => {
     const w = LIVE.wiki[id], img = w && w.status === 'ok' && w.data?.image;
-    return { photo: ownPhoto(id) || img || cardPhoto(id, h.months.includes(M) ? M : h.months[0]), text: t(h.text), when: monthsLabel(h.months), km: s.origin ? t('{km} km', { km: fmtN(kmFrom(id)) }) : '' };
+    return { photo: ownPhoto(id) || img || cardPhoto(id, h.months.includes(M) ? M : h.months[0]), text: t(h.text), when: monthsLabel(h.months), km: s.origin ? t('{km} km', { km: fmtN(kmFrom(id)) }) : '', risk: risky(id) ? t('Security risk area') : '' };
   };
   const bestNow = { month: MONTH_FULL[M - 1], picks: DESTS.filter(d => DST(d.id).name !== s.origin).flatMap(d => { const h = highlightIn(d.id, M); return h ? [{ id: d.id, name: d.name, h }] : []; })
-    .sort((a, b) => +!!a.h.caution - +!!b.h.caution || kmFrom(a.id) - kmFrom(b.id)).slice(0, 10)
+    .sort((a, b) => +risky(a.id) - +risky(b.id) || +!!a.h.caution - +!!b.h.caution || kmFrom(a.id) - kmFrom(b.id)).slice(0, 10)
     .map(p => ({ key: p.id, name: p.name, ...iconFor(p.h), ...pickCard(p.id, p.h), caution: !!p.h.caution, on: s.dest === p.id && s.mode === 'know', onClick: () => set({ mode: 'know', dest: p.id, corridor: p.id, pickId: null }) })) };
   const tripSeason = (() => {
     const Dd = DST(s.corridor); if (Dd.generic) return null;
@@ -309,6 +311,8 @@ export function buildView(s: AppState, api: Api) {
   // Jeep tracks (Deosai, Basho…): locals know them, so hire a jeep even with your own 4x4.
   const jeepTrips = s.vehicle === 'air' ? [] : plannedJeeps(s, c0, M);
   const jeepNote = jeepTrips.length ? [{ icon: 'ph-jeep', color: 'var(--amb)', text: t('{places}: hire a local jeep and driver, even with your own 4x4, unless you know these roads and have driven them before.', { places: jeepTrips.map(j => t(j[1])).join(', ') }) }] : [];
+  // The trip goes to or through an area with a security advisory (the Makran coast).
+  const securityOn = [s.corridor, ...(s.extra || [])].some(k => SECURITY.dests.includes(k)) || c.legs.some(l => SECURITY.nodes.includes(l.a) || SECURITY.nodes.includes(l.b));
   const alertNotes = activeAlerts().filter(a => !a.areas?.length || onTrip(a.areas, tripLine, tripStops)).map(a => ({ icon: 'ph-megaphone', color: 'var(--cor)', text: a.date ? t('{alert} (posted {date})', { alert: `${a.title}${a.message ? `: ${a.message}` : ''}`, date: dayLabel(a.date, 0) }) : `${a.title}${a.message ? `: ${a.message}` : ''}` }));
 
   // "What do you want to see?": the first question, then a check that the dates and place fit the wish.
@@ -371,7 +375,7 @@ export function buildView(s: AppState, api: Api) {
       return best ? [{ ...best, roomy: roomy(best), known: DST(k).checked !== false, hours: trip(k, from(k), M).hours }] : []; });
     // Near and easy first for an escape, a slow trip or family time; otherwise SafarCo's favourites, then the best value.
     const fav = (k: string) => { const i = ids.indexOf(k); return i < 0 ? 99 : i; };
-    return opts.sort((a, b) => +b.known - +a.known || +b.roomy - +a.roomy || (near ? a.hours - b.hours : fav(a.corridor) - fav(b.corridor)) || a.total - b.total)[0] || null;
+    return opts.sort((a, b) => +risky(a.corridor) - +risky(b.corridor) || +b.known - +a.known || +b.roomy - +a.roomy || (near ? a.hours - b.hours : fav(a.corridor) - fav(b.corridor)) || a.total - b.total)[0] || null;
   };
   const wishPicks = W ? { label: t('Best for {wish}', { wish: lowerEn(t(W.label)) }), picks: wishPlaces(W.id).filter(p => (s.abroad || DST(p.id).name !== s.origin)).slice(0, 10)
     .map(p => ({ key: p.id, name: p.name, icon: W.icon, color: W.color, ...pickCard(p.id, p.h), caution: !!p.h.caution, on: s.dest === p.id && s.mode === 'know', onClick: () => set({ mode: 'know', dest: p.id, corridor: p.id, pickId: null }) })) } : null;
@@ -549,7 +553,7 @@ export function buildView(s: AppState, api: Api) {
       if (lv && !lv.ignored) return [{ icon: 'ph-check-circle', color: 'var(--g)', text: t('Distance checked with OpenRouteService: {km} km. Drive times use mountain and town speeds, so they are longer than map apps show.', { km: fmtN(r.data.km) }) }];
       return [{ icon: 'ph-warning', color: 'var(--cor)', text: t('OpenRouteService’s fastest road is {km} km; this plan is {planKm} km. It may use a road closed in {month}. Check before you leave.', { km: fmtN(r.data.km), planKm: c.kmStr, month: MON[M - 1] }) }];
     })(),
-    seasonNotes: [...alertNotes, ...seasonInfo(s, s.corridor), ...jeepNote],
+    seasonNotes: [...alertNotes, ...(securityOn ? [{ icon: 'ph-shield-warning', color: 'var(--cor)', text: t(SECURITY.text) }] : []), ...seasonInfo(s, s.corridor), ...jeepNote],
     dayHint: (() => {
       const o = s.origin || 'Islamabad', okS = { tile: 'linear-gradient(135deg,#2EE59D,#0FA678)', bg: 'rgba(46,229,157,.1)', border: 'rgba(46,229,157,.3)' }, badS = { tile: 'linear-gradient(135deg,#FF8A6B,#FF4F7B)', bg: 'rgba(255,107,91,.12)', border: 'rgba(255,107,91,.4)' };
       if (s.mode === 'know' && L) {

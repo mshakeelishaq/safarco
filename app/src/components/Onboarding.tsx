@@ -153,7 +153,7 @@ export function Onboarding({ v, api }: { v: View; api: Api }) {
                 {v.destRows.map(r => (
                   <button key={r.key} onClick={r.onClick} className="hov-fill" aria-pressed={r.checkOp === 1} style={css(`display:flex;align-items:center;gap:12px;min-height:56px;padding:6px 12px;border-radius:16px;border:1px solid ${r.border};background:${r.bg};color:var(--ink);text-align:left;cursor:pointer;transition:all .2s`)}>
                     <i className={`ph-fill ${r.icon}`} style={css(`font-size:20px;color:${r.iconC};flex:none`)} />
-                    <span style={css('flex:1;min-width:0;display:flex;flex-direction:column')}><span style={css('font-size:15px;font-weight:700')}>{r.name}</span><span style={css('font-size:12px;font-weight:600;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis')}>{r.sub}</span>{r.fit && <span style={css('font-size:11px;font-weight:700;color:var(--amb2);display:flex;align-items:center;gap:4px;margin-top:1px')}><i className="ph-fill ph-jeep" />{r.fit}</span>}</span>
+                    <span style={css('flex:1;min-width:0;display:flex;flex-direction:column')}><span style={css('font-size:15px;font-weight:700')}>{r.name}</span><span style={css('font-size:12px;font-weight:600;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis')}>{r.sub}</span>{r.fit && <span style={css('font-size:11px;font-weight:700;color:var(--amb2);display:flex;align-items:center;gap:4px;margin-top:1px')}><i className="ph-fill ph-jeep" />{r.fit}</span>}{r.risk && <span style={css('font-size:11px;font-weight:700;color:var(--cor);display:flex;align-items:center;gap:4px;margin-top:1px')}><i className="ph-fill ph-shield-warning" />{r.risk}</span>}</span>
                     <span style={css('flex:none;font-size:12px;font-weight:700;color:var(--ink2);font-variant-numeric:tabular-nums;white-space:nowrap')}>{r.meta}</span>
                     <i className="ph-bold ph-check" style={css(`font-size:16px;color:var(--amb);opacity:${r.checkOp};flex:none`)} />
                   </button>
@@ -345,7 +345,7 @@ export const TripPlaces = ({ v }: { v: View }) => {
   );
 };
 
-type Pick = { key: string; name: string; icon: string; color: string; photo: string; text: string; when: string; km: string; caution: boolean; on: boolean; onClick: () => void };
+type Pick = { key: string; name: string; icon: string; color: string; photo: string; text: string; when: string; km: string; risk: string; caution: boolean; on: boolean; onClick: () => void };
 /** Suggested places as cards: photo, what's special, best months and distance. Tap to choose. */
 function PickCards({ picks }: { picks: Pick[] }) {
   return <>{picks.map(p => (
@@ -359,8 +359,8 @@ function PickCards({ picks }: { picks: Pick[] }) {
       <div style={css('flex:1;display:flex;flex-direction:column;gap:6px;padding:8px 10px 10px')}>
         <div style={css('display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:12px;font-weight:600;line-height:1.35;color:var(--ink2);min-height:32px')}>{p.text}</div>
         <div style={css('display:flex;align-items:center;gap:5px;margin-top:auto;font-size:11px;font-weight:800;color:var(--mute)')}>
-          <i className={`ph-fill ${p.caution ? 'ph-warning' : p.icon}`} style={css(`font-size:13px;color:${p.caution ? 'var(--amb2)' : p.color}`)} />
-          <span style={css('white-space:nowrap;overflow:hidden;text-overflow:ellipsis')}>{[p.when, p.km].filter(Boolean).join(' · ')}</span>
+          <i className={`ph-fill ${p.risk ? 'ph-shield-warning' : p.caution ? 'ph-warning' : p.icon}`} style={css(`font-size:13px;color:${p.risk ? 'var(--cor)' : p.caution ? 'var(--amb2)' : p.color}`)} />
+          <span style={css(`white-space:nowrap;overflow:hidden;text-overflow:ellipsis${p.risk ? ';color:var(--cor)' : ''}`)}>{p.risk || [p.when, p.km].filter(Boolean).join(' · ')}</span>
         </div>
       </div>
     </button>

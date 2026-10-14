@@ -6,6 +6,7 @@ import { IG_HANDLE, IG_PROFILE } from '../contact';
 import { css } from '../lib/css';
 import { t } from '../i18n';
 import { WISHES, wishPlaces, type WishId } from '../engine/seasons';
+import { SECURITY } from '../engine/data';
 
 export const WELCOMED = 'safarco-welcomed';
 export const seenWelcome = () => { try { return localStorage.getItem(WELCOMED) === '1'; } catch { return true; } };
@@ -52,7 +53,7 @@ export function Welcome({ open, onStart, onQuick, onGuide, onWish, lang, onLang 
   if (!open) return null;
 
   const best = WISHES.find(w => w.months.includes(month)) || null;
-  const bestPlaces = best ? wishPlaces(best.id).filter(p => !p.h.caution).slice(0, 3).map(p => p.name).join(' · ') : '';
+  const bestPlaces = best ? wishPlaces(best.id).filter(p => !p.h.caution && !SECURITY.dests.includes(p.id)).slice(0, 3).map(p => p.name).join(' · ') : '';
   const p = list[i];
   return (
     <div role="dialog" aria-modal="true" aria-label={t('Welcome to SafarCo')} style={css('position:absolute;inset:0;z-index:40;overflow:hidden;background:#08303F;color:#fff')}>

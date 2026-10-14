@@ -27,3 +27,14 @@ describe('flying in from abroad', () => {
     expect(configsFor({ have: 'any', groupSize: 2, abroad: true }).some(cf => cf.vehicle === 'sedan' || cf.vehicle === 'suv')).toBe(false);
   });
 });
+
+describe('security advisory', () => {
+  it('marks the Makran coast and its road', async () => {
+    const { SECURITY, ROAD_NOTE } = await import('../src/engine/data');
+    const { UR } = await import('../src/i18n/ur');
+    expect(SECURITY.dests).toEqual(expect.arrayContaining(['kundmalir', 'gwadar']));
+    for (const x of [SECURITY.text, SECURITY.short, ROAD_NOTE['Makran Coastal Hwy']]) expect(UR[x]).toBeTruthy();
+    const p = buildPlan({ origin: 'Karachi', mode: 'know', dest: 'gwadar', corridor: 'gwadar', startDate: '2027-01-10', days: 5, depart: null, vehicle: 'sedan', tier: 'standard', adults: 2, kids: 0, elders: 0, groupSize: 2, rooms: 'separate', cap: 300000 });
+    expect(p.days[0].note).toContain('Security risk area');
+  });
+});

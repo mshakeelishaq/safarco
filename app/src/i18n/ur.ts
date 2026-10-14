@@ -2084,4 +2084,8 @@ export const UR: Record<string, string> = {
   "Hired 4x4": "Kiraye ki 4x4",
   "Not included": "Shamil nahin",
   "Book it yourself: fares from abroad change too often to guess": "Khud book karein: bairoon-e-mulk se kiraye itni baar badalte hain ke andaza mushkil hai",
+  "Security risk area": "Security ke lihaz se hassas ilaqa",
+  "Security risk area: check before you go": "Security ke lihaz se hassas ilaqa: jaane se pehle maloom kar lein",
+  "Security advisory: the Makran Coastal Highway and the Balochistan coast are a sensitive area because of the current law and order situation. Check the latest news and ask local police or Levies before you go, drive in daylight only, keep your CNIC with you and stop at every checkpost. Visitors from abroad may need an NOC.": "Security ki ehtiyat: maujooda law and order ki soorat-e-haal ki wajah se Makran Coastal Highway aur Balochistan ka sahil hassas ilaqa hai. Jaane se pehle taaza khabrein dekhein aur maqami police ya Levies se poochh lein, sirf din ki roshni mein safar karein, apna CNIC saath rakhein aur har checkpost par rukein. Bairoon-e-mulk se aane walon ko NOC ki zaroorat ho sakti hai.",
+  "Security risk area: drive in daylight only, keep your CNIC with you and stop at every checkpost.": "Security ke lihaz se hassas ilaqa: sirf din ki roshni mein safar karein, apna CNIC saath rakhein aur har checkpost par rukein.",
 };
