@@ -1998,4 +1998,10 @@ export const UR: Record<string, string> = {
   "Prices: {checked}. Confirm with the operator before you book.": "Qeematen: {checked}. Booking se pehle operator se tasdeeq karein.",
   "Long day · {h} h": "Lamba din · {h} h",
   "Open the route in Google Maps": "Raasta Google Maps mein kholein",
+  "Plan it for me · 2 questions": "Mere liye plan banayein · 2 sawal",
+  "Your city, and how many days?": "Aap ka shehar, aur kitne din?",
+  "SafarCo picks the best place and way to go for your wish, and makes the plan. You can change anything after.": "SafarCo aap ki khwahish ke liye behtareen jagah aur safar ka tareeqa chunta hai aur plan bana deta hai. Baad mein sab kuch badal sakte hain.",
+  "Make my plan": "Mera plan banayein",
+  "How many days?": "Kitne din?",
+  "Your city": "Aap ka shehar",
 };

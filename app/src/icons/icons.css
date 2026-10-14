@@ -234,6 +234,9 @@
 .ph-fill.ph-lock-simple:before {
   content: "\e308";
 }
+.ph-fill.ph-magic-wand:before {
+  content: "\e6b6";
+}
 .ph-fill.ph-magnifying-glass:before {
   content: "\e30c";
 }
@@ -639,6 +642,9 @@
 }
 .ph-bold.ph-lock-simple:before {
   content: "\e308";
+}
+.ph-bold.ph-magic-wand:before {
+  content: "\e6b6";
 }
 .ph-bold.ph-magnifying-glass:before {
   content: "\e30c";
@@ -1384,6 +1390,14 @@
 }
 .ph-duotone.ph-lock-simple:after {
   content: "\e309";
+  margin-left: -1em;
+}
+.ph-duotone.ph-magic-wand:before {
+  content: "\e6b6";
+  opacity: 0.2;
+}
+.ph-duotone.ph-magic-wand:after {
+  content: "\e6b7";
   margin-left: -1em;
 }
 .ph-duotone.ph-magnifying-glass:before {

@@ -419,9 +419,9 @@ export function buildView(s: AppState, api: Api) {
       : t('Prices: {checked}. Confirm with the operator before you book.', { checked: checkedText(s.vehicle === 'public' ? 'coach' : 'hire') }),
     fxNote: fx.live ? (fx.updated ? t('US$ at 1 USD = PKR {rate} ({updated})', { rate: fx.pkrPerUsd.toFixed(2), updated: fx.updated }) : t('US$ at 1 USD = PKR {rate}', { rate: fx.pkrPerUsd.toFixed(2) })) : t('US$ at about PKR {rate} (live rate unavailable)', { rate: fx.pkrPerUsd }),
     wiki: { loading: !wikiE || wikiE.status === 'loading', info: wikiE && wikiE.status === 'ok' ? wikiE.data : null },
-    stepLabel: `${s.step + 1} / 7`,
-    stepBars: [0, 1, 2, 3, 4, 5, 6].map(i => ({ bg: i <= s.step ? 'var(--bar)' : 'var(--line2)', glow: i <= s.step ? 'var(--barGlow)' : 'none' })),
-    ob: obTitles[s.step],
+    stepLabel: s.quick ? `${s.step + 1} / 2` : `${s.step + 1} / 7`,
+    stepBars: (s.quick ? [0, 1] : [0, 1, 2, 3, 4, 5, 6]).map(i => ({ bg: i <= s.step ? 'var(--bar)' : 'var(--line2)', glow: i <= s.step ? 'var(--barGlow)' : 'none' })),
+    ob: s.quick && s.step === 1 ? { title: t('Your city, and how many days?'), sub: t('SafarCo picks the best place and way to go for your wish, and makes the plan. You can change anything after.') } : obTitles[s.step],
     cityCount: CITIES.length,
     listLabel: s.oq ? (geoOf(s.oq)?.status === 'loading' ? t('Matching places · searching all of Pakistan…') : t('Matching places')) : t('Popular cities'),
     cityRows: (() => {
@@ -533,10 +533,22 @@ export function buildView(s: AppState, api: Api) {
     back: () => set({ step: s.step - 1 }),
     next: () => {
       if (!canNext) return;
+      // "Plan it for me": after the city and days, the best match for the wish becomes the plan.
+      if (s.quick && s.step === 1) {
+        // The cheapest way that works in these days, by road when there is one (a first trip shouldn't default to flying).
+        // Places SafarCo has checked come first.
+        const all = suggestions({ ...s, mode: 'suggest', capOn: false, pickId: null }), ok = all.list.filter(x => x.ok), road = ok.filter(x => x.vehicle !== 'air');
+        // and at least two days there to look around (not a week of driving for one day in Hunza).
+        const known = (l: typeof ok) => l.filter(x => DST(x.corridor).checked !== false), roomy = (l: typeof ok) => l.filter(x => s.days - x.minDays >= 1);
+        const pool = [known(roomy(road)), roomy(road), known(roomy(ok)), known(road), road, known(ok), ok].find(l => l.length) || [];
+        const q = pool.slice().sort((a, b) => a.total - b.total)[0] || all.sel;
+        if (q) set({ screen: 'app', tab: 'trip', mode: 'suggest', quick: false, chosen: q.corridor, corridor: q.corridor, dest: q.corridor, vehicle: q.vehicle, tier: q.tier, extra: [], building: Date.now(), dayOpen: null });
+        return;
+      }
       if (s.step < 6) set({ step: s.step + 1, pickId: null });
       else { const g = sug.sel; if (g) set({ screen: 'app', tab: 'trip', chosen: g.corridor, corridor: g.corridor, dest: g.corridor, vehicle: g.vehicle, tier: g.tier, building: Date.now(), dayOpen: null, ...(s.mode === 'know' ? {} : { extra: [] }) }); }
     },
-    nextLabel: s.step < 6 ? t('Continue') : t('Build this trip'),
+    nextLabel: s.quick && s.step === 1 ? t('Make my plan') : s.step < 6 ? t('Continue') : t('Build this trip'),
     restart: () => api.newTrip(),
     budgetShadow: ring('budget'),     capPct: Math.round(pct * 100), totalNum: fmtN(total), totalUsd: usd(total), perPersonStr: `${fmt(total / s.groupSize)} (${usd(total / s.groupSize)})`, capStr: fmt(s.cap), barPct: Math.min(pct, 1) * 100,
     plan: (() => {

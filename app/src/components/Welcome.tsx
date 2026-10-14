@@ -31,7 +31,7 @@ const SLIDE_MS = 6000;
 
 const chip = 'display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:12px;background:rgba(255,255,255,.14);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-size:12px;font-weight:700;white-space:nowrap';
 
-export function Welcome({ open, onStart, onGuide, onWish, lang, onLang }: { open: boolean; onStart: () => void; onGuide: () => void; onWish: (id: WishId) => void; lang: string; onLang: (l: 'en' | 'ur') => void }) {
+export function Welcome({ open, onStart, onQuick, onGuide, onWish, lang, onLang }: { open: boolean; onStart: () => void; onQuick: () => void; onGuide: () => void; onWish: (id: WishId) => void; lang: string; onLang: (l: 'en' | 'ur') => void }) {
   // Hunza first, then this season's photos (a random 2 of them, so each visit looks a little different), then
   // one photo of every other season. Extra photos of a season only show in that season.
   const month = new Date().getMonth() + 1;
@@ -107,6 +107,7 @@ export function Welcome({ open, onStart, onGuide, onWish, lang, onLang }: { open
           </div>
 
           <button onClick={onStart} style={css('margin-top:18px;width:100%;height:56px;flex:none;border-radius:18px;border:0;background:#FFC75F;color:#2A1A00;font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 16px 32px -14px rgba(255,199,95,.8)')}>{t('Start planning')}<i className="ph-bold ph-arrow-right" /></button>
+          <button onClick={onQuick} style={css('width:100%;margin-top:8px;height:46px;flex:none;border-radius:16px;border:0;background:#fff;color:#2A1A00;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px')}><i className="ph-fill ph-magic-wand" style={css('color:#E08A00')} />{t('Plan it for me · 2 questions')}</button>
           <button onClick={onGuide} style={css('width:100%;margin-top:8px;height:46px;flex:none;border-radius:16px;border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.08);color:#fff;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px')}><i className="ph-fill ph-leaf" />{t('Where’s best this season?')}</button>
           <div style={css('display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;font-size:11px;font-weight:700;opacity:.85')}>
             <a href={IG_PROFILE} target="_blank" rel="noopener" style={css('display:inline-flex;align-items:center;gap:5px;min-height:32px;color:#fff;text-decoration:none')}><i className="ph-bold ph-instagram-logo" style={css('font-size:14px')} />{t('Photos © {handle}', { handle: IG_HANDLE })}</a>

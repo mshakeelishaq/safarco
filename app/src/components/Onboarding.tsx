@@ -51,7 +51,7 @@ export function Onboarding({ v, api }: { v: View; api: Api }) {
           <div style={css('padding:6px 11px;border-radius:12px;background:var(--fill2);backdrop-filter:blur(10px);font-size:12px;font-weight:700')}>{v.stepLabel}</div>
         </div>
       </div>
-      <div className="sc-col" style={css('position:absolute;left:24px;right:24px;top:100px;display:grid;grid-template-columns:repeat(7,1fr);gap:6px')}>
+      <div className="sc-col" style={css(`position:absolute;left:24px;right:24px;top:100px;display:grid;grid-template-columns:repeat(${v.stepBars.length},1fr);gap:6px`)}>
         {v.stepBars.map((b, i) => <div key={i} style={css(`height:4px;border-radius:2px;background:${b.bg};box-shadow:${b.glow};transition:all .4s`)} />)}
       </div>
       <div className="sc-colp" style={css('position:absolute;left:0;right:0;top:var(--ob-top,262px);bottom:0;padding:26px 22px calc(30px + env(safe-area-inset-bottom));display:flex;flex-direction:column;pointer-events:auto;background:linear-gradient(180deg,var(--bg0) 0,var(--bg) 44px)')}>
@@ -76,6 +76,13 @@ export function Onboarding({ v, api }: { v: View; api: Api }) {
           )}
 
           {s.step === 1 && <>
+            {s.quick && <>
+              <SectionLabel style="margin:0 4px 8px">{t('How many days?')}</SectionLabel>
+              <div style={css('display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px')}>
+                {v.dayPresets.map(p => <button key={p.key} onClick={p.onClick} aria-pressed={p.bg === 'var(--cta)'} style={css(`height:44px;border-radius:14px;border:1px solid ${p.border};background:${p.bg};color:${p.fg};font-size:13px;font-weight:800;cursor:pointer;transition:all .2s`)}>{p.label}</button>)}
+              </div>
+              <SectionLabel style="margin:0 4px 8px">{t('Your city')}</SectionLabel>
+            </>}
             <button onClick={() => { if (s.loc !== 'locating') set({ loc: 'ask' }); }} style={css(`width:100%;display:flex;align-items:center;gap:14px;min-height:68px;padding:10px 14px;border-radius:22px;border:1px solid ${v.locBtn.border};background:var(--fill);color:var(--ink);text-align:left;cursor:pointer;transition:border-color .3s`)}>
               <div style={css(`width:46px;height:46px;flex:none;border-radius:15px;background:${v.locBtn.tile};display:flex;align-items:center;justify-content:center;color:#fff;font-size:23px;box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 -3px 0 rgba(0,0,0,.18)`)}>{s.loc === 'locating' ? <Spinner /> : <i className={`ph-fill ${v.locBtn.icon}`} />}</div>
               <div style={css('flex:1;min-width:0')}><div style={css('font-size:16px;font-weight:800')}>{v.locBtn.title}</div><div style={css('font-size:12px;color:var(--mute);margin-top:2px;font-weight:600')}>{v.locBtn.sub}</div></div>
