@@ -322,7 +322,7 @@ export function App() {
     <div data-sc="1" data-theme={s.theme} className={`sc-page${framed ? ' sc-framed' : ''}`}>
       <div className="sc-frame">
         <main data-screen-label="SafarCo phone" className="sc-phone">
-          <Scene elRef={sceneRef} corridor={s.corridor} theme={s.theme} lite={s.lite} photo={s.lite ? cardPhoto(s.corridor, monthOf(s)) : null} showLabels={s.screen !== 'app'} peakLabel={DST(s.corridor).peakLabel} />
+          <Scene elRef={sceneRef} corridor={s.corridor} theme={s.theme} lite={s.lite} photo={s.lite && !DST(s.corridor).generic ? cardPhoto(s.corridor, monthOf(s)) : null} showLabels={s.screen !== 'app'} peakLabel={DST(s.corridor).peakLabel} />
 
           <div className="sc-statusbar" aria-hidden="true" style={css('position:absolute;top:0;left:0;right:0;height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 30px;z-index:40;font-size:15px;font-weight:700;color:var(--ink);pointer-events:none')}>
             <span>9:41</span>

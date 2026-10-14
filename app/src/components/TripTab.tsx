@@ -1,4 +1,5 @@
 import { clock } from '../engine/format';
+import { parseClock } from '../edits';
 import { useEffect, useState } from 'react';
 import { cloudEnabled } from '../cloud';
 import { IG_HANDLE, IG_MESSAGE, IG_PROFILE } from '../contact';
@@ -57,7 +58,9 @@ function dayQuick(d: PlanDay) {
   const wx = d.destWx ? { icon: d.destWx.icon, color: d.destWx.color, temp: `${d.destWx.hi}°` } : last ? { icon: last.icon, color: last.color, temp: last.temp } : null;
   const warn = flags.some(f => f.level === 'danger') ? 'danger' : flags.length ? 'caution' : null;
   // A driving day shows when it starts and ends (stops included), and says so when that's a long day.
-  const span = d.track ? d.track.marks[d.track.marks.length - 1][1] : 0, end = d.track ? d.track.dep + span : 0;
+  // A day out ends back home: when the drive back starts, plus the drive.
+  const backHome = d.stops.find(x => x.driveH && x.time), home = backHome ? (parseClock(backHome.time) ?? 0) + backHome.driveH! : null;
+  const span = d.track ? (home ?? d.track.dep + d.track.marks[d.track.marks.length - 1][1]) - d.track.dep : 0, end = d.track ? d.track.dep + span : 0;
   const line = d.track ? `${d.meta.split(' · ')[0]} · ${clock(d.track.dep)} → ${clock(end)}` : d.stops.length ? d.stops.filter(t => d.timing ? t.kind === 'pin' : !t.isDrive).map(t => t.label).slice(0, 3).join(', ') : d.meta;
   return { wx, warn, line, long: span > 10.5 ? t('Long day · {h} h', { h: Math.round(span) }) : '' };
 }

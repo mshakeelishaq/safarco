@@ -91,4 +91,8 @@ describe('Plan it for me', () => {
     const a = await pick('Islamabad', 'escape', '2026-11-06'); expect([a.dest, a.days, a.screen]).toEqual(['murree', 3, 'app']);
     const b = await pick('Lahore', 'north', '2027-07-10'); expect([b.dest, b.vehicle]).toEqual(['hunza', 'sedan']);
   }, 60000);
+  it('short trips: a food trip from Lahore is Gujranwala, a day out from Karachi is Thatta, home the same night', async () => {
+    const a = await pick('Lahore', 'food', '2026-11-07'); expect([a.dest, a.days]).toEqual(['city:Gujranwala', 1]);
+    const b = await pick('Karachi', 'dayout', '2026-11-07'); expect([b.dest, b.days]).toEqual(['thatta', 1]);
+  }, 60000);
 });

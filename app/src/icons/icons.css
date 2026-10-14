@@ -69,6 +69,9 @@
 .ph-fill.ph-bookmarks-simple:before {
   content: "\e5f0";
 }
+.ph-fill.ph-bowl-food:before {
+  content: "\eaa4";
+}
 .ph-fill.ph-buildings:before {
   content: "\e102";
 }
@@ -480,6 +483,9 @@
 }
 .ph-bold.ph-bookmarks-simple:before {
   content: "\e5f0";
+}
+.ph-bold.ph-bowl-food:before {
+  content: "\eaa4";
 }
 .ph-bold.ph-buildings:before {
   content: "\e102";
@@ -956,6 +962,14 @@
 }
 .ph-duotone.ph-bookmarks-simple:after {
   content: "\e5f1";
+  margin-left: -1em;
+}
+.ph-duotone.ph-bowl-food:before {
+  content: "\eaa4";
+  opacity: 0.2;
+}
+.ph-duotone.ph-bowl-food:after {
+  content: "\eaa5";
   margin-left: -1em;
 }
 .ph-duotone.ph-buildings:before {

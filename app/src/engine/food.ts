@@ -46,6 +46,11 @@ export const FOOD: Record<string, Food[]> = {
   ziarat: [['Sajji', 'Ziarat bazaar', 'Whole-roasted lamb, Balochi style'], ['Kaak bread', 'Ziarat and Quetta', 'Stone-baked bread']],
   gwadar: [['Fresh fish and prawns', 'Gwadar fish harbour area', 'Grilled seafood'], ['Balochi tea and paratha', 'Marine Drive stalls', 'Breakfast by the sea']],
   kundmalir: [['Dhaba meals', 'Kund Malir and Hingol stops', 'Few options; carry food and water']],
+  // Food towns for a day out (city ids are the app's generic city pages).
+  'city:Gujranwala': [['Chiray (fried quail) and barbecue', 'GT Road and the old city', 'What Gujranwala is famous for'], ['Siri paye and kulche', 'Old city breakfast spots', 'Come early, it sells out'], ['Lassi', 'Old city', 'Thick and sweet']],
+  'city:Faisalabad': [['Barbecue and karahi', 'Around the Clock Tower bazaars', 'Evening favourite'], ['Kheer and sweets', 'Clock Tower bazaars', 'For the way home']],
+  'city:Sialkot': [['Kebabs and karahi', 'Sialkot city', 'Hearty Punjabi food']],
+  'city:Rawalpindi': [['Chapli kebab and tikka', 'Saddar and Raja Bazaar', 'Busy evening food'], ['Halwa puri', 'Old city', 'Weekend breakfast']],
   karachi: [['Nihari and bun kebab', 'Burns Road', 'Old Karachi food street'], ['Seafood and barbecue', 'Do Darya and Boat Basin', 'Evening by the sea'], ['Biryani', 'All over the city', 'Karachi’s pride']],
   thatta: [['Fish', 'Keenjhar Lake stalls', 'Lakeside lunch'], ['Sindhi biryani', 'Thatta town', 'Spicy, with potatoes']],
   hyderabad: [['Rabri and sweets', 'Resham Gali and the old bazaar', 'Hyderabad’s sweet shops'], ['Sindhi biryani', 'City restaurants', 'Spicy, with potatoes']],

@@ -4,7 +4,7 @@ import { HAVE_VEHICLE, EDGES, MODES, MON, MONTH_FULL, NODES, NODE_INFO, POPULAR,
 import { FOOD } from './engine/food';
 import { canPrompt, dismissInstall, isIOS, isInstalled, promptInstall, wasDismissed } from './install';
 import { foodTipsFor } from './foodtips';
-import { MAX_DRIVE_H, plannedJeeps, roomPlan, circuit, sideTrips, dayTripOptions, tripFrom, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
+import { DAY_OUT_H, SHORT2_H, MAX_DRIVE_H, plannedJeeps, roomPlan, circuit, sideTrips, dayTripOptions, tripFrom, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
 import { clock, dayLabel, dur, fmt, fmtN, isoAdd, isoOf, isoOff, kShort, mapsQ, mon } from './engine/format';
 import { LIVE, fxRate, placesKey, routeKey, type Spot } from './engine/live';
 import { sunTimes } from './engine/sun';
@@ -320,6 +320,9 @@ export function buildView(s: AppState, api: Api) {
   // "Plan it for me" starts with how the traveller feels, not with a kind of scenery.
   const seasonW = WISHES.find(w => w.months.includes(nowM)) || WISHES[0], beach = WISHES.find(w => w.id === 'beach');
   const MOODS = [
+    { key: 'dayout', icon: 'ph-sun-horizon', grad: 'linear-gradient(160deg,#FFD27A,#F29A2E)', label: t('A day out'), tagline: t('Leave in the morning, home by night.'), wish: 'any' as const, days: 1, tier: 'standard' as const },
+    { key: 'food', icon: 'ph-bowl-food', grad: 'linear-gradient(160deg,#FF8A6B,#E0453A)', label: t('A food trip'), tagline: t('Drive to a town famous for its food, and eat well.'), wish: 'any' as const, days: 1, tier: 'standard' as const },
+    { key: 'drive', icon: 'ph-steering-wheel', grad: 'linear-gradient(160deg,#6FD3FF,#2F7FD8)', label: t('Just a long drive'), tagline: t('A beautiful road, music on, and back.'), wish: 'any' as const, days: 1, tier: 'standard' as const },
     { key: 'escape', icon: 'ph-coffee', grad: 'linear-gradient(160deg,#FFB547,#E07A2E)', label: t('A quick escape'), tagline: t('Two or three days away from the city’s noise.'), wish: 'any' as const, days: 3, tier: 'standard' as const },
     { key: 'relax', icon: 'ph-plant', grad: 'linear-gradient(160deg,#5ED3A6,#1E9C77)', label: t('Slow down and breathe'), tagline: t('Easy drives, good hotels, no rushing.'), wish: 'any' as const, days: 5, tier: 'premium' as const },
     { key: 'family', icon: 'ph-users-three', grad: 'linear-gradient(160deg,#F59AC0,#D9468A)', label: t('Family time'), tagline: t('Easy for kids and elders, no hard hikes.'), wish: 'any' as const, days: 5, tier: 'standard' as const },
@@ -327,11 +330,32 @@ export function buildView(s: AppState, api: Api) {
     { key: 'season', icon: seasonW.icon, grad: seasonW.grad, label: t('Chase the season: {wish}', { wish: lowerEn(t(seasonW.label)) }), tagline: t(seasonW.tagline), wish: seasonW.id, days: 5, tier: 'standard' as const },
     ...(beach && beach.id !== seasonW.id ? [{ key: 'sea', icon: beach.icon, grad: beach.grad, label: t('Sea and sunsets'), tagline: t('Warm coast, quiet beaches.'), wish: beach.id, days: 5, tier: 'standard' as const }] : [])
   ];
-  const moodOpts = MOODS.map(m => ({ key: m.key, now: false, icon: m.icon, grad: m.grad, label: m.label, tagline: m.tagline, when: t('{n} days', { n: m.days }), places: '', on: s.mood === m.key,
+  const moodOpts = MOODS.map(m => ({ key: m.key, now: false, icon: m.icon, grad: m.grad, label: m.label, tagline: m.tagline, when: m.days === 1 ? t('1 day') : t('{n} days', { n: m.days }), places: '', on: s.mood === m.key,
     onClick: () => { const w = WISHES.find(x => x.id === m.wish); set({ mood: m.key, wish: m.wish, tier: m.tier, comfort: m.key === 'relax', pickId: null, ...(s.daysSet ? {} : { days: m.days }), ...(w ? { startDate: w.months.includes(M) && s.startDate >= isoAdd(3) ? s.startDate : nextStartIn(w.months) } : {}) }); } }));
   /** The plan "Plan it for me" builds: for each place that suits the mood, its best way to go; then the best place. */
   const quickPick = () => {
-    const m = s.mood, near = m === 'escape' || m === 'relax' || m === 'family', inM_ = (k: string) => { const b = DST(k).best; return !b || b.includes(M); };
+    const m = s.mood;
+    // Short trips: a day out, a food town, or a scenic road, close enough to come home the same night (a drive may take two days).
+    if (m === 'dayout' || m === 'food' || m === 'drive') {
+      const CITY_PAGES = new Set(['lahore', 'islamabad', 'karachi', 'peshawar', 'multan', 'hyderabad', 'sukkur', 'bahawalpur', 'abbottabad', 'muzaffarabad', 'mingora', 'gilgit']);
+      const FOOD_TOWNS = ['city:Gujranwala', 'peshawar', 'hyderabad', 'lahore', 'city:Faisalabad', 'city:Sialkot', 'city:Rawalpindi', 'multan'];
+      const DRIVES = ['chakwal', 'nathia', 'murree', 'kundmalir', 'thandiani', 'shogran', 'khewra'];
+      // A relaxed day out is up to about 2½ h each way; a food town at least an hour away (not the next-door city).
+      const far = m === 'drive' ? SHORT2_H : m === 'dayout' ? 2.6 : DAY_OUT_H, hrs = (k: string) => trip(k, s.origin, M).hours;
+      const ids = (m === 'food' ? FOOD_TOWNS : m === 'drive' ? DRIVES : DESTS.map(d => d.id))
+        .filter(k => DST(k).name !== s.origin && DST(k).hub === undefined && !(DST(k).warn && DST(k).warn![0].includes(M)) && hrs(k) <= far && (m !== 'food' || hrs(k) >= 1));
+      // A drive: the longest good road that's still a day out, else a two-day one; a food trip: the nearest food town;
+      // a day out: places (not cities) SafarCo has checked first, then the nearest; a city only if nothing else is near.
+      const day1 = (k: string) => +(hrs(k) <= DAY_OUT_H), city = (k: string) => +CITY_PAGES.has(k), known = (k: string) => +(DST(k).checked !== false);
+      const order = ids.slice().sort((a, b) => m === 'drive' ? (day1(b) - day1(a)) || hrs(b) - hrs(a) : m === 'food' ? hrs(a) - hrs(b) : (city(a) - city(b)) || (known(b) - known(a)) || hrs(a) - hrs(b));
+      for (const k of order) {
+        const days = hrs(k) <= DAY_OUT_H ? 1 : 2, st = { ...s, mode: 'know' as const, dest: k, corridor: k, days, capOn: false, pickId: null, extra: [] };
+        const ok = suggestions(st).list.filter(x => x.ok && x.vehicle !== 'air').sort((a, b) => a.total - b.total)[0];
+        if (ok) return { ...ok, days };
+      }
+      return null;
+    }
+    const near = m === 'escape' || m === 'relax' || m === 'family', inM_ = (k: string) => { const b = DST(k).best; return !b || b.includes(M); };
     // An escape, a slow trip or family time: any month without a warning (Murree in November is lovely), no jeep-and-hike places, no ruins.
     const easy = (k: string) => { const D = DST(k); return !(D.warn && D.warn[0].includes(M)) && D.hub === undefined && k !== 'mohenjo'; };
     // Scenic places for a feeling (no city breaks), in SafarCo's order of favourites; a season's or the sea's own places for those.
@@ -481,7 +505,7 @@ export function buildView(s: AppState, api: Api) {
     destListLabel: s.dq ? (geoOf(s.dq)?.status === 'loading' ? t('Matching places · searching all of Pakistan…') : t('Matching places')) : t('Popular destinations'),
     destRows, noDest: !!s.dq.trim() && !destRows.length && geoOf(s.dq)?.status !== 'loading',
     todayIso: isoAdd(0),
-    dateRange: `${dayLabel(s.startDate, 0)} → ${dayLabel(s.startDate, s.days - 1)}`,
+    dateRange: s.days === 1 ? dayLabel(s.startDate, 0) : `${dayLabel(s.startDate, 0)} → ${dayLabel(s.startDate, s.days - 1)}`,
     monthChips: (() => {
       const now = new Date(), sd = new Date(s.startDate + 'T00:00');
       return Array.from({ length: 12 }, (_, i) => {
@@ -566,7 +590,8 @@ export function buildView(s: AppState, api: Api) {
       if (s.quick && s.step === 1) {
         // Places SafarCo has checked, at least two days there, by road when it fits; then by the mood.
         const q = quickPick();
-        if (q) set({ screen: 'app', tab: 'trip', mode: 'know', quick: false, chosen: q.corridor, corridor: q.corridor, dest: q.corridor, vehicle: q.vehicle, tier: q.tier, extra: [], building: Date.now(), dayOpen: null });
+        if (!q) { set({ toast: t('Nothing close enough for that from {city}. Try another feeling, or more days.', { city: s.origin || '' }) }); return; }
+        if (q) set({ ...('days' in q && typeof q.days === 'number' && !s.daysSet ? { days: q.days } : {}), screen: 'app', tab: 'trip', mode: 'know', quick: false, chosen: q.corridor, corridor: q.corridor, dest: q.corridor, vehicle: q.vehicle, tier: q.tier, extra: [], building: Date.now(), dayOpen: null });
         return;
       }
       if (s.step < 6) set({ step: s.step + 1, pickId: null });
