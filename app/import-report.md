@@ -4,7 +4,7 @@ Imported on 2026-10-14.
 
 - **24 new destinations:** Gilgit, Shigar, Hushe Valley, Nagar & Minapin, Yasin Valley, Ishkoman Valley, Peshawar, Taxila, Mingora & Saidu Sharif, Abbottabad, Thandiani, Muzaffarabad, Rawalakot, Bagh & Sudhan Gali, Multan, Bahawalpur & Cholistan, Uch Sharif, Chakwal & Kallar Kahar, Khewra, Thatta & Keenjhar, Hyderabad, Sukkur & Rohri, Sehwan Sharif, Nagarparkar
 - **129 new places** for the app's destinations
-- **204 places with a map pin**, 452 with a visit length, 37 with a drive time
+- **449 places with a map pin**, 452 with a visit length, 37 with a drive time
 - **27 things to check** (below). Everything else is in the app as "not checked yet", unless marked Sure.
 
 ## Check these

@@ -36,7 +36,7 @@ export interface TimedDay { stops: StopItem[]; back: number; warn: string; idle:
  */
 export function timeDay(pins: StopItem[], c: DayClock, rest: StopItem[] = []): TimedDay {
   // Some places have no road at all (Fairy Meadows): every move there is on foot.
-  const D = DST(c.dest), onFoot = D.hub !== undefined, list = [...pins].map((p, j) => ({ p, j, i: infoOf(c.dest, p.label) }));
+  const D = DST(c.dest), onFoot = D.hub !== undefined, plains = (D.ft ?? D.ftEst ?? 0) < 1500, list = [...pins].map((p, j) => ({ p, j, i: infoOf(c.dest, p.label) }));
   list.sort((a, b) => +atSunset(a.p.label, a.i) - +atSunset(b.p.label, b.i) || a.j - b.j);
   // Road time between two points: the place's own figure from the hotel, else a winding-road estimate.
   let walked = false;
@@ -44,8 +44,9 @@ export function timeDay(pins: StopItem[], c: DayClock, rest: StopItem[] = []): T
     walked = false;
     if (onFoot) { const a = from?.lat != null ? from : { lat: D.lat, lon: D.lon }; return to?.lat != null ? hav(a.lat!, a.lon!, to.lat, to.lon!) * 1.3 / 3 : 0.25; }
     if (!from && to?.min) return to.min / 60;
-    const a = from?.lat != null ? from : { lat: D.lat, lon: D.lon }, sp = SPEED[to?.access || 'car'] || 30;
-    if (to?.lat != null && a.lat != null) { const km = hav(a.lat, a.lon!, to.lat, to.lon!) * 1.35; walked = km < 1.2; return walked ? km / 4 : km / (to?.access === 'walk' ? 30 : sp); }
+    // Plains roads (Punjab, Sindh, the coast) are faster than mountain ones.
+    const a = from?.lat != null ? from : { lat: D.lat, lon: D.lon }, car = plains ? 50 : 30, sp = !to?.access || to.access === 'car' || to.access === 'walk' ? car : SPEED[to.access] || 30;
+    if (to?.lat != null && a.lat != null) { const km = hav(a.lat, a.lon!, to.lat, to.lon!) * 1.35; walked = km < 1.2; return walked ? km / 4 : km / sp; }
     if (!from && to?.km) return to.km / sp;
     return !from ? Math.min(hoursIn(note.split('·')[0]) ?? 0.33, 3) : 0.25;
   };
@@ -74,7 +75,8 @@ export function timeDay(pins: StopItem[], c: DayClock, rest: StopItem[] = []): T
   // Lunch after the last place, or packed when the day is out over midday with nowhere to stop.
   if (!lunch && prevName && h >= 12 && h <= 15.5) eat(prevName);
   else if (!lunch && c.leave < 12 && h > 15.5) out.splice(1, 0, { time: '', kind: 'food', label: t('Packed lunch'), note: t('Long stretch without a town at midday: carry food and water') });
-  drive(prev ? legH(prev, { lat: D.lat, lon: D.lon }, '') : 0.33);
+  const last = prev as PlaceInfo | null;
+  drive(last ? (last.min && !onFoot ? last.min / 60 : legH(last, { lat: D.lat, lon: D.lon }, '')) : 0.33);
   out.push({ time: clock(h), kind: 'bed', label: t('Back at your hotel'), note: t('In {place}', { place: D.town }) });
   // Back early with nothing more planned: the afternoon is free, and the places nearby can fill it.
   if (h < Math.min(15, c.sunset - 2)) out.push({ time: clock(h + 0.5), kind: 'tea', label: t('Free afternoon'), note: t('Rest, walk the bazaar, or add a place from the list below') });
