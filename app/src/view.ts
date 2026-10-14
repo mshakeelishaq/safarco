@@ -128,9 +128,10 @@ export function buildView(s: AppState, api: Api) {
     const low = totals.length ? Math.min(...totals) : 0, on = s.tier === tier;
     const info = { backpacker: { label: t('Budget'), sub: t('Guest houses and dhabas'), icon: 'ph-tent' }, standard: { label: t('Standard'), sub: t('Good hotels and restaurants'), icon: 'ph-bed' }, premium: { label: t('Comfort'), sub: t('Resorts and the best views'), icon: 'ph-star' } }[tier];
     return { key: tier, ...info, on, low, tile: TIER_G[tier],
-      price: !low ? (need > s.days ? t('Needs {n}+ days', { n: need }) : t('Not for this trip')) : s.mode === 'know' ? fmt(low) : t('From {amount}', { amount: fmt(low) }),
-      each: low ? t('{amount} each', { amount: kShort(low / Math.max(1, s.groupSize)) }) : '',
-      onClick: () => set({ tier, pickId: null }) };
+      // Too short for this kind of stay (it means going by road): one tap makes the trip long enough.
+      price: !low ? (need > s.days ? t('Needs {n} days by road', { n: need }) : t('Not for this trip')) : s.mode === 'know' ? fmt(low) : t('From {amount}', { amount: fmt(low) }),
+      each: low ? t('{amount} each', { amount: kShort(low / Math.max(1, s.groupSize)) }) : need > s.days ? t('Tap to make it {n} days', { n: need }) : '',
+      onClick: () => set({ tier, pickId: null, ...(!low && need > s.days && need <= 14 ? { days: need, daysSet: true } : {}) }) };
   });
 
   const geoOf = (q: string) => LIVE.geo[q.trim().toLowerCase()];
@@ -415,7 +416,7 @@ export function buildView(s: AppState, api: Api) {
     })(), buildTips, budget, dayPage, totalShort: kShort(total), openDay: (i: number) => set({ dayOpen: i }), vehIcon: VEH[s.vehicle].icon,
     editNote: editCount ? { text: editCount > 1 ? t('{n} changes to the places', { n: editCount }) : t('1 change to the places'), undo: () => set({ edits: NO_EDITS }) } : null,
     s, c, gate, tip, health, off, isAir, fuelPoints, fuelPins, drivers, afterTrip, guide, bestNow, tripSeason, wPlan, rPoints, selCorridor: sug.sel?.corridor, stays, nearby, priceNotes, ratesNote: isAir ? t('Flight fares are tentative: tap a flight day to see live fares. Confirm with the airline before you book.')
-      : t('Prices {checked}. Confirm with the operator before you book.', { checked: checkedText(s.vehicle === 'public' ? 'coach' : 'hire') }),
+      : t('Prices: {checked}. Confirm with the operator before you book.', { checked: checkedText(s.vehicle === 'public' ? 'coach' : 'hire') }),
     fxNote: fx.live ? (fx.updated ? t('US$ at 1 USD = PKR {rate} ({updated})', { rate: fx.pkrPerUsd.toFixed(2), updated: fx.updated }) : t('US$ at 1 USD = PKR {rate}', { rate: fx.pkrPerUsd.toFixed(2) })) : t('US$ at about PKR {rate} (live rate unavailable)', { rate: fx.pkrPerUsd }),
     wiki: { loading: !wikiE || wikiE.status === 'loading', info: wikiE && wikiE.status === 'ok' ? wikiE.data : null },
     stepLabel: `${s.step + 1} / 7`,
@@ -498,8 +499,8 @@ export function buildView(s: AppState, api: Api) {
       return { text: t('{ok} of {total} popular destinations are reachable from {from} in {days} days, driving up to {max} h a day.', { ok, total: pool.length, from: o, days: s.days, max: MAX_DRIVE_H }), icon: 'ph-path', ...(ok ? okS : badS) };
     })(),
     nightsLabel: nights > 1 ? t('days · {n} nights', { n: nights }) : t('days · {n} night', { n: nights }),
-    decDays: () => set({ days: Math.max(2, s.days - 1) }), incDays: () => set({ days: Math.min(14, s.days + 1) }),
-    dayPresets: [3, 5, 7, 10].map(d => ({ key: d, label: t('{n} days', { n: d }), onClick: () => set({ days: d }), ...chip(s.days === d) })),
+    decDays: () => set({ days: Math.max(2, s.days - 1), daysSet: true }), incDays: () => set({ days: Math.min(14, s.days + 1), daysSet: true }),
+    dayPresets: [3, 5, 7, 10].map(d => ({ key: d, label: t('{n} days', { n: d }), onClick: () => set({ days: d, daysSet: true }), ...chip(s.days === d) })),
     capBig: fmtN(s.cap), capUsd: `≈ ${usd(s.cap)}`, capPer: t('{amount} ({usd}) per person · {days} days', { amount: fmt(s.cap / s.groupSize), usd: usd(s.cap / s.groupSize), days: s.days }),
     tripMeta: s.groupSize > 1 ? t('{n} travellers · {days} days', { n: s.groupSize, days: s.days }) : t('{n} traveller · {days} days', { n: s.groupSize, days: s.days }),
     sliderPct: (s.cap - 20000) / 480000 * 100,
@@ -523,10 +524,10 @@ export function buildView(s: AppState, api: Api) {
           : g.name === TIERS[g.tier].label ? t('{name} · {vehicle}', { name: t(g.name), vehicle: t(VEH[g.vehicle].short) })
           : t('{name} · {vehicle} · {tier} stays', { name: t(g.name), vehicle: t(VEH[g.vehicle].short), tier: t(TIERS[g.tier].label) }),
         icon: VEH[g.vehicle].icon, tile: TIER_G[g.tier], fit: roadFit(g.vehicle, g.corridor, s.origin, M)?.text || '', amount: fmt(g.total), amountUsd: usd(g.total), best: !!g.best,
-        fitLabel: !g.ok ? (g.why ? t(g.why) : t('Needs {n}+ days', { n: g.minDays })) : fits ? (capOn ? t('{amount} left', { amount: kShort(s.cap - g.total) }) : t('{amount} each', { amount: kShort(g.total / Math.max(1, s.groupSize)) })) : `+${kShort(g.total - s.cap)}`, fitFg: fits ? 'var(--g)' : 'var(--cor)', fitBg: fits ? 'rgba(46,229,157,.14)' : 'rgba(255,107,91,.16)',
+        fitLabel: !g.ok ? (g.why ? t(g.why) : t('Tap: make it {n} days', { n: g.minDays })) : fits ? (capOn ? t('{amount} left', { amount: kShort(s.cap - g.total) }) : t('{amount} each', { amount: kShort(g.total / Math.max(1, s.groupSize)) })) : `+${kShort(g.total - s.cap)}`, fitFg: fits ? 'var(--g)' : 'var(--cor)', fitBg: fits ? 'rgba(46,229,157,.14)' : 'rgba(255,107,91,.16)',
         bg: on ? 'linear-gradient(var(--fill),var(--fill)) padding-box, linear-gradient(135deg,#2EE59D,#FFB547) border-box' : 'linear-gradient(rgba(255,255,255,.05),rgba(255,255,255,.05)) padding-box, linear-gradient(rgba(255,255,255,.1),rgba(255,255,255,.1)) border-box',
         transform: on ? 'translateZ(18px) rotateX(4deg)' : 'translateZ(0)', shadow: on ? '0 22px 40px -18px rgba(46,229,157,.7)' : 'none', op: fits || on ? 1 : .62,
-        onClick: () => set({ pickId: g.key, corridor: g.corridor }) };
+        onClick: () => set({ pickId: g.key, corridor: g.corridor, ...(!g.ok && !g.why && g.minDays <= 14 ? { days: g.minDays, daysSet: true } : {}) }) };
     }),
     canBack: s.step > 0, nextOp: canNext ? 1 : .45,
     back: () => set({ step: s.step - 1 }),
@@ -629,6 +630,14 @@ export function buildView(s: AppState, api: Api) {
           bg: inPlan ? 'var(--cta)' : 'var(--fill)', fg: inPlan ? 'var(--onCta)' : 'var(--mute)', border: inPlan ? '0' : '1px solid var(--line2)' };
       });
     })(),
+    // The way there in Google Maps, through each night's town (up to nine stops), for turn-by-turn directions.
+    routeLink: (() => {
+      if (isAir) return '';
+      const nights = plan.days.filter(d => (d.kind === 'drive' || d.kind === 'explore') && d.stay).map(d => `${d.stay!.lat.toFixed(4)},${d.stay!.lon.toFixed(4)}`).filter((x, i, a) => a.indexOf(x) === i);
+      if (!nights.length) return '';
+      const dest = nights[nights.length - 1], via = nights.slice(0, -1).slice(0, 9);
+      return `https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=${encodeURIComponent(c.from + ', Pakistan')}&destination=${dest}${via.length ? `&waypoints=${encodeURIComponent(via.join('|'))}` : ''}`;
+    })(),
     routeMap: (() => {
       const legs = c.legs, o = cityOr(s.origin), D = DST(s.corridor);
       const co = (n: string): [number, number] => { const q = pointAt(n); return [q.lat, q.lon]; };
@@ -667,7 +676,7 @@ export function buildView(s: AppState, api: Api) {
       { key: 'a', label: t('Adults'), value: `${s.adults}`, dec: () => api.setPeople('adults', -1), inc: () => api.setPeople('adults', 1) },
       { key: 'k', label: t('Kids (under 12)'), value: `${s.kids}`, dec: () => api.setPeople('kids', -1), inc: () => api.setPeople('kids', 1) },
       { key: 'e', label: t('Elders (60+)'), value: `${s.elders}`, dec: () => api.setPeople('elders', -1), inc: () => api.setPeople('elders', 1) },
-      { key: 'd', label: t('Days'), value: `${s.days}`, dec: () => set({ days: Math.max(2, s.days - 1) }), inc: () => set({ days: Math.min(14, s.days + 1) }) },
+      { key: 'd', label: t('Days'), value: `${s.days}`, dec: () => set({ days: Math.max(2, s.days - 1), daysSet: true }), inc: () => set({ days: Math.min(14, s.days + 1), daysSet: true }) },
       { key: 'b', label: t('Budget cap'), value: capOn ? `${Math.round(s.cap / 1000)}k` : t('None'), dec: () => capOn && set(s.cap <= 40000 ? { capOn: false } : { cap: Math.max(40000, s.cap - 10000) }), inc: () => set(capOn ? { cap: s.cap + 10000 } : { capOn: true, cap: Math.max(40000, Math.ceil(total / 5000) * 5000) }) }
     ],
     helplines: [['1122', t('Rescue')], ['15', t('Police')], ['130', t('Motorway Police')], ['115', t('Edhi Ambulance')]].map(([num, label]) => ({ num, label, href: `tel:${num}` })),
@@ -679,7 +688,9 @@ export function buildView(s: AppState, api: Api) {
     pillB: isAir ? (air!.pp ? t('~1 h flight + coach to airport') : t('~1 h flight')) : c.hrs,
     pillIcon: isAir ? 'ph-airplane-tilt' : 'ph-path',
     tripSummary: [dayLabel(s.startDate, 0), s.adults > 1 ? t('{n} adults', { n: s.adults }) : t('{n} adult', { n: s.adults }), !s.kids ? '' : s.kids > 1 ? t('{n} kids', { n: s.kids }) : t('{n} kid', { n: s.kids }),
-      !s.elders ? '' : s.elders > 1 ? t('{n} elders', { n: s.elders }) : t('{n} elder', { n: s.elders }), t(VEH[s.vehicle].short), t(TIERS[s.tier].label), t('{n} days', { n: s.days })].filter(Boolean).join(' · ')
+      !s.elders ? '' : s.elders > 1 ? t('{n} elders', { n: s.elders }) : t('{n} elder', { n: s.elders }), t(VEH[s.vehicle].short), t(TIERS[s.tier].label), t('{n} days', { n: s.days })].filter(Boolean).join(' · '),
+    // Who and how, for the plan header (the trip card shows the dates and days).
+    tripWho: [s.adults > 1 ? t('{n} adults', { n: s.adults }) : t('{n} adult', { n: s.adults }), !s.kids ? '' : s.kids > 1 ? t('{n} kids', { n: s.kids }) : t('{n} kid', { n: s.kids }), !s.elders ? '' : s.elders > 1 ? t('{n} elders', { n: s.elders }) : t('{n} elder', { n: s.elders }), t(VEH[s.vehicle].short), t(TIERS[s.tier].label)].filter(Boolean).join(' · ')
   };
   // Before, during and after the trip (see src/view-trip.ts).
   const pack = (() => { try { return (JSON.parse(localStorage.getItem('safarco-pack:' + s.corridor + '|' + s.startDate) || '[]') as string[]).filter(k => rw.pack.some(p => p.key === k)).length; } catch { return 0; } })();

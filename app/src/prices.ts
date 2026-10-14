@@ -120,13 +120,13 @@ export const checkedAge = (section: Section, now = new Date()) => {
 export const TENTATIVE: Section[] = ['fares'];
 export const isStale = (section: Section, now = new Date()) => { if (TENTATIVE.includes(section)) return false; const a = checkedAge(section, now); return a === null || a > FRESH_DAYS[section]; };
 
-/** "checked 1 Oct 2026", "checked 1 Oct 2026, may have changed since", "not checked yet" or, for flights, "tentative". */
+/** "checked 1 Oct 2026", "checked 1 Oct 2026, may have changed since", "a typical price" or, for flights, "tentative". */
 export const checkedText = (section: Section, now = new Date()) => {
   if (TENTATIVE.includes(section)) return t('tentative, check live fares before booking');
   const d = current.checked[section];
-  if (!d) return t('not checked yet');
+  if (!d) return t('a typical price, may differ a little');
   const dt = new Date(d + 'T00:00');
-  if (isNaN(+dt)) return t('not checked yet');
+  if (isNaN(+dt)) return t('a typical price, may differ a little');
   const day = dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
   return isStale(section, now) ? t('checked {date}, may have changed since', { date: day }) : t('checked {date}', { date: day });
 };

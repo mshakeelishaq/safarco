@@ -1,3 +1,4 @@
+import { cardPhoto } from './photos';
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { EditSheet } from './components/Sheets';
 import { FeedbackSheet, FoodSheet, ReviewSheet, SaveSheet, SignInSheet, TripsSheet } from './components/Panels';
@@ -27,7 +28,7 @@ import { TripTab } from './components/TripTab';
 import { LIVE, fxFetch, geoSearch, placesFetch, placesKey, placesUrl, reverseGeo, routeFetch, routeKey, routeUrl, wikiFetch } from './engine/live';
 import { allUrls, fetchWeather } from './weather/route';
 import { mapsQ, mon } from './engine/format';
-import { trip } from './engine/engine';
+import { trip, usualDays } from './engine/engine';
 import { NODES } from './engine/data';
 import { DST, cityOr, nearestCity } from './engine/places';
 import { css } from './lib/css';
@@ -297,6 +298,9 @@ export function App() {
   // On the suggestions step, keep the scene on the selected option.
   const selCorridor = s.screen === 'onboard' && s.step === 6 ? view.selCorridor : undefined;
   useEffect(() => { if (selCorridor && selCorridor !== s.corridor) set({ corridor: selCorridor }); }, [selCorridor, s.corridor, set]);
+  // Until the traveller picks the days, a new destination starts at its usual length (Hunza by road: a week).
+  const usual = s.screen === 'onboard' && !s.daysSet && s.mode === 'know' && s.origin && s.dest ? usualDays(s.dest, s.origin, mon(s)) : null;
+  useEffect(() => { if (usual && usual !== s.days) set({ days: usual }); }, [usual]);
 
   // Weather along the route: hourly forecast, passes, typical weather and air quality.
   const wxUrls = s.screen === 'app' ? allUrls(view.wPlan).join(' ') : '';
@@ -315,7 +319,7 @@ export function App() {
     <div data-sc="1" data-theme={s.theme} className={`sc-page${framed ? ' sc-framed' : ''}`}>
       <div className="sc-frame">
         <main data-screen-label="SafarCo phone" className="sc-phone">
-          <Scene elRef={sceneRef} corridor={s.corridor} theme={s.theme} lite={s.lite} showLabels={s.screen !== 'app'} peakLabel={DST(s.corridor).peakLabel} />
+          <Scene elRef={sceneRef} corridor={s.corridor} theme={s.theme} lite={s.lite} photo={s.lite ? cardPhoto(s.corridor, monthOf(s)) : null} showLabels={s.screen !== 'app'} peakLabel={DST(s.corridor).peakLabel} />
 
           <div className="sc-statusbar" aria-hidden="true" style={css('position:absolute;top:0;left:0;right:0;height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 30px;z-index:40;font-size:15px;font-weight:700;color:var(--ink);pointer-events:none')}>
             <span>9:41</span>

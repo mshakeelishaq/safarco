@@ -101,7 +101,7 @@ export function BudgetTab({ v }: { v: View; api: Api }) {
           <div style={css('font-size:10px;font-weight:600;color:var(--mute);margin-top:14px')}>{v.fxNote} · <a href="https://www.exchangerate-api.com" target="_blank" rel="noopener" style={css('color:inherit')}>{t('Rates by Exchange Rate API')}</a></div>
         </Fold>
 
-        <Fold icon="ph-seal-check" title={t('About these numbers')} summary={v.priceNotes.every(n => n.ok) ? t('Prices checked') : t('Some not checked')} summaryColor={v.priceNotes.every(n => n.ok) ? 'var(--g)' : 'var(--amb2)'}>
+        <Fold icon="ph-seal-check" title={t('About these numbers')} summary={v.priceNotes.every(n => n.ok) ? t('Prices checked') : t('Typical prices')} summaryColor={v.priceNotes.every(n => n.ok) ? 'var(--g)' : 'var(--amb2)'}>
           <div style={css('font-size:12px;font-weight:600;color:var(--ink2);line-height:1.5')}>{t('Live: road distance and route (OpenRouteService), weather (Open-Meteo), places and hotels (OpenStreetMap), dollar rate. Prices that change by operator come from SafarCo’s price list:')}</div>
           <div style={css('display:flex;flex-direction:column;gap:8px;margin-top:12px')}>
             {v.priceNotes.map(n => (

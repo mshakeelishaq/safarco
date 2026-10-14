@@ -43,7 +43,7 @@ describe('saved trips', () => {
 
 describe('price list', () => {
   it('starts unchecked and changes costs when the admin updates prices', () => {
-    expect(checkedText('fuel')).toBe('not checked yet');
+    expect(checkedText('fuel')).toBe('a typical price, may differ a little');
     const before = costFor(trip).rows.find(r => r.label === 'Fuel')!.val;
     applyPrices({ ...DEFAULT_PRICES, fuel: { petrol: DEFAULT_PRICES.fuel.petrol * 2, diesel: 400 }, checked: { ...DEFAULT_PRICES.checked, fuel: '2026-10-01' } });
     expect(costFor(trip).rows.find(r => r.label === 'Fuel')!.val).toBeCloseTo(before * 2, 6);

@@ -5,6 +5,8 @@ import type { Theme } from '../state';
 interface Props {
   elRef: RefObject<HTMLDivElement | null>;
   corridor: string; theme: Theme; lite: boolean; showLabels: boolean; peakLabel: string;
+  /** With the 3D scene off (data saver): a photo of the place, so the top isn't empty. */
+  photo?: string | null;
 }
 
 interface SceneHandle { setCorridor(key: string): void; dispose(): void }
@@ -15,7 +17,7 @@ const TH3: Record<Theme, [number, number, number]> = {
 };
 
 /** The tilted 3D mountain scene behind the top of every screen. Drag to orbit. */
-export function Scene({ elRef, corridor, theme, lite, showLabels, peakLabel }: Props) {
+export function Scene({ elRef, corridor, theme, lite, showLabels, peakLabel, photo }: Props) {
   const destRef = useRef<HTMLDivElement>(null), hubRef = useRef<HTMLDivElement>(null);
   const handle = useRef<SceneHandle | null>(null);
   const live = useRef({ showLabels, corridor });
@@ -42,6 +44,7 @@ export function Scene({ elRef, corridor, theme, lite, showLabels, peakLabel }: P
       onPointerMove={e => { const d = drag.current.drag; if (d) drag.current.dragAz = Math.max(-1.1, Math.min(1.1, d.az - (e.clientX - d.x) * .008)); }}
       onPointerUp={() => { drag.current.drag = null; }} onPointerLeave={() => { drag.current.drag = null; }}
       style={css('position:absolute;left:0;top:0;width:100%;height:440px;z-index:0;touch-action:none;cursor:grab;background:var(--skygrad);will-change:transform,opacity')}>
+      {lite && photo && <img src={photo} alt="" style={css('position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.55;pointer-events:none')} />}
       <div style={css('position:absolute;right:46px;top:250px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(255,236,190,.95) 0%,rgba(255,196,130,.55) 30%,rgba(255,170,110,0) 70%)')} />
       <div ref={destRef} style={css('position:absolute;left:0;top:0;z-index:3;opacity:0;pointer-events:none;transition:opacity .4s')}>
         <div style={css('display:flex;align-items:center;gap:6px;padding:7px 11px 7px 8px;border-radius:14px;background:var(--sheet);backdrop-filter:blur(12px);border:1px solid var(--line2);font-size:12px;font-weight:700;white-space:nowrap;box-shadow:0 10px 24px -8px rgba(0,0,0,.5)')}>

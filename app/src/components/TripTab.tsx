@@ -1,3 +1,4 @@
+import { clock } from '../engine/format';
 import { useEffect, useState } from 'react';
 import { cloudEnabled } from '../cloud';
 import { IG_HANDLE, IG_MESSAGE, IG_PROFILE } from '../contact';
@@ -55,8 +56,10 @@ function dayQuick(d: PlanDay) {
   const flags = d.strip?.flags || [], last = d.strip?.samples[d.strip.samples.length - 1];
   const wx = d.destWx ? { icon: d.destWx.icon, color: d.destWx.color, temp: `${d.destWx.hi}°` } : last ? { icon: last.icon, color: last.color, temp: last.temp } : null;
   const warn = flags.some(f => f.level === 'danger') ? 'danger' : flags.length ? 'caution' : null;
-  const line = d.track ? d.meta.replace(/ \+ .*$/, '') : d.stops.length ? d.stops.filter(t => d.timing ? t.kind === 'pin' : !t.isDrive).map(t => t.label).slice(0, 3).join(', ') : d.meta;
-  return { wx, warn, line };
+  // A driving day shows when it starts and ends (stops included), and says so when that's a long day.
+  const span = d.track ? d.track.marks[d.track.marks.length - 1][1] : 0, end = d.track ? d.track.dep + span : 0;
+  const line = d.track ? `${d.meta.split(' · ')[0]} · ${clock(d.track.dep)} → ${clock(end)}` : d.stops.length ? d.stops.filter(t => d.timing ? t.kind === 'pin' : !t.isDrive).map(t => t.label).slice(0, 3).join(', ') : d.meta;
+  return { wx, warn, line, long: span > 10.5 ? t('Long day · {h} h', { h: Math.round(span) }) : '' };
 }
 
 /** What the summary card and folded rows need: weather range and the warnings worth seeing first. */
@@ -123,7 +126,8 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
       <div style={css('height:318px;position:relative;pointer-events:none')}>
         <div className="sc-col" style={css('position:absolute;left:22px;right:22px;top:52px;text-shadow:var(--tsh)')}>
           <div style={css('display:flex;align-items:center;justify-content:space-between;gap:10px')}>
-            <div style={css('min-width:0;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--amb2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis')}>{c.region}</div>
+            {/* The region, distance, dates and days are on the trip card below; the header keeps the route and the buttons. */}
+            <div />
             <div style={css('flex:none;display:flex;gap:6px;pointer-events:auto;text-shadow:none')}>
               <button onClick={() => set({ sheet: 'trips', settings: false })} aria-label={t('My trips')} title={t('My trips')} style={css('width:44px;height:44px;border-radius:15px;border:1px solid var(--line2);background:var(--fill2);backdrop-filter:blur(12px);color:var(--ink);font-size:18px;cursor:pointer')}><i className="ph-bold ph-list-bullets" /></button>
               <button onClick={() => set({ sheet: 'save', settings: false })} aria-label={s.savedId ? t('Saved trip') : t('Save trip')} title={s.savedId ? t('Saved') : t('Save')} style={css(`width:44px;height:44px;border-radius:15px;border:1px solid ${s.savedId ? 'transparent' : 'var(--line2)'};background:${s.savedId ? 'var(--cta)' : 'var(--fill2)'};backdrop-filter:blur(12px);color:${s.savedId ? 'var(--onCta)' : 'var(--ink)'};font-size:18px;cursor:pointer`)}><i className={`${s.savedId ? 'ph-fill' : 'ph-bold'} ph-bookmark-simple`} /></button>
@@ -132,11 +136,7 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
             </div>
           </div>
           <h1 style={css('margin:8px 0 0;font-family:var(--fontH);font-weight:600;font-size:23px;letter-spacing:-.02em;line-height:1.15')}>{c.from} → {c.to}</h1>
-          <div style={css('display:flex;flex-wrap:wrap;gap:6px;margin-top:10px')}>
-            <span style={css('padding:5px 10px;border-radius:10px;background:var(--fill2);backdrop-filter:blur(10px);font-size:12px;font-weight:700;display:flex;align-items:center;gap:5px')}><i className={`ph-fill ${v.pillIcon}`} />{v.pillA}</span>
-            <span style={css('padding:5px 10px;border-radius:10px;background:var(--fill2);backdrop-filter:blur(10px);font-size:12px;font-weight:700;display:flex;align-items:center;gap:5px')}><i className="ph-fill ph-clock" />{v.pillB}</span>
-          </div>
-          <button onClick={openSettings} style={css('pointer-events:auto;margin-top:8px;padding:0;border:0;background:none;color:var(--ink2);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;text-align:left;min-height:28px')}><i className="ph-fill ph-users-three" />{v.tripSummary}<i className="ph-bold ph-pencil-simple" style={css('font-size:12px')} /></button>
+          <button onClick={openSettings} style={css('pointer-events:auto;margin-top:8px;padding:0;border:0;background:none;color:var(--ink2);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;text-align:left;min-height:28px')}><i className="ph-fill ph-users-three" />{v.tripWho}<i className="ph-bold ph-pencil-simple" style={css('font-size:12px')} /></button>
         </div>
       </div>
 
@@ -189,7 +189,7 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
             </div>
             <div style={css('display:flex;gap:8px;margin-top:12px')}>
               <div style={css(tile)}><i className="ph-fill ph-calendar-check" style={css('font-size:17px;color:var(--g)')} /><div style={css('font-size:16px;font-weight:800;margin-top:4px')}>{t('{n} days', { n: plan.days.length })}</div><div style={css('font-size:11px;font-weight:600;color:var(--mute)')}>{t('{n} nights', { n: Math.max(0, plan.days.length - 1) })}</div></div>
-              <div style={css(tile)}><i className={`ph-fill ${v.isAir ? 'ph-airplane-tilt' : 'ph-path'}`} style={css('font-size:17px;color:var(--sky)')} /><div style={css('font-size:16px;font-weight:800;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis')}>{v.isAir ? t('By air') : t('{km} km', { km: c.kmStr })}</div><div style={css('font-size:11px;font-weight:600;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis')}>{v.isAir ? v.pillB : v.c.loop ? t('round trip') : t('each way')}</div></div>
+              <div style={css(tile)}><i className={`ph-fill ${v.isAir ? 'ph-airplane-tilt' : 'ph-path'}`} style={css('font-size:17px;color:var(--sky)')} /><div style={css('font-size:16px;font-weight:800;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis')}>{v.isAir ? t('By air') : t('{km} km', { km: c.kmStr })}</div><div style={css('font-size:11px;font-weight:600;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis')}>{v.isAir ? v.pillB : `${v.c.loop ? t('round trip') : t('each way')} · ${v.pillB}`}</div></div>
               <button onClick={() => set({ tab: 'budget' })} style={css(tile + ';cursor:pointer')}><i className="ph-fill ph-wallet" style={css(`font-size:17px;color:${v.health.fg}`)} /><div style={css('font-size:16px;font-weight:800;margin-top:4px;white-space:nowrap;font-variant-numeric:tabular-nums')}>{v.totalShort}</div><div style={css(`font-size:11px;font-weight:700;color:${v.health.fg}`)}>{v.health.label}</div></button>
             </div>
             {v.tripSeason && (() => { const ts = v.tripSeason, c = ts.tone === 'good' ? 'var(--g)' : ts.tone === 'care' ? 'var(--amb2)' : 'var(--cor)';
@@ -208,7 +208,6 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
             ); })()}
             {v.wishNote && !v.wishNote.good && <WishNote n={v.wishNote} />}
             {!v.isAir && <div style={css('margin-top:12px')}><TripPlaces v={v} /></div>}
-            <LockChip v={v} api={api} />
             {glance.warnings.length > 0 && <button onClick={() => set({ tab: 'prepare' })} style={css('display:flex;flex-direction:column;gap:6px;margin-top:12px;padding:0;border:0;background:none;color:var(--ink);text-align:left;cursor:pointer;width:100%')}>
               {glance.warnings.slice(0, 2).map(w => <span key={w} style={css('display:flex;gap:8px;align-items:flex-start;font-size:13px;font-weight:700;line-height:1.4;color:var(--cor)')}><i className="ph-fill ph-warning" style={css('margin-top:2px;flex:none')} />{w}</span>)}
               <span style={css('font-size:12px;font-weight:800;color:var(--g);display:flex;align-items:center;gap:4px')}>{glance.warnings.length > 2 ? t('{n} more things to know in Prepare', { n: glance.warnings.length - 2 }) : t('Precautions in Prepare')}<i className="ph-bold ph-caret-right" /></span>
@@ -231,7 +230,7 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
                     <div style={css(`width:34px;height:34px;flex:none;border-radius:12px;background:${d.tile};color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--fontH);font-size:13px;font-weight:600;box-shadow:inset 0 1px 0 rgba(255,255,255,.4)`)}>{d.num}</div>
                     <div style={css('flex:1;min-width:0')}>
                       <div style={css('font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)')}>{d.date} · {d.kindLabel}</div>
-                      <div style={css('font-size:14px;font-weight:800;margin-top:2px;line-height:1.3')}>{d.title}</div>
+                      <div style={css('font-size:14px;font-weight:800;margin-top:2px;line-height:1.3')}>{d.title}{q.long && <span style={css('display:inline-block;margin-left:6px;padding:1px 7px;border-radius:8px;background:rgba(255,181,71,.18);color:var(--amb2);font-size:11px;font-weight:800;vertical-align:2px')}>{q.long}</span>}</div>
                       <div style={css('font-size:12px;color:var(--ink2);font-weight:600;margin-top:2px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis')}>{q.line}</div>
                     </div>
                     {q.wx && <div style={css('flex:none;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:38px')}><i className={`ph-duotone ${q.wx.icon}`} style={css(`font-size:20px;color:${q.wx.color}`)} /><span style={css('font-size:12px;font-weight:800;font-variant-numeric:tabular-nums')}>{q.wx.temp}</span></div>}
@@ -246,6 +245,8 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
             <i className="ph-fill ph-hand-tap" style={css('font-size:15px')} />{t('Tap a day to see its plan, and add or remove places.')}
             {v.editNote && <button onClick={v.editNote.undo} style={css('min-height:30px;padding:0 8px;border-radius:9px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);font-size:11px;font-weight:800;cursor:pointer')}>{v.editNote.text} · {t('Undo all')}</button>}
           </div>
+          {/* Lock the plan once the days have been seen. */}
+          <div style={css('padding:0 4px')}><LockChip v={v} api={api} /></div>
           {plan.hasDep && <div style={css('padding:4px 4px 8px;border-top:1px solid var(--line);margin-top:4px')}>
             <div style={css('display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:12px -18px 0;padding:0 18px 2px;align-items:center')}>
               <span style={css('flex:none;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)')}>{t('Leave at')}</span>

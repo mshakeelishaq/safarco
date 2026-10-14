@@ -655,6 +655,12 @@ function hopOf(legs: Leg[], to: string, m: number): Hop {
 /** Places on the trip within 1½ hours' drive of another one: by default seen on a day trip from it. */
 const SIDE_H = 1.5, COMFORT_H = 3, DAYTRIP_H = 3.5;
 
+/** A sensible trip length: the driving days there and back, plus a few days to see the place (3 to 10 in all). */
+export function usualDays(dest: string, origin: string | null, month: number) {
+  const c = trip(dest, origin, month);
+  return Math.max(3, Math.min(10, c.legDays * 2 + 3));
+}
+
 /** Day trips to offer on a free day at `base`: other places within about 3 h, good this month and not on the trip yet, nearest first. */
 export function dayTripOptions(base: string, m: number, skip: string[]): { id: string; name: string; hours: number }[] {
   const B = DST(base);

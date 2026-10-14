@@ -157,6 +157,7 @@ export function MapTab({ v, api }: { v: View; api: Api }) {
             <WxLegend v={v} />
           </>}
         </div>
+        {v.routeLink && <a href={v.routeLink} target="_blank" rel="noopener" style={css('display:flex;align-items:center;justify-content:center;gap:8px;min-height:50px;border-radius:16px;background:var(--cta);color:var(--onCta);font-size:15px;font-weight:800;text-decoration:none')}><i className="ph-fill ph-navigation-arrow" />{t('Open the route in Google Maps')}</a>}
         <section style={css('border-radius:30px;padding:18px;background:var(--card);border:1px solid var(--line)')}>
           <h2 style={css('margin:0;font-size:14px;font-weight:700;color:var(--mute)')}>{t('Where you sleep')}</h2>
           <div style={css('display:flex;flex-direction:column;gap:12px;margin-top:14px')}>

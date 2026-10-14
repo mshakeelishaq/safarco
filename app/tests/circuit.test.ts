@@ -89,3 +89,11 @@ describe('a day trip on a free day', () => {
     expect(after.filter(d => d.title.startsWith('Free day')).length).toBe(before.filter(d => d.title.startsWith('Free day')).length - 1);
   });
 });
+
+describe('a sensible trip length', () => {
+  it('starts Hunza by road from Lahore at a week, and nearby places shorter', async () => {
+    const { usualDays } = await import('../src/engine/engine');
+    expect(usualDays('hunza', 'Lahore', 10)).toBe(7);
+    expect(usualDays('murree', 'Islamabad', 6)).toBeLessThan(7);
+  });
+});

@@ -1990,4 +1990,12 @@ export const UR: Record<string, string> = {
   "Power bank and the offline map (Prepare tab)": "Power bank aur offline map (Prepare tab)",
   "{litres} L diesel (about {flat} km/L on the plains, {mtn} in the mountains)": "{litres} L diesel (maidani ilaqon mein taqreeban {flat} km/L, pahaaron mein {mtn})",
   "{litres} L petrol (about {flat} km/L on the plains, {mtn} in the mountains)": "{litres} L petrol (maidani ilaqon mein taqreeban {flat} km/L, pahaaron mein {mtn})",
+  "Needs {n} days by road": "Sarak se {n} din chahiye",
+  "Tap to make it {n} days": "{n} din karne ke liye tap karein",
+  "Tap: make it {n} days": "Tap: {n} din karein",
+  "a typical price, may differ a little": "aam qeemat, thora farq ho sakta hai",
+  "Typical prices": "Aam qeematen",
+  "Prices: {checked}. Confirm with the operator before you book.": "Qeematen: {checked}. Booking se pehle operator se tasdeeq karein.",
+  "Long day · {h} h": "Lamba din · {h} h",
+  "Open the route in Google Maps": "Raasta Google Maps mein kholein",
 };
