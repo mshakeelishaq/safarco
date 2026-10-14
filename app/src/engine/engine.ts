@@ -355,7 +355,8 @@ function exploreDays(D: Dest, m: number, n: number, tier: TierId, over?: string 
   g.days.sort((a, b) => +!a.list.length - +!b.list.length);
   const extra = spare.map(p => p[0]);
   g.days.forEach(day => {
-    const list = day.list, given = new Set(day.fixed ? (D.days || []).flatMap(x => x.places) : []);
+    // The owner's day plans keep their order; researched ones (not checked yet) are put in route order.
+    const list = day.list, given = new Set(day.fixed && D.checked !== false ? (D.days || []).flatMap(x => x.places) : []);
     const stops: StopItem[] = list.length ? list.map(p => ({ ...pinOf(p), ...(given.has(p[0]) ? { keep: true } : {}) })) : [{ time: t('All day'), kind: 'pin', label: t('Free day'), note: t('Rest, shop, or go back to a favourite spot') }];
     stops.push({ time: t('Food'), kind: 'food', label: t('Eat local'), note: D.eat ? t(D.eat) : D.eat });
     const tip = day.note ? t(day.note) : '';

@@ -1967,4 +1967,6 @@ export const UR: Record<string, string> = {
   "Day trip you added.": "Aap ka shamil kiya hua din ka safar.",
   "Remove day trip": "Din ka safar hatayein",
   "Day trip removed. That day is free again.": "Din ka safar hata diya. Woh din phir farigh hai.",
+  "Hill village and small bazaar above the Kaghan valley": "Kaghan valley ke upar pahari gaon aur chhota bazaar",
+  "In Shogran": "Shogran mein",
 };

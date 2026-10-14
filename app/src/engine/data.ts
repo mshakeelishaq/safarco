@@ -209,7 +209,7 @@ export const BASE_DESTS: DestInput[] = [
     places: [['Passu Cones', 'At Passu', 'Cathedral peaks over the village'], ['Hussaini Suspension Bridge', '10 km', 'Rope bridge over the Hunza river'], ['Borith Lake', '4 km', 'Quiet lake near Hussaini'], ['Khunjerab Pass', '85 km · 2 h', 'China border at 15,397 ft', R(4, 11)]],
     eat: 'Gojali food and apricot cake' },
   { id: 'shogran', name: 'Shogran', town: 'Shogran', region: 'Kaghan valley, KP', lat: 34.64, lon: 73.46, ft: 7750, node: 'SHG', best: R(4, 10), warn: [R(12, 2), 'Heavy snow. The road up from Kiwai can close.'],
-    places: [['Siri Paye meadows', '10 km by jeep · 1 h', 'Meadows at 9,800 ft with Makra peak views', R(5, 10)], ['Kiwai waterfall', '7 km · 18 min by road', 'Waterfall by the road at Kiwai, with trout and pakoras'], ['Shogran forest walks', 'Walk', 'Pine trails around the plateau']],
+    places: [['Siri Paye meadows', '10 km by jeep · 1 h', 'Meadows at 9,800 ft with Makra peak views', R(5, 10)], ['Shogran village', 'In Shogran', 'Hill village and small bazaar above the Kaghan valley'], ['Kiwai waterfall', '7 km · 18 min by road', 'Waterfall by the road at Kiwai, with trout and pakoras'], ['Shogran forest walks', 'Walk', 'Pine trails around the plateau']],
     eat: 'Trout and pakoras at Kiwai', jeeps: [['siri', 'Siri Paye meadows', 'Shogran ⇄ Siri Paye, return', 4000, R(5, 10)]] },
   { id: 'malam', name: 'Malam Jabba', town: 'Malam Jabba', region: 'Swat, KP', lat: 34.80, lon: 72.57, ft: 8700, node: 'MJB', best: [12, 1, 2, ...R(5, 9)],
     hotels: [['Pearl Continental Malam Jabba', 'Premium', 'Ski resort hotel']],

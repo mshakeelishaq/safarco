@@ -26,7 +26,13 @@ PK = (23.5, 37.2, 60.8, 77.9)  # lat min/max, lon min/max
 CURATED_DAYS = {'skardu', 'khaplu'}
 # Proposed destinations that are already places in another guide (Machlu is seen from Khaplu).
 # Places renamed in the app since the sheet was made: old name -> current name.
-RENAMED = {'passu cones & hussaini bridge': 'Passu Cones viewpoint', 'hopper glacier, nagar': 'Hoper Glacier, Nagar'}
+RENAMED = {'passu cones & hussaini bridge': 'Passu Cones viewpoint', 'hopper glacier, nagar': 'Hoper Glacier, Nagar',
+           'pipeline track from dunga gali to ayubia': 'Pipeline Track',
+           # Owner: one visit, a short walk apart.
+           'naltar paain village': 'Naltar Paain & Bala villages', 'naltar bala village': 'Naltar Paain & Bala villages',
+           'tomb of mian ghulam shah kalhoro': 'Tomb of Mian Ghulam Nabi Kalhoro'}
+# Owner: separate places, even though the names look alike.
+KEEP_BOTH = {frozenset(['handrap village', 'phander village'])}
 NOT_DESTS = {'machlu': 'khaplu'}  # day plans the owner gave; never replaced by an import
 # What the owner has told us; an import never overrides these.
 OWNER_BEST = {'skardu': [4, 5, 6, 7, 8, 9, 10, 11], 'khaplu': [4, 5, 6, 7, 8, 9, 10, 11]}
@@ -271,7 +277,10 @@ def main():
                 note(dname, f'"{name}" is already part of "{whole}"; not added twice.'); continue
         # Duplicates within the sheet.
         seen = by_dest.setdefault(did, [])
-        dup = next((x for x in seen if same(x['name'], name)), None)
+        name = RENAMED.get(name.lower(), name)
+        dup = next((x for x in seen if same(x['name'], name) and frozenset([x['name'].lower(), name.lower()]) not in KEEP_BOTH), None)
+        if dup and dup['name'] == name:
+            continue  # merged on purpose (RENAMED)
         if dup:
             chk(dname, f'"{name}" and "{dup["name"]}" look like the same place. Only the first is imported.'); continue
         rec = {'name': name, 'new': not app_name, 'row': r}
@@ -348,6 +357,7 @@ def main():
         return pool + [ren[1] for ren in patch.get(did, {}).get('rename', [])]
     def find(did, label):
         """A place for this label: at this destination (also by a suggested new name), else at another one."""
+        label = RENAMED.get(label.strip().lower(), label)
         if (did, norm(label)) in suggested:
             return suggested[(did, norm(label))], None
         for cut in (.86, .72):
@@ -420,7 +430,7 @@ def main():
             visits = sum((p.get('visit') or 45) for p in pins) / 60
             mo = (months(r[7]) or (dests.get(did) or new_dests[did]).get('best') or [7])[0]
             end = leave + drive + visits
-            if end > app['sunset'][mo - 1]:
+            if end > app['sunset'][mo - 1] and not any(re.search(r'ceremony|sunset|desert', n, re.I) for n in names):
                 chk(dname, f'Day plan "{", ".join(names)}": leaving at {hhmm(leave)} gets back around {hhmm(end)}, after sunset ({hhmm(app["sunset"][mo - 1])}) in {MON[mo - 1].title()}. Leave earlier or drop a place.')
             if len(pts) > 4:
                 best = nearest_order(pts)
