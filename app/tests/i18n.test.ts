@@ -43,3 +43,18 @@ describe('Roman Urdu', () => {
     expect(buildView({ ...s, lang: 'ur' }, api).pillB).toMatch(/ghante drive/);
   });
 });
+
+describe('Roman Urdu for guide texts', () => {
+  it('has a translation for every place note, day tip, road stop and season note, imported ones too', async () => {
+    const { DESTS, EDGE_STOPS } = await import('../src/engine/data');
+    const { HIGHLIGHTS } = await import('../src/engine/seasons');
+    const all = new Set<string>(), add = (x?: string | null) => { if (x && /[a-z]/i.test(x) && !(x in UR)) all.add(x); };
+    for (const D of DESTS) {
+      (D.places || []).forEach(p => { add(p[1]); add(p[2]); });
+      (D.days || []).forEach(d => add(d.note)); add(D.eat); add(D.airNote); add(D.guideNote); (D.hotels || []).forEach(h => add(h[2])); if (D.warn) add(D.warn[1]);
+    }
+    Object.values(EDGE_STOPS).flat().forEach(x => add(x[3]));
+    Object.values(HIGHLIGHTS).flat().forEach(h => { add(h.text); add(h.caution); });
+    expect([...all]).toEqual([]);
+  });
+});

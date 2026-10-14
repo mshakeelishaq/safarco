@@ -503,7 +503,7 @@ export function buildView(s: AppState, api: Api) {
       on: s.comfort, toggle: () => set({ comfort: !s.comfort, dayOpen: null, toast: s.comfort ? t('Moving on to each place again.') : t('Fewer hotel changes: nearby places are day trips now.') }),
       sub: (() => { const st = sideTrips({ ...s, comfort: true }), bases = Object.keys(st).filter(b => st[b].length); return bases.length ? t('Stay in {base} and see {list} on day trips. More driving back and forth, fewer check-ins.', { base: bases.map(b => DST(b).name).join(', '), list: bases.flatMap(b => st[b]).map(k => DST(k).name).join(', ') }) : ''; })()
     } : null,
-    draftGuide: [s.corridor, ...(s.extra || [])].some(k => DST(k).checked === false) ? [t('New guide from research, not checked by SafarCo yet. Check opening times and roads locally.'), ...[s.corridor, ...(s.extra || [])].map(k => DST(k).guideNote).filter(Boolean)].join(' ') : '',
+    draftGuide: [s.corridor, ...(s.extra || [])].some(k => DST(k).checked === false) ? [t('New guide from research, not checked by SafarCo yet. Check opening times and roads locally.'), ...[s.corridor, ...(s.extra || [])].map(k => DST(k).guideNote).filter((x): x is string => !!x).map(x => t(x))].join(' ') : '',
     stayOpts, capOn,
     capToggle: capOn ? { label: t('Remove the limit'), onClick: () => set({ capOn: false, pickId: null }) }
       : { label: t('I have a spending limit'), onClick: () => set({ capOn: true, pickId: null, cap: Math.max(40000, Math.ceil((stayOpts.find(o => o.on)?.low || total) * 1.1 / 5000) * 5000) }) },
