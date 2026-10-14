@@ -83,3 +83,20 @@ describe('full days', () => {
     }
   });
 });
+
+describe('places in route order', () => {
+  it('a place added to a day goes where it is on the road, not at the end', async () => {
+    const { buildPlan } = await import('../src/engine/engine');
+    const days = buildPlan({ origin: 'Lahore', mode: 'know', dest: 'hunza', corridor: 'hunza', startDate: '2027-07-10', days: 8, depart: null, vehicle: 'suv', tier: 'standard', adults: 2, kids: 0, elders: 0, groupSize: 2, rooms: 'separate', cap: 5000000, capOn: false }).days;
+    const i = days.findIndex(d => d.stops.some(s => s.label === 'Attabad Lake'));
+    const pins = editDay(days[i], i, { key: '', picks: [{ day: i, name: 'Borith Lake', note: 'Lake', href: '' }], drops: [] }).stops.filter(s => s.kind === 'pin').map(s => s.label);
+    expect(pins.indexOf('Borith Lake')).toBe(pins.indexOf('Hussaini Suspension Bridge') + 1);
+    expect(pins.indexOf('Gulmit village')).toBeLessThan(pins.indexOf('Hussaini Suspension Bridge'));
+  });
+  it('never splits two places side by side', async () => {
+    const { buildPlan } = await import('../src/engine/engine');
+    const days = buildPlan({ origin: 'Karachi', mode: 'know', dest: 'lahore', corridor: 'lahore', startDate: '2027-01-10', days: 6, depart: null, vehicle: 'suv', tier: 'standard', adults: 2, kids: 0, elders: 0, groupSize: 2, rooms: 'separate', cap: 5000000, capOn: false }).days;
+    const pins = days.find(d => d.stops.some(s => s.label === 'Badshahi Mosque'))!.stops.filter(s => s.kind === 'pin').map(s => s.label);
+    expect(Math.abs(pins.indexOf('Badshahi Mosque') - pins.indexOf('Lahore Fort & Sheesh Mahal'))).toBe(1);
+  });
+});

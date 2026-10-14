@@ -11,8 +11,38 @@ import type { StopItem } from './engine';
 export interface DayClock { dest: string; leave: number; sunset: number; sunrise?: number }
 
 const SPEED: Record<string, number> = { walk: 4, car: 30, rough: 20, '4x4': 15, jeep: 15, boat: 15, chairlift: 10 };
-const infoOf = (dest: string, name: string): PlaceInfo | undefined =>
-  PLACE_INFO[`${dest}|${name}`] || PLACE_INFO[Object.keys(PLACE_INFO).find(k => k.endsWith('|' + name)) || ''];
+/** A place's facts; for a place added from the map (no facts), its pin from the link. */
+const infoOf = (dest: string, name: string, href?: string): PlaceInfo | undefined => {
+  const i = PLACE_INFO[`${dest}|${name}`] || PLACE_INFO[Object.keys(PLACE_INFO).find(k => k.endsWith('|' + name)) || ''];
+  if (i?.lat != null) return i;
+  const m = /query=(-?\d+\.\d+),(-?\d+\.\d+)/.exec(href || '') || /@(-?\d+\.\d+),(-?\d+\.\d+)/.exec(href || '');
+  return m ? { ...i, lat: +m[1], lon: +m[2] } : i;
+};
+
+/**
+ * Visiting order along the road: places in a given order (`keep`, the day plans people follow) stay in it, and
+ * every other place goes where it adds the least driving, from the hotel and back. Places without a pin go last.
+ */
+function routeOrder<T extends { p: StopItem; i?: PlaceInfo }>(list: T[], home: { lat: number; lon: number }): T[] {
+  const at = (x: T | null) => x ? x.i! : home, d = (a: T | null, b: T | null) => hav(at(a).lat!, at(a).lon!, at(b).lat!, at(b).lon!);
+  const pinned = list.filter(x => x.i?.lat != null), loose = list.filter(x => x.i?.lat == null);
+  const seq = pinned.filter(x => x.p.keep);
+  // Farthest first, so the route's shape is set before the places near the hotel slot in.
+  pinned.filter(x => !x.p.keep).sort((a, b) => d(null, b) - d(null, a)).forEach(x => {
+    let best = seq.length, cost = Infinity;
+    // Next door to a place already in the day (Badshahi Mosque by the Fort): only right before or after it.
+    const nextTo = seq.flatMap((y, k) => d(x, y) < 0.6 ? [k, k + 1] : []);
+    for (let k = 0; k <= seq.length; k++) {
+      if (nextTo.length && !nextTo.includes(k)) continue;
+      const a = seq[k - 1] ?? null, b = seq[k] ?? null;
+      // Two places side by side (Lahore Fort and Badshahi Mosque) are never split.
+      if (a && b && d(a, b) < 0.6 && d(x, a) >= 0.6 && d(x, b) >= 0.6) continue;
+      const c = d(a, x) + d(x, b) - d(a, b); if (c < cost - 1e-9) { cost = c; best = k; }
+    }
+    seq.splice(best, 0, x);
+  });
+  return [...seq, ...loose];
+}
 
 /** "30 km · 45 min", "1 h by jeep", "2–3 h hike" → hours, if the note gives a time. */
 function hoursIn(note: string) {
@@ -26,7 +56,7 @@ function visitOf(name: string, note: string, i?: PlaceInfo) {
   if (i?.visit) return i.visit / 60;
   return /meadow|valley|base camp|glacier|lake/i.test(name) ? 1.25 : /bazaar|museum|fort|palace|mosque/i.test(name) ? 1 : /view|point|bridge|gate|rock/i.test(name) ? 0.5 : 0.75;
 }
-const atSunset = (name: string, i?: PlaceInfo) => /desert|sunset/i.test(name) || i?.tod === 'sunset';
+const atSunset = (name: string, i?: PlaceInfo) => /desert|sunset|ceremony/i.test(name) || i?.tod === 'sunset';
 
 export interface TimedDay { stops: StopItem[]; back: number; warn: string; idle: number }
 
@@ -36,8 +66,8 @@ export interface TimedDay { stops: StopItem[]; back: number; warn: string; idle:
  */
 export function timeDay(pins: StopItem[], c: DayClock, rest: StopItem[] = []): TimedDay {
   // Some places have no road at all (Fairy Meadows): every move there is on foot.
-  const D = DST(c.dest), onFoot = D.hub !== undefined, plains = (D.ft ?? D.ftEst ?? 0) < 1500, list = [...pins].map((p, j) => ({ p, j, i: infoOf(c.dest, p.label) }));
-  list.sort((a, b) => +atSunset(a.p.label, a.i) - +atSunset(b.p.label, b.i) || a.j - b.j);
+  const D = DST(c.dest), onFoot = D.hub !== undefined, plains = (D.ft ?? D.ftEst ?? 0) < 1500, list = routeOrder([...pins].map((p, j) => ({ p, j, i: infoOf(c.dest, p.label, p.href) })), { lat: D.lat, lon: D.lon });
+  list.sort((a, b) => +atSunset(a.p.label, a.i) - +atSunset(b.p.label, b.i));
   // Road time between two points: the place's own figure from the hotel, else a winding-road estimate.
   let walked = false;
   const legH = (from: PlaceInfo | null, to: PlaceInfo | undefined, note: string) => {

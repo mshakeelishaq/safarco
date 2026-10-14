@@ -56,7 +56,8 @@ export const jeepsFor = (P: number) => Math.max(1, Math.ceil(P / 5));
 
 export interface Leg { a: string; b: string; km: number; h: number; road: string; months?: number[]; mtn?: boolean }
 /** `arrive`: where a day trip reaches its place (sights follow it); `driveH`: hours of a drive back that the day page times. */
-export interface StopItem { time: string; kind: StopKind; label: string; note: string; dur?: string; isDrive?: boolean; walk?: boolean; href?: string; arrive?: boolean; driveH?: number }
+/** `keep`: a place in a day plan people follow, kept in its order when the day is timed. */
+export interface StopItem { time: string; kind: StopKind; label: string; note: string; dur?: string; isDrive?: boolean; walk?: boolean; keep?: boolean; href?: string; arrive?: boolean; driveH?: number }
 
 function stopsOn(l: Leg): EdgeStop[] {
   const f = EDGE_STOPS[`${l.a}-${l.b}`], r = EDGE_STOPS[`${l.b}-${l.a}`];
@@ -352,8 +353,8 @@ function exploreDays(D: Dest, m: number, n: number, tier: TierId, over?: string 
   g.days.sort((a, b) => +!a.list.length - +!b.list.length);
   const extra = spare.map(p => p[0]);
   g.days.forEach(day => {
-    const list = day.list;
-    const stops: StopItem[] = list.length ? list.map(pinOf) : [{ time: t('All day'), kind: 'pin', label: t('Free day'), note: t('Rest, shop, or go back to a favourite spot') }];
+    const list = day.list, given = new Set(day.fixed ? (D.days || []).flatMap(x => x.places) : []);
+    const stops: StopItem[] = list.length ? list.map(p => ({ ...pinOf(p), ...(given.has(p[0]) ? { keep: true } : {}) })) : [{ time: t('All day'), kind: 'pin', label: t('Free day'), note: t('Rest, shop, or go back to a favourite spot') }];
     stops.push({ time: t('Food'), kind: 'food', label: t('Eat local'), note: D.eat ? t(D.eat) : D.eat });
     const tip = day.note ? t(day.note) : '';
     out.push({ kind: 'explore', title: list.length ? t('Explore {place}', { place: D.town }) : t('Free day in {place}', { place: D.town }), meta: list.length ? (list.length > 1 ? t('{n} places · local car or jeep', { n: list.length }) : t('{n} place · local car or jeep', { n: list.length })) : t('Nothing scheduled'), note: tip, tip, offer: day.stay || undefined, stops, stay: stayAt(null, D.id, tier, true), dest: D.id,
