@@ -14,10 +14,12 @@ const OWN: Record<string, string> = {
   kundmalir: '/photos/kund-malir-beach.webp',
   // Ormara, on the coast on the way: the generic sea photo is Karachi's beach.
   gwadar: '/photos/ormara-beach-evening.webp',
-  hyderabad: '/photos/hyderabad-bangles.webp'
+  hyderabad: '/photos/hyderabad-bangles.webp',
+  thatta: '/photos/thatta-shah-jahan-arches.webp'
 };
 /** Our photo of one place at a destination, by "destination|place name". */
 export const PLACE_PHOTOS: Record<string, string> = {
+  'thatta|Shah Jahan Mosque, Thatta': '/photos/thatta-shah-jahan-arches.webp',
   'hyderabad|Shahi Bazaar': '/photos/hyderabad-bangles.webp',
   'kundmalir|Kund Malir beach': '/photos/kund-malir-beach.webp',
   'kundmalir|Golden Beach, Makran coast': '/photos/golden-beach.webp',
@@ -41,6 +43,11 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/hingol-road-badlands.webp', caption: 'The Makran Coastal Highway winding through the Hingol hills' },
     { src: '/photos/mud-volcano-hingol.webp', caption: 'Mud volcano near the Makran coast, Hingol' },
     { src: '/photos/road-to-mud-volcano.webp', caption: 'The road to the mud volcanoes, with the sea beyond' }
+  ],
+  thatta: [
+    { src: '/photos/thatta-shah-jahan-arches.webp', caption: 'Shah Jahan Mosque: rows of brick arches and glazed tiles' },
+    { src: '/photos/thatta-shah-jahan-hall.webp', caption: 'Inside the Shah Jahan Mosque, built in the 1640s' },
+    { src: '/photos/thatta-shah-jahan-aerial.webp', caption: 'The Shah Jahan Mosque and its gardens from above, in the middle of Thatta' }
   ],
   hyderabad: [{ src: '/photos/hyderabad-bangles.webp', caption: 'Glass bangles, Hyderabad’s famous craft, in the old bazaar' }],
   gwadar: [
