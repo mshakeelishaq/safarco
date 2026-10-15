@@ -13,10 +13,12 @@ const OWN: Record<string, string> = {
   sukkur: '/photos/indus-highway-sindh.webp',
   kundmalir: '/photos/kund-malir-beach.webp',
   // Ormara, on the coast on the way: the generic sea photo is Karachi's beach.
-  gwadar: '/photos/ormara-beach-evening.webp'
+  gwadar: '/photos/ormara-beach-evening.webp',
+  hyderabad: '/photos/hyderabad-bangles.webp'
 };
 /** Our photo of one place at a destination, by "destination|place name". */
 export const PLACE_PHOTOS: Record<string, string> = {
+  'hyderabad|Shahi Bazaar': '/photos/hyderabad-bangles.webp',
   'kundmalir|Kund Malir beach': '/photos/kund-malir-beach.webp',
   'kundmalir|Golden Beach, Makran coast': '/photos/golden-beach.webp',
   'kundmalir|Princess of Hope': '/photos/princess-of-hope.webp',
@@ -40,6 +42,7 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/mud-volcano-hingol.webp', caption: 'Mud volcano near the Makran coast, Hingol' },
     { src: '/photos/road-to-mud-volcano.webp', caption: 'The road to the mud volcanoes, with the sea beyond' }
   ],
+  hyderabad: [{ src: '/photos/hyderabad-bangles.webp', caption: 'Glass bangles, Hyderabad’s famous craft, in the old bazaar' }],
   gwadar: [
     { src: '/photos/ormara-beach-evening.webp', caption: 'On the way: Ormara beach in the evening, below the Hammerhead cliffs' },
     { src: '/photos/ormara-hammerhead-dusk.webp', caption: 'On the way: the Ormara headland at dusk' },
