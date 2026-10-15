@@ -93,7 +93,7 @@ export const clearCurrent = () => { try { localStorage.removeItem(CURRENT); } ca
 const b64 = (s: string) => btoa(String.fromCharCode(...new TextEncoder().encode(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 const unb64 = (s: string) => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0)));
 
-export const shareUrl = (d: TripData) => `${location.origin}/?trip=${b64(JSON.stringify(d))}`;
+export const shareUrl = (d: TripData) => `${location.origin}/plan?trip=${b64(JSON.stringify(d))}`;
 export function tripFromUrl(): TripData | null {
   const q = new URLSearchParams(location.search).get('trip'); if (!q || q.length > 4000) return null;
   try { return cleanTrip(JSON.parse(unb64(q))); } catch { return null; }

@@ -27,6 +27,12 @@
 .ph-fill.ph-airplane-tilt:before {
   content: "\e5d6";
 }
+.ph-fill.ph-android-logo:before {
+  content: "\e008";
+}
+.ph-fill.ph-apple-logo:before {
+  content: "\e516";
+}
 .ph-fill.ph-arrow-fat-lines-up:before {
   content: "\e52a";
 }
@@ -41,6 +47,9 @@
 }
 .ph-fill.ph-arrows-left-right:before {
   content: "\e0a0";
+}
+.ph-fill.ph-at:before {
+  content: "\e0ac";
 }
 .ph-fill.ph-baby:before {
   content: "\e774";
@@ -162,6 +171,9 @@
 .ph-fill.ph-crosshair:before {
   content: "\e1d6";
 }
+.ph-fill.ph-desktop:before {
+  content: "\e560";
+}
 .ph-fill.ph-device-mobile:before {
   content: "\e1e0";
 }
@@ -201,6 +213,9 @@
 .ph-fill.ph-gps-slash:before {
   content: "\edd4";
 }
+.ph-fill.ph-hand-heart:before {
+  content: "\e810";
+}
 .ph-fill.ph-hand-tap:before {
   content: "\ec90";
 }
@@ -230,6 +245,9 @@
 }
 .ph-fill.ph-lightning:before {
   content: "\e2de";
+}
+.ph-fill.ph-list:before {
+  content: "\e2f0";
 }
 .ph-fill.ph-list-bullets:before {
   content: "\e2f2";
@@ -442,6 +460,12 @@
 .ph-bold.ph-airplane-tilt:before {
   content: "\e5d6";
 }
+.ph-bold.ph-android-logo:before {
+  content: "\e008";
+}
+.ph-bold.ph-apple-logo:before {
+  content: "\e516";
+}
 .ph-bold.ph-arrow-fat-lines-up:before {
   content: "\e52a";
 }
@@ -456,6 +480,9 @@
 }
 .ph-bold.ph-arrows-left-right:before {
   content: "\e0a0";
+}
+.ph-bold.ph-at:before {
+  content: "\e0ac";
 }
 .ph-bold.ph-baby:before {
   content: "\e774";
@@ -577,6 +604,9 @@
 .ph-bold.ph-crosshair:before {
   content: "\e1d6";
 }
+.ph-bold.ph-desktop:before {
+  content: "\e560";
+}
 .ph-bold.ph-device-mobile:before {
   content: "\e1e0";
 }
@@ -616,6 +646,9 @@
 .ph-bold.ph-gps-slash:before {
   content: "\edd4";
 }
+.ph-bold.ph-hand-heart:before {
+  content: "\e810";
+}
 .ph-bold.ph-hand-tap:before {
   content: "\ec90";
 }
@@ -645,6 +678,9 @@
 }
 .ph-bold.ph-lightning:before {
   content: "\e2de";
+}
+.ph-bold.ph-list:before {
+  content: "\e2f0";
 }
 .ph-bold.ph-list-bullets:before {
   content: "\e2f2";
@@ -852,6 +888,22 @@
   content: "\e5d7";
   margin-left: -1em;
 }
+.ph-duotone.ph-android-logo:before {
+  content: "\e008";
+  opacity: 0.2;
+}
+.ph-duotone.ph-android-logo:after {
+  content: "\e009";
+  margin-left: -1em;
+}
+.ph-duotone.ph-apple-logo:before {
+  content: "\e516";
+  opacity: 0.2;
+}
+.ph-duotone.ph-apple-logo:after {
+  content: "\e517";
+  margin-left: -1em;
+}
 .ph-duotone.ph-arrow-fat-lines-up:before {
   content: "\e52a";
   opacity: 0.2;
@@ -890,6 +942,14 @@
 }
 .ph-duotone.ph-arrows-left-right:after {
   content: "\e0a1";
+  margin-left: -1em;
+}
+.ph-duotone.ph-at:before {
+  content: "\e0ac";
+  opacity: 0.2;
+}
+.ph-duotone.ph-at:after {
+  content: "\e0ad";
   margin-left: -1em;
 }
 .ph-duotone.ph-baby:before {
@@ -1212,6 +1272,14 @@
   content: "\e1d7";
   margin-left: -1em;
 }
+.ph-duotone.ph-desktop:before {
+  content: "\e560";
+  opacity: 0.2;
+}
+.ph-duotone.ph-desktop:after {
+  content: "\e561";
+  margin-left: -1em;
+}
 .ph-duotone.ph-device-mobile:before {
   content: "\e1e0";
   opacity: 0.2;
@@ -1316,6 +1384,14 @@
   content: "\edd5";
   margin-left: -1em;
 }
+.ph-duotone.ph-hand-heart:before {
+  content: "\e810";
+  opacity: 0.2;
+}
+.ph-duotone.ph-hand-heart:after {
+  content: "\e811";
+  margin-left: -1em;
+}
 .ph-duotone.ph-hand-tap:before {
   content: "\ec90";
   opacity: 0.2;
@@ -1394,6 +1470,14 @@
 }
 .ph-duotone.ph-lightning:after {
   content: "\e2df";
+  margin-left: -1em;
+}
+.ph-duotone.ph-list:before {
+  content: "\e2f0";
+  opacity: 0.2;
+}
+.ph-duotone.ph-list:after {
+  content: "\e2f1";
   margin-left: -1em;
 }
 .ph-duotone.ph-list-bullets:before {

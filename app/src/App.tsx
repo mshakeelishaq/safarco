@@ -31,7 +31,7 @@ import { LIVE, fxFetch, geoSearch, placesFetch, placesKey, placesUrl, reverseGeo
 import { allUrls, fetchWeather } from './weather/route';
 import { mapsQ, mon } from './engine/format';
 import { bestAirport, trip, usualDays } from './engine/engine';
-import { NODES } from './engine/data';
+import { DESTS, NODES } from './engine/data';
 import { DST, cityOr, nearestCity } from './engine/places';
 import { css } from './lib/css';
 import { clearOffline, downloadOffline, savedOffline } from './offline';
@@ -48,7 +48,11 @@ const framed = (() => { try { return new URLSearchParams(location.search).has('f
 export function App() {
   const [s, setS] = useState<AppState>(() => {
     const st = initialState(), off = savedOffline(), base: AppState = off ? { ...st, offline: 'ready', offlineMB: off.mb } : st;
-    const shared = tripFromUrl(), cur = loadCurrent();
+    const shared = tripFromUrl(), cur = loadCurrent(), q = new URLSearchParams(location.search), go = q.get('go'), start = q.get('start');
+    // From the website: "Plan a trip to Hunza" starts a new plan for it; "Start planning" skips the welcome screen.
+    if (go && DESTS.some(d => d.id === go)) return { ...base, welcome: false, screen: 'onboard', step: 1, mode: 'know', dest: go, corridor: go, wish: 'any', chosen: null };
+    if (start === 'quick') return { ...base, welcome: false, quick: true, screen: 'onboard', step: 0, days: 5 };
+    if (start && !shared) return cur ? { ...base, ...cur.data, screen: 'app', savedId: cur.savedId, chosen: cur.data.corridor } : { ...base, welcome: false };
     // The address bar carries the trip being viewed; reopening this device's own trip keeps it as it was.
     if (shared && !(cur && JSON.stringify(cur.data) === JSON.stringify(shared))) return { ...base, ...shared, screen: 'app', chosen: shared.corridor, toast: tx('Shared trip opened. Tap Save to keep it.') };
     return cur ? { ...base, ...cur.data, screen: 'app', savedId: cur.savedId, chosen: cur.data.corridor } : { ...base, welcome: !seenWelcome() };
@@ -122,7 +126,7 @@ export function App() {
   useEffect(() => {
     // The address bar always opens this trip, so copying it shares the plan, not just the app.
     const url = tripKey ? shareUrl(JSON.parse(tripKey)) : '';
-    try { history.replaceState(null, '', url && url.length < 4200 ? url.slice(location.origin.length) : '/'); } catch { /* not allowed here */ }
+    try { history.replaceState(null, '', url && url.length < 4200 ? url.slice(location.origin.length) : '/plan'); } catch { /* not allowed here */ }
     if (!tripKey) return;
     const d = JSON.parse(tripKey);
     saveCurrent(d, s.savedId);

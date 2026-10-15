@@ -39,7 +39,7 @@ export function Follow() {
       <main style={css('max-width:520px;margin:0 auto;padding:24px 16px 48px;display:flex;flex-direction:column;gap:12px')}>
         <div style={css('display:flex;align-items:center;gap:8px')}><img src="/icon.svg" alt="" width="32" height="32" style={css('border-radius:9px')} /><span style={css('font-family:var(--fontH);font-size:18px;font-weight:700')}>SafarCo</span></div>
         {children}
-        <a href="/" style={css('align-self:center;margin-top:8px;font-size:13px;font-weight:800;color:var(--g);text-decoration:none')}>{t('Plan your own trip with SafarCo')} →</a>
+        <a href="/plan?start=1" style={css('align-self:center;margin-top:8px;font-size:13px;font-weight:800;color:var(--g);text-decoration:none')}>{t('Plan your own trip with SafarCo')} →</a>
       </main>
     </div>
   );

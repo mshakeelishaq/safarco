@@ -18,9 +18,14 @@ import { App } from './App';
 import { Admin } from './pages/Admin';
 import { Privacy, Terms } from './pages/Legal';
 import { Follow } from './pages/Follow';
+import { Site } from './site/Site';
 
 const path = location.pathname.replace(/\/+$/, '') || '/';
-const Page = path === '/admin' ? Admin : path === '/privacy' ? Privacy : path === '/terms' ? Terms : path === '/follow' ? Follow : App;
+// The planner is at /plan. The website is everything else, but "/" still opens the planner for the installed
+// app and for trip links shared before the planner moved.
+const q = new URLSearchParams(location.search), installed = matchMedia('(display-mode: standalone)').matches || (navigator as Navigator & { standalone?: boolean }).standalone === true;
+const planner = path === '/plan' || (path === '/' && (installed || q.has('trip')));
+const Page = path === '/admin' ? Admin : path === '/privacy' ? Privacy : path === '/terms' ? Terms : path === '/follow' ? Follow : planner ? App : Site;
 createRoot(document.getElementById('root')!).render(<Page />);
 
 if (import.meta.env.PROD) {

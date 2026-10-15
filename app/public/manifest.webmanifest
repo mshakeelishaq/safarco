@@ -4,7 +4,7 @@
   "short_name": "SafarCo",
   "description": "Plan road trips across Pakistan by budget and days: routes, day-by-day stops, hotels, weather and offline maps.",
   "lang": "en",
-  "start_url": "/",
+  "start_url": "/plan",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
