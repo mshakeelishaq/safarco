@@ -11,11 +11,22 @@ const OWN: Record<string, string> = {
   hunza: '/photos/autumn-hunza.webp',
   // The Indus Highway through the date palms between Shikarpur and Sukkur, on the way south to Karachi.
   sukkur: '/photos/indus-highway-sindh.webp',
-  kundmalir: '/photos/mud-volcano-hingol.webp'
+  kundmalir: '/photos/princess-of-hope.webp'
+};
+/** Our photo of one place at a destination, by "destination|place name". */
+export const PLACE_PHOTOS: Record<string, string> = {
+  'kundmalir|Princess of Hope': '/photos/princess-of-hope.webp',
+  'kundmalir|Hingol mud volcanoes': '/photos/mud-volcano-hingol.webp'
 };
 /** More of our photos of a place, with what they show, for its guide page. */
 export const GALLERY: Record<string, { src: string; caption: string }[]> = {
-  kundmalir: [{ src: '/photos/mud-volcano-hingol.webp', caption: 'Mud volcano near the Makran coast, Hingol' }, { src: '/photos/road-to-mud-volcano.webp', caption: 'The road to the mud volcanoes, with the sea beyond' }],
+  kundmalir: [
+    { src: '/photos/princess-of-hope.webp', caption: 'Princess of Hope, the rock figure in Hingol National Park' },
+    { src: '/photos/hingol-badlands.webp', caption: 'The Hingol badlands, with the Princess of Hope standing in the middle' },
+    { src: '/photos/hingol-road-badlands.webp', caption: 'The Makran Coastal Highway winding through the Hingol hills' },
+    { src: '/photos/mud-volcano-hingol.webp', caption: 'Mud volcano near the Makran coast, Hingol' },
+    { src: '/photos/road-to-mud-volcano.webp', caption: 'The road to the mud volcanoes, with the sea beyond' }
+  ],
   sukkur: [{ src: '/photos/indus-highway-sindh.webp', caption: 'The Indus Highway through the date palms near Shikarpur' }]
 };
 /** Our own photo of a place, if we have one. */

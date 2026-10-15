@@ -5,7 +5,7 @@ import { DCard } from './Home';
 import { PROVINCES, allCards, guide, nowMonth, type Province } from './data';
 import { DESTS, MON } from '../engine/data';
 import { dur } from '../engine/format';
-import { GALLERY } from '../photos';
+import { GALLERY, PLACE_PHOTOS } from '../photos';
 import { IG_HANDLE } from '../contact';
 
 export function DestinationList() {
@@ -43,7 +43,7 @@ export function Guide({ id }: { id: string }) {
   const warnM = new Set(g.warn?.[0] || []), bestM = new Set(g.best);
   return <>
     <Header onPhoto />
-    <section className="photo-band" style={{ backgroundImage: `url(${g.photo})` }}><div className="site-wrap">
+    <section className="photo-band" style={{ backgroundImage: `url(${g.photo})`, backgroundPosition: 'center 22%' }}><div className="site-wrap">
       <A href="/destinations" style={{ color: '#fff', textDecoration: 'none', fontWeight: 700, fontSize: 15, opacity: .9 }}>← All destinations</A>
       <div className="kicker" style={{ color: '#FFD27A', marginTop: 18 }}>{g.region}</div>
       <h1 style={{ fontSize: 'clamp(40px,6vw,68px)', margin: '0 0 10px', lineHeight: 1.05 }}>{g.name}</h1>
@@ -78,7 +78,7 @@ export function Guide({ id }: { id: string }) {
         <div className="places">
           {g.places.map(p => (
             <div key={p.name} className="place">
-              <span className="pin"><i className="ph-fill ph-map-pin" /></span>
+              {PLACE_PHOTOS[`${id}|${p.name}`] ? <img src={PLACE_PHOTOS[`${id}|${p.name}`]} alt={p.name} loading="lazy" style={{ flex: 'none', width: 96, height: 72, objectFit: 'cover', borderRadius: 12 }} /> : <span className="pin"><i className="ph-fill ph-map-pin" /></span>}
               <div>
                 <b>{p.name}</b>
                 <div className="meta">{[p.where, p.months && `Open ${p.months}`].filter(Boolean).join(' · ')}{p.href && <> · <a href={p.href} target="_blank" rel="noreferrer" style={{ color: 'var(--g)', fontWeight: 700 }}>Map</a></>}</div>
