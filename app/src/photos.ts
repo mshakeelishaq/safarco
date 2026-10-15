@@ -11,7 +11,9 @@ const OWN: Record<string, string> = {
   hunza: '/photos/autumn-hunza.webp',
   // The Indus Highway through the date palms between Shikarpur and Sukkur, on the way south to Karachi.
   sukkur: '/photos/indus-highway-sindh.webp',
-  kundmalir: '/photos/kund-malir-beach.webp'
+  kundmalir: '/photos/kund-malir-beach.webp',
+  // Ormara, on the coast on the way: the generic sea photo is Karachi's beach.
+  gwadar: '/photos/ormara-beach-evening.webp'
 };
 /** Our photo of one place at a destination, by "destination|place name". */
 export const PLACE_PHOTOS: Record<string, string> = {
@@ -60,7 +62,7 @@ export function destPhoto(id: string, month: number, startDate = '') {
   return { src: AUTUMN[pick(id + startDate, AUTUMN.length)] };
 }
 
-const COAST = ['gwadar', 'kundmalir', 'karachi'], HERITAGE = ['lahore'], INTERIOR_SINDH = ['mohenjo', 'sehwan'];
+const COAST = ['karachi'], HERITAGE = ['lahore'], INTERIOR_SINDH = ['mohenjo', 'sehwan'];
 /** A background for the trip's share card: our photo for the place and season, else one for the season. */
 export function cardPhoto(id: string, month: number, startDate = '') {
   if (ownPhoto(id)) return ownPhoto(id)!;
