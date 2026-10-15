@@ -16,10 +16,13 @@ const OWN: Record<string, string> = {
   gwadar: '/photos/ormara-beach-evening.webp',
   hyderabad: '/photos/hyderabad-bangles.webp',
   thatta: '/photos/thatta-shah-jahan-arches.webp',
-  uch: '/photos/uch-sharif-tombs.webp'
+  uch: '/photos/uch-sharif-tombs.webp',
+  multan: '/photos/multan-shah-rukn-e-alam.webp'
 };
 /** Our photo of one place at a destination, by "destination|place name". */
 export const PLACE_PHOTOS: Record<string, string> = {
+  'multan|Shah Rukn-e-Alam shrine': '/photos/multan-shah-rukn-e-alam.webp',
+  'multan|Qila Kohna Qasim Bagh': '/photos/multan-fort-aerial.webp',
   'sukkur|Lansdowne Bridge viewpoint': '/photos/sukkur-lansdowne-bridge.webp',
   'uch|Tomb of Bibi Jawindi': '/photos/uch-sharif-tombs.webp',
   'uch|Tomb of Baha’al-Halim': '/photos/uch-sharif-tombs.webp',
@@ -49,6 +52,10 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/hingol-road-badlands.webp', caption: 'The Makran Coastal Highway winding through the Hingol hills' },
     { src: '/photos/mud-volcano-hingol.webp', caption: 'Mud volcano near the Makran coast, Hingol' },
     { src: '/photos/road-to-mud-volcano.webp', caption: 'The road to the mud volcanoes, with the sea beyond' }
+  ],
+  multan: [
+    { src: '/photos/multan-shah-rukn-e-alam.webp', caption: 'The tomb of Shah Rukn-e-Alam, Multan’s landmark from the 1320s' },
+    { src: '/photos/multan-fort-aerial.webp', caption: 'The old fort mound from above: Shah Rukn-e-Alam’s tomb, Qasim Bagh and the city beyond' }
   ],
   uch: [{ src: '/photos/uch-sharif-tombs.webp', caption: 'The tombs of Bibi Jawindi (centre), Baha’al-Halim (left) and Ustad Nuriya (right), Uch Sharif' }],
   thatta: [
