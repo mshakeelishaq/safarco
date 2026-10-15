@@ -97,6 +97,8 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/lahore-azadi-chowk-sunrise.webp', caption: 'Sunrise over Azadi Chowk, with Minar-e-Pakistan and the Badshahi Mosque' },
     { src: '/photos/lahore-pink-blossom.webp', caption: 'Spring: pink tabebuia in bloom across the city, March and April' },
     { src: '/photos/lahore-white-blossom.webp', caption: 'Spring: white blossom at sunset' },
+    { src: '/photos/lahore-summer-amaltas-canal.webp', caption: 'Summer: golden amaltas along a canal-side path, May and June' },
+    { src: '/photos/lahore-summer-amaltas-water.webp', caption: 'Summer: amaltas reflected in rain water after a monsoon shower' },
     { src: '/photos/lahore-basant-minaret.webp', caption: 'Basant: kites over the rooftops at sunset, by a lit minaret' },
     { src: '/photos/lahore-basant-rooftops.webp', caption: 'Basant: the sky full of kites over the old city, February. Dates are announced by the Punjab government each year' },
     { src: '/photos/lahore-basant-sun.webp', caption: 'Basant: a kite against the setting sun' },
@@ -168,7 +170,7 @@ type SeasonName = 'spring' | 'summer' | 'autumn' | 'winter';
 const SEASONAL: Record<string, Partial<Record<SeasonName, string>>> = {
   murree: { summer: '/photos/murree-summer.webp', winter: '/photos/murree-winter-snow-road.webp' },
   nathia: { summer: '/photos/mushkpuri-summer.webp' },
-  lahore: { spring: '/photos/lahore-pink-blossom.webp', winter: '/photos/lahore-azadi-chowk-sunrise.webp' },
+  lahore: { spring: '/photos/lahore-pink-blossom.webp', summer: '/photos/lahore-summer-amaltas-canal.webp', winter: '/photos/lahore-azadi-chowk-sunrise.webp' },
   islamabad: { spring: '/photos/islamabad-jacaranda-path.webp', summer: '/photos/islamabad-amaltas-road.webp', autumn: '/photos/islamabad-autumn-road.webp' }
 };
 const seasonName = (m: number): SeasonName => [3, 4, 5].includes(m) ? 'spring' : [6, 7, 8].includes(m) ? 'summer' : [9, 10, 11].includes(m) ? 'autumn' : 'winter';
