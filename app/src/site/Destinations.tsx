@@ -6,6 +6,7 @@ import { PROVINCES, allCards, guide, nowMonth, type Province } from './data';
 import { DESTS, MON } from '../engine/data';
 import { dur } from '../engine/format';
 import { GALLERY, PLACE_PHOTOS } from '../photos';
+import { Slideshow } from './Slideshow';
 import { IG_HANDLE } from '../contact';
 
 export function DestinationList() {
@@ -65,12 +66,7 @@ export function Guide({ id }: { id: string }) {
 
         {(GALLERY[id] || []).length > 0 && <>
           <h2 style={{ fontSize: 30, margin: '40px 0 12px' }}>Photos</h2>
-          <div className="grid g2">{GALLERY[id].map(ph => (
-            <figure key={ph.src} style={{ margin: 0 }}>
-              <img src={ph.src} alt={ph.caption} loading="lazy" style={{ width: '100%', aspectRatio: '4/3', objectFit: 'cover', borderRadius: 18, display: 'block' }} />
-              <figcaption style={{ fontSize: 14, color: 'var(--mute)', marginTop: 6 }}>{ph.caption} · © {IG_HANDLE}</figcaption>
-            </figure>
-          ))}</div>
+          <Slideshow photos={GALLERY[id]} />
         </>}
 
         <h2 style={{ fontSize: 30, margin: '40px 0 6px' }}>Places to see</h2>
