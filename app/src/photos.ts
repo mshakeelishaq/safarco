@@ -92,6 +92,12 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/mud-volcano-hingol.webp', caption: 'Mud volcano near the Makran coast, Hingol' },
     { src: '/photos/road-to-mud-volcano.webp', caption: 'The road to the mud volcanoes, with the sea beyond' }
   ],
+  lahore: [
+    { src: '/photos/lahore-winter-fog-bikes.webp', caption: 'Winter: dense fog on Lahore’s roads, December and January. Motorways often close at night; drive by day' },
+    { src: '/photos/lahore-winter-fog-road.webp', caption: 'Winter: headlights in the evening fog' },
+    { src: '/photos/lahore-winter-fog-walk.webp', caption: 'Winter: walking home through the fog' },
+    { src: '/photos/lahore-winter-fog-lights.webp', caption: 'Winter: traffic glowing through fog and smog' }
+  ],
   chakwal: [
     { src: '/photos/swaik-lake.webp', caption: 'Swaik Lake near Kallar Kahar: an emerald pool in a green gorge' },
     { src: '/photos/swaik-lake-ferns.webp', caption: 'Swaik Lake: spring water dripping through ferns into the pool' },
@@ -154,6 +160,7 @@ type SeasonName = 'spring' | 'summer' | 'autumn' | 'winter';
 const SEASONAL: Record<string, Partial<Record<SeasonName, string>>> = {
   murree: { summer: '/photos/murree-summer.webp', winter: '/photos/murree-winter-snow-road.webp' },
   nathia: { summer: '/photos/mushkpuri-summer.webp' },
+  lahore: { winter: '/photos/lahore-winter-fog-bikes.webp' },
   islamabad: { spring: '/photos/islamabad-jacaranda-path.webp', summer: '/photos/islamabad-amaltas-road.webp', autumn: '/photos/islamabad-autumn-road.webp' }
 };
 const seasonName = (m: number): SeasonName => [3, 4, 5].includes(m) ? 'spring' : [6, 7, 8].includes(m) ? 'summer' : [9, 10, 11].includes(m) ? 'autumn' : 'winter';
