@@ -10,7 +10,13 @@ const AUTUMN_MONTHS = [10, 11];
 const OWN: Record<string, string> = {
   hunza: '/photos/autumn-hunza.webp',
   // The Indus Highway through the date palms between Shikarpur and Sukkur, on the way south to Karachi.
-  sukkur: '/photos/indus-highway-sindh.webp'
+  sukkur: '/photos/indus-highway-sindh.webp',
+  kundmalir: '/photos/mud-volcano-hingol.webp'
+};
+/** More of our photos of a place, with what they show, for its guide page. */
+export const GALLERY: Record<string, { src: string; caption: string }[]> = {
+  kundmalir: [{ src: '/photos/mud-volcano-hingol.webp', caption: 'Mud volcano near the Makran coast, Hingol' }, { src: '/photos/road-to-mud-volcano.webp', caption: 'The road to the mud volcanoes, with the sea beyond' }],
+  sukkur: [{ src: '/photos/indus-highway-sindh.webp', caption: 'The Indus Highway through the date palms near Shikarpur' }]
 };
 /** Our own photo of a place, if we have one. */
 /** Photos the admin set for a place (a web link), ahead of ours. */

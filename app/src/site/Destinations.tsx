@@ -5,6 +5,8 @@ import { DCard } from './Home';
 import { PROVINCES, allCards, guide, nowMonth, type Province } from './data';
 import { DESTS, MON } from '../engine/data';
 import { dur } from '../engine/format';
+import { GALLERY } from '../photos';
+import { IG_HANDLE } from '../contact';
 
 export function DestinationList() {
   usePage('Destinations', `Guides to ${DESTS.length} places across Pakistan: Hunza, Skardu, Naran, Swat, Neelum, Chitral, Lahore, Karachi and more. Best months, places to see, food and how to get there.`);
@@ -60,6 +62,16 @@ export function Guide({ id }: { id: string }) {
         {g.highlights.length > 0 && <div style={{ display: 'grid', gap: 8, margin: '14px 0 0' }}>
           {g.highlights.map((h, i) => <div key={i} className={`note ${h.caution ? 'amb' : 'g'}`}><i className="ph-fill ph-calendar-check" style={{ flex: 'none', marginTop: 2 }} /><span><b>{h.when}:</b> {h.text}{h.caution ? `${/[.!?]$/.test(h.text) ? '' : '.'} ${h.caution}` : ''}</span></div>)}
         </div>}
+
+        {(GALLERY[id] || []).length > 0 && <>
+          <h2 style={{ fontSize: 30, margin: '40px 0 12px' }}>Photos</h2>
+          <div className="grid g2">{GALLERY[id].map(ph => (
+            <figure key={ph.src} style={{ margin: 0 }}>
+              <img src={ph.src} alt={ph.caption} loading="lazy" style={{ width: '100%', aspectRatio: '4/3', objectFit: 'cover', borderRadius: 18, display: 'block' }} />
+              <figcaption style={{ fontSize: 14, color: 'var(--mute)', marginTop: 6 }}>{ph.caption} · © {IG_HANDLE}</figcaption>
+            </figure>
+          ))}</div>
+        </>}
 
         <h2 style={{ fontSize: 30, margin: '40px 0 6px' }}>Places to see</h2>
         <p style={{ color: 'var(--mute)', margin: '0 0 8px' }}>SafarCo fits these into your days in a sensible order, with the drive times between them.</p>
