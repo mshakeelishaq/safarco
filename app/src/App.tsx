@@ -20,7 +20,7 @@ import { t as tx } from './i18n';
 import { applyPrices } from './prices';
 import { applyContent } from './content';
 import { clearCurrent, cloudMerge, defaultName, deleteLocal, loadCurrent, localTrips, newId, saveCurrent, saveLocal, shareUrl, tripData, tripFromUrl, type SavedTrip } from './trips';
-import { MapTab } from './components/MapTab';
+import { MapTab, SideMap } from './components/MapTab';
 import { BudgetTab } from './components/BudgetTab';
 import { Building } from './components/Building';
 import { DayPage } from './components/DayPage';
@@ -62,6 +62,9 @@ export function App() {
   const stRef = useRef(s); stRef.current = s;
   const set = useCallback((p: Patch) => setS(prev => ({ ...prev, ...p })), []);
   const [, bump] = useReducer((x: number) => x + 1, 0);
+  // Laptops: the plan on the left and the route map beside it.
+  const [wide, setWide] = useState(() => matchMedia('(min-width: 1100px)').matches);
+  useEffect(() => { const mq = matchMedia('(min-width: 1100px)'), f = () => setWide(mq.matches); mq.addEventListener('change', f); return () => mq.removeEventListener('change', f); }, []);
   // The install card appears once the browser offers to install the app.
   useEffect(() => onInstallChange(bump), []);
   const timers = useRef<number[]>([]);
@@ -334,8 +337,9 @@ export function App() {
     if (n) { n.style.transform = `translateY(${-st * .45}px)`; n.style.opacity = String(Math.max(0, 1 - st / 520)); }
   };
 
+  const side = wide && !framed && s.screen === 'app';
   return (
-    <div data-sc="1" data-theme={s.theme} className={`sc-page${framed ? ' sc-framed' : ''}`}>
+    <div data-sc="1" data-theme={s.theme} className={`sc-page${framed ? ' sc-framed' : ''}${side ? ' sc-wide' : ''}`}>
       <div className="sc-frame">
         <main data-screen-label="SafarCo phone" className="sc-phone">
           <Scene elRef={sceneRef} corridor={s.corridor} theme={s.theme} lite={s.lite} photo={s.lite && !DST(s.corridor).generic ? cardPhoto(s.corridor, monthOf(s)) : null} showLabels={s.screen !== 'app'} peakLabel={DST(s.corridor).peakLabel} />
@@ -351,7 +355,8 @@ export function App() {
           {s.screen === 'app' && <>
             <div ref={scrollRef} onScroll={onScroll} style={css('position:absolute;inset:0;z-index:5;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;pointer-events:none')}>
               {s.tab === 'trip' && <TripTab v={view} api={api} />}
-              {s.tab === 'map' && <MapTab v={view} api={api} />}
+              {s.tab === 'map' && !side && <MapTab v={view} api={api} />}
+              {s.tab === 'map' && side && <TripTab v={view} api={api} />}
               {s.tab === 'budget' && <BudgetTab v={view} api={api} />}
               {s.tab === 'prepare' && <PrepareTab v={view} api={api} />}
             </div>
@@ -359,10 +364,12 @@ export function App() {
             {s.tab !== 'map' && <div aria-hidden style={css('position:absolute;left:0;right:0;bottom:0;height:calc(70px + env(safe-area-inset-bottom));z-index:11;pointer-events:none;background:linear-gradient(180deg,transparent,var(--bg) 55%)')} />}
             <nav aria-label="Sections" className="sc-nav" style={css('position:absolute;left:18px;right:18px;bottom:calc(24px + env(safe-area-inset-bottom));z-index:12;display:flex;align-items:center;gap:12px')}>
               <div style={css('flex:1;height:64px;border-radius:24px;background:var(--sheet);backdrop-filter:blur(20px) saturate(1.4);border:1px solid var(--line);display:flex;align-items:center;padding:6px;gap:6px;box-shadow:0 12px 30px -14px rgba(0,0,0,.35)')}>
-                {view.tabs.map(t => <button key={t.key} onClick={t.onClick} aria-current={s.tab === t.key ? 'page' : undefined} style={css(`flex:1;height:52px;border-radius:19px;border:0;background:${t.bg};color:${t.fg};display:flex;align-items:center;justify-content:center;gap:5px;font-size:13px;font-weight:800;cursor:pointer;transition:all .25s`)}><i className={`ph-fill ${t.icon}`} style={css('font-size:19px')} />{t.label}</button>)}
+                {view.tabs.filter(t => !side || t.key !== 'map').map(t => <button key={t.key} onClick={t.onClick} aria-current={s.tab === t.key ? 'page' : undefined} style={css(`flex:1;height:52px;border-radius:19px;border:0;background:${t.bg};color:${t.fg};display:flex;align-items:center;justify-content:center;gap:5px;font-size:13px;font-weight:800;cursor:pointer;transition:all .25s`)}><i className={`ph-fill ${t.icon}`} style={css('font-size:19px')} />{t.label}</button>)}
               </div>
             </nav>
 
+            {side && <SideMap v={view} api={api} />}
+            {side && <a href="/" className="sc-home" aria-label={tx('SafarCo website')}><img src="/icon-192.png" alt="" />SafarCo</a>}
             <EditSheet v={view} api={api} />
             <DayPage v={view} />
             {s.building != null && <Building v={view} started={s.building} onDone={doneBuilding} />}

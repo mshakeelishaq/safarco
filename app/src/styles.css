@@ -197,6 +197,21 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
   .sc-page:not(.sc-framed) .sc-phone { --ob-top: clamp(200px, calc(100dvh - 600px), 320px); }
 }
 .sc-sheet { max-height: calc(100% - 40px); }
+@media (min-width: 760px) {
+  .sc-page:not(.sc-framed) .sc-daypage { left: calc(50% - 380px) !important; right: calc(50% - 380px) !important; box-shadow: 0 0 0 1px var(--line), 0 30px 80px -30px var(--shadow); }
+}
+/* Laptops: the plan in a column on the left, the route map filling the right. */
+.sc-side, .sc-home { display: none; }
+@media (min-width: 1100px) {
+  .sc-page.sc-wide:not(.sc-framed) .sc-col { left: 48px !important; right: auto !important; width: 560px; }
+  .sc-page.sc-wide:not(.sc-framed) .sc-flow { max-width: 600px !important; margin: 0 0 0 28px !important; }
+  .sc-page.sc-wide:not(.sc-framed) .sc-nav { left: 48px !important; right: auto !important; width: 560px; }
+  .sc-page.sc-wide:not(.sc-framed) .sc-sheet { left: 28px !important; right: auto !important; width: 600px; }
+  .sc-page.sc-wide:not(.sc-framed) .sc-daypage { left: 16px !important; right: auto !important; width: 640px; top: 16px !important; bottom: 16px !important; border-radius: 26px; overflow: hidden; }
+  .sc-page.sc-wide:not(.sc-framed) .sc-side { display: block; position: absolute; top: 16px; right: 16px; bottom: 16px; left: 660px; z-index: 6; border-radius: 28px; overflow: hidden; background: var(--fill); box-shadow: 0 0 0 1px var(--line), 0 30px 70px -30px var(--shadow); }
+  .sc-page.sc-wide:not(.sc-framed) .sc-home { display: flex; position: absolute; left: 676px; top: 32px; z-index: 8; align-items: center; gap: 8px; padding: 8px 14px 8px 8px; border-radius: 14px; background: var(--sheet); border: 1px solid var(--line); color: var(--ink); font-weight: 800; font-size: 14px; text-decoration: none; box-shadow: 0 10px 24px -12px rgba(0,0,0,.35); }
+  .sc-page.sc-wide:not(.sc-framed) .sc-home img { width: 26px; height: 26px; border-radius: 7px; }
+}
 
 /* "Getting your plan ready": the vehicle drives the road while the route draws itself. */
 @keyframes sc-drive { 0% { offset-distance: 0%; } 100% { offset-distance: 100%; } }

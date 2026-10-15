@@ -10,7 +10,7 @@ type ML = typeof import('maplibre-gl');
 const escH = (s: string) => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
 
 /** Real 3D map (MapLibre + OpenFreeMap + Terrarium elevation) with the trip route and pins. */
-function LiveMap({ v, onFail }: { v: View; onFail: () => void }) {
+function LiveMap({ v, onFail, fill }: { v: View; onFail: () => void; fill?: boolean }) {
   const el = useRef<HTMLDivElement>(null);
   const st = useRef<{ ml?: ML; map?: import('maplibre-gl').Map; ok?: boolean; key?: string; wxKey?: string; fuelKey?: string; markers: import('maplibre-gl').Marker[] }>({ markers: [] });
   const { s } = v, rm = v.routeMap, o = cityOr(s.origin), r = LIVE.route[routeKey(o.n, s.corridor)];
@@ -87,7 +87,7 @@ function LiveMap({ v, onFail }: { v: View; onFail: () => void }) {
   };
   useEffect(update);
 
-  return <div ref={el} role="application" aria-label={t('Route map')} style={css('position:relative;height:440px;border-radius:20px;overflow:hidden;background:var(--fill)')} />;
+  return <div ref={el} role="application" aria-label={t('Route map')} style={css(`position:relative;height:${fill ? '100%' : '440px'};border-radius:${fill ? 0 : 20}px;overflow:hidden;background:var(--fill)`)} />;
 }
 
 /** What the weather colours on the route mean. */
@@ -135,6 +135,16 @@ function DrawnMap({ v }: { v: View }) {
     </div>
     <WxLegend v={v} />
   </>;
+}
+
+/** On a laptop: the route map beside the plan, always in view. */
+export function SideMap({ v, api }: { v: View; api: Api }) {
+  return (
+    <div className="sc-side" aria-label={t('Route map')}>
+      {v.s.mapFail ? <div style={css('padding:16px;height:100%;box-sizing:border-box;overflow:auto;background:var(--sheet)')}><DrawnMap v={v} /></div> : <LiveMap v={v} fill onFail={() => api.set({ mapFail: true })} />}
+      {v.routeLink && <a href={v.routeLink} target="_blank" rel="noopener" style={css('position:absolute;left:16px;bottom:16px;z-index:2;display:flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:14px;background:var(--cta);color:var(--onCta);font-size:14px;font-weight:800;text-decoration:none;box-shadow:0 10px 24px -10px rgba(0,0,0,.5)')}><i className="ph-fill ph-navigation-arrow" />{t('Open the route in Google Maps')}</a>}
+    </div>
+  );
 }
 
 export function MapTab({ v, api }: { v: View; api: Api }) {

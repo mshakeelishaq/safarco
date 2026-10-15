@@ -23,7 +23,7 @@ export function DayPage({ v }: { v: View }) {
   };
   const nav = 'width:44px;height:44px;flex:none;border-radius:15px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center';
   return (
-    <div role="dialog" aria-modal="true" aria-label={t('Day {n} of {total}', { n: p.i + 1, total })} style={css('position:absolute;inset:0;z-index:30;background:var(--bg);color:var(--ink);display:flex;flex-direction:column')}
+    <div role="dialog" aria-modal="true" className="sc-daypage" aria-label={t('Day {n} of {total}', { n: p.i + 1, total })} style={css('position:absolute;inset:0;z-index:30;background:var(--bg);color:var(--ink);display:flex;flex-direction:column')}
       onTouchStart={e => { touch.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }; }} onTouchEnd={onEnd}>
       <div style={css('flex:none;padding:calc(54px + env(safe-area-inset-top)) 16px 12px;border-bottom:1px solid var(--line);background:var(--sheet)')}>
         <div style={css('display:flex;align-items:center;gap:8px')}>

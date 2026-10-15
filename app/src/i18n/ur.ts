@@ -2104,4 +2104,5 @@ export const UR: Record<string, string> = {
   "To Islamabad": "Islamabad tak",
   "{road} is closed now, and there is no other way: check before you go.": "{road} abhi band hai, aur koi doosra raasta nahin: jaane se pehle maloom kar lein.",
   "{road} is closed now. SafarCo plans the way round it.": "{road} abhi band hai. SafarCo doosre raaste se plan banata hai.",
+  "SafarCo website": "SafarCo ki website",
 };
