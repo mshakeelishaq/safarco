@@ -5,7 +5,7 @@ import { DCard } from './Home';
 import { PROVINCES, allCards, guide, nowMonth, type Province } from './data';
 import { DESTS, MON } from '../engine/data';
 import { dur } from '../engine/format';
-import { GALLERY, PLACE_PHOTOS } from '../photos';
+import { GALLERY, PLACE_PHOTOS, webPhoto } from '../photos';
 import { Slideshow } from './Slideshow';
 import { IG_HANDLE } from '../contact';
 
@@ -50,6 +50,7 @@ export function Guide({ id }: { id: string }) {
       <h1 style={{ fontSize: 'clamp(40px,6vw,68px)', margin: '0 0 10px', lineHeight: 1.05 }}>{g.name}</h1>
       <p style={{ fontSize: 19, maxWidth: 700, margin: '0 0 22px' }}>{g.line}</p>
       <div className="hero-actions"><a href={`/plan?go=${id}`} className="btn btn-sun">Plan a trip to {g.name} <i className="ph-bold ph-arrow-right" /></a></div>
+      {webPhoto(id) && <a href={webPhoto(id)!.page} target="_blank" rel="noreferrer" style={{ display: 'inline-block', marginTop: 14, color: '#fff', opacity: .8, fontSize: 12 }}>{webPhoto(id)!.credit}</a>}
     </div></section>
 
     <section className="sec"><div className="site-wrap guide">

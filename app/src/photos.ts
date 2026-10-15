@@ -89,6 +89,27 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
 /** Our own photo of a place, if we have one. */
 /** Photos the admin set for a place (a web link), ahead of ours. */
 export const PHOTO_EDITS: Record<string, string> = {};
+/** Places we have no photo of yet: their Wikipedia article's main photo (free licences on Wikimedia Commons), with credit. */
+const WIKI_PAGES: Record<string, string> = { taxila: 'Taxila' };
+export interface WebPhoto { src: string; page: string; credit: string }
+const WEB: Record<string, WebPhoto | null> = {};
+const webSubs = new Set<() => void>();
+export const onWebPhoto = (f: () => void) => { webSubs.add(f); return () => { webSubs.delete(f); }; };
+/** The Wikipedia photo for a place without one of ours, loading it the first time it's asked for. */
+export function webPhoto(id: string): WebPhoto | null {
+  const page = WIKI_PAGES[id]; if (!page || OWN[id]) return null;
+  if (!(id in WEB)) {
+    WEB[id] = null;
+    fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(page)}`).then(r => r.json()).then(j => {
+      const src = j?.originalimage?.source || j?.thumbnail?.source; if (!src) return;
+      // A 1280 px copy is plenty, and much lighter than the original.
+      const sized = j?.thumbnail?.source && /\/\d+px-/.test(j.thumbnail.source) ? j.thumbnail.source.replace(/\/\d+px-/, '/1280px-') : src;
+      WEB[id] = { src: sized, page: j?.content_urls?.desktop?.page || `https://en.wikipedia.org/wiki/${page}`, credit: 'Photo from Wikipedia (Wikimedia Commons)' };
+      webSubs.forEach(f => f());
+    }).catch(() => {});
+  }
+  return WEB[id];
+}
 /** Our photos of a place by season; the trip's season is shown when we have it, else any of them. */
 type SeasonName = 'spring' | 'summer' | 'autumn' | 'winter';
 const SEASONAL: Record<string, Partial<Record<SeasonName, string>>> = {

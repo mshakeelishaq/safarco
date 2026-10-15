@@ -4,7 +4,7 @@ import { DST, rangeTxt } from '../engine/places';
 import { highlightIn, highlightsOf, monthsLabel } from '../engine/seasons';
 import { airFor, trip } from '../engine/engine';
 import { FOOD } from '../engine/food';
-import { cardPhoto, ownPhoto } from '../photos';
+import { cardPhoto, ownPhoto, webPhoto } from '../photos';
 import { fmtN } from '../engine/format';
 
 export const PROVINCES = ['Gilgit-Baltistan', 'Khyber Pakhtunkhwa', 'Azad Kashmir', 'Punjab and Islamabad', 'Sindh', 'Balochistan'] as const;
@@ -14,7 +14,7 @@ export const provinceOf = (region: string): Province =>
     : /Sindh/.test(region) ? 'Sindh' : /Balochistan/.test(region) ? 'Balochistan' : 'Punjab and Islamabad';
 
 export const nowMonth = () => new Date().getMonth() + 1;
-export const photoOf = (id: string, m = nowMonth()) => ownPhoto(id, m) || cardPhoto(id, m);
+export const photoOf = (id: string, m = nowMonth()) => ownPhoto(id, m) || webPhoto(id)?.src || cardPhoto(id, m);
 const best = (id: string) => DST(id).best || [];
 
 /** A destination as a card: photo, one line, best months. */

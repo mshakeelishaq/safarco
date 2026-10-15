@@ -5,6 +5,7 @@ import { applyContent } from '../content';
 import { applyPrices } from '../prices';
 import { loadContent, loadPriceList } from '../cloud';
 import { IG_HANDLE, IG_PROFILE } from '../contact';
+import { onWebPhoto } from '../photos';
 import { Home } from './Home';
 import { DestinationList, Guide } from './Destinations';
 import { About } from './About';
@@ -79,6 +80,7 @@ export function NotFound() {
 
 export function Site() {
   const [p, setP] = useState(path()), [, bump] = useReducer((x: number) => x + 1, 0);
+  useEffect(() => onWebPhoto(bump), []);
   // "Home" from the installed app arrives as /?home; show a clean address.
   useEffect(() => { if (location.search === '?home') history.replaceState(null, '', '/'); }, []);
   useEffect(() => { const f = () => setP(path()); addEventListener('popstate', f); addEventListener('sc-nav', f); return () => { removeEventListener('popstate', f); removeEventListener('sc-nav', f); }; }, []);
