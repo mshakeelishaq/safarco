@@ -108,6 +108,14 @@ export async function saveContent(value: unknown) {
   const { error } = await sb.from('app_config').upsert({ key: 'content', value, updated_at: new Date().toISOString() });
   if (error) throw error;
 }
+/** Everyone who has signed up, for admins only (supabase/users.sql). */
+export interface AppUser { id: string; email: string; name: string; provider: string; created_at: string; last_sign_in_at: string | null; trips: number; reviews: number; tips: number; is_admin: boolean }
+export async function listUsers(): Promise<AppUser[]> {
+  if (!sb) return [];
+  const { data, error } = await sb.rpc('admin_users');
+  if (error) throw error;
+  return (data || []) as AppUser[];
+}
 export async function isAdmin(): Promise<boolean> {
   if (!sb) return false;
   const { data, error } = await sb.rpc('is_admin');

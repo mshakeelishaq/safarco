@@ -7,6 +7,7 @@ import { applyContent, cleanContent, NO_CONTENT, allDests, type ContentEdits } f
 import { PLACE_INFO } from '../engine/data';
 import { PlacesTab, type Edit } from './admin/PlacesTab';
 import { Login, NewPassword } from './admin/Login';
+import { UsersTab } from './admin/UsersTab';
 import { DestTab } from './admin/DestTab';
 import { FoodTab } from './admin/FoodTab';
 import { SafetyTab } from './admin/SafetyTab';
@@ -149,7 +150,7 @@ export function Admin() {
   const NAV: [string, string, string, number][] = [
     ['overview', 'Overview', 'ph-list-bullets', 0], ['places', 'Places', 'ph-map-pin', 0], ['dests', 'Destinations', 'ph-mountains', 0], ['food', 'Food', 'ph-fork-knife', 0],
     ['safety', 'Roads and safety', 'ph-shield-warning', 0], ['prices', 'Prices', 'ph-wallet', late.length], ['trusted', 'Hotels and drivers', 'ph-bed', 0],
-    ['notes', 'Season notes and map fixes', 'ph-pencil-simple', 0], ['moderation', 'Reviews and tips', 'ph-chat-circle-text', waitingRv + waitingTips], ['feedback', 'Feedback', 'ph-receipt', fb.length]];
+    ['notes', 'Season notes and map fixes', 'ph-pencil-simple', 0], ['users', 'Users', 'ph-users-three', 0], ['moderation', 'Reviews and tips', 'ph-chat-circle-text', waitingRv + waitingTips], ['feedback', 'Feedback', 'ph-receipt', fb.length]];
   const Card = ({ n, label, go, tone }: { n: number | string; label: string; go: string; tone?: string }) => (
     <button onClick={() => setTab(go)} style={css(`text-align:left;padding:14px;border-radius:16px;border:1px solid ${tone || 'var(--line)'};background:var(--card);color:var(--ink);cursor:pointer`)}>
       <div style={css(`font-size:26px;font-weight:800;color:${tone || 'var(--ink)'}`)}>{n}</div><div style={css('font-size:13px;font-weight:700;color:var(--mute);margin-top:2px')}>{label}</div>
@@ -388,6 +389,7 @@ export function Admin() {
     </section>
 
         </>}
+        {tab === 'users' && <UsersTab />}
         {tab === 'feedback' && <>
     <section style={box}><h2 style={css('margin:0 0 10px;font-size:18px')}>Feedback ({fb.length})</h2>
       {!fb.length && <p style={css('color:var(--mute);margin:0')}>No feedback yet.</p>}
