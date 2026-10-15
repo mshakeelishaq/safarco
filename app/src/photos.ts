@@ -17,11 +17,17 @@ const OWN: Record<string, string> = {
   hyderabad: '/photos/hyderabad-bangles.webp',
   thatta: '/photos/thatta-shah-jahan-arches.webp',
   uch: '/photos/uch-sharif-tombs.webp',
-  multan: '/photos/multan-shah-rukn-e-alam.webp'
+  multan: '/photos/multan-shah-rukn-e-alam.webp',
+  bahawalpur: '/photos/derawar-fort.webp'
 };
 /** Our photo of one place at a destination, by "destination|place name". */
 export const PLACE_PHOTOS: Record<string, string> = {
   'nathia|Mushkpuri Top': '/photos/mushkpuri-summer.webp',
+  'bahawalpur|Derawar Fort': '/photos/derawar-fort.webp',
+  'bahawalpur|Abbasi Mosque, Derawar': '/photos/derawar-abbasi-mosque.webp',
+  'bahawalpur|Noor Mahal': '/photos/bahawalpur-noor-mahal.webp',
+  'uch|Derawar Fort': '/photos/derawar-fort.webp',
+  'uch|Abbasi Mosque, Derawar': '/photos/derawar-abbasi-mosque.webp',
   'multan|Shah Rukn-e-Alam shrine': '/photos/multan-shah-rukn-e-alam.webp',
   'multan|Qila Kohna Qasim Bagh': '/photos/multan-fort-aerial.webp',
   'sukkur|Lansdowne Bridge viewpoint': '/photos/sukkur-lansdowne-bridge.webp',
@@ -79,11 +85,17 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/mud-volcano-hingol.webp', caption: 'Mud volcano near the Makran coast, Hingol' },
     { src: '/photos/road-to-mud-volcano.webp', caption: 'The road to the mud volcanoes, with the sea beyond' }
   ],
+  bahawalpur: [
+    { src: '/photos/derawar-fort.webp', caption: 'Derawar Fort: forty bastions rising out of the Cholistan desert' },
+    { src: '/photos/derawar-abbasi-mosque.webp', caption: 'The white marble Abbasi Mosque beside Derawar Fort' },
+    { src: '/photos/bahawalpur-noor-mahal.webp', caption: 'Noor Mahal, the Nawabs’ palace in Bahawalpur' },
+    { src: '/photos/bahawalpur-farid-gate.webp', caption: 'Farid Gate into the old bazaar, lit up at night' }
+  ],
   multan: [
     { src: '/photos/multan-shah-rukn-e-alam.webp', caption: 'The tomb of Shah Rukn-e-Alam, Multan’s landmark from the 1320s' },
     { src: '/photos/multan-fort-aerial.webp', caption: 'The old fort mound from above: Shah Rukn-e-Alam’s tomb, Qasim Bagh and the city beyond' }
   ],
-  uch: [{ src: '/photos/uch-sharif-tombs.webp', caption: 'The tombs of Bibi Jawindi (centre), Baha’al-Halim (left) and Ustad Nuriya (right), Uch Sharif' }],
+  uch: [{ src: '/photos/uch-sharif-tombs.webp', caption: 'The tombs of Bibi Jawindi (centre), Baha’al-Halim (left) and Ustad Nuriya (right), Uch Sharif' }, { src: '/photos/derawar-fort.webp', caption: 'Nearby: Derawar Fort in the Cholistan desert' }],
   thatta: [
     { src: '/photos/thatta-shah-jahan-arches.webp', caption: 'Shah Jahan Mosque: rows of brick arches and glazed tiles' },
     { src: '/photos/thatta-shah-jahan-hall.webp', caption: 'Inside the Shah Jahan Mosque, built in the 1640s' },
