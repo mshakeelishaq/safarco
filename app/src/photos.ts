@@ -15,10 +15,14 @@ const OWN: Record<string, string> = {
   // Ormara, on the coast on the way: the generic sea photo is Karachi's beach.
   gwadar: '/photos/ormara-beach-evening.webp',
   hyderabad: '/photos/hyderabad-bangles.webp',
-  thatta: '/photos/thatta-shah-jahan-arches.webp'
+  thatta: '/photos/thatta-shah-jahan-arches.webp',
+  uch: '/photos/uch-sharif-tombs.webp'
 };
 /** Our photo of one place at a destination, by "destination|place name". */
 export const PLACE_PHOTOS: Record<string, string> = {
+  'uch|Tomb of Bibi Jawindi': '/photos/uch-sharif-tombs.webp',
+  'uch|Tomb of Baha’al-Halim': '/photos/uch-sharif-tombs.webp',
+  'uch|Tomb of Ustad Nuriya': '/photos/uch-sharif-tombs.webp',
   'thatta|Keenjhar Lake': '/photos/keenjhar-lake.webp',
   'thatta|Shah Jahan Mosque, Thatta': '/photos/thatta-shah-jahan-arches.webp',
   'hyderabad|Shahi Bazaar': '/photos/hyderabad-bangles.webp',
@@ -45,6 +49,7 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/mud-volcano-hingol.webp', caption: 'Mud volcano near the Makran coast, Hingol' },
     { src: '/photos/road-to-mud-volcano.webp', caption: 'The road to the mud volcanoes, with the sea beyond' }
   ],
+  uch: [{ src: '/photos/uch-sharif-tombs.webp', caption: 'The tombs of Bibi Jawindi (centre), Baha’al-Halim (left) and Ustad Nuriya (right), Uch Sharif' }],
   thatta: [
     { src: '/photos/thatta-shah-jahan-arches.webp', caption: 'Shah Jahan Mosque: rows of brick arches and glazed tiles' },
     { src: '/photos/thatta-shah-jahan-hall.webp', caption: 'Inside the Shah Jahan Mosque, built in the 1640s' },
