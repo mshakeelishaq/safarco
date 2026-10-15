@@ -21,6 +21,7 @@ const OWN: Record<string, string> = {
 };
 /** Our photo of one place at a destination, by "destination|place name". */
 export const PLACE_PHOTOS: Record<string, string> = {
+  'nathia|Mushkpuri Top': '/photos/mushkpuri-summer.webp',
   'multan|Shah Rukn-e-Alam shrine': '/photos/multan-shah-rukn-e-alam.webp',
   'multan|Qila Kohna Qasim Bagh': '/photos/multan-fort-aerial.webp',
   'sukkur|Lansdowne Bridge viewpoint': '/photos/sukkur-lansdowne-bridge.webp',
@@ -41,6 +42,10 @@ export const STOP_PHOTOS: Record<string, string> = { Ormara: '/photos/ormara-bea
 export const photoForStop = (label: string) => STOP_PHOTOS[label] || PLACE_PHOTOS[Object.keys(PLACE_PHOTOS).find(k => k.endsWith('|' + label)) || ''];
 /** More of our photos of a place, with what they show, for its guide page. */
 export const GALLERY: Record<string, { src: string; caption: string }[]> = {
+  nathia: [
+    { src: '/photos/mushkpuri-summer.webp', caption: 'Mushkpuri Top in summer: pine forest and wild daisies along the trail' },
+    { src: '/photos/mushkpuri-mist.webp', caption: 'Clouds rolling over the Mushkpuri meadow, with cows grazing near the top' }
+  ],
   murree: [{ src: '/photos/murree-summer.webp', caption: 'Murree at sunrise in summer: pine forest and morning mist over the hills' }],
   kundmalir: [
     { src: '/photos/kund-malir-beach.webp', caption: 'Kund Malir beach, with the Hingol hills along the shore' },
@@ -80,7 +85,8 @@ export const PHOTO_EDITS: Record<string, string> = {};
 /** Our photos of a place by season; the trip's season is shown when we have it, else any of them. */
 type SeasonName = 'spring' | 'summer' | 'autumn' | 'winter';
 const SEASONAL: Record<string, Partial<Record<SeasonName, string>>> = {
-  murree: { summer: '/photos/murree-summer.webp' }
+  murree: { summer: '/photos/murree-summer.webp' },
+  nathia: { summer: '/photos/mushkpuri-summer.webp' }
 };
 const seasonName = (m: number): SeasonName => [3, 4, 5].includes(m) ? 'spring' : [6, 7, 8].includes(m) ? 'summer' : [9, 10, 11].includes(m) ? 'autumn' : 'winter';
 export const ownPhoto = (id: string, month?: number): string | undefined => {
