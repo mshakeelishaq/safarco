@@ -19,6 +19,7 @@ const OWN: Record<string, string> = {
 };
 /** Our photo of one place at a destination, by "destination|place name". */
 export const PLACE_PHOTOS: Record<string, string> = {
+  'thatta|Keenjhar Lake': '/photos/keenjhar-lake.webp',
   'thatta|Shah Jahan Mosque, Thatta': '/photos/thatta-shah-jahan-arches.webp',
   'hyderabad|Shahi Bazaar': '/photos/hyderabad-bangles.webp',
   'kundmalir|Kund Malir beach': '/photos/kund-malir-beach.webp',
@@ -47,7 +48,9 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
   thatta: [
     { src: '/photos/thatta-shah-jahan-arches.webp', caption: 'Shah Jahan Mosque: rows of brick arches and glazed tiles' },
     { src: '/photos/thatta-shah-jahan-hall.webp', caption: 'Inside the Shah Jahan Mosque, built in the 1640s' },
-    { src: '/photos/thatta-shah-jahan-aerial.webp', caption: 'The Shah Jahan Mosque and its gardens from above, in the middle of Thatta' }
+    { src: '/photos/thatta-shah-jahan-aerial.webp', caption: 'The Shah Jahan Mosque and its gardens from above, in the middle of Thatta' },
+    { src: '/photos/keenjhar-lake.webp', caption: 'Keenjhar Lake: boats, huts and the resort on the shore' },
+    { src: '/photos/keenjhar-lake-resort.webp', caption: 'The Keenjhar Lake resort and boat jetty from above' }
   ],
   hyderabad: [{ src: '/photos/hyderabad-bangles.webp', caption: 'Glass bangles, Hyderabad’s famous craft, in the old bazaar' }],
   gwadar: [
