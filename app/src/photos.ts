@@ -46,7 +46,14 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/mushkpuri-summer.webp', caption: 'Mushkpuri Top in summer: pine forest and wild daisies along the trail' },
     { src: '/photos/mushkpuri-mist.webp', caption: 'Clouds rolling over the Mushkpuri meadow, with cows grazing near the top' }
   ],
-  murree: [{ src: '/photos/murree-summer.webp', caption: 'Murree at sunrise in summer: pine forest and morning mist over the hills' }],
+  murree: [
+    { src: '/photos/murree-winter-snow-road.webp', caption: 'Winter: fresh snow on the road through the Murree hills' },
+    { src: '/photos/murree-winter-road.webp', caption: 'Winter: a snow-lined bend under pine and cedar' },
+    { src: '/photos/murree-winter-road-1122.webp', caption: 'Winter: Rescue 1122 on a snowy road. After heavy snow, roads ice over; check before you drive' },
+    { src: '/photos/murree-winter-hills.webp', caption: 'Winter: snow on the hills around Murree at dusk' },
+    { src: '/photos/murree-winter-clouds.webp', caption: 'Winter: snow clouds drifting over the forested slopes' },
+    { src: '/photos/murree-summer.webp', caption: 'Summer: Murree at sunrise, pine forest and morning mist over the hills' }
+  ],
   kundmalir: [
     { src: '/photos/kund-malir-beach.webp', caption: 'Kund Malir beach, with the Hingol hills along the shore' },
     { src: '/photos/kund-malir-waves.webp', caption: 'Green water and golden sand at Kund Malir' },
@@ -85,7 +92,7 @@ export const PHOTO_EDITS: Record<string, string> = {};
 /** Our photos of a place by season; the trip's season is shown when we have it, else any of them. */
 type SeasonName = 'spring' | 'summer' | 'autumn' | 'winter';
 const SEASONAL: Record<string, Partial<Record<SeasonName, string>>> = {
-  murree: { summer: '/photos/murree-summer.webp' },
+  murree: { summer: '/photos/murree-summer.webp', winter: '/photos/murree-winter-snow-road.webp' },
   nathia: { summer: '/photos/mushkpuri-summer.webp' }
 };
 const seasonName = (m: number): SeasonName => [3, 4, 5].includes(m) ? 'spring' : [6, 7, 8].includes(m) ? 'summer' : [9, 10, 11].includes(m) ? 'autumn' : 'winter';
