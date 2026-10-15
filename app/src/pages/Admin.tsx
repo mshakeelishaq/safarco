@@ -6,10 +6,11 @@ import { useEffect, useState } from 'react';
 import { applyContent, cleanContent, NO_CONTENT, allDests, type ContentEdits } from '../content';
 import { PLACE_INFO } from '../engine/data';
 import { PlacesTab, type Edit } from './admin/PlacesTab';
+import { Login, NewPassword } from './admin/Login';
 import { DestTab } from './admin/DestTab';
 import { FoodTab } from './admin/FoodTab';
 import { SafetyTab } from './admin/SafetyTab';
-import { cloudEnabled, currentUser, deleteFoodTip, deleteReview, listAllFoodTips, setFoodTipStatus, type FoodTip, isAdmin, listAllReviews, listFeedback, loadContent, loadPriceList, saveContent, onUserChange, savePriceList, setReviewStatus, signInWithGoogle, signOut, type FeedbackRow, type Review, type User } from '../cloud';
+import { cloudEnabled, currentUser, deleteFoodTip, deleteReview, listAllFoodTips, setFoodTipStatus, type FoodTip, isAdmin, listAllReviews, listFeedback, onPasswordRecovery, loadContent, loadPriceList, saveContent, onUserChange, savePriceList, setReviewStatus, signInWithGoogle, signOut, type FeedbackRow, type Review, type User } from '../cloud';
 import { AIRPORTS, DESTS } from '../engine/data';
 import { highlightsOf, monthsLabel } from '../engine/seasons';
 import { css } from '../lib/css';
@@ -77,7 +78,20 @@ export function Admin() {
     addEventListener('beforeunload', warn); return () => removeEventListener('beforeunload', warn);
   }, [dirty]);
 
+  const [recovery, setRecovery] = useState(false);
   useEffect(() => { currentUser().then(setUser); return onUserChange(setUser); }, []);
+  useEffect(() => onPasswordRecovery(() => setRecovery(true)), []);
+  // The admin page is never listed by search engines.
+  useEffect(() => { const m = document.createElement('meta'); m.name = 'robots'; m.content = 'noindex, nofollow'; document.head.appendChild(m); return () => m.remove(); }, []);
+  // Signed out after 30 minutes without using the page, so a forgotten open tab doesn't stay signed in.
+  useEffect(() => {
+    if (!user) return;
+    let timer = 0;
+    const later = () => { clearTimeout(timer); timer = window.setTimeout(() => { signOut(); }, 30 * 60e3); };
+    const evs = ['pointerdown', 'keydown', 'scroll'] as const;
+    evs.forEach(e => addEventListener(e, later, { passive: true })); later();
+    return () => { clearTimeout(timer); evs.forEach(e => removeEventListener(e, later)); };
+  }, [user?.id]);
   useEffect(() => {
     if (!user) { setAdmin(null); return; }
     isAdmin().then(setAdmin);
@@ -115,9 +129,10 @@ export function Admin() {
   );
 
   if (!cloudEnabled) return wrap(<p>Supabase isn’t connected yet. Follow step 5 in SETUP.md, then come back.</p>);
-  if (!user) return wrap(<><p>Sign in with the Google account listed as an admin.</p><button onClick={() => signInWithGoogle('/admin')} style={btn(true)}>Continue with Google</button></>);
+  if (recovery && user) return wrap(<NewPassword done={() => setRecovery(false)} />);
+  if (!user) return wrap(<Login />);
   if (admin === null || !list || !cont) return wrap(<p>Loading…</p>);
-  if (!admin) return wrap(<><p>{user.email} isn’t an admin. Add this email to the <b>admins</b> table in Supabase (see SETUP.md), then reload.</p><button onClick={() => signOut()} style={btn(false)}>Sign out</button></>);
+  if (!admin) return wrap(<><p>{user.email} isn’t an admin, so nothing here is open to it. If it should be, add this email to the <b>admins</b> table in Supabase (see SETUP.md), then reload.</p><button onClick={() => signOut()} style={btn(false)}>Sign out</button></>);
 
   const upd = (f: (l: PriceList) => void) => { const c: PriceList = JSON.parse(JSON.stringify(list)); f(c); setList(c); setStatus(''); setDirty(d => ({ ...d, prices: true })); };
   const setL = (l: PriceList) => { setList(l); setStatus(''); setDirty(d => ({ ...d, prices: true })); };

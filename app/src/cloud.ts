@@ -36,6 +36,29 @@ export async function signInWithGoogle(returnTo = location.pathname + location.s
   if (error) throw error;
 }
 export async function signOut() { await sb?.auth.signOut(); }
+/** Admin sign-in with the email and password set in Supabase (Authentication → Users). */
+export async function signInWithPassword(email: string, password: string) {
+  if (!sb) throw new Error('Accounts are not set up');
+  const { error } = await sb.auth.signInWithPassword({ email: email.trim(), password });
+  if (error) throw error;
+}
+/** Emails a link to set a new password; it opens `returnTo`, where `onPasswordRecovery` fires. */
+export async function sendPasswordReset(email: string, returnTo = '/admin') {
+  if (!sb) throw new Error('Accounts are not set up');
+  const { error } = await sb.auth.resetPasswordForEmail(email.trim(), { redirectTo: location.origin + returnTo });
+  if (error) throw error;
+}
+export async function updatePassword(password: string) {
+  if (!sb) throw new Error('Accounts are not set up');
+  const { error } = await sb.auth.updateUser({ password });
+  if (error) throw error;
+}
+/** Called when someone arrives from a reset-password email. */
+export function onPasswordRecovery(fn: () => void) {
+  if (!sb) return () => {};
+  const { data } = sb.auth.onAuthStateChange(e => { if (e === 'PASSWORD_RECOVERY') fn(); });
+  return () => data.subscription.unsubscribe();
+}
 
 // ---- Trips ------------------------------------------------------------------
 

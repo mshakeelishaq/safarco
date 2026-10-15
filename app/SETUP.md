@@ -128,7 +128,12 @@ The anon key is meant to be public: it's built into the website. The database ru
 
 ## Step 9: Check and enter real prices (the admin page)
 
-1. Open `https://<your-site>/admin` and sign in with the Google email you made admin in step 7.
+1. **Make your admin password** (once). In Supabase open **Authentication** → **Users** → **Add user** → **Create new user**. Type the same email you put in the `admins` table in step 7, choose a strong password (at least 10 characters, letters and numbers; keep it in a password manager), tick **Auto Confirm User**, and click **Create user**. Then open **Authentication** → **URL Configuration** and check that **Redirect URLs** includes `https://<your-site>/admin` (needed for the "Forgot password?" email).
+   Open `https://<your-site>/admin` and sign in with that email and password. (Google sign-in with the same email still works too.)
+   - Only emails in the `admins` table get in. Anyone else who signs in sees nothing, and the database refuses their changes even if they try another way.
+   - The page signs you out after 30 minutes without use, and search engines are told not to list it.
+   - Forgot the password? Type your email on the sign-in page and tap **Forgot password?**: the link in the email lets you set a new one.
+   - To add another admin: add their email to the `admins` table and create a user for them the same way. To remove one, delete their row from `admins`.
 2. For each section, check the current prices from the source shown, type them in, and set **Checked on**. Fuel and tolls take 5 minutes:
    - **Fuel:** ogra.org.pk publishes petrol and diesel prices on the 1st and 16th of each month.
    - **Tolls:** nha.gov.pk publishes the motorway toll list.
