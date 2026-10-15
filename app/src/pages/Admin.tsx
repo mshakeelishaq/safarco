@@ -211,6 +211,11 @@ export function Admin() {
       ))}
     </section>
 
+    <section style={box}><h2 style={css('margin:0 0 4px;font-size:18px')}>Wrong places from the map</h2>
+      <p style={css('font-size:13px;color:var(--mute);margin:4px 0 10px')}>The “Also nearby” lists come live from OpenStreetMap, where anyone can add a place. If one isn’t real or is in the wrong area, write its name exactly as the app shows it, one per line, and it is hidden everywhere.</p>
+      <textarea value={list.hiddenSpots.join('\n')} rows={5} placeholder="View on Nanga Parbat" onChange={e => upd(l => { l.hiddenSpots = e.target.value.split('\n').map(x => x.slice(0, 80)); })} style={{ ...text, height: 'auto', padding: 10, lineHeight: 1.4 }} />
+    </section>
+
     <section style={box}><h2 style={css('margin:0 0 4px;font-size:18px')}>Road alerts</h2>
       <p style={css('font-size:13px;color:var(--mute);margin:4px 0 10px')}>Shown on trips until the “Show until” date. Choose the places it affects (for example Babusar Top) and it only shows on trips that pass them; with no places it shows on every trip. Example: “Babusar Pass closed: snow, reopening expected 10 June”.</p>
       {list.alerts.map((a, i) => (

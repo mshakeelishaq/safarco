@@ -102,3 +102,11 @@ describe('flight search link', () => {
     expect(u.searchParams.get('q')).toBe('One way flights from Islamabad to Skardu on 2026-11-02 for 2 adults and 1 child');
   });
 });
+
+describe('wrong places from the map', () => {
+  it('keeps the admin list clean', () => {
+    const l = applyPrices({ hiddenSpots: ['View on Nanga Parbat', '', 'X', 'X'] });
+    expect(l.hiddenSpots).toEqual(['View on Nanga Parbat', 'X']);
+    applyPrices(null);
+  });
+});

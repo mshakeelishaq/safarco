@@ -95,6 +95,8 @@ export const NODE_INFO: Record<string, [string, number]> = { KLK: ['Kallar Kahar
   KRM: ['Karimabad, Hunza', 8000], SKD: ['Skardu', 7310], QTA: ['Quetta', 5500], DGK: ['Dera Ghazi Khan', 400], DIK: ['Dera Ismail Khan', 570], GWD: ['Gwadar', 30], MZD: ['Muzaffarabad', 2420],
   MRE: ['Murree', 7500], KEL: ['Kel, Neelum', 6900], CKD: ['Chakdara', 2300], DIR: ['Dir', 4600], CTR: ['Chitral', 4900], KHP: ['Khaplu', 8500], ORM: ['Ormara', 30], PSU: ['Passu', 8200], ZRT: ['Ziarat', 8200], KML: ['Kund Malir', 30], MJD: ['Mohenjo-daro', 150], MJB: ['Malam Jabba', 8700], LRL: ['Loralai', 4700], KZD: ['Khuzdar', 4000],
   ABT: ['Abbottabad', 4120], KWI: ['Kiwai', 5500], SHG: ['Shogran', 7750], NTG: ['Nathia Gali', 8200], AST: ['Astore', 8500], NLT: ['Naltar', 9500], PHD: ['Phander', 9500], MSJ: ['Mastuj', 7600], SST: ['Sost', 9200], KJB: ['Khunjerab Pass', 15397], BMB: ['Bumburet', 6400], THL: ['Thal, Upper Dir', 7000], KMT: ['Kumrat', 7550], ZHB: ['Zhob', 4700], MTH: ['Mithi', 90], BWP: ['Bahawalpur', 380], TBT: ['Turbat', 420] };
+/** Places on OpenStreetMap that aren't really there (or are somewhere else): never shown in the live "nearby" lists. The admin can add more. */
+export const HIDE_SPOTS = ['View on Nanga Parbat'];
 /** Areas with a security advisory because of the law and order situation: shown on any trip that goes there (the admin's road alerts add to it). */
 export const SECURITY = {
   dests: ['kundmalir', 'gwadar'], nodes: ['KML', 'ORM', 'GWD', 'TBT'],

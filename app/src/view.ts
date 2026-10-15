@@ -1,6 +1,6 @@
 // Everything the screens display, derived from app state. Ported from the
 // design's renderVals(); the screens in components/ read from this.
-import { SECURITY, HAVE_VEHICLE, EDGES, MODES, MON, MONTH_FULL, NODES, NODE_INFO, POPULAR, POP_DEST, SUGGEST_POOL, SUNRISE, SUNSET, TIERS, TIER_G, VEH, CAT, CAT2, GRADS, DESTS, STOP_KIND, type VehicleId } from './engine/data';
+import { HIDE_SPOTS, SECURITY, HAVE_VEHICLE, EDGES, MODES, MON, MONTH_FULL, NODES, NODE_INFO, POPULAR, POP_DEST, SUGGEST_POOL, SUNRISE, SUNSET, TIERS, TIER_G, VEH, CAT, CAT2, GRADS, DESTS, STOP_KIND, type VehicleId } from './engine/data';
 import { FOOD } from './engine/food';
 import { canPrompt, dismissInstall, isIOS, isInstalled, promptInstall, wasDismissed } from './install';
 import { foodTipsFor } from './foodtips';
@@ -188,7 +188,9 @@ export function buildView(s: AppState, api: Api) {
   // Places to stay and see, from OpenStreetMap via Geoapify, plus honest price ranges.
   const D = DST(s.corridor), sf = seasonFactor(D, M), AD = s.adults + s.elders;
   const rooms = s.rooms === 'shared' ? Math.ceil(s.groupSize / 4) : Math.max(1, Math.ceil(AD / 2));
-  const spotsAt = (kind: 'sights' | 'hotels', lat: number, lon: number) => { const e = LIVE.places[placesKey(kind, lat, lon)]; return { loading: !e || e.status === 'loading', list: e && e.status === 'ok' ? e.data : [] as Spot[] }; };
+  // Places from the live map that the admin (or SafarCo) marked as wrong are left out.
+  const hidden = new Set([...HIDE_SPOTS, ...prices().hiddenSpots].map(x => x.trim().toLowerCase()));
+  const spotsAt = (kind: 'sights' | 'hotels', lat: number, lon: number) => { const e = LIVE.places[placesKey(kind, lat, lon)]; return { loading: !e || e.status === 'loading', list: e && e.status === 'ok' ? e.data.filter(x => !hidden.has(x.name.trim().toLowerCase())) : [] as Spot[] }; };
   const check = (q: string, checkin: string, n: number) => checkPricesUrl(q, checkin, n, AD, s.kids, rooms);
 
   // Season guide: the best places by season, what's best in the trip's month, and this trip's season.
