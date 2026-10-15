@@ -18,11 +18,13 @@ const OWN: Record<string, string> = {
   thatta: '/photos/thatta-shah-jahan-arches.webp',
   uch: '/photos/uch-sharif-tombs.webp',
   multan: '/photos/multan-shah-rukn-e-alam.webp',
-  bahawalpur: '/photos/derawar-fort.webp'
+  bahawalpur: '/photos/derawar-fort.webp',
+  chakwal: '/photos/kallar-kahar-lake.webp'
 };
 /** Our photo of one place at a destination, by "destination|place name". */
 export const PLACE_PHOTOS: Record<string, string> = {
   'nathia|Mushkpuri Top': '/photos/mushkpuri-summer.webp',
+  'chakwal|Kallar Kahar Lake': '/photos/kallar-kahar-lake.webp',
   'islamabad|Faisal Mosque': '/photos/faisal-mosque-dusk.webp',
   'bahawalpur|Derawar Fort': '/photos/derawar-fort.webp',
   'bahawalpur|Abbasi Mosque, Derawar': '/photos/derawar-abbasi-mosque.webp',
@@ -88,6 +90,11 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/hingol-road-badlands.webp', caption: 'The Makran Coastal Highway winding through the Hingol hills' },
     { src: '/photos/mud-volcano-hingol.webp', caption: 'Mud volcano near the Makran coast, Hingol' },
     { src: '/photos/road-to-mud-volcano.webp', caption: 'The road to the mud volcanoes, with the sea beyond' }
+  ],
+  chakwal: [
+    { src: '/photos/kallar-kahar-lake.webp', caption: 'Kallar Kahar Lake from the hill above the town' },
+    { src: '/photos/kallar-kahar-lake-haze.webp', caption: 'The lake and its reed beds on a hazy summer day' },
+    { src: '/photos/kallar-kahar-hills.webp', caption: 'The Salt Range hills around Kallar Kahar after rain' }
   ],
   bahawalpur: [
     { src: '/photos/derawar-fort.webp', caption: 'Derawar Fort: forty bastions rising out of the Cholistan desert' },
