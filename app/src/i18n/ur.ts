@@ -2110,4 +2110,6 @@ export const UR: Record<string, string> = {
   "Clear, mild days for the hills and red and gold trees across the city": "Pahaariyon ke liye saaf, mo'tadil din, aur shehar bhar mein surkh aur sunehri darakht",
   "Golden amaltas blossom along the roads (late May and June)": "Sarkon par sunehri amaltas ke phool (May ke aakhir aur June mein)",
   "Hot by midday: go out early morning or in the evening.": "Dopahar tak garmi: subah sawere ya shaam ko niklein.",
+  "Basant: kites over the old city’s rooftops": "Basant: purane shehar ki chhaton par patangen",
+  "Dates and rules are set by the Punjab government each year: check before you plan around it.": "Tareekhen aur qawaid har saal Punjab hukumat tay karti hai: is ke hisaab se plan karne se pehle maloom kar lein.",
 };

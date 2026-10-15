@@ -98,7 +98,7 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/lahore-pink-blossom.webp', caption: 'Spring: pink tabebuia in bloom across the city, March and April' },
     { src: '/photos/lahore-white-blossom.webp', caption: 'Spring: white blossom at sunset' },
     { src: '/photos/lahore-basant-minaret.webp', caption: 'Basant: kites over the rooftops at sunset, by a lit minaret' },
-    { src: '/photos/lahore-basant-rooftops.webp', caption: 'Basant: the sky full of kites over the old city. Held only in years the Punjab government allows it' },
+    { src: '/photos/lahore-basant-rooftops.webp', caption: 'Basant: the sky full of kites over the old city, February. Dates are announced by the Punjab government each year' },
     { src: '/photos/lahore-basant-sun.webp', caption: 'Basant: a kite against the setting sun' },
     { src: '/photos/lahore-aerial-fields.webp', caption: 'Green wheat fields meeting the city at its edge' },
     { src: '/photos/lahore-winter-fog-bikes.webp', caption: 'Winter: dense fog on Lahore’s roads, December and January. Motorways often close at night; drive by day' },
