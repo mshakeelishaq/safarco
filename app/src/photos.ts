@@ -11,16 +11,19 @@ const OWN: Record<string, string> = {
   hunza: '/photos/autumn-hunza.webp',
   // The Indus Highway through the date palms between Shikarpur and Sukkur, on the way south to Karachi.
   sukkur: '/photos/indus-highway-sindh.webp',
-  kundmalir: '/photos/princess-of-hope.webp'
+  kundmalir: '/photos/kund-malir-beach.webp'
 };
 /** Our photo of one place at a destination, by "destination|place name". */
 export const PLACE_PHOTOS: Record<string, string> = {
+  'kundmalir|Kund Malir beach': '/photos/kund-malir-beach.webp',
   'kundmalir|Princess of Hope': '/photos/princess-of-hope.webp',
   'kundmalir|Hingol mud volcanoes': '/photos/mud-volcano-hingol.webp'
 };
 /** More of our photos of a place, with what they show, for its guide page. */
 export const GALLERY: Record<string, { src: string; caption: string }[]> = {
   kundmalir: [
+    { src: '/photos/kund-malir-beach.webp', caption: 'Kund Malir beach, with the Hingol hills along the shore' },
+    { src: '/photos/kund-malir-waves.webp', caption: 'Green water and golden sand at Kund Malir' },
     { src: '/photos/princess-of-hope.webp', caption: 'Princess of Hope, the rock figure in Hingol National Park' },
     { src: '/photos/hingol-badlands.webp', caption: 'The Hingol badlands, with the Princess of Hope standing in the middle' },
     { src: '/photos/hingol-road-badlands.webp', caption: 'The Makran Coastal Highway winding through the Hingol hills' },
