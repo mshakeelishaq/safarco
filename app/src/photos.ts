@@ -16,6 +16,7 @@ const OWN: Record<string, string> = {
 /** Our photo of one place at a destination, by "destination|place name". */
 export const PLACE_PHOTOS: Record<string, string> = {
   'kundmalir|Kund Malir beach': '/photos/kund-malir-beach.webp',
+  'kundmalir|Golden Beach, Makran coast': '/photos/golden-beach.webp',
   'kundmalir|Princess of Hope': '/photos/princess-of-hope.webp',
   'kundmalir|Hingol mud volcanoes': '/photos/mud-volcano-hingol.webp'
 };
@@ -24,6 +25,9 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
   kundmalir: [
     { src: '/photos/kund-malir-beach.webp', caption: 'Kund Malir beach, with the Hingol hills along the shore' },
     { src: '/photos/kund-malir-waves.webp', caption: 'Green water and golden sand at Kund Malir' },
+    { src: '/photos/golden-beach.webp', caption: 'Golden Beach and its jetty, just along the coast from Kund Malir' },
+    { src: '/photos/golden-beach-road.webp', caption: 'The Makran Coastal Highway between the hills and Golden Beach' },
+    { src: '/photos/golden-beach-jetty.webp', caption: 'The jetty at Golden Beach in the afternoon light' },
     { src: '/photos/princess-of-hope.webp', caption: 'Princess of Hope, the rock figure in Hingol National Park' },
     { src: '/photos/hingol-badlands.webp', caption: 'The Hingol badlands, with the Princess of Hope standing in the middle' },
     { src: '/photos/hingol-road-badlands.webp', caption: 'The Makran Coastal Highway winding through the Hingol hills' },
