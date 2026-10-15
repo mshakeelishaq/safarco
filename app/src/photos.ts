@@ -42,6 +42,13 @@ export const STOP_PHOTOS: Record<string, string> = { Ormara: '/photos/ormara-bea
 export const photoForStop = (label: string) => STOP_PHOTOS[label] || PLACE_PHOTOS[Object.keys(PLACE_PHOTOS).find(k => k.endsWith('|' + label)) || ''];
 /** More of our photos of a place, with what they show, for its guide page. */
 export const GALLERY: Record<string, { src: string; caption: string }[]> = {
+  islamabad: [
+    { src: '/photos/islamabad-jacaranda-path.webp', caption: 'Spring: jacaranda in bloom along a park path, usually in late April' },
+    { src: '/photos/islamabad-jacaranda-road.webp', caption: 'Spring: jacaranda over an Islamabad avenue' },
+    { src: '/photos/islamabad-autumn-road.webp', caption: 'Autumn: red and gold trees lining the road, November to early December' },
+    { src: '/photos/islamabad-autumn-leaves.webp', caption: 'Autumn: leaves turning pink, red and gold' },
+    { src: '/photos/islamabad-autumn-sunset.webp', caption: 'Autumn: fallen leaves at sunset' }
+  ],
   nathia: [
     { src: '/photos/mushkpuri-summer.webp', caption: 'Mushkpuri Top in summer: pine forest and wild daisies along the trail' },
     { src: '/photos/mushkpuri-mist.webp', caption: 'Clouds rolling over the Mushkpuri meadow, with cows grazing near the top' }
@@ -114,7 +121,8 @@ export function webPhoto(id: string): WebPhoto | null {
 type SeasonName = 'spring' | 'summer' | 'autumn' | 'winter';
 const SEASONAL: Record<string, Partial<Record<SeasonName, string>>> = {
   murree: { summer: '/photos/murree-summer.webp', winter: '/photos/murree-winter-snow-road.webp' },
-  nathia: { summer: '/photos/mushkpuri-summer.webp' }
+  nathia: { summer: '/photos/mushkpuri-summer.webp' },
+  islamabad: { spring: '/photos/islamabad-jacaranda-path.webp', autumn: '/photos/islamabad-autumn-road.webp' }
 };
 const seasonName = (m: number): SeasonName => [3, 4, 5].includes(m) ? 'spring' : [6, 7, 8].includes(m) ? 'summer' : [9, 10, 11].includes(m) ? 'autumn' : 'winter';
 export const ownPhoto = (id: string, month?: number): string | undefined => {

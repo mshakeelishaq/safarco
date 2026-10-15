@@ -2106,4 +2106,6 @@ export const UR: Record<string, string> = {
   "{road} is closed now. SafarCo plans the way round it.": "{road} abhi band hai. SafarCo doosre raaste se plan banata hai.",
   "SafarCo website": "SafarCo ki website",
   "Home": "Home",
+  "Margalla Hills in bloom and purple jacaranda along the avenues (late April)": "Margalla Hills mein phool aur sarkon par jamni jacaranda (April ke aakhir mein)",
+  "Clear, mild days for the hills and red and gold trees across the city": "Pahaariyon ke liye saaf, mo'tadil din, aur shehar bhar mein surkh aur sunehri darakht",
 };

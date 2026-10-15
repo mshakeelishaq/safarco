@@ -44,7 +44,7 @@ export const BASE_HIGHLIGHTS: Record<string, Highlight[]> = {
   karachi: [H([12, 1, 2], 'winter', 'Beach weather, Clifton and the food streets')],
   mohenjo: [H([12, 1, 2], 'winter', 'Cool days for the ancient city')],
   lahore: [H([2, 3], 'spring', 'Pleasant weather, gardens in bloom'), H([10], 'autumn', 'Mild days before the smog season')],
-  islamabad: [H([3, 4], 'spring', 'Margalla Hills in bloom'), H([10, 11], 'autumn', 'Clear, mild days for the hills')]
+  islamabad: [H([3, 4], 'spring', 'Margalla Hills in bloom and purple jacaranda along the avenues (late April)'), H([10, 11], 'autumn', 'Clear, mild days for the hills and red and gold trees across the city')]
 };
 /** The app's own highlights, plus imported ones for destinations that have none. */
 export const HIGHLIGHTS: Record<string, Highlight[]> = { ...(IMPORTED_HIGHLIGHTS as Record<string, Highlight[]>), ...BASE_HIGHLIGHTS };
