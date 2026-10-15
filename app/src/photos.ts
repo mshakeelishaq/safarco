@@ -7,7 +7,11 @@ import { wishPlaces } from './engine/seasons';
 const AUTUMN = ['/photos/autumn-hunza.webp', '/photos/hunza-autumn-peaks.webp', '/photos/hunza-orchards.webp', '/photos/hunza-autumn-valley.webp', '/photos/hunza-golden-light.webp', '/photos/altit-fort.webp'];
 const AUTUMN_MONTHS = [10, 11];
 /** A place's own photo, used whenever it's the trip's place: Hunza is the view of Rakaposhi. */
-const OWN: Record<string, string> = { hunza: '/photos/autumn-hunza.webp' };
+const OWN: Record<string, string> = {
+  hunza: '/photos/autumn-hunza.webp',
+  // The Indus Highway through the date palms between Shikarpur and Sukkur, on the way south to Karachi.
+  sukkur: '/photos/indus-highway-sindh.webp'
+};
 /** Our own photo of a place, if we have one. */
 /** Photos the admin set for a place (a web link), ahead of ours. */
 export const PHOTO_EDITS: Record<string, string> = {};
@@ -23,13 +27,14 @@ export function destPhoto(id: string, month: number, startDate = '') {
   return { src: AUTUMN[pick(id + startDate, AUTUMN.length)] };
 }
 
-const COAST = ['gwadar', 'kundmalir', 'karachi'], HERITAGE = ['mohenjo', 'lahore'];
+const COAST = ['gwadar', 'kundmalir', 'karachi'], HERITAGE = ['lahore'], INTERIOR_SINDH = ['mohenjo', 'sehwan'];
 /** A background for the trip's share card: our photo for the place and season, else one for the season. */
 export function cardPhoto(id: string, month: number, startDate = '') {
   if (ownPhoto(id)) return ownPhoto(id)!;
   const own = destPhoto(id, month, startDate); if (own) return own.src;
   if (COAST.includes(id)) return '/photos/sea-sunset.webp';
   if (HERITAGE.includes(id)) return '/photos/mosque-arches.webp';
+  if (INTERIOR_SINDH.includes(id)) return '/photos/indus-highway-sindh.webp';
   if ([10, 11].includes(month)) return '/photos/autumn-hunza.webp';
   if ([12, 1, 2].includes(month)) return '/photos/snowfall.webp';
   if ([3, 4].includes(month)) return '/photos/blossom.webp';
