@@ -23,6 +23,7 @@ const OWN: Record<string, string> = {
 /** Our photo of one place at a destination, by "destination|place name". */
 export const PLACE_PHOTOS: Record<string, string> = {
   'nathia|Mushkpuri Top': '/photos/mushkpuri-summer.webp',
+  'islamabad|Faisal Mosque': '/photos/faisal-mosque-dusk.webp',
   'bahawalpur|Derawar Fort': '/photos/derawar-fort.webp',
   'bahawalpur|Abbasi Mosque, Derawar': '/photos/derawar-abbasi-mosque.webp',
   'bahawalpur|Noor Mahal': '/photos/bahawalpur-noor-mahal.webp',
@@ -49,6 +50,9 @@ export const photoForStop = (label: string) => STOP_PHOTOS[label] || PLACE_PHOTO
 /** More of our photos of a place, with what they show, for its guide page. */
 export const GALLERY: Record<string, { src: string; caption: string }[]> = {
   islamabad: [
+    { src: '/photos/faisal-mosque-dusk.webp', caption: 'Faisal Mosque at dusk, below the Margalla Hills' },
+    { src: '/photos/faisal-mosque-night.webp', caption: 'Faisal Mosque lit up at night, reflected in the pool' },
+    { src: '/photos/faisal-mosque-inside.webp', caption: 'Inside Faisal Mosque: the prayer hall and its great chandelier' },
     { src: '/photos/islamabad-jacaranda-path.webp', caption: 'Spring: jacaranda in bloom along a park path, usually in late April' },
     { src: '/photos/islamabad-jacaranda-road.webp', caption: 'Spring: jacaranda over an Islamabad avenue' },
     { src: '/photos/islamabad-blossom-park.webp', caption: 'Spring: white pear blossom in the parks, usually in March' },
