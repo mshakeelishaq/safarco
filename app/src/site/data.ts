@@ -14,7 +14,7 @@ export const provinceOf = (region: string): Province =>
     : /Sindh/.test(region) ? 'Sindh' : /Balochistan/.test(region) ? 'Balochistan' : 'Punjab and Islamabad';
 
 export const nowMonth = () => new Date().getMonth() + 1;
-export const photoOf = (id: string, m = nowMonth()) => ownPhoto(id) || cardPhoto(id, m);
+export const photoOf = (id: string, m = nowMonth()) => ownPhoto(id, m) || cardPhoto(id, m);
 const best = (id: string) => DST(id).best || [];
 
 /** A destination as a card: photo, one line, best months. */

@@ -212,7 +212,7 @@ export function buildView(s: AppState, api: Api) {
   /** A suggestion card: the place's guide photo once loaded (else ours for the season), what's special, when, how far. */
   const pickCard = (id: string, h: { text: string; months: number[]; caution?: string }) => {
     const w = LIVE.wiki[id], img = w && w.status === 'ok' && w.data?.image;
-    return { photo: ownPhoto(id) || img || cardPhoto(id, h.months.includes(M) ? M : h.months[0]), text: t(h.text), when: monthsLabel(h.months), km: s.origin ? t('{km} km', { km: fmtN(kmFrom(id)) }) : '', risk: risky(id) ? t('Security risk area') : '' };
+    return { photo: ownPhoto(id, h.months.includes(M) ? M : h.months[0]) || img || cardPhoto(id, h.months.includes(M) ? M : h.months[0]), text: t(h.text), when: monthsLabel(h.months), km: s.origin ? t('{km} km', { km: fmtN(kmFrom(id)) }) : '', risk: risky(id) ? t('Security risk area') : '' };
   };
   const bestNow = { month: MONTH_FULL[M - 1], picks: DESTS.filter(d => DST(d.id).name !== s.origin).flatMap(d => { const h = highlightIn(d.id, M); return h ? [{ id: d.id, name: d.name, h }] : []; })
     .sort((a, b) => +risky(a.id) - +risky(b.id) || +!!a.h.caution - +!!b.h.caution || kmFrom(a.id) - kmFrom(b.id)).slice(0, 10)

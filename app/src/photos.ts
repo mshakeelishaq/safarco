@@ -41,6 +41,7 @@ export const STOP_PHOTOS: Record<string, string> = { Ormara: '/photos/ormara-bea
 export const photoForStop = (label: string) => STOP_PHOTOS[label] || PLACE_PHOTOS[Object.keys(PLACE_PHOTOS).find(k => k.endsWith('|' + label)) || ''];
 /** More of our photos of a place, with what they show, for its guide page. */
 export const GALLERY: Record<string, { src: string; caption: string }[]> = {
+  murree: [{ src: '/photos/murree-summer.webp', caption: 'Murree at sunrise in summer: pine forest and morning mist over the hills' }],
   kundmalir: [
     { src: '/photos/kund-malir-beach.webp', caption: 'Kund Malir beach, with the Hingol hills along the shore' },
     { src: '/photos/kund-malir-waves.webp', caption: 'Green water and golden sand at Kund Malir' },
@@ -76,7 +77,16 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
 /** Our own photo of a place, if we have one. */
 /** Photos the admin set for a place (a web link), ahead of ours. */
 export const PHOTO_EDITS: Record<string, string> = {};
-export const ownPhoto = (id: string): string | undefined => PHOTO_EDITS[id] || OWN[id];
+/** Our photos of a place by season; the trip's season is shown when we have it, else any of them. */
+type SeasonName = 'spring' | 'summer' | 'autumn' | 'winter';
+const SEASONAL: Record<string, Partial<Record<SeasonName, string>>> = {
+  murree: { summer: '/photos/murree-summer.webp' }
+};
+const seasonName = (m: number): SeasonName => [3, 4, 5].includes(m) ? 'spring' : [6, 7, 8].includes(m) ? 'summer' : [9, 10, 11].includes(m) ? 'autumn' : 'winter';
+export const ownPhoto = (id: string, month?: number): string | undefined => {
+  const by = SEASONAL[id];
+  return PHOTO_EDITS[id] || (by && month ? by[seasonName(month)] : undefined) || OWN[id] || (by ? Object.values(by)[0] : undefined);
+};
 
 /** A small, stable number for a trip, so it keeps the same photo each time it opens. */
 const pick = (key: string, n: number) => { let h = 0; for (const c of key) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h % n; };
@@ -84,14 +94,14 @@ const pick = (key: string, n: number) => { let h = 0; for (const c of key) h = (
 /** This trip's photo: one of ours for an autumn trip to an autumn-colour place, or null to use the guide's photo. */
 export function destPhoto(id: string, month: number, startDate = '') {
   if (!AUTUMN_MONTHS.includes(month) || !wishPlaces('autumn').some(p => p.id === id)) return null;
-  if (ownPhoto(id)) return { src: ownPhoto(id)! };
+  if (ownPhoto(id, month)) return { src: ownPhoto(id, month)! };
   return { src: AUTUMN[pick(id + startDate, AUTUMN.length)] };
 }
 
 const COAST = ['karachi'], HERITAGE = ['lahore'], INTERIOR_SINDH = ['mohenjo', 'sehwan'];
 /** A background for the trip's share card: our photo for the place and season, else one for the season. */
 export function cardPhoto(id: string, month: number, startDate = '') {
-  if (ownPhoto(id)) return ownPhoto(id)!;
+  if (ownPhoto(id, month)) return ownPhoto(id, month)!;
   const own = destPhoto(id, month, startDate); if (own) return own.src;
   if (COAST.includes(id)) return '/photos/sea-sunset.webp';
   if (HERITAGE.includes(id)) return '/photos/mosque-arches.webp';
