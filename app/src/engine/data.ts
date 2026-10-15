@@ -97,13 +97,18 @@ export const NODE_INFO: Record<string, [string, number]> = { KLK: ['Kallar Kahar
   ABT: ['Abbottabad', 4120], KWI: ['Kiwai', 5500], SHG: ['Shogran', 7750], NTG: ['Nathia Gali', 8200], AST: ['Astore', 8500], NLT: ['Naltar', 9500], PHD: ['Phander', 9500], MSJ: ['Mastuj', 7600], SST: ['Sost', 9200], KJB: ['Khunjerab Pass', 15397], BMB: ['Bumburet', 6400], THL: ['Thal, Upper Dir', 7000], KMT: ['Kumrat', 7550], ZHB: ['Zhob', 4700], MTH: ['Mithi', 90], BWP: ['Bahawalpur', 380], TBT: ['Turbat', 420] };
 /** Places on OpenStreetMap that aren't really there (or are somewhere else): never shown in the live "nearby" lists. The admin can add more. */
 export const HIDE_SPOTS = ['View on Nanga Parbat'];
-/** Areas with a security advisory because of the law and order situation: shown on any trip that goes there (the admin's road alerts add to it). */
-export const SECURITY = {
-  dests: ['kundmalir', 'gwadar'], nodes: ['KML', 'ORM', 'GWD', 'TBT'],
+/** Areas with a security advisory because of the law and order situation, shown on any trip that goes to or through them. The admin can switch them on or off, edit them and add more. */
+export interface SecurityArea { id: string; name: string; on: boolean; dests: string[]; roads: string[]; nodes: string[]; short: string; text: string }
+export const SECURITY_AREAS: SecurityArea[] = [{
+  id: 'makran', name: 'Makran coast', on: true, dests: ['kundmalir', 'gwadar'], roads: ['Makran Coastal Hwy'], nodes: ['KML', 'ORM', 'GWD', 'TBT'],
   short: 'Security risk area: check before you go',
   text: 'Security advisory: the Makran Coastal Highway and the Balochistan coast are a sensitive area because of the current law and order situation. Check the latest news and ask local police or Levies before you go, drive in daylight only, keep your CNIC with you and stop at every checkpost. Visitors from abroad may need an NOC.'
-};
-export const ROAD_NOTE: Record<string, string> = { 'Makran Coastal Hwy': 'Security risk area: drive in daylight only, keep your CNIC with you and stop at every checkpost.', 'Babusar Pass': 'Crosses Babusar Top at 13,690 ft. Usually open from mid-June to October; snow closes it the rest of the year.', 'Skardu Road': 'Narrow cliff road along the Indus. Drive in daylight.', 'KKH': 'Karakoram Highway along the Indus gorge.', 'N-95 Swat valley': 'Slow valley road above Bahrain.' };
+}];
+/** The switched-on security area a destination is in, if any. */
+export const riskOf = (id: string) => SECURITY_AREAS.find(a => a.on && a.dests.includes(id));
+/** Said on every driving day through a security area. */
+export const RISK_ROAD_NOTE = 'Security risk area: drive in daylight only, keep your CNIC with you and stop at every checkpost.';
+export const ROAD_NOTE: Record<string, string> = { 'Babusar Pass': 'Crosses Babusar Top at 13,690 ft. Usually open from mid-June to October; snow closes it the rest of the year.', 'Skardu Road': 'Narrow cliff road along the Indus. Drive in daylight.', 'KKH': 'Karakoram Highway along the Indus gorge.', 'N-95 Swat valley': 'Slow valley road above Bahrain.' };
 export const STOP_HOTELS: Record<string, Hotel[]> = {
   NRN: [['Pine Park Hotel Naran', 'Standard', 'Riverside, Kunhar valley'], ['PTDC Motel Naran', 'Backpacker', 'Basic rooms, central bazaar'], ['Arcadian Riverside Naran', 'Premium', 'River-facing rooms']],
   CHL: [['Shangrila Midway House Chilas', 'Standard', 'On the KKH, secure parking'], ['Chilas Inn', 'Backpacker', 'Budget rooms'], ['Panorama Hotel Chilas', 'Premium', 'Indus views']],

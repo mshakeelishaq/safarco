@@ -1,10 +1,11 @@
 // Everything the screens display, derived from app state. Ported from the
 // design's renderVals(); the screens in components/ read from this.
-import { HIDE_SPOTS, SECURITY, HAVE_VEHICLE, EDGES, MODES, MON, MONTH_FULL, NODES, NODE_INFO, POPULAR, POP_DEST, SUGGEST_POOL, SUNRISE, SUNSET, TIERS, TIER_G, VEH, CAT, CAT2, GRADS, DESTS, STOP_KIND, type VehicleId } from './engine/data';
+import { CLOSED_NOTES } from './content';
+import { HIDE_SPOTS, SECURITY_AREAS, riskOf, HAVE_VEHICLE, EDGES, MODES, MON, MONTH_FULL, NODES, NODE_INFO, POPULAR, POP_DEST, SUGGEST_POOL, SUNRISE, SUNSET, TIERS, TIER_G, VEH, CAT, CAT2, GRADS, DESTS, STOP_KIND, type VehicleId } from './engine/data';
 import { FOOD } from './engine/food';
 import { canPrompt, dismissInstall, isIOS, isInstalled, promptInstall, wasDismissed } from './install';
 import { foodTipsFor } from './foodtips';
-import { AIR_IN, bestAirport, flyNorth, viaIsb, DAY_OUT_H, SHORT2_H, MAX_DRIVE_H, plannedJeeps, roomPlan, circuit, sideTrips, dayTripOptions, tripFrom, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
+import { AIR_IN, bestAirport, closedOnRoute, flyNorth, viaIsb, DAY_OUT_H, SHORT2_H, MAX_DRIVE_H, plannedJeeps, roomPlan, circuit, sideTrips, dayTripOptions, tripFrom, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
 import { clock, dayLabel, dur, fmt, fmtN, isoAdd, isoOf, isoOff, kShort, mapsQ, mon } from './engine/format';
 import { LIVE, fxRate, placesKey, routeKey, type Spot } from './engine/live';
 import { sunTimes } from './engine/sun';
@@ -49,7 +50,7 @@ export function buildView(s: AppState, api: Api) {
   // From abroad, the trip starts at the airport that suits the destination (until the traveller picks one).
   if (s.abroad && s.airAuto) s = { ...s, origin: bestAirport(s.corridor, mon(s)) };
   /** Places with a security advisory: still offered, after the others, and always marked. */
-  const risky = (id: string) => SECURITY.dests.includes(id);
+  const risky = (id: string) => !!riskOf(id);
   const M = mon(s), c0 = trip(s.corridor, s.origin, M), nights = Math.max(1, s.days - 1), sug = suggestions(s);
   // A circuit (more than one place) goes round once: its totals replace the one-place "each way" figures.
   const L = circuit(s), stopNames = L ? L.order.map(k => DST(k).name) : [];
@@ -155,7 +156,7 @@ export function buildView(s: AppState, api: Api) {
     return ids.slice(0, 30).map(id => {
       const D = DST(id), tr = trip(id, o, M), on = s.dest === id;
       const fitTxt = s.have === 'car' || s.have === 'bike' ? roadFit(HAVE_VEHICLE[s.have], id, o, M)?.text || '' : '';
-      return { key: id, name: D.name, fit: fitTxt, risk: SECURITY.dests.includes(id) ? t(SECURITY.short) : '', sub: (D.ft != null && !D.generic ? t('{region} · {ft} ft', { region: D.region, ft: fmtN(D.ft) }) : D.region) + (D.checked === false ? ' · ' + t('not checked yet') : ''), meta: t('{km} km · {h} h', { km: tr.kmStr, h: Math.round(tr.hours) }), icon: D.icon, onClick: () => set({ dest: id, corridor: id, pickId: null, ...(id !== s.corridor ? { extra: [] } : {}) }),
+      return { key: id, name: D.name, fit: fitTxt, risk: riskOf(id) ? t(riskOf(id)!.short) : '', sub: (D.ft != null && !D.generic ? t('{region} · {ft} ft', { region: D.region, ft: fmtN(D.ft) }) : D.region) + (D.checked === false ? ' · ' + t('not checked yet') : ''), meta: t('{km} km · {h} h', { km: tr.kmStr, h: Math.round(tr.hours) }), icon: D.icon, onClick: () => set({ dest: id, corridor: id, pickId: null, ...(id !== s.corridor ? { extra: [] } : {}) }),
         bg: on ? 'rgba(255,181,71,.12)' : 'transparent', border: on ? 'rgba(255,181,71,.5)' : 'transparent', iconC: on ? 'var(--amb)' : 'var(--mute)', checkOp: on ? 1 : 0 };
     });
   })();
@@ -205,7 +206,7 @@ export function buildView(s: AppState, api: Api) {
   const guide = {
     initial: seasonOf(M).id,
     seasons: SEASONS.map(se => ({ ...se, label: t(se.label), blurb: t(se.blurb), picks: seasonPicks(se.id).filter(p => DST(p.id).name !== s.origin).sort((a, b) => +risky(a.id) - +risky(b.id) || +!!a.h.caution - +!!b.h.caution || kmFrom(a.id) - kmFrom(b.id))
-      .map(p => ({ key: p.id + se.id, name: p.name, region: p.region, text: t(p.h.text), ...iconFor(p.h), when: monthsLabel(p.h.months), caution: [p.h.caution ? t(p.h.caution) : '', risky(p.id) ? t(SECURITY.short) : ''].filter(Boolean).join(' · '), note: note(p.id), km: t('{km} km', { km: fmtN(kmFrom(p.id)) }), onPick: () => goTo(p.id, p.h.months) })) })),
+      .map(p => ({ key: p.id + se.id, name: p.name, region: p.region, text: t(p.h.text), ...iconFor(p.h), when: monthsLabel(p.h.months), caution: [p.h.caution ? t(p.h.caution) : '', risky(p.id) ? t(riskOf(p.id)!.short) : ''].filter(Boolean).join(' · '), note: note(p.id), km: t('{km} km', { km: fmtN(kmFrom(p.id)) }), onPick: () => goTo(p.id, p.h.months) })) })),
     open: () => set({ guide: true, sheet: 'none', settings: false }), close: () => set({ guide: false })
   };
   /** A suggestion card: the place's guide photo once loaded (else ours for the season), what's special, when, how far. */
@@ -314,7 +315,9 @@ export function buildView(s: AppState, api: Api) {
   const jeepTrips = s.vehicle === 'air' ? [] : plannedJeeps(s, c0, M);
   const jeepNote = jeepTrips.length ? [{ icon: 'ph-jeep', color: 'var(--amb)', text: t('{places}: hire a local jeep and driver, even with your own 4x4, unless you know these roads and have driven them before.', { places: jeepTrips.map(j => t(j[1])).join(', ') }) }] : [];
   // The trip goes to or through an area with a security advisory (the Makran coast).
-  const securityOn = [s.corridor, ...(s.extra || [])].some(k => SECURITY.dests.includes(k)) || c.legs.some(l => SECURITY.nodes.includes(l.a) || SECURITY.nodes.includes(l.b));
+  const securityOn = SECURITY_AREAS.filter(a => a.on && ([s.corridor, ...(s.extra || [])].some(k => a.dests.includes(k)) || c.legs.some(l => a.roads.includes(l.road) || a.nodes.includes(l.a) || a.nodes.includes(l.b))));
+  // Roads the admin marked closed that this trip would normally take.
+  const closedNotes = (L ? [] : closedOnRoute(s.corridor, s.origin, M)).map(r => ({ icon: 'ph-road-horizon', color: 'var(--cor)', text: [c.legs.some(l => l.road === r) ? t('{road} is closed now, and there is no other way: check before you go.', { road: r }) : t('{road} is closed now. SafarCo plans the way round it.', { road: r }), CLOSED_NOTES[r] ? t(CLOSED_NOTES[r]) : ''].filter(Boolean).join(' ') }));
   const alertNotes = activeAlerts().filter(a => !a.areas?.length || onTrip(a.areas, tripLine, tripStops)).map(a => ({ icon: 'ph-megaphone', color: 'var(--cor)', text: a.date ? t('{alert} (posted {date})', { alert: `${a.title}${a.message ? `: ${a.message}` : ''}`, date: dayLabel(a.date, 0) }) : `${a.title}${a.message ? `: ${a.message}` : ''}` }));
 
   // "What do you want to see?": the first question, then a check that the dates and place fit the wish.
@@ -555,7 +558,7 @@ export function buildView(s: AppState, api: Api) {
       if (lv && !lv.ignored) return [{ icon: 'ph-check-circle', color: 'var(--g)', text: t('Distance checked with OpenRouteService: {km} km. Drive times use mountain and town speeds, so they are longer than map apps show.', { km: fmtN(r.data.km) }) }];
       return [{ icon: 'ph-warning', color: 'var(--cor)', text: t('OpenRouteService’s fastest road is {km} km; this plan is {planKm} km. It may use a road closed in {month}. Check before you leave.', { km: fmtN(r.data.km), planKm: c.kmStr, month: MON[M - 1] }) }];
     })(),
-    seasonNotes: [...alertNotes, ...(securityOn ? [{ icon: 'ph-shield-warning', color: 'var(--cor)', text: t(SECURITY.text) }] : []), ...seasonInfo(s, s.corridor), ...jeepNote],
+    seasonNotes: [...alertNotes, ...closedNotes, ...securityOn.map(a => ({ icon: 'ph-shield-warning', color: 'var(--cor)', text: t(a.text) })), ...seasonInfo(s, s.corridor), ...jeepNote],
     dayHint: (() => {
       const o = s.origin || 'Islamabad', okS = { tile: 'linear-gradient(135deg,#2EE59D,#0FA678)', bg: 'rgba(46,229,157,.1)', border: 'rgba(46,229,157,.3)' }, badS = { tile: 'linear-gradient(135deg,#FF8A6B,#FF4F7B)', bg: 'rgba(255,107,91,.12)', border: 'rgba(255,107,91,.4)' };
       if (s.mode === 'know' && L) {

@@ -5,7 +5,7 @@ import { EditSheet } from './components/Sheets';
 import { FeedbackSheet, FoodSheet, ReviewSheet, SaveSheet, SignInSheet, TripsSheet } from './components/Panels';
 import { WELCOMED, Welcome, seenWelcome } from './components/Welcome';
 import { SeasonGuide } from './components/SeasonGuide';
-import { addCheckin, cloudDelete, cloudEnabled, cloudSave, cloudTrips, createFollow, currentUser, loadFoodTips, loadPriceList, loadReviews, submitFoodTip, onUserChange, sendFeedback, signInWithGoogle, signOut, stopFollow, submitReview, updateFollow, type User } from './cloud';
+import { addCheckin, cloudDelete, cloudEnabled, cloudSave, cloudTrips, createFollow, currentUser, loadFoodTips, loadContent, loadPriceList, loadReviews, submitFoodTip, onUserChange, sendFeedback, signInWithGoogle, signOut, stopFollow, submitReview, updateFollow, type User } from './cloud';
 import { ExpenseSheet, ShareSheet, SosSheet } from './components/TripMode';
 import { RUN_SUBS, getRun, runKey, updateRun } from './run';
 import { followLink } from './view-trip';
@@ -18,6 +18,7 @@ import { setReviews } from './reviews';
 import { setFoodTips } from './foodtips';
 import { t as tx } from './i18n';
 import { applyPrices } from './prices';
+import { applyContent } from './content';
 import { clearCurrent, cloudMerge, defaultName, deleteLocal, loadCurrent, localTrips, newId, saveCurrent, saveLocal, shareUrl, tripData, tripFromUrl, type SavedTrip } from './trips';
 import { MapTab } from './components/MapTab';
 import { BudgetTab } from './components/BudgetTab';
@@ -105,11 +106,14 @@ export function App() {
   // Prices and approved reviews: the admin's lists (cached on the device), else the built-in ones.
   useEffect(() => {
     try { const c = JSON.parse(localStorage.getItem('safarco-prices') || 'null'); if (c) { applyPrices(c); bump(); } } catch { /* storage blocked */ }
+    try { const c = JSON.parse(localStorage.getItem('safarco-content') || 'null'); if (c) { applyContent(c); bump(); } } catch { /* storage blocked */ }
     try { const r = JSON.parse(localStorage.getItem('safarco-reviews') || 'null'); if (r) setReviews(r); } catch { /* storage blocked */ }
     try { const r = JSON.parse(localStorage.getItem('safarco-food') || 'null'); if (r) setFoodTips(r); } catch { /* storage blocked */ }
     loadFoodTips().then(r => { if (!r) return; setFoodTips(r); bump(); try { localStorage.setItem('safarco-food', JSON.stringify(r)); } catch { /* storage blocked */ } }).catch(() => {});
     loadReviews().then(r => { if (!r) return; setReviews(r); bump(); try { localStorage.setItem('safarco-reviews', JSON.stringify(r)); } catch { /* storage blocked */ } }).catch(() => {});
     loadPriceList().then(v => { if (!v) return; applyPrices(v); bump(); try { localStorage.setItem('safarco-prices', JSON.stringify(v)); } catch { /* storage blocked */ } }).catch(() => {});
+    // The admin's changes to places, food and destinations; kept on the phone for next time and for offline.
+    loadContent().then(v => { if (!v) return; applyContent(v); bump(); try { localStorage.setItem('safarco-content', JSON.stringify(v)); } catch { /* storage blocked */ } }).catch(() => {});
   }, []);
 
 

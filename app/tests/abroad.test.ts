@@ -30,10 +30,10 @@ describe('flying in from abroad', () => {
 
 describe('security advisory', () => {
   it('marks the Makran coast and its road', async () => {
-    const { SECURITY, ROAD_NOTE } = await import('../src/engine/data');
+    const { SECURITY_AREAS, RISK_ROAD_NOTE } = await import('../src/engine/data'); const SECURITY = SECURITY_AREAS[0];
     const { UR } = await import('../src/i18n/ur');
     expect(SECURITY.dests).toEqual(expect.arrayContaining(['kundmalir', 'gwadar']));
-    for (const x of [SECURITY.text, SECURITY.short, ROAD_NOTE['Makran Coastal Hwy']]) expect(UR[x]).toBeTruthy();
+    for (const x of [SECURITY.text, SECURITY.short, RISK_ROAD_NOTE]) expect(UR[x]).toBeTruthy();
     const p = buildPlan({ origin: 'Karachi', mode: 'know', dest: 'gwadar', corridor: 'gwadar', startDate: '2027-01-10', days: 5, depart: null, vehicle: 'sedan', tier: 'standard', adults: 2, kids: 0, elders: 0, groupSize: 2, rooms: 'separate', cap: 300000 });
     expect(p.days[0].note).toContain('Security risk area');
   });

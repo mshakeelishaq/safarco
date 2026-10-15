@@ -73,6 +73,18 @@ export async function savePriceList(value: PriceList) {
   const { error } = await sb.from('app_config').upsert({ key: 'prices', value, updated_at: new Date().toISOString() });
   if (error) throw error;
 }
+/** The admin's changes to places, food, destinations, security areas and closed roads (see src/content.ts). */
+export async function loadContent(): Promise<unknown> {
+  if (!sb) return null;
+  const { data, error } = await sb.from('app_config').select('value').eq('key', 'content').maybeSingle();
+  if (error) throw error;
+  return data?.value ?? null;
+}
+export async function saveContent(value: unknown) {
+  if (!sb) throw new Error('Accounts are not set up');
+  const { error } = await sb.from('app_config').upsert({ key: 'content', value, updated_at: new Date().toISOString() });
+  if (error) throw error;
+}
 export async function isAdmin(): Promise<boolean> {
   if (!sb) return false;
   const { data, error } = await sb.rpc('is_admin');

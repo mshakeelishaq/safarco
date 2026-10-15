@@ -2,7 +2,7 @@
 // Ported from the SafarCo App v7 design; all figures are estimates.
 import {
   AIRPORTS, CONFIGS, DESTS, EDGES, EDGE_STOPS, FARES, MONTH_FULL, MTN_NODES, NODES, NODE_INFO, P as PR, PLACE_INFO, ROAD_NOTE, SLOTS, STOP_DUR, STOP_HOTELS,
-  SUGGEST_POOL, SUNRISE, SUNSET, TIERS, VEH, OWN_CONFIGS, type Have, type Edge, type EdgeStop, type Hotel, type Jeep, type Mode, type Place, type StopKind, type TierId, type TripConfig, type VehicleId
+  SUGGEST_POOL, SECURITY_AREAS, RISK_ROAD_NOTE, SUNRISE, SUNSET, TIERS, VEH, OWN_CONFIGS, type Have, type Edge, type EdgeStop, type Hotel, type Jeep, type Mode, type Place, type StopKind, type TierId, type TripConfig, type VehicleId
 } from './data';
 import { clock, dayLabel, dur, fmt, fmtN, hav, inM, isoOff, mapsQ, mon } from './format';
 import { sunTimes } from './sun';
@@ -145,14 +145,18 @@ const ADJ: Record<string, [string, Edge][]> = {};
 EDGES.forEach(e => { (ADJ[e[0]] = ADJ[e[0]] || []).push([e[1], e]); (ADJ[e[1]] = ADJ[e[1]] || []).push([e[0], e]); });
 const SPT: Record<string, { dist: Record<string, number>; next: Record<string, [string, Edge]> }> = {};
 
-/** Dijkstra from `dest` over roads open in `month`. */
-function shortest(dest: string, month: number) {
-  const key = dest + '|' + month; if (SPT[key]) return SPT[key];
+/** Roads the admin marked closed right now (by road name): routes go round them while there is another way. */
+export const CLOSED = new Set<string>();
+export function setClosedRoads(roads: string[]) { CLOSED.clear(); roads.forEach(r => CLOSED.add(r)); for (const k in SPT) delete SPT[k]; resetTripCache(); }
+
+/** Dijkstra from `dest` over roads open in `month` (and not closed, unless `anyway`). */
+function shortest(dest: string, month: number, anyway = false) {
+  const key = dest + '|' + month + (anyway ? '|any' : ''); if (SPT[key]) return SPT[key];
   const dist: Record<string, number> = { [dest]: 0 }, next: Record<string, [string, Edge]> = {}, done = new Set<string>();
   while (true) {
     let u: string | null = null; for (const k in dist) if (!done.has(k) && (u === null || dist[k] < dist[u])) u = k;
     if (u === null) break; done.add(u); const uu = u;
-    (ADJ[uu] || []).forEach(([v, e]) => { if (e[7] && !e[7].includes(month)) return; const d = dist[uu] + e[2]; if (dist[v] === undefined || d < dist[v]) { dist[v] = d; next[v] = [uu, e]; } });
+    (ADJ[uu] || []).forEach(([v, e]) => { if ((e[7] && !e[7].includes(month)) || (!anyway && CLOSED.has(e[6]))) return; const d = dist[uu] + e[2]; if (dist[v] === undefined || d < dist[v]) { dist[v] = d; next[v] = [uu, e]; } });
   }
   return (SPT[key] = { dist, next });
 }
@@ -228,20 +232,24 @@ export interface Trip extends Dest {
 }
 const TRIP_CACHE: Record<string, Trip> = {};
 /** Forget computed trips, e.g. after a live route arrives or prices change. */
-export const resetTripCache = () => { for (const k in TRIP_CACHE) delete TRIP_CACHE[k]; };
+export function resetTripCache() { for (const k in TRIP_CACHE) delete TRIP_CACHE[k]; }
+/** Closed roads this trip would normally take (it goes round them, or uses them when there's no other way). */
+export const closedOnRoute = (key: string, origin: string | null, month: number) => CLOSED.size ? [...new Set(tripFrom(key, cityOr(origin), month, true).legs.map(l => l.road).filter(r => CLOSED.has(r)))] : [];
 LIVE.routeHooks.add(resetTripCache);
 
 /** Road trip from `origin` to destination `key` in `month`, using the road table, corrected by the live OSRM distance when close. */
 export function trip(key: string, origin: string | null, month = 7): Trip { return tripFrom(key, cityOr(origin), month); }
 
 /** Road trip to destination `key` from any point `o` (a city, or another destination on a circuit). */
-export function tripFrom(key: string, o: { n: string; lat: number; lon: number }, month = 7): Trip {
-  const ck = `${key}|${o.n}|${month}`; if (TRIP_CACHE[ck]) return TRIP_CACHE[ck];
+export function tripFrom(key: string, o: { n: string; lat: number; lon: number }, month = 7, anyway = false): Trip {
+  const ck = `${key}|${o.n}|${month}${anyway ? '|any' : ''}`; if (TRIP_CACHE[ck]) return TRIP_CACHE[ck];
   const D = DST(key);
   const oc = attachTo(o.lat, o.lon, false), dc = D.node ? [{ n: D.node, local: 0, mtn: MTN_NODES.has(D.node) }] : attachTo(D.lat, D.lon, (D.ft ?? D.ftEst ?? 0) > 3000);
   let best: { st: typeof oc[number]; d: typeof dc[number]; tot: number } | null = null;
-  dc.forEach(d => { const { dist } = shortest(d.n, month); oc.forEach(st => { if (dist[st.n] === undefined) return; const tot = st.local + dist[st.n] + d.local; if (!best || tot < best.tot) best = { st, d, tot }; }); });
-  const { st: start, d: end } = best!, { next } = shortest(end.n, month);
+  dc.forEach(d => { const { dist } = shortest(d.n, month, anyway); oc.forEach(st => { if (dist[st.n] === undefined) return; const tot = st.local + dist[st.n] + d.local; if (!best || tot < best.tot) best = { st, d, tot }; }); });
+  // A closed road with no way round: plan on it anyway (the closure shows as a warning).
+  if (!best && !anyway) return (TRIP_CACHE[ck] = tripFrom(key, o, month, true));
+  const { st: start, d: end } = best!, { next } = shortest(end.n, month, anyway);
   let flat = 0, mtn = 0, hours = 0; const tolls: [string, number][] = [], via: string[] = [], legs: Leg[] = [];
   const addLocal = (a: string, b: string, x: { local: number; mtn: boolean }) => { const sp = x.mtn ? 30 : 55; legs.push({ a, b, km: x.local, h: x.local / sp, road: 'Local roads', mtn: x.mtn }); hours += x.local / sp; if (x.mtn) mtn += x.local; else flat += x.local; };
   if (start.local > 0) addLocal('HOME', start.n, start);
@@ -518,7 +526,7 @@ function planOf(s: TripState): Plan {
   const sunOn = (n: string, day: number) => { const [la, lo] = at(n); return sunTimes(la, lo, isoOff(s.startDate, day)); };
   let sunset = sunOn('DEST', 0).set;
   const nm = (n: string) => n === 'DEST' ? D.town : n === 'HOME' ? c.from : NODE_INFO[n][0];
-  const notes = (roads: string[]) => roads.map(r => ROAD_NOTE[r]).filter(Boolean).map(n => t(n)).join(' ');
+  const notes = (roads: string[]) => [...roads.map(r => ROAD_NOTE[r]), roads.some(r => SECURITY_AREAS.some(a => a.on && a.roads.includes(r))) ? RISK_ROAD_NOTE : ''].filter(Boolean).map(n => t(n)).join(' ');
   const elderNote = (roads: string[], last: boolean) => s.elders && (roads.some(r => /Babusar/.test(r)) || (last && (D.ft || 0) >= 7000)) ? t('Elders: high altitude. Go slow, keep water and any BP or heart medicine handy.') : '';
   const days: PlanDay[] = [];
   const finish = (extra: Partial<Plan>): Plan => { days.forEach((d, i) => { d.num = i + 1; d.date = dayLabel(s.startDate, i); d.iso = isoOff(s.startDate, i); }); return { days, total: days.length, sunset, rec: 6, dep: 6, late: false, hasDrive: false, air: null, ...extra }; };
@@ -817,7 +825,7 @@ function buildCircuitPlan(s: TripState, L: Circuit): Plan {
   const m = mon(s), o = cityOr(s.origin), alloc = circuitAlloc(s, L), shared = sharedPlaces(L.order, m);
   const at = (n: string): [number, number] => n === 'HOME' ? [o.lat, o.lon] : n.startsWith('@') ? [DST(n.slice(1)).lat, DST(n.slice(1)).lon] : NODES[n];
   const nm = (n: string) => n === 'HOME' ? o.n : n.startsWith('@') ? DST(n.slice(1)).town : NODE_INFO[n][0];
-  const notes = (roads: string[]) => roads.map(r => ROAD_NOTE[r]).filter(Boolean).map(n => t(n)).join(' ');
+  const notes = (roads: string[]) => [...roads.map(r => ROAD_NOTE[r]), roads.some(r => SECURITY_AREAS.some(a => a.on && a.roads.includes(r))) ? RISK_ROAD_NOTE : ''].filter(Boolean).map(n => t(n)).join(' ');
   const coordsOf = (ls: Leg[]): [number, number][] => [at(ls[0].a), ...ls.map(l => at(l.b))];
   // Each stretch split into driving days.
   const segsOf = (h: Hop) => {

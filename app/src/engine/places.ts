@@ -38,6 +38,8 @@ function finishDest(d: DestInput): Dest {
 
 const CORR: Record<string, Dest> = {};
 DESTS.forEach(d => { CORR[d.id] = finishDest(d); });
+/** After the admin's edits change DESTS: the guides again. Places switched off stay findable by id, for saved trips. */
+export function rebuildDests(all: DestInput[]) { all.forEach(d => { CORR[d.id] = finishDest(d); }); }
 
 /** A destination by id: one of the detailed guides, or "city:<name>" for any city. */
 export function DST(id: string): Dest {
