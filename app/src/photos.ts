@@ -45,6 +45,10 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
   islamabad: [
     { src: '/photos/islamabad-jacaranda-path.webp', caption: 'Spring: jacaranda in bloom along a park path, usually in late April' },
     { src: '/photos/islamabad-jacaranda-road.webp', caption: 'Spring: jacaranda over an Islamabad avenue' },
+    { src: '/photos/islamabad-blossom-park.webp', caption: 'Spring: white pear blossom in the parks, usually in March' },
+    { src: '/photos/islamabad-blossom-walk.webp', caption: 'Spring: a morning walk under the blossom' },
+    { src: '/photos/islamabad-blossom-photo.webp', caption: 'Spring: stopping to photograph the blossom' },
+    { src: '/photos/islamabad-blossom-close.webp', caption: 'Spring: pear blossom up close' },
     { src: '/photos/islamabad-autumn-road.webp', caption: 'Autumn: red and gold trees lining the road, November to early December' },
     { src: '/photos/islamabad-autumn-leaves.webp', caption: 'Autumn: leaves turning pink, red and gold' },
     { src: '/photos/islamabad-autumn-sunset.webp', caption: 'Autumn: fallen leaves at sunset' }
