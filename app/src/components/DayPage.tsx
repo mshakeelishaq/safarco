@@ -2,6 +2,7 @@
 // Swipe or use the arrows to move between days.
 import { useEffect, useRef } from 'react';
 import { css } from '../lib/css';
+import { photoForStop } from '../photos';
 import { t } from '../i18n';
 import type { View } from '../view';
 import { Ratings } from './TripTab';
@@ -106,6 +107,7 @@ export function DayPage({ v }: { v: View }) {
               <div style={css('flex:1;min-width:0')}>
                 <div style={css('display:flex;align-items:baseline;justify-content:space-between;gap:8px')}><span style={css('font-size:13px;font-weight:700;line-height:1.3')}>{st.label}</span>{st.dur && <span style={css('flex:none;padding:2px 7px;border-radius:7px;background:rgba(255,181,71,.14);color:var(--amb2);font-size:10px;font-weight:800;white-space:nowrap')}>{st.dur}</span>}</div>
                 {st.note && <div style={css('font-size:12px;color:var(--mute);font-weight:500;line-height:1.4;margin-top:1px')}>{st.note}</div>}
+                {photoForStop(st.label) && <img src={photoForStop(st.label)} alt={st.label} loading="lazy" style={css('display:block;width:100%;max-width:340px;aspect-ratio:16/9;object-fit:cover;border-radius:12px;margin-top:6px')} />}
                 {st.href && <a href={st.href} target="_blank" rel="noopener" style={css('display:inline-flex;align-items:center;gap:4px;min-height:28px;font-size:12px;font-weight:700;color:var(--g);text-decoration:none')}>{t('Open in Google Maps')}<i className="ph-bold ph-arrow-up-right" /></a>}
               </div>
               {st.remove && <button onClick={st.remove} aria-label={t('Remove {name}', { name: st.label })} title={t('Remove')} style={css('flex:none;width:34px;height:34px;margin:-4px -4px 0 0;border-radius:11px;border:1px solid var(--line2);background:var(--fill);color:var(--mute);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center')}><i className="ph-bold ph-x" /></button>}

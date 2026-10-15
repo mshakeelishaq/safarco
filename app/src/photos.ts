@@ -20,6 +20,10 @@ export const PLACE_PHOTOS: Record<string, string> = {
   'kundmalir|Princess of Hope': '/photos/princess-of-hope.webp',
   'kundmalir|Hingol mud volcanoes': '/photos/mud-volcano-hingol.webp'
 };
+/** Our photo of a stop on the road (by the stop's name), shown on that day of the plan. */
+export const STOP_PHOTOS: Record<string, string> = { Ormara: '/photos/ormara-beach-evening.webp' };
+/** A photo for something in a day's plan: a road stop or one of a destination's places. */
+export const photoForStop = (label: string) => STOP_PHOTOS[label] || PLACE_PHOTOS[Object.keys(PLACE_PHOTOS).find(k => k.endsWith('|' + label)) || ''];
 /** More of our photos of a place, with what they show, for its guide page. */
 export const GALLERY: Record<string, { src: string; caption: string }[]> = {
   kundmalir: [
@@ -33,6 +37,11 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/hingol-road-badlands.webp', caption: 'The Makran Coastal Highway winding through the Hingol hills' },
     { src: '/photos/mud-volcano-hingol.webp', caption: 'Mud volcano near the Makran coast, Hingol' },
     { src: '/photos/road-to-mud-volcano.webp', caption: 'The road to the mud volcanoes, with the sea beyond' }
+  ],
+  gwadar: [
+    { src: '/photos/ormara-beach-evening.webp', caption: 'On the way: Ormara beach in the evening, below the Hammerhead cliffs' },
+    { src: '/photos/ormara-hammerhead-dusk.webp', caption: 'On the way: the Ormara headland at dusk' },
+    { src: '/photos/ormara-sunset.webp', caption: 'On the way: sunset over the sea at Ormara' }
   ],
   sukkur: [{ src: '/photos/indus-highway-sindh.webp', caption: 'The Indus Highway through the date palms near Shikarpur' }]
 };
