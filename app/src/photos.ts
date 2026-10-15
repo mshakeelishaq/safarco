@@ -10,7 +10,7 @@ const AUTUMN_MONTHS = [10, 11];
 const OWN: Record<string, string> = {
   hunza: '/photos/autumn-hunza.webp',
   // The Indus Highway through the date palms between Shikarpur and Sukkur, on the way south to Karachi.
-  sukkur: '/photos/indus-highway-sindh.webp',
+  sukkur: '/photos/sukkur-lansdowne-bridge.webp',
   kundmalir: '/photos/kund-malir-beach.webp',
   // Ormara, on the coast on the way: the generic sea photo is Karachi's beach.
   gwadar: '/photos/ormara-beach-evening.webp',
@@ -20,6 +20,7 @@ const OWN: Record<string, string> = {
 };
 /** Our photo of one place at a destination, by "destination|place name". */
 export const PLACE_PHOTOS: Record<string, string> = {
+  'sukkur|Lansdowne Bridge viewpoint': '/photos/sukkur-lansdowne-bridge.webp',
   'uch|Tomb of Bibi Jawindi': '/photos/uch-sharif-tombs.webp',
   'uch|Tomb of Baha’al-Halim': '/photos/uch-sharif-tombs.webp',
   'uch|Tomb of Ustad Nuriya': '/photos/uch-sharif-tombs.webp',
@@ -63,7 +64,7 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/ormara-hammerhead-dusk.webp', caption: 'On the way: the Ormara headland at dusk' },
     { src: '/photos/ormara-sunset.webp', caption: 'On the way: sunset over the sea at Ormara' }
   ],
-  sukkur: [{ src: '/photos/indus-highway-sindh.webp', caption: 'The Indus Highway through the date palms near Shikarpur' }]
+  sukkur: [{ src: '/photos/sukkur-lansdowne-bridge.webp', caption: 'Lansdowne Bridge over the Indus at sunset, with the Ayub arch bridge behind' }, { src: '/photos/indus-highway-sindh.webp', caption: 'The Indus Highway through the date palms near Shikarpur' }]
 };
 /** Our own photo of a place, if we have one. */
 /** Photos the admin set for a place (a web link), ahead of ours. */
