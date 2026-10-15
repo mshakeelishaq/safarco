@@ -99,6 +99,11 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/lahore-white-blossom.webp', caption: 'Spring: white blossom at sunset' },
     { src: '/photos/lahore-summer-amaltas-canal.webp', caption: 'Summer: golden amaltas along a canal-side path, May and June' },
     { src: '/photos/lahore-summer-amaltas-water.webp', caption: 'Summer: amaltas reflected in rain water after a monsoon shower' },
+    { src: '/photos/lahore-model-town-autumn.webp', caption: 'Autumn in Model Town Park: golden trees and a carpet of leaves, late November to January' },
+    { src: '/photos/lahore-model-town-leaves.webp', caption: 'Model Town Park: a morning walk under the yellow leaves' },
+    { src: '/photos/lahore-model-town-canopy.webp', caption: 'Model Town Park: old trees turning gold' },
+    { src: '/photos/lahore-model-town-ground.webp', caption: 'Model Town Park: fallen leaves under the trees' },
+    { src: '/photos/lahore-model-town-trees.webp', caption: 'Model Town Park: winding trunks on a misty morning' },
     { src: '/photos/lahore-basant-minaret.webp', caption: 'Basant: kites over the rooftops at sunset, by a lit minaret' },
     { src: '/photos/lahore-basant-rooftops.webp', caption: 'Basant: the sky full of kites over the old city, February. Dates are announced by the Punjab government each year' },
     { src: '/photos/lahore-basant-sun.webp', caption: 'Basant: a kite against the setting sun' },
@@ -170,7 +175,7 @@ type SeasonName = 'spring' | 'summer' | 'autumn' | 'winter';
 const SEASONAL: Record<string, Partial<Record<SeasonName, string>>> = {
   murree: { summer: '/photos/murree-summer.webp', winter: '/photos/murree-winter-snow-road.webp' },
   nathia: { summer: '/photos/mushkpuri-summer.webp' },
-  lahore: { spring: '/photos/lahore-pink-blossom.webp', summer: '/photos/lahore-summer-amaltas-canal.webp', winter: '/photos/lahore-azadi-chowk-sunrise.webp' },
+  lahore: { spring: '/photos/lahore-pink-blossom.webp', summer: '/photos/lahore-summer-amaltas-canal.webp', autumn: '/photos/lahore-model-town-autumn.webp', winter: '/photos/lahore-azadi-chowk-sunrise.webp' },
   islamabad: { spring: '/photos/islamabad-jacaranda-path.webp', summer: '/photos/islamabad-amaltas-road.webp', autumn: '/photos/islamabad-autumn-road.webp' }
 };
 const seasonName = (m: number): SeasonName => [3, 4, 5].includes(m) ? 'spring' : [6, 7, 8].includes(m) ? 'summer' : [9, 10, 11].includes(m) ? 'autumn' : 'winter';
