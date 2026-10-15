@@ -369,7 +369,6 @@ export function App() {
             </nav>
 
             {side && <SideMap v={view} api={api} />}
-            {side && <a href="/" className="sc-home" aria-label={tx('SafarCo website')}><img src="/icon-192.png" alt="" />SafarCo</a>}
             <EditSheet v={view} api={api} />
             <DayPage v={view} />
             {s.building != null && <Building v={view} started={s.building} onDone={doneBuilding} />}

@@ -79,6 +79,8 @@ export function NotFound() {
 
 export function Site() {
   const [p, setP] = useState(path()), [, bump] = useReducer((x: number) => x + 1, 0);
+  // "Home" from the installed app arrives as /?home; show a clean address.
+  useEffect(() => { if (location.search === '?home') history.replaceState(null, '', '/'); }, []);
   useEffect(() => { const f = () => setP(path()); addEventListener('popstate', f); addEventListener('sc-nav', f); return () => { removeEventListener('popstate', f); removeEventListener('sc-nav', f); }; }, []);
   // The admin's latest guides and prices (cached on the device), as in the planner.
   useEffect(() => {
