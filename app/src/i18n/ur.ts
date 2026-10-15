@@ -2108,4 +2108,5 @@ export const UR: Record<string, string> = {
   "Home": "Home",
   "White blossom in the parks (March) and purple jacaranda along the avenues (late April)": "Parkon mein safaid shagufe (March) aur sarkon par jamni jacaranda (April ke aakhir mein)",
   "Clear, mild days for the hills and red and gold trees across the city": "Pahaariyon ke liye saaf, mo'tadil din, aur shehar bhar mein surkh aur sunehri darakht",
+  "Golden amaltas blossom along the roads (late May and June)": "Sarkon par sunehri amaltas ke phool (May ke aakhir aur June mein)",
 };

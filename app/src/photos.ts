@@ -49,6 +49,8 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/islamabad-blossom-walk.webp', caption: 'Spring: a morning walk under the blossom' },
     { src: '/photos/islamabad-blossom-photo.webp', caption: 'Spring: stopping to photograph the blossom' },
     { src: '/photos/islamabad-blossom-close.webp', caption: 'Spring: pear blossom up close' },
+    { src: '/photos/islamabad-amaltas-road.webp', caption: 'Summer: golden amaltas hanging over the roads, late May and June' },
+    { src: '/photos/islamabad-amaltas-close.webp', caption: 'Summer: amaltas (golden shower) blossom up close' },
     { src: '/photos/islamabad-autumn-road.webp', caption: 'Autumn: red and gold trees lining the road, November to early December' },
     { src: '/photos/islamabad-autumn-leaves.webp', caption: 'Autumn: leaves turning pink, red and gold' },
     { src: '/photos/islamabad-autumn-sunset.webp', caption: 'Autumn: fallen leaves at sunset' }
@@ -126,7 +128,7 @@ type SeasonName = 'spring' | 'summer' | 'autumn' | 'winter';
 const SEASONAL: Record<string, Partial<Record<SeasonName, string>>> = {
   murree: { summer: '/photos/murree-summer.webp', winter: '/photos/murree-winter-snow-road.webp' },
   nathia: { summer: '/photos/mushkpuri-summer.webp' },
-  islamabad: { spring: '/photos/islamabad-jacaranda-path.webp', autumn: '/photos/islamabad-autumn-road.webp' }
+  islamabad: { spring: '/photos/islamabad-jacaranda-path.webp', summer: '/photos/islamabad-amaltas-road.webp', autumn: '/photos/islamabad-autumn-road.webp' }
 };
 const seasonName = (m: number): SeasonName => [3, 4, 5].includes(m) ? 'spring' : [6, 7, 8].includes(m) ? 'summer' : [9, 10, 11].includes(m) ? 'autumn' : 'winter';
 export const ownPhoto = (id: string, month?: number): string | undefined => {
