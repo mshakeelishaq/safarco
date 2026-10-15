@@ -19,11 +19,12 @@ const OWN: Record<string, string> = {
   uch: '/photos/uch-sharif-tombs.webp',
   multan: '/photos/multan-shah-rukn-e-alam.webp',
   bahawalpur: '/photos/derawar-fort.webp',
-  chakwal: '/photos/kallar-kahar-lake.webp'
+  chakwal: '/photos/swaik-lake.webp'
 };
 /** Our photo of one place at a destination, by "destination|place name". */
 export const PLACE_PHOTOS: Record<string, string> = {
   'nathia|Mushkpuri Top': '/photos/mushkpuri-summer.webp',
+  'chakwal|Swaik Lake': '/photos/swaik-lake.webp',
   'chakwal|Kallar Kahar Lake': '/photos/kallar-kahar-lake.webp',
   'islamabad|Faisal Mosque': '/photos/faisal-mosque-dusk.webp',
   'bahawalpur|Derawar Fort': '/photos/derawar-fort.webp',
@@ -92,6 +93,8 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/road-to-mud-volcano.webp', caption: 'The road to the mud volcanoes, with the sea beyond' }
   ],
   chakwal: [
+    { src: '/photos/swaik-lake.webp', caption: 'Swaik Lake near Kallar Kahar: an emerald pool in a green gorge' },
+    { src: '/photos/swaik-lake-ferns.webp', caption: 'Swaik Lake: spring water dripping through ferns into the pool' },
     { src: '/photos/kallar-kahar-lake.webp', caption: 'Kallar Kahar Lake from the hill above the town' },
     { src: '/photos/kallar-kahar-lake-haze.webp', caption: 'The lake and its reed beds on a hazy summer day' },
     { src: '/photos/kallar-kahar-hills.webp', caption: 'The Salt Range hills around Kallar Kahar after rain' }
