@@ -178,7 +178,11 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/rama-fields-evening.webp', caption: 'Summer: evening light on the fields and pines below Rama' },
     { src: '/photos/astore-river-bridge.webp', caption: 'Summer: a log footbridge over the clear Astore river' },
     { src: '/photos/astore-valley-village.webp', caption: 'Summer: a village in Astore valley below the mountains' },
-    { src: '/photos/astore-village-hillside.webp', caption: 'Summer: colourful houses on a green hillside in Astore' }
+    { src: '/photos/astore-village-hillside.webp', caption: 'Summer: colourful houses on a green hillside in Astore' },
+    { src: '/photos/chilam-lake-summer.webp', caption: 'Summer: a lake in the high meadows past Chilam, on the road to Minimarg' },
+    { src: '/photos/minimarg-road-switchbacks.webp', caption: 'Summer: the road zigzagging down from Burzil Pass towards Minimarg' },
+    { src: '/photos/burzil-road-summer.webp', caption: 'Summer: the road climbing to Burzil Pass through green alpine slopes' },
+    { src: '/photos/burzil-top-sign.webp', caption: 'Burzil Top at 13,808 ft, the army checkpost on the way to Minimarg' }
   ],
   naran: [
     { src: '/photos/saif-ul-malook-summer.webp', caption: 'Summer: Lake Saif-ul-Malook under rolling clouds, with snow patches on the slopes' },
