@@ -131,6 +131,7 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/lahore-basant-minaret.webp', caption: 'Basant: kites over the rooftops at sunset, by a lit minaret' },
     { src: '/photos/lahore-basant-rooftops.webp', caption: 'Basant: the sky full of kites over the old city, February. Dates are announced by the Punjab government each year' },
     { src: '/photos/lahore-basant-sun.webp', caption: 'Basant: a kite against the setting sun' },
+    { src: '/photos/lahore-orange-line.webp', caption: 'The Orange Line metro train: an easy, air-conditioned way across the city' },
     { src: '/photos/lahore-aerial-fields.webp', caption: 'Green wheat fields meeting the city at its edge' },
     { src: '/photos/lahore-winter-fog-bikes.webp', caption: 'Winter: dense fog on Lahore’s roads, December and January. Motorways often close at night; drive by day' },
     { src: '/photos/lahore-winter-fog-road.webp', caption: 'Winter: headlights in the evening fog' },
