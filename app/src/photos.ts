@@ -15,6 +15,7 @@ const OWN: Record<string, string> = {
   shigar: '/photos/shigar-garden-peaks.webp',
   rama: '/photos/rama-meadows-peaks.webp',
   kalam: '/photos/kalam-river-peaks.webp',
+  phander: '/photos/phander-valley-river.webp',
   abbottabad: '/photos/abbottabad-valley-view.webp',
   // The Indus Highway through the date palms between Shikarpur and Sukkur, on the way south to Karachi.
   sukkur: '/photos/sukkur-lansdowne-bridge.webp',
@@ -36,6 +37,8 @@ export const PLACE_PHOTOS: Record<string, string> = {
   'abbottabad|Shimla Hill': '/photos/abbottabad-valley-view.webp',
   'thandiani|Shimla Hill': '/photos/abbottabad-valley-view.webp',
   'kalam|Kalam bazaar & riverside': '/photos/kalam-river-peaks.webp',
+  'phander|Phander Lake': '/photos/phander-lake-poplars.webp',
+  'phander|Phander village': '/photos/phander-valley-fields.webp',
   'rama|Minimarg': '/photos/minimarg-village-valley.webp',
   'rama|Rama Meadows': '/photos/rama-meadows-peaks.webp',
   'shigar|Shigar Fort': '/photos/shigar-garden-peaks.webp',
@@ -210,6 +213,13 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/kalam-forest-river.webp', caption: 'Summer: evening light on the cedar forest along the river near Kalam' },
     { src: '/photos/kalam-peaks-town.webp', caption: 'Summer: jagged snow peaks above the forested ridges around Kalam' },
     { src: '/photos/kalam-village-cedars.webp', caption: 'Summer: tall cedars and a village below the snow peaks of Kalam valley' }
+  ],
+  phander: [
+    { src: '/photos/phander-valley-river.webp', caption: 'Summer: Phander valley from above, the turquoise Ghizer river winding through green fields' },
+    { src: '/photos/phander-valley-fields.webp', caption: 'Summer: patchwork fields and poplars along the river in Phander' },
+    { src: '/photos/phander-lake-poplars.webp', caption: 'Summer: Phander Lake, turquoise water fringed with poplars' },
+    { src: '/photos/ghizer-valley-gorge.webp', caption: 'Summer: a green village deep in the Ghizer valley below snow peaks' },
+    { src: '/photos/ghizer-road-cliff.webp', caption: 'Summer: riding the Ghizer road under a cliff of golden rock' }
   ],
   naran: [
     { src: '/photos/saif-ul-malook-summer.webp', caption: 'Summer: Lake Saif-ul-Malook under rolling clouds, with snow patches on the slopes' },
