@@ -23,7 +23,7 @@ const FEATURES: [string, string, string, string][] = [
   ['ph-wallet', '#9A5208', 'A budget that adds up', 'Fuel, tolls, hotels, meals, jeeps and car hire, with prices we check, for your group and your days.'],
   ['ph-cloud-sun', '#3B8DFF', 'Weather and road alerts', 'Forecasts along the route, passes that are closed, and warnings for long or risky days.'],
   ['ph-wifi-slash', '#6B3FA0', 'Works offline', 'Download the plan and map before you lose signal in the mountains.'],
-  ['ph-users-three', '#C4005F', 'Family can follow', 'Share a link so family at home can see where you are on the road and that you arrived.'],
+  ['ph-users-three', '#C4005F', 'Family can follow', 'Share a link so family at home see each check-in and when you arrive. It isn’t live GPS tracking, so it works on weak mountain signal, saves battery and you choose what they see.'],
   ['ph-translate', '#006F8D', 'English and Roman Urdu', 'The whole planner works in both, and is built for travellers coming from abroad too.']
 ];
 

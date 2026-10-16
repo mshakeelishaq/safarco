@@ -222,6 +222,7 @@ export function ShareSheet({ open, onClose, live, signedIn, cloud, following, bu
         {opt('ph-instagram-logo', 'linear-gradient(160deg,#F58529,#DD2A7B 55%,#8134AF)', t('Trip card for Instagram'), t('A picture of your trip for stories and WhatsApp status.'), onCard, 'card')}
         {opt('ph-share-network', 'linear-gradient(160deg,#6FD3FF,#3B8DFF)', t('Send the plan'), t('A link that opens this plan in SafarCo, so friends can change it.'), onPlan, 'plan')}
       </div>
+      <p style={css('margin:12px 2px 0;font-size:12px;font-weight:600;color:var(--mute);line-height:1.45')}>{t('Not live tracking: family see your check-ins and any location you send, so it works on weak signal and saves battery.')}</p>
       {cloud && !signedIn && <button onClick={onSignIn} style={css('margin-top:12px;width:100%;min-height:40px;border:0;background:none;color:var(--g);font-size:13px;font-weight:800;cursor:pointer')}>{t('Sign in to send live check-ins to family')}</button>}
       {following && <button onClick={onStop} style={css('margin-top:8px;width:100%;min-height:40px;border:0;background:none;color:var(--cor);font-size:13px;font-weight:800;cursor:pointer')}>{t('Stop sharing with family')}</button>}
     </Panel>

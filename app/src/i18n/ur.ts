@@ -2112,4 +2112,5 @@ export const UR: Record<string, string> = {
   "Hot by midday: go out early morning or in the evening.": "Dopahar tak garmi: subah sawere ya shaam ko niklein.",
   "Basant: kites over the old city’s rooftops": "Basant: purane shehar ki chhaton par patangen",
   "Dates and rules are set by the Punjab government each year: check before you plan around it.": "Tareekhen aur qawaid har saal Punjab hukumat tay karti hai: is ke hisaab se plan karne se pehle maloom kar lein.",
+  "Not live tracking: family see your check-ins and any location you send, so it works on weak signal and saves battery.": "Yeh live tracking nahin: ghar wale aap ke check-ins aur jo location aap bhejein woh dekhte hain, is liye kamzor signal par bhi chalta hai aur battery bachti hai.",
 };
