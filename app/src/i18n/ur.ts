@@ -2192,4 +2192,6 @@ export const UR: Record<string, string> = {
   "Click the install icon at the right of the address bar, or the menu → “Install SafarCo”.": "Address bar ke daayen install icon dabayein, ya menu → “Install SafarCo”.",
   "SafarCo opens in its own window, like an app.": "SafarCo app ki tarah apni alag window mein khulta hai.",
   "New dates saved. Your checklist, expenses and family link moved with the trip.": "Nayi tareekhein save ho gayin. Aap ki checklist, kharche aur family link bhi saath aa gaye.",
+  "Changes saved to “{name}”, on this phone and in your account.": "Tabdeeliyan “{name}” mein save ho gayin, is phone aur aap ke account mein.",
+  "Changes saved to “{name}”.": "Tabdeeliyan “{name}” mein save ho gayin.",
 };

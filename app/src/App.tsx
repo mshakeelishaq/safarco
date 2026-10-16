@@ -137,7 +137,7 @@ export function App() {
 
 
   // Keep the trip being planned, so closing the app or reloading doesn't lose it.
-  const tripKey = s.screen === 'app' ? JSON.stringify(tripData(s)) : '';
+  const tripKey = s.screen === 'app' ? JSON.stringify(tripData(s)) : '', savedFor = useRef<string | null>(null);
   useEffect(() => {
     // The address bar always opens this trip, so copying it shares the plan, not just the app.
     const url = tripKey ? shareUrl(JSON.parse(tripKey)) : '';
@@ -146,12 +146,16 @@ export function App() {
     const d = JSON.parse(tripKey);
     saveCurrent(d, s.savedId);
     if (!s.savedId) return;
+    // Opening a saved trip isn't a change; anything after that is, and gets a short "saved" note.
+    const opened = savedFor.current !== s.savedId; savedFor.current = s.savedId;
     // A saved trip updates itself (on the device now, in the account shortly after).
     const t = setTimeout(() => {
       const old = localTrips().find(x => x.id === s.savedId); if (!old) return;
+      const changed = JSON.stringify(old.data) !== tripKey;
       // A name SafarCo made ("Lahore → Skardu · May 2027") follows the trip when its places or month change.
       const upd = { ...old, name: old.name === defaultName(old.data) ? defaultName(d) : old.name, data: d, savedAt: new Date().toISOString() };
       saveLocal(upd); setTrips(localTrips());
+      if (changed && !opened && !stRef.current.toast) set({ toast: user ? tx('Changes saved to “{name}”, on this phone and in your account.', { name: upd.name }) : tx('Changes saved to “{name}”.', { name: upd.name }) });
       if (user) cloudSave(upd).then(cid => { if (cid !== upd.cloudId) { saveLocal({ ...upd, cloudId: cid }); setTrips(localTrips()); } }).catch(() => {});
     }, 1200);
     return () => clearTimeout(t);
