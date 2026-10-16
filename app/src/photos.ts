@@ -24,6 +24,8 @@ const OWN: Record<string, string> = {
 };
 /** Our photo of one place at a destination, by "destination|place name". */
 export const PLACE_PHOTOS: Record<string, string> = {
+  'hunza|Khunjerab Pass': '/photos/khunjerab-border-gate.webp',
+  'passu|Khunjerab Pass': '/photos/khunjerab-border-gate.webp',
   'naran|Babusar Top': '/photos/babusar-top-road.webp',
   'nathia|Mushkpuri Top': '/photos/mushkpuri-summer.webp',
   'skardu|Keris, Ghowari, Barah and Khaplu': '/photos/keris-bridge-autumn.webp',
@@ -95,6 +97,16 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/hingol-road-badlands.webp', caption: 'The Makran Coastal Highway winding through the Hingol hills' },
     { src: '/photos/mud-volcano-hingol.webp', caption: 'Mud volcano near the Makran coast, Hingol' },
     { src: '/photos/road-to-mud-volcano.webp', caption: 'The road to the mud volcanoes, with the sea beyond' }
+  ],
+  hunza: [
+    { src: '/photos/khunjerab-reflection.webp', caption: 'Khunjerab Pass: snow peaks mirrored in a meltwater pool at 15,397 ft' },
+    { src: '/photos/khunjerab-glacier.webp', caption: 'Khunjerab Pass: a glacier between snow-covered peaks near the top' },
+    { src: '/photos/khunjerab-border-gate.webp', caption: 'Khunjerab Pass: the China border gate at the end of the Karakoram Highway' }
+  ],
+  passu: [
+    { src: '/photos/khunjerab-reflection.webp', caption: 'Khunjerab Pass: snow peaks mirrored in a meltwater pool at 15,397 ft' },
+    { src: '/photos/khunjerab-glacier.webp', caption: 'Khunjerab Pass: a glacier between snow-covered peaks near the top' },
+    { src: '/photos/khunjerab-border-gate.webp', caption: 'Khunjerab Pass: the China border gate at the end of the Karakoram Highway' }
   ],
   naran: [
     { src: '/photos/naran-summer-peaks.webp', caption: 'Summer: snow-streaked peaks above the valley beyond Naran' },
