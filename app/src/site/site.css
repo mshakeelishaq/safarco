@@ -190,3 +190,6 @@
   .app-bar .x { flex: none; width: 34px; height: 34px; border: 0; background: none; color: var(--mute); font-size: 16px; cursor: pointer; }
   .site-foot { padding-bottom: 90px; }
 }
+/* Get the app: a bright photo, with a dark fade only behind the text. */
+.app-phone .scr { color: #fff; }
+.app-phone .scr::after { background: linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,.72) 100%); }

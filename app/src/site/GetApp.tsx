@@ -27,7 +27,7 @@ export function GetApp() {
           <a href="/plan?start=1" className="btn btn-ghost">Use it in the browser</a>
         </div>
       </div>
-      <div className="phone app-phone" style={{ width: 230 }}><div className="scr" style={{ backgroundImage: 'url(/photos/altit-fort.webp)' }}>
+      <div className="phone app-phone" style={{ width: 240 }}><div className="scr" style={{ backgroundImage: 'url(/photos/autumn-hunza.webp)', backgroundPosition: '24% center' }}>
         <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: '.08em', color: '#FFD27A' }}>TODAY · DAY 3</div>
         <div style={{ fontFamily: 'var(--fontH)', fontSize: 22, fontWeight: 700, margin: '4px 0' }}>Explore Hunza</div>
         <div style={{ fontSize: 13, opacity: .92, lineHeight: 1.5 }}>8:00 Baltit Fort<br />9:40 Eagle’s Nest<br />12:30 Lunch, Karimabad<br />14:00 Attabad Lake</div>
