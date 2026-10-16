@@ -75,6 +75,7 @@ export const PLACE_PHOTOS: Record<string, string> = {
   'khaplu|Barah Valley': '/photos/barah-pond-autumn.webp',
   'naran|Naran bazaar & riverside': '/photos/naran-town-summer.webp',
   'naran|Lake Saif-ul-Malook': '/photos/saif-ul-malook-snow-peaks.webp',
+  'shogran|Siri Paye meadows': '/photos/siri-paye-meadows-clouds.webp',
   'shogran|Balakot riverside': '/photos/balakot-bridge-kunhar.webp',
   'naran|Babusar Top': '/photos/babusar-top-road.webp',
   'nathia|Mushkpuri Top': '/photos/mushkpuri-summer.webp',
@@ -357,6 +358,8 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/keris-bridge-sand.webp', caption: 'Day trip to Khaplu: wind-rippled sand on the riverbank below Keris bridge' }
   ],
   shogran: [
+    { src: '/photos/siri-paye-meadows-clouds.webp', caption: 'Summer: the green meadows of Siri Paye above Shogran, clouds rolling over the pines' },
+    { src: '/photos/siri-paye-jeep-track.webp', caption: 'Summer: jeeps on the muddy track from Shogran up to Siri Paye, in the monsoon mist' },
     { src: '/photos/shogran-winter-view.webp', caption: 'Winter: Shogran under snow, with the Kaghan peaks behind' },
     { src: '/photos/shogran-winter-aerial.webp', caption: 'Winter: hotels and huts on the Shogran plateau after a snowfall' },
     { src: '/photos/shogran-winter-cabins.webp', caption: 'Winter: village houses and cabins buried in snow. The jeep road from Kiwai can close after heavy snow' },
@@ -453,7 +456,7 @@ const SEASONAL: Record<string, Partial<Record<SeasonName, string>>> = {
   passu: { summer: '/photos/attabad-summer-cones.webp' },
   naran: { summer: '/photos/saif-ul-malook-snow-peaks.webp', autumn: '/photos/naran-autumn-huts.webp', winter: '/photos/kaghan-winter-river.webp' },
   khaplu: { autumn: '/photos/khaplu-palace-autumn.webp' },
-  shogran: { winter: '/photos/shogran-winter-view.webp' },
+  shogran: { summer: '/photos/siri-paye-meadows-clouds.webp', winter: '/photos/shogran-winter-view.webp' },
   thandiani: { summer: '/photos/thandiani-summer-road.webp' },
   neelum: { winter: '/photos/sharda-winter-river.webp' },
   lahore: { spring: '/photos/lahore-pink-blossom.webp', summer: '/photos/lahore-summer-amaltas-canal.webp', autumn: '/photos/lahore-model-town-autumn.webp', winter: '/photos/lahore-azadi-chowk-sunrise.webp' },
