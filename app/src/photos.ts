@@ -110,7 +110,7 @@ export const PLACE_PHOTOS: Record<string, string> = {
   'kundmalir|Hingol mud volcanoes': '/photos/mud-volcano-hingol.webp'
 };
 /** Our photo of a stop on the road (by the stop's name), shown on that day of the plan. */
-export const STOP_PHOTOS: Record<string, string> = { 'Kiwai waterfall': '/photos/kiwai-waterfall-cafe.webp', Balakot: '/photos/balakot-bridge-kunhar.webp', Ormara: '/photos/ormara-beach-evening.webp', Keris: '/photos/keris-bridge-autumn.webp' };
+export const STOP_PHOTOS: Record<string, string> = { Chakdara: '/photos/chakdara-interchange-toll.webp', 'Kiwai waterfall': '/photos/kiwai-waterfall-cafe.webp', Balakot: '/photos/balakot-bridge-kunhar.webp', Ormara: '/photos/ormara-beach-evening.webp', Keris: '/photos/keris-bridge-autumn.webp' };
 /** A photo for something in a day's plan: a road stop or one of a destination's places. */
 export const photoForStop = (label: string) => STOP_PHOTOS[label] || PLACE_PHOTOS[Object.keys(PLACE_PHOTOS).find(k => k.endsWith('|' + label)) || ''];
 /** More of our photos of a place, with what they show, for its guide page. */
@@ -244,7 +244,9 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/kalam-river-peaks.webp', caption: 'Summer: the Swat river at Kalam, with snow peaks at the head of the valley' },
     { src: '/photos/kalam-forest-river.webp', caption: 'Summer: evening light on the cedar forest along the river near Kalam' },
     { src: '/photos/kalam-peaks-town.webp', caption: 'Summer: jagged snow peaks above the forested ridges around Kalam' },
-    { src: '/photos/kalam-village-cedars.webp', caption: 'Summer: tall cedars and a village below the snow peaks of Kalam valley' }
+    { src: '/photos/kalam-village-cedars.webp', caption: 'Summer: tall cedars and a village below the snow peaks of Kalam valley' },
+    { src: '/photos/swat-motorway-chakdara.webp', caption: 'On the way: the Swat Motorway near Chakdara, between green fields and the mountains of Swat' },
+    { src: '/photos/chakdara-interchange-toll.webp', caption: 'On the way: Chakdara interchange at wheat harvest, where the motorway enters Swat' }
   ],
   phander: [
     { src: '/photos/phander-valley-river.webp', caption: 'Summer: Phander valley from above, the turquoise Ghizer river winding through green fields' },
@@ -304,6 +306,14 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/kumrat-forest-river.webp', caption: 'Summer: turquoise water of the Panjkora along a wall of young deodars' },
     { src: '/photos/thal-wooden-mosque.webp', caption: 'The carved wooden mosque at Thal, on the river at the gateway to Kumrat' },
     { src: '/photos/kumrat-fields-summer.webp', caption: 'Summer: maize fields and wooden fences below the forested mountains on the way to Kumrat' }
+  ],
+  mingora: [
+    { src: '/photos/swat-motorway-chakdara.webp', caption: 'On the way: the Swat Motorway near Chakdara, between green fields and the mountains of Swat' },
+    { src: '/photos/chakdara-interchange-toll.webp', caption: 'On the way: Chakdara interchange at wheat harvest, where the motorway enters Swat' }
+  ],
+  malam: [
+    { src: '/photos/swat-motorway-chakdara.webp', caption: 'On the way: the Swat Motorway near Chakdara, between green fields and the mountains of Swat' },
+    { src: '/photos/chakdara-interchange-toll.webp', caption: 'On the way: Chakdara interchange at wheat harvest, where the motorway enters Swat' }
   ],
   naran: [
     { src: '/photos/saif-ul-malook-snow-peaks.webp', caption: 'Lake Saif-ul-Malook after fresh snow, the valley of Malika Parbat mirrored in green water' },
