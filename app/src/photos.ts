@@ -271,6 +271,8 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
   ],
   skardu: [
     { src: '/photos/shangrila-autumn.webp', caption: 'Autumn: Shangrila (Lower Kachura Lake) from above, ringed by golden poplars and red roofs' },
+    { src: '/photos/shangrila-morning-huts.webp', caption: 'Autumn morning: sunlight pouring over the red-roofed huts on the shore of Shangrila' },
+    { src: '/photos/shangrila-golden-willow.webp', caption: 'Autumn morning: a golden willow mirrored in the still water of Shangrila' },
     { src: '/photos/skardu-city-autumn-peaks.webp', caption: 'Autumn: Skardu town among golden poplars on a misty morning, fresh snow on the peaks' },
     { src: '/photos/skardu-city-autumn-mist.webp', caption: 'Autumn: morning mist over the Skardu valley and the main road through town' },
     { src: '/photos/katpana-mist-poplars.webp', caption: 'Autumn: dawn mist over poplars and a mosque, seen from the Katpana cold desert' },
