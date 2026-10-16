@@ -9,7 +9,7 @@ const AUTUMN_MONTHS = [10, 11];
 /** A place's own photo, used whenever it's the trip's place: Hunza is the view of Rakaposhi. */
 const OWN: Record<string, string> = {
   hunza: '/photos/autumn-hunza.webp',
-  nagar: '/photos/rakaposhi-view-autumn.webp',
+  nagar: '/photos/nagar-autumn-poplars.webp',
   gilgit: '/photos/gilgit-city-gate.webp',
   skardu: '/photos/shangrila-autumn.webp',
   shigar: '/photos/shigar-garden-peaks.webp',
@@ -179,6 +179,10 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/gilgit-polo-statue.webp', caption: 'The polo player statue in Gilgit, home of mountain polo' }
   ],
   nagar: [
+    { src: '/photos/nagar-autumn-poplars.webp', caption: 'Autumn: red and gold orchards and golden poplars below the snow peaks of Nagar' },
+    { src: '/photos/nagar-autumn-peaks.webp', caption: 'Autumn: a hillside of red and orange trees in Nagar, snow peaks behind' },
+    { src: '/photos/nagar-autumn-walnut.webp', caption: 'Autumn: walnut leaves framing the terraced orchards of Nagar' },
+    { src: '/photos/nagar-autumn-arch.webp', caption: 'Autumn: Nagar’s orchards through a carved wooden arch' },
     { src: '/photos/rakaposhi-view-autumn.webp', caption: 'Autumn: Rakaposhi above the Hunza river and golden poplars, from the Ghulmet viewpoint' },
     { src: '/photos/hoper-glacier-peaks.webp', caption: 'Hoper Glacier: the ice field below snow peaks in Nagar' },
     { src: '/photos/hoper-glacier-ice.webp', caption: 'Hoper Glacier: rows of ice pinnacles up close' },
