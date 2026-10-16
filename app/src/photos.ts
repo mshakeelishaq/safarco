@@ -11,6 +11,7 @@ const OWN: Record<string, string> = {
   hunza: '/photos/autumn-hunza.webp',
   nagar: '/photos/rakaposhi-view-autumn.webp',
   gilgit: '/photos/gilgit-night.webp',
+  skardu: '/photos/shangrila-autumn.webp',
   // The Indus Highway through the date palms between Shikarpur and Sukkur, on the way south to Karachi.
   sukkur: '/photos/sukkur-lansdowne-bridge.webp',
   kundmalir: '/photos/kund-malir-beach.webp',
@@ -26,6 +27,7 @@ const OWN: Record<string, string> = {
 };
 /** Our photo of one place at a destination, by "destination|place name". */
 export const PLACE_PHOTOS: Record<string, string> = {
+  'skardu|Shangrila, Lower Kachura': '/photos/shangrila-autumn.webp',
   'hunza|Baltit Fort': '/photos/baltit-fort-autumn.webp',
   'hunza|Attabad Lake': '/photos/attabad-summer-boat-ride.webp',
   'passu|Attabad Lake': '/photos/attabad-summer-boat-ride.webp',
@@ -181,6 +183,7 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/keris-bridge-sand.webp', caption: 'On the way: wind-rippled sand on the riverbank below Keris bridge' }
   ],
   skardu: [
+    { src: '/photos/shangrila-autumn.webp', caption: 'Autumn: Shangrila (Lower Kachura Lake) from above, ringed by golden poplars and red roofs' },
     { src: '/photos/skardu-road-autumn.webp', caption: 'On the way: the Jaglot to Skardu road in autumn, golden poplars below fresh snow' },
     { src: '/photos/keris-bridge-autumn.webp', caption: 'Day trip to Khaplu: Keris bridge over the Shyok in autumn, with golden poplars on the far bank' },
     { src: '/photos/keris-bridge-reflection.webp', caption: 'Day trip to Khaplu: poplars and the Keris bridge reflected in the river' },
