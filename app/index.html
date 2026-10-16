@@ -28,76 +28,48 @@
       background: radial-gradient(120% 80% at 50% 30%, #12809F 0%, #0B5F7C 55%, #08435A 100%); color: #fff;
       font-family: Georgia, 'Times New Roman', serif; transition: opacity .45s ease, transform .45s ease; }
     #splash.sp-hide { opacity: 0; transform: scale(1.04); pointer-events: none; }
-    #splash .sp-card { width: min(62vw, 260px); aspect-ratio: 1; border-radius: 22%; overflow: hidden; box-shadow: 0 30px 60px -20px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.12);
-      animation: sp-pop .7s cubic-bezier(.2,.9,.3,1.3) both; }
-    #splash .sp-art { display: block; width: 100%; height: 100%; }
-    #splash .sp-name { margin-top: 26px; font-size: 38px; font-weight: 700; letter-spacing: -.01em; animation: sp-up .6s .15s ease-out both; }
-    #splash .sp-tag { margin-top: 6px; font-size: 15px; opacity: .85; text-align: center; animation: sp-up .6s .25s ease-out both; }
+    #splash .sp-mark { width: min(44vw, 170px); height: auto; overflow: visible; }
+    #splash .sp-road { stroke-dasharray: 100; stroke-dashoffset: 100; opacity: 0; animation: sp-draw .8s .1s cubic-bezier(.5,0,.3,1) forwards; }
+    #splash .sp-dash { opacity: 0; animation: sp-fade .4s .75s ease-out forwards; }
+    #splash .sp-pin { transform-box: fill-box; transform-origin: 50% 100%; opacity: 0; animation: sp-drop .55s 1.95s cubic-bezier(.3,1.6,.5,1) forwards; }
+    #splash .sp-word { width: min(58vw, 230px); height: auto; margin-top: 22px; opacity: 0; animation: sp-in .6s 1.1s ease-out forwards; }
+    #splash .sp-tag { margin-top: 10px; font-size: 15px; opacity: .85; text-align: center; animation: sp-up .6s 1.25s ease-out both; }
     #splash .sp-bar { margin-top: 26px; width: 140px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.2); overflow: hidden; }
     #splash .sp-bar i { display: block; width: 40%; height: 100%; border-radius: 2px; background: #FFC75F; animation: sp-load 1.2s ease-in-out infinite; }
     #splash .sp-credit { position: absolute; bottom: calc(22px + env(safe-area-inset-bottom)); display: inline-flex; align-items: center; gap: 7px; min-height: 44px; padding: 0 12px;
       color: rgba(255,255,255,.88); font: 600 13px/1 system-ui, -apple-system, sans-serif; text-decoration: none; letter-spacing: .01em; }
-    @keyframes sp-pop { from { opacity: 0; transform: scale(.8) translateY(10px); } }
+    @keyframes sp-draw { 0% { stroke-dashoffset: 100; opacity: 0; } 4% { opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 1; } }
+    @keyframes sp-fade { to { opacity: 1; } }
+    @keyframes sp-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    @keyframes sp-drop { 0% { opacity: 0; transform: translateY(-40%) scale(.6); } 100% { opacity: 1; transform: none; } }
     @keyframes sp-up { from { opacity: 0; transform: translateY(10px); } }
     @keyframes sp-load { 0% { transform: translateX(-110%); } 100% { transform: translateX(260%); } }
-    @media (prefers-reduced-motion: reduce) { #splash *, #splash { animation: none !important; transition: none !important; } }
+    @media (prefers-reduced-motion: reduce) { #splash *, #splash { animation: none !important; transition: none !important; }
+      #splash .sp-road { stroke-dashoffset: 0; opacity: 1; } #splash .sp-dash, #splash .sp-pin, #splash .sp-word { opacity: 1; } #splash .sp-car { display: none; } }
+    /* Later opens in the same visit: the finished logo, no drive. */
+    #splash.sp-quick *, #splash.sp-quick { animation-duration: .01s !important; animation-delay: 0s !important; } #splash.sp-quick .sp-car { display: none; }
   </style>
 </head>
 <body>
   <div id="root"></div>
   <div id="splash" role="status" aria-label="Loading SafarCo">
-    <div class="sp-card"><svg class="sp-art" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A car driving up a mountain road">
-  <defs>
-    <linearGradient id="sp-sky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#0B6F93"/><stop offset=".55" stop-color="#2FA7C2"/><stop offset=".8" stop-color="#9FD6D8"/><stop offset="1" stop-color="#FFD9A0"/>
-    </linearGradient>
-    <linearGradient id="sp-far" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7DB7CA"/><stop offset="1" stop-color="#5D9CB3"/></linearGradient>
-    <linearGradient id="sp-near" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2E7C93"/><stop offset="1" stop-color="#1D5F74"/></linearGradient>
-    <linearGradient id="sp-valley" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2FA27B"/><stop offset="1" stop-color="#17795C"/></linearGradient>
-    <radialGradient id="sp-sun" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFE9B0"/><stop offset=".6" stop-color="#FFC75F"/><stop offset="1" stop-color="#FFC75F" stop-opacity="0"/></radialGradient>
-  </defs>
-  <rect width="512" height="512" fill="url(#sp-sky)"/>
-  <circle cx="352" cy="214" r="92" fill="url(#sp-sun)" opacity=".85"/>
-  <circle cx="352" cy="214" r="46" fill="#FFE3A3"/>
-  <path d="M-20 318 L70 236 L128 280 L214 168 L300 262 L368 214 L532 330 V512 H-20Z" fill="url(#sp-far)"/>
-  <path d="M214 168 L240 202 L226 198 L214 214 L200 200 L190 199Z" fill="#F4FBFC"/>
-  <path d="M-20 372 L118 222 L196 300 L262 248 L380 372Z" fill="url(#sp-near)"/>
-  <path d="M118 222 L146 252 L130 248 L118 262 L106 250 L94 249Z" fill="#F4FBFC"/>
-  <path d="M220 400 L352 262 L450 350 L532 300 V420Z" fill="#256F86"/>
-  <path d="M352 262 L374 282 L362 280 L352 292 L342 282 L332 283Z" fill="#F4FBFC"/>
-  <path d="M-20 392 C 120 350, 380 350, 532 384 V532 H-20Z" fill="url(#sp-valley)"/>
-  <path d="M168 540 C 176 470, 330 468, 318 428" fill="none" stroke="#E2C48A" stroke-width="48" stroke-linecap="round" transform="translate(0 3)"/>
-  <path d="M318 428 C 308 396, 238 404, 250 378" fill="none" stroke="#E2C48A" stroke-width="34" stroke-linecap="round" transform="translate(0 3)"/>
-  <path d="M250 378 C 258 362, 292 360, 304 355" fill="none" stroke="#E2C48A" stroke-width="22" stroke-linecap="round" transform="translate(0 3)"/>
-  <path d="M168 540 C 176 470, 330 468, 318 428" fill="none" stroke="#F7EBD0" stroke-width="46" stroke-linecap="round"/>
-  <path d="M318 428 C 308 396, 238 404, 250 378" fill="none" stroke="#F7EBD0" stroke-width="32" stroke-linecap="round"/>
-  <path d="M250 378 C 258 362, 292 360, 304 355" fill="none" stroke="#F7EBD0" stroke-width="20" stroke-linecap="round"/>
-  <path d="M168 540 C 176 470, 330 468, 318 428" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-dasharray="14 14" stroke-linecap="round"/>
-  <path d="M318 428 C 308 396, 238 404, 250 378" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-dasharray="10 10" stroke-linecap="round"/>
-  <path d="M250 378 C 258 362, 292 360, 304 355" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-dasharray="6 7" stroke-linecap="round"/>
-  <g>
-    <animateMotion dur="3.2s" repeatCount="indefinite" path="M168 540 C 176 470, 330 468, 318 428 C 308 396, 238 404, 250 378 C 258 362, 292 360, 304 355" keyPoints="0;1;1" keyTimes="0;.86;1" calcMode="linear"/>
-    <g><animateTransform attributeName="transform" type="scale" values="1.25;.4;.4" keyTimes="0;.86;1" dur="3.2s" repeatCount="indefinite"/>
-      <g><animateTransform attributeName="transform" type="scale" values="1 1;-1 1;1 1" keyTimes="0;.48;.72" calcMode="discrete" dur="3.2s" repeatCount="indefinite"/>
-        <g transform="translate(0 -6)">
-    <rect x="-34" y="-20" width="68" height="26" rx="9" fill="#FF6B4A"/>
-    <path d="M-20 -20 L-12 -36 H14 L24 -20Z" fill="#FF6B4A"/>
-    <path d="M-14 -22 L-8 -32 H0 V-22Z M4 -22 V-32 H12 L18 -22Z" fill="#CFEFF6"/>
-    <circle cx="-18" cy="8" r="9" fill="#21313A"/><circle cx="18" cy="8" r="9" fill="#21313A"/>
-    <circle cx="-18" cy="8" r="3.5" fill="#B9C6CC"/><circle cx="18" cy="8" r="3.5" fill="#B9C6CC"/>
-    <rect x="28" y="-14" width="7" height="6" rx="2" fill="#FFE3A3"/>
-  
+    <svg class="sp-mark" viewBox="6 -10 90 112" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="A car driving up the SafarCo road to the pin">
+      <path class="sp-road" d="M24 80 C 36 88, 64 88, 68 72 C 72 52, 42 58, 32 46 C 20 30, 42 20, 64 30" pathLength="100" fill="none" stroke="#fff" stroke-width="16" stroke-linecap="round"/>
+      <path class="sp-dash" d="M24 80 C 36 88, 64 88, 68 72 C 72 52, 42 58, 32 46 C 20 30, 42 20, 64 30" fill="none" stroke="#F5B83D" stroke-width="2.4" stroke-dasharray="5 5" stroke-linecap="round"/>
+      <g class="sp-car" opacity="0">
+        <animateMotion dur="1.3s" begin="0.75s" fill="freeze" rotate="auto" keyPoints="0;1" keyTimes="0;1" calcMode="spline" keySplines=".45 0 .35 1" path="M24 80 C 36 88, 64 88, 68 72 C 72 52, 42 58, 32 46 C 20 30, 42 20, 64 30"/>
+        <set attributeName="opacity" to="1" begin="0.75s" fill="freeze"/>
+        <animate attributeName="opacity" from="1" to="0" begin="2.05s" dur=".25s" fill="freeze"/>
+        <g transform="scale(1.4)">
+        <rect x="-6" y="-3.6" width="12" height="7.2" rx="2.4" fill="#E8624A"/>
+        <rect x="0.6" y="-2.6" width="3" height="5.2" rx="1" fill="#CFEFF6"/>
+        <rect x="-4.6" y="-2.6" width="2.2" height="5.2" rx=".8" fill="#CFEFF6" opacity=".8"/>
+        <circle cx="6" cy="-2.2" r=".9" fill="#FFE3A3"/><circle cx="6" cy="2.2" r=".9" fill="#FFE3A3"/>
         </g>
       </g>
-    </g>
-    <animate attributeName="opacity" values="1;1;0;0" keyTimes="0;.8;.88;1" dur="3.2s" repeatCount="indefinite"/>
-  </g>
-  <g fill="#FFFFFF" opacity=".9"><ellipse cx="0" cy="0" rx="34" ry="11"/><ellipse cx="18" cy="-8" rx="20" ry="11"/>
-    <animateTransform attributeName="transform" type="translate" values="-60 120;560 96" dur="14s" repeatCount="indefinite"/></g>
-  <g fill="#FFFFFF" opacity=".7"><ellipse cx="0" cy="0" rx="26" ry="8"/><ellipse cx="12" cy="-6" rx="14" ry="8"/>
-    <animateTransform attributeName="transform" type="translate" values="-200 70;560 60" dur="19s" repeatCount="indefinite"/></g>
-</svg></div>
-    <div class="sp-name">SafarCo</div>
+      <g class="sp-pin"><path d="M74 30 C 74 30, 62 18, 62 11 A12 12 0 1 1 86 11 C 86 18, 74 30, 74 30Z" fill="#E8624A"/><circle cx="74" cy="11" r="4.2" fill="#0B5F7C"/></g>
+    </svg>
+    <svg class="sp-word" viewBox="94 22 250 56" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SafarCo"><g fill="#fff"><path d="M119.568 74.768Q115.088 74.768 111.152 73.136Q107.21600000000001 71.504 104.368 68.49600000000001Q101.52 65.488 100.112 61.391999999999996L108.24 57.744Q110.032 61.647999999999996 113.19999999999999 63.888Q116.368 66.128 120.208 66.128Q122.256 66.128 123.72800000000001 65.488Q125.2 64.848 126.03200000000001 63.728Q126.864 62.608000000000004 126.864 61.072Q126.864 59.408 125.84 58.224000000000004Q124.816 57.04 122.64 56.336L113.296 53.263999999999996Q107.6 51.408 104.72 47.984Q101.84 44.56 101.84 39.76Q101.84 35.536 103.92 32.336Q106.0 29.135999999999996 109.744 27.343999999999998Q113.488 25.552 118.352 25.552Q122.64 25.552 126.28800000000001 27.024Q129.936 28.496000000000002 132.59199999999998 31.184Q135.248 33.872 136.59199999999998 37.647999999999996L128.528 41.296Q127.184 37.967999999999996 124.496 36.08Q121.80799999999999 34.192 118.352 34.192Q116.368 34.192 114.832 34.832Q113.296 35.472 112.464 36.656Q111.632 37.839999999999996 111.632 39.376Q111.632 41.04 112.72 42.288Q113.80799999999999 43.536 115.98400000000001 44.239999999999995L125.136 47.184Q130.89600000000002 49.04 133.744 52.367999999999995Q136.59199999999998 55.696 136.59199999999998 60.496Q136.59199999999998 64.656 134.416 67.888Q132.24 71.12 128.43200000000002 72.944Q124.624 74.768 119.568 74.768Z"/><path d="M152.464 74.768Q148.688 74.768 145.93599999999998 73.55199999999999Q143.184 72.336 141.712 70.064Q140.23999999999998 67.792 140.23999999999998 64.656Q140.23999999999998 61.712 141.584 59.44Q142.928 57.168 145.712 55.632000000000005Q148.49599999999998 54.096000000000004 152.65599999999998 53.456L163.344 51.727999999999994V58.768L154.384 60.368Q152.33599999999998 60.751999999999995 151.248 61.68Q150.16 62.608000000000004 150.16 64.336Q150.16 65.936 151.37599999999998 66.832Q152.59199999999998 67.728 154.384 67.728Q156.75199999999998 67.728 158.54399999999998 66.70400000000001Q160.33599999999998 65.68 161.32799999999997 63.92Q162.32 62.16 162.32 60.048V50.96Q162.32 48.976 160.752 47.632Q159.184 46.288 156.49599999999998 46.288Q153.93599999999998 46.288 151.98399999999998 47.696Q150.03199999999998 49.104 149.136 51.408L141.456 47.76Q142.48 44.816 144.71999999999997 42.704Q146.95999999999998 40.592 150.096 39.44Q153.232 38.288 156.944 38.288Q161.35999999999999 38.288 164.75199999999998 39.888Q168.14399999999998 41.488 170.03199999999998 44.336Q171.92 47.184 171.92 50.96V74.0H162.95999999999998V68.368L165.136 67.984Q163.6 70.288 161.74399999999997 71.792Q159.88799999999998 73.296 157.58399999999997 74.03200000000001Q155.27999999999997 74.768 152.464 74.768Z"/><path d="M181.90399999999997 74.0V47.376H176.01599999999996V39.056H181.90399999999997V38.544Q181.90399999999997 34.384 183.53599999999997 31.504Q185.16799999999998 28.624000000000002 188.23999999999995 27.088Q191.31199999999995 25.552 195.66399999999996 25.552Q196.49599999999998 25.552 197.45599999999996 25.648Q198.41599999999997 25.744 199.05599999999998 25.872V34.064Q198.41599999999997 33.936 197.93599999999998 33.903999999999996Q197.45599999999996 33.872 196.94399999999996 33.872Q194.25599999999997 33.872 192.87999999999997 35.056Q191.50399999999996 36.24 191.50399999999996 38.544V39.056H198.99199999999996V47.376H191.50399999999996V74.0Z"/><path d="M213.456 74.768Q209.67999999999998 74.768 206.928 73.55199999999999Q204.176 72.336 202.70399999999998 70.064Q201.23199999999997 67.792 201.23199999999997 64.656Q201.23199999999997 61.712 202.57599999999996 59.44Q203.92 57.168 206.70399999999998 55.632000000000005Q209.48799999999997 54.096000000000004 213.64799999999997 53.456L224.33599999999998 51.727999999999994V58.768L215.37599999999998 60.368Q213.32799999999997 60.751999999999995 212.23999999999998 61.68Q211.152 62.608000000000004 211.152 64.336Q211.152 65.936 212.368 66.832Q213.58399999999997 67.728 215.37599999999998 67.728Q217.74399999999997 67.728 219.53599999999997 66.70400000000001Q221.32799999999997 65.68 222.32 63.92Q223.31199999999998 62.16 223.31199999999998 60.048V50.96Q223.31199999999998 48.976 221.74399999999997 47.632Q220.176 46.288 217.48799999999997 46.288Q214.92799999999997 46.288 212.97599999999997 47.696Q211.02399999999997 49.104 210.128 51.408L202.44799999999998 47.76Q203.47199999999998 44.816 205.712 42.704Q207.95199999999997 40.592 211.08799999999997 39.44Q214.224 38.288 217.93599999999998 38.288Q222.35199999999998 38.288 225.74399999999997 39.888Q229.13599999999997 41.488 231.02399999999997 44.336Q232.91199999999998 47.184 232.91199999999998 50.96V74.0H223.95199999999997V68.368L226.128 67.984Q224.59199999999998 70.288 222.736 71.792Q220.87999999999997 73.296 218.57599999999996 74.03200000000001Q216.272 74.768 213.456 74.768Z"/><path d="M238.672 74.0V39.056H247.63199999999998V47.44L246.992 46.224000000000004Q248.14399999999998 41.808 250.79999999999998 40.239999999999995Q253.456 38.672 257.104 38.672H259.152V46.992000000000004H256.144Q252.624 46.992000000000004 250.44799999999998 49.136Q248.272 51.28 248.272 55.184V74.0Z"/><path d="M285.45599999999996 74.768Q280.33599999999996 74.768 275.952 72.912Q271.568 71.056 268.304 67.72800000000001Q265.03999999999996 64.4 263.21599999999995 59.92Q261.39199999999994 55.44 261.39199999999994 50.128Q261.39199999999994 44.816 263.18399999999997 40.304Q264.97599999999994 35.792 268.23999999999995 32.495999999999995Q271.50399999999996 29.199999999999996 275.888 27.375999999999998Q280.272 25.552 285.45599999999996 25.552Q290.64 25.552 294.768 27.279999999999998Q298.89599999999996 29.007999999999996 301.77599999999995 31.887999999999998Q304.65599999999995 34.768 305.87199999999996 38.288L297.104 42.512Q295.888 39.056 292.84799999999996 36.784Q289.808 34.512 285.45599999999996 34.512Q281.23199999999997 34.512 278.032 36.495999999999995Q274.832 38.48 273.072 41.968Q271.31199999999995 45.456 271.31199999999995 50.128Q271.31199999999995 54.8 273.072 58.32Q274.832 61.84 278.032 63.824Q281.23199999999997 65.80799999999999 285.45599999999996 65.80799999999999Q289.808 65.80799999999999 292.84799999999996 63.535999999999994Q295.888 61.263999999999996 297.104 57.808L305.87199999999996 62.032Q304.65599999999995 65.55199999999999 301.77599999999995 68.43199999999999Q298.89599999999996 71.312 294.768 73.03999999999999Q290.64 74.768 285.45599999999996 74.768Z"/><path d="M327.5679999999999 74.768Q322.38399999999996 74.768 318.12799999999993 72.4Q313.87199999999996 70.032 311.34399999999994 65.904Q308.816 61.775999999999996 308.816 56.528Q308.816 51.216 311.34399999999994 47.120000000000005Q313.87199999999996 43.024 318.12799999999993 40.656Q322.38399999999996 38.288 327.5679999999999 38.288Q332.75199999999995 38.288 336.97599999999994 40.656Q341.19999999999993 43.024 343.72799999999995 47.120000000000005Q346.256 51.216 346.256 56.528Q346.256 61.775999999999996 343.72799999999995 65.904Q341.19999999999993 70.032 336.97599999999994 72.4Q332.75199999999995 74.768 327.5679999999999 74.768ZM327.5679999999999 66.128Q330.19199999999995 66.128 332.14399999999995 64.912Q334.09599999999995 63.696 335.21599999999995 61.519999999999996Q336.33599999999996 59.344 336.33599999999996 56.528Q336.33599999999996 53.712 335.21599999999995 51.568Q334.09599999999995 49.424 332.14399999999995 48.176Q330.19199999999995 46.928 327.5679999999999 46.928Q324.94399999999996 46.928 322.9599999999999 48.176Q320.97599999999994 49.424 319.85599999999994 51.568Q318.73599999999993 53.712 318.73599999999993 56.528Q318.73599999999993 59.344 319.85599999999994 61.519999999999996Q320.97599999999994 63.696 322.9599999999999 64.912Q324.94399999999996 66.128 327.5679999999999 66.128Z"/></g></svg>
     <div class="sp-tag">Your road trip across Pakistan, planned</div>
     <script>try { if (localStorage.getItem('safarco-lang') === 'ur') { document.documentElement.lang = 'ur-Latn'; document.querySelector('#splash .sp-tag').textContent = 'Pakistan ka safar, poori planning ke saath'; } } catch (e) {}</script>
     <div class="sp-bar"><i></i></div>
