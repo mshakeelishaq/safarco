@@ -43,6 +43,7 @@ export const PLACE_PHOTOS: Record<string, string> = {
   'phander|Phander village': '/photos/phander-valley-fields.webp',
   'gilgit|Gilgit polo ground': '/photos/gilgit-polo-statue.webp',
   'muzaffarabad|Leepa Valley': '/photos/leepa-valley-fields.webp',
+  'neelum|Keran': '/photos/keran-river-houses.webp',
   'rama|Minimarg': '/photos/minimarg-village-valley.webp',
   'rama|Rama Meadows': '/photos/rama-meadows-peaks.webp',
   'shigar|Shigar Fort': '/photos/shigar-garden-peaks.webp',
@@ -243,6 +244,10 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/leepa-road-terraces.webp', caption: 'On the way to Leepa: green terraced fields catching the evening light' },
     { src: '/photos/leepa-road-hillside.webp', caption: 'On the way to Leepa: villages scattered across a forested hillside' },
     { src: '/photos/leepa-road-village.webp', caption: 'On the way to Leepa: a village among fields and orchards, the road winding through' }
+  ],
+  neelum: [
+    { src: '/photos/keran-river-houses.webp', caption: 'Summer: wooden houses across the Neelum river at Keran, where the river marks the Line of Control' },
+    { src: '/photos/keran-riverside-camp.webp', caption: 'Summer: a riverside tent camp on the Neelum at Keran' }
   ],
   naran: [
     { src: '/photos/saif-ul-malook-summer.webp', caption: 'Summer: Lake Saif-ul-Malook under rolling clouds, with snow patches on the slopes' },
