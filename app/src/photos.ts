@@ -10,7 +10,7 @@ const AUTUMN_MONTHS = [10, 11];
 const OWN: Record<string, string> = {
   hunza: '/photos/autumn-hunza.webp',
   nagar: '/photos/rakaposhi-view-autumn.webp',
-  gilgit: '/photos/gilgit-night.webp',
+  gilgit: '/photos/gilgit-city-gate.webp',
   skardu: '/photos/shangrila-autumn.webp',
   shigar: '/photos/shigar-garden-peaks.webp',
   rama: '/photos/rama-meadows-peaks.webp',
@@ -39,6 +39,7 @@ export const PLACE_PHOTOS: Record<string, string> = {
   'kalam|Kalam bazaar & riverside': '/photos/kalam-river-peaks.webp',
   'phander|Phander Lake': '/photos/phander-lake-poplars.webp',
   'phander|Phander village': '/photos/phander-valley-fields.webp',
+  'gilgit|Gilgit polo ground': '/photos/gilgit-polo-statue.webp',
   'rama|Minimarg': '/photos/minimarg-village-valley.webp',
   'rama|Rama Meadows': '/photos/rama-meadows-peaks.webp',
   'shigar|Shigar Fort': '/photos/shigar-garden-peaks.webp',
@@ -171,7 +172,9 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/khunjerab-border-gate.webp', caption: 'Khunjerab Pass: the China border gate at the end of the Karakoram Highway' }
   ],
   gilgit: [
-    { src: '/photos/gilgit-night.webp', caption: 'Gilgit city lights at night, below the mountains' }
+    { src: '/photos/gilgit-night.webp', caption: 'Gilgit city lights at night, below the mountains' },
+    { src: '/photos/gilgit-city-gate.webp', caption: 'The arched gateway on the road into Gilgit, under bare rock mountains' },
+    { src: '/photos/gilgit-polo-statue.webp', caption: 'The polo player statue in Gilgit, home of mountain polo' }
   ],
   nagar: [
     { src: '/photos/rakaposhi-view-autumn.webp', caption: 'Autumn: Rakaposhi above the Hunza river and golden poplars, from the Ghulmet viewpoint' },
