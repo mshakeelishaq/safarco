@@ -259,6 +259,8 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
   ],
   khaplu: [
     { src: '/photos/khaplu-palace-autumn.webp', caption: 'Autumn: Khaplu Palace (Yabgo Khar) under golden chinar and poplar, late October to early November' },
+    { src: '/photos/khaplu-river-reflection.webp', caption: 'Autumn: golden poplars of Khaplu mirrored in the clear turquoise Shyok' },
+    { src: '/photos/khaplu-poplars-reflection.webp', caption: 'Autumn: Khaplu village among golden poplars, reflected in the river' },
     { src: '/photos/barah-pond-autumn.webp', caption: 'Autumn: a clear stream spilling into a still pond under golden willows in Barah Valley' },
     { src: '/photos/barah-road-river-autumn.webp', caption: 'Autumn: the road through Barah Valley between golden poplars and the braided Shyok river' },
     { src: '/photos/barah-orchards-autumn.webp', caption: 'Autumn: terraced orchards in Barah Valley below a rocky peak' },
