@@ -26,6 +26,8 @@ const OWN: Record<string, string> = {
 export const PLACE_PHOTOS: Record<string, string> = {
   'hunza|Attabad Lake': '/photos/attabad-summer-boat-ride.webp',
   'passu|Attabad Lake': '/photos/attabad-summer-boat-ride.webp',
+  'hunza|Hussaini Suspension Bridge': '/photos/hussaini-bridge-summer.webp',
+  'passu|Hussaini Suspension Bridge': '/photos/hussaini-bridge-summer.webp',
   'hunza|Khunjerab Pass': '/photos/khunjerab-border-gate.webp',
   'passu|Khunjerab Pass': '/photos/khunjerab-border-gate.webp',
   'naran|Babusar Top': '/photos/babusar-top-road.webp',
@@ -104,6 +106,8 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/attabad-summer-cones.webp', caption: 'Summer: speedboats on Attabad Lake, with the Passu Cones behind' },
     { src: '/photos/attabad-summer-boats.webp', caption: 'Summer: boats and jet skis at the Attabad Lake jetty' },
     { src: '/photos/attabad-summer-boat-ride.webp', caption: 'Summer: a boat ride on the turquoise water of Attabad Lake' },
+    { src: '/photos/hussaini-bridge-summer.webp', caption: 'Summer: walking the Hussaini Suspension Bridge, with the Passu Cones ahead' },
+    { src: '/photos/hussaini-bridge-peaks.webp', caption: 'Summer: Hussaini bridge over the Hunza river, below snow peaks' },
     { src: '/photos/khunjerab-reflection.webp', caption: 'Khunjerab Pass: snow peaks mirrored in a meltwater pool at 15,397 ft' },
     { src: '/photos/khunjerab-glacier.webp', caption: 'Khunjerab Pass: a glacier between snow-covered peaks near the top' },
     { src: '/photos/khunjerab-border-gate.webp', caption: 'Khunjerab Pass: the China border gate at the end of the Karakoram Highway' }
@@ -112,6 +116,8 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/attabad-summer-cones.webp', caption: 'Summer: speedboats on Attabad Lake, with the Passu Cones behind' },
     { src: '/photos/attabad-summer-boats.webp', caption: 'Summer: boats and jet skis at the Attabad Lake jetty' },
     { src: '/photos/attabad-summer-boat-ride.webp', caption: 'Summer: a boat ride on the turquoise water of Attabad Lake' },
+    { src: '/photos/hussaini-bridge-summer.webp', caption: 'Summer: walking the Hussaini Suspension Bridge, with the Passu Cones ahead' },
+    { src: '/photos/hussaini-bridge-peaks.webp', caption: 'Summer: Hussaini bridge over the Hunza river, below snow peaks' },
     { src: '/photos/khunjerab-reflection.webp', caption: 'Khunjerab Pass: snow peaks mirrored in a meltwater pool at 15,397 ft' },
     { src: '/photos/khunjerab-glacier.webp', caption: 'Khunjerab Pass: a glacier between snow-covered peaks near the top' },
     { src: '/photos/khunjerab-border-gate.webp', caption: 'Khunjerab Pass: the China border gate at the end of the Karakoram Highway' }
