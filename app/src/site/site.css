@@ -192,4 +192,4 @@
 }
 /* Get the app: a bright photo, with a dark fade only behind the text. */
 .app-phone .scr { color: #fff; }
-.app-phone .scr::after { background: linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,.72) 100%); }
+.app-phone .scr::after, .home-phone .scr::after { background: linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,.72) 100%); }
