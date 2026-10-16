@@ -73,6 +73,7 @@ export const PLACE_PHOTOS: Record<string, string> = {
   'passu|Khunjerab Pass': '/photos/khunjerab-border-gate.webp',
   'khaplu|Ghowari': '/photos/ghowari-poplar-avenue.webp',
   'khaplu|Barah Valley': '/photos/barah-pond-autumn.webp',
+  'naran|Naran bazaar & riverside': '/photos/naran-town-summer.webp',
   'naran|Lake Saif-ul-Malook': '/photos/saif-ul-malook-summer.webp',
   'shogran|Balakot riverside': '/photos/balakot-bridge-kunhar.webp',
   'naran|Babusar Top': '/photos/babusar-top-road.webp',
@@ -289,6 +290,7 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
   ],
   naran: [
     { src: '/photos/saif-ul-malook-summer.webp', caption: 'Summer: Lake Saif-ul-Malook under rolling clouds, with snow patches on the slopes' },
+    { src: '/photos/naran-town-summer.webp', caption: 'Summer: Naran town and its hotels above the Kunhar river' },
     { src: '/photos/naran-summer-peaks.webp', caption: 'Summer: snow-streaked peaks above the valley beyond Naran' },
     { src: '/photos/naran-babusar-road-summer.webp', caption: 'Summer: the road from Naran towards Babusar Top, past terraced fields and roadside dhabas' },
     { src: '/photos/naran-babusar-village-summer.webp', caption: 'Summer: a village on the way up to Babusar Top' },
