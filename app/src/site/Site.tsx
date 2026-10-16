@@ -13,7 +13,7 @@ import { GetApp } from './GetApp';
 import { Contact } from './Contact';
 import { SITE_URL } from './url';
 import { Logo } from '../components/Logo';
-import { isInstalled, onInstallChange, startInstall } from '../install';
+import { isInstalled, offerInstallNow, onInstallChange, startInstall } from '../install';
 
 /** Pages of the website, by path. */
 const SITE_PAGES = ['/', '/destinations', '/about', '/app', '/contact'];
@@ -85,7 +85,7 @@ export function Footer() {
 /** On phones: a slim bar offering the app, until it's installed or closed. */
 function AppBar({ here }: { here: string }) {
   const KEY = 'safarco-appbar-closed';
-  const [closed, setClosed] = useState(() => { try { return localStorage.getItem(KEY) === '1'; } catch { return false; } });
+  const [closed, setClosed] = useState(() => !offerInstallNow());
   const [, bump] = useReducer((x: number) => x + 1, 0);
   useEffect(() => onInstallChange(bump), []);
   if (closed || isInstalled() || here === '/app') return null;

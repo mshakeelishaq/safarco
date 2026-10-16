@@ -42,7 +42,28 @@ export function installHow(): InstallHow {
 const OPEN = 'sc-install-open';
 /** "Install the app" anywhere: the browser's prompt if it has one, else a sheet with the steps for this phone. */
 export async function startInstall() {
+  // Android Chrome gets its one-tap install ready a moment after the page loads: wait for it rather than
+  // falling back to the menu steps, which often only add a shortcut.
+  if (!deferred && installHow() === 'android') await new Promise<void>(done => {
+    const off = onInstallChange(() => { if (deferred) { off(); clearTimeout(t); done(); } });
+    const t = setTimeout(() => { off(); done(); }, 4000);
+  });
   if (installHow() === 'prompt') { await promptInstall(); return; }
   window.dispatchEvent(new Event(OPEN));
 }
 export const onInstallOpen = (f: () => void) => { window.addEventListener(OPEN, f); return () => window.removeEventListener(OPEN, f); };
+
+/**
+ * The install offer (the website's app bar or the planner's card) appears once, on one page, ever.
+ * The Get the app page and "Install the app" in My trips stay for anyone who wants it later.
+ */
+const OFFERED = 'safarco-install-offered';
+let offerNow: boolean | null = null;
+export function offerInstallNow() {
+  if (offerNow === null) {
+    let before = true;
+    try { before = !!(localStorage.getItem(OFFERED) || localStorage.getItem(DISMISSED) || localStorage.getItem('safarco-appbar-closed')); if (!before) localStorage.setItem(OFFERED, '1'); } catch { /* storage blocked: don't nag */ }
+    offerNow = !before && !isInstalled();
+  }
+  return offerNow;
+}
