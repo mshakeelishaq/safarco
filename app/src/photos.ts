@@ -74,7 +74,7 @@ export const PLACE_PHOTOS: Record<string, string> = {
   'khaplu|Ghowari': '/photos/ghowari-poplar-avenue.webp',
   'khaplu|Barah Valley': '/photos/barah-pond-autumn.webp',
   'naran|Naran bazaar & riverside': '/photos/naran-town-summer.webp',
-  'naran|Lake Saif-ul-Malook': '/photos/saif-ul-malook-summer.webp',
+  'naran|Lake Saif-ul-Malook': '/photos/saif-ul-malook-snow-peaks.webp',
   'shogran|Balakot riverside': '/photos/balakot-bridge-kunhar.webp',
   'naran|Babusar Top': '/photos/babusar-top-road.webp',
   'nathia|Mushkpuri Top': '/photos/mushkpuri-summer.webp',
@@ -289,6 +289,7 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/ziarat-gate.webp', caption: 'Bab-e-Ziarat, the gateway on the road into Ziarat through the juniper hills' }
   ],
   naran: [
+    { src: '/photos/saif-ul-malook-snow-peaks.webp', caption: 'Lake Saif-ul-Malook after fresh snow, the valley of Malika Parbat mirrored in green water' },
     { src: '/photos/saif-ul-malook-summer.webp', caption: 'Summer: Lake Saif-ul-Malook under rolling clouds, with snow patches on the slopes' },
     { src: '/photos/naran-town-summer.webp', caption: 'Summer: Naran town and its hotels above the Kunhar river' },
     { src: '/photos/naran-valley-approach.webp', caption: 'Summer: the road into Naran, the Kunhar river and town below snow-capped peaks' },
@@ -450,7 +451,7 @@ const SEASONAL: Record<string, Partial<Record<SeasonName, string>>> = {
   nathia: { summer: '/photos/mushkpuri-summer.webp' },
   hunza: { summer: '/photos/attabad-summer-cones.webp' },
   passu: { summer: '/photos/attabad-summer-cones.webp' },
-  naran: { summer: '/photos/saif-ul-malook-summer.webp', autumn: '/photos/naran-autumn-huts.webp', winter: '/photos/kaghan-winter-river.webp' },
+  naran: { summer: '/photos/saif-ul-malook-snow-peaks.webp', autumn: '/photos/naran-autumn-huts.webp', winter: '/photos/kaghan-winter-river.webp' },
   khaplu: { autumn: '/photos/khaplu-palace-autumn.webp' },
   shogran: { winter: '/photos/shogran-winter-view.webp' },
   thandiani: { summer: '/photos/thandiani-summer-road.webp' },
