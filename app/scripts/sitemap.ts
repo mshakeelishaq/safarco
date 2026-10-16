@@ -10,5 +10,5 @@ ${pages.map(p => `  <url><loc>${SITE_URL}${p === '/' ? '/' : p}</loc></url>`).jo
 </urlset>
 `;
 writeFileSync(new URL('../public/sitemap.xml', import.meta.url), xml);
-writeFileSync(new URL('../public/robots.txt', import.meta.url), `User-agent: *\nDisallow: /admin\nDisallow: /follow\n\nSitemap: ${SITE_URL}/sitemap.xml\n`);
+writeFileSync(new URL('../public/robots.txt', import.meta.url), `User-agent: *\nDisallow: /admin\nDisallow: /follow\nDisallow: /split\n\nSitemap: ${SITE_URL}/sitemap.xml\n`);
 console.log(`sitemap.xml: ${pages.length} pages`);

@@ -90,8 +90,8 @@ export const clearCurrent = () => { try { localStorage.removeItem(CURRENT); } ca
 
 // ---- Share links: the trip packed into the URL, so no server is needed ---------
 
-const b64 = (s: string) => btoa(String.fromCharCode(...new TextEncoder().encode(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-const unb64 = (s: string) => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0)));
+export const b64 = (s: string) => btoa(String.fromCharCode(...new TextEncoder().encode(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+export const unb64 = (s: string) => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0)));
 
 export const shareUrl = (d: TripData) => `${location.origin}/plan?trip=${b64(JSON.stringify(d))}`;
 export function tripFromUrl(): TripData | null {

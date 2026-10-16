@@ -6,7 +6,7 @@ import { FeedbackSheet, FoodSheet, ReviewSheet, SaveSheet, SignInSheet, TripsShe
 import { WELCOMED, Welcome, seenWelcome } from './components/Welcome';
 import { SeasonGuide } from './components/SeasonGuide';
 import { addCheckin, cloudDelete, cloudEnabled, cloudSave, cloudTrips, createFollow, currentUser, loadFoodTips, loadContent, loadPriceList, loadReviews, submitFoodTip, onUserChange, sendFeedback, signInWithGoogle, signOut, stopFollow, submitReview, updateFollow, type User } from './cloud';
-import { ExpenseSheet, ShareSheet, SosSheet } from './components/TripMode';
+import { ExpenseSheet, PeopleSheet, ShareSheet, SosSheet } from './components/TripMode';
 import { RUN_SUBS, getRun, runKey, updateRun } from './run';
 import { followLink } from './view-trip';
 import { drawCard, shareCard } from './sharecard';
@@ -392,6 +392,7 @@ export function App() {
               onPlan={() => { set({ sheet: 'none' }); shareTrip(); }} onFamily={shareFamily} onStop={stopFamily} onCard={makeCard} onSignIn={google} />
             <SosSheet v={view} open={s.sheet === 'sos'} onClose={() => set({ sheet: 'none' })} />
             <ExpenseSheet v={view} open={s.sheet === 'expense'} onClose={() => set({ sheet: 'none' })} />
+            <PeopleSheet v={view} open={s.sheet === 'people'} onClose={() => set({ sheet: 'none' })} />
           </>}
           <FoodSheet open={s.sheet === 'food'} target={s.foodFor} user={user} onGoogle={google} onClose={() => set({ sheet: 'none' })}
             onSend={tip => s.foodFor ? submitFoodTip({ ...tip, dest: s.foodFor.dest }, user?.name.split(' ')[0] || 'Traveller') : Promise.reject(new Error('No place'))} />

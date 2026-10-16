@@ -1,5 +1,6 @@
 User-agent: *
 Disallow: /admin
 Disallow: /follow
+Disallow: /split
 
 Sitemap: https://www.safarco.pk/sitemap.xml

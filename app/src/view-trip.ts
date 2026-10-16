@@ -7,7 +7,8 @@ import { project } from './engine/fuel';
 import { sunTimes } from './engine/sun';
 import { WISHES } from './engine/seasons';
 import { dropKey, parseClock } from './edits';
-import { daysBetween, getRun, phaseOf, runKey, settleUp, toggle, updateRun, type Expense } from './run';
+import { daysBetween, getRun, phaseOf, runKey, toggle, updateRun, type Expense } from './run';
+import { settle, splitUrl } from './split';
 import type { RoutePoint } from './weather/route';
 import type { AppState, Patch, PlanEdits } from './state';
 import { t } from './i18n';
@@ -121,22 +122,45 @@ export function tripMode(x: TripCtx) {
   const shareLocation = () => locate(p => { location.href = waText(t('We are here: {link}', { link: `https://maps.google.com/?q=${p.lat.toFixed(5)},${p.lon.toFixed(5)}` })); });
 
   // ---- Expenses: what was spent, against the plan, and who owes whom ------------------------
-  const me = t('Me'), people = run.people.length ? run.people : [me];
+  const me = t('Me'), people = run.people.length ? run.people : [me], shares = run.shares;
   const spentBy = new Map<string, number>(); run.expenses.forEach(e => spentBy.set(e.cat, (spentBy.get(e.cat) || 0) + e.amount));
   const spent = run.expenses.reduce((a, e) => a + e.amount, 0);
-  const paid: Record<string, number> = Object.fromEntries(people.map(p => [p, 0])); run.expenses.forEach(e => { const p = e.payer || people[0]; paid[p] = (paid[p] || 0) + e.amount; });
+  const sett = settle({ people, shares, expenses: run.expenses, payments: run.payments });
+  const catName = (c: string) => t(c === 'Jeeps' ? 'Local jeeps' : c);
+  const title = x.dest.name;
+  const summary = () => {
+    const lines = [t('{place} trip: expenses', { place: title }), t('Spent: {amount}', { amount: fmt(spent) }), '',
+      ...sett.rows.map(r => t('{name} paid {paid}, share {share}', { name: r.name, paid: fmt(r.paid), share: fmt(r.share) })), '',
+      ...(sett.owes.length ? [t('To settle up:'), ...sett.owes.map(o => t('{from} pays {to} {amount}', { from: o.from, to: o.to, amount: fmt(o.amount) }))] : [t('All settled up.')]), '',
+      t('See every expense: {link}', { link: splitUrl({ title, people, shares, expenses: run.expenses, payments: run.payments, at: new Date().toISOString() }) })];
+    return lines.join('\n');
+  };
   const expenses = {
     spent, spentStr: fmt(spent), planned: x.total, left: x.total - spent, leftStr: fmt(Math.abs(x.total - spent)), over: spent > x.total,
     pct: x.total ? Math.min(100, Math.round(spent / x.total * 100)) : 0,
-    cats: EXPENSE_CATS.map(c => ({ key: c, label: t(c === 'Jeeps' ? 'Local jeeps' : c), icon: CAT_ICON[c], spent: spentBy.get(c) || 0, planned: x.planned.find(p => p.key === c)?.val || 0 }))
+    cats: EXPENSE_CATS.map(c => ({ key: c, label: catName(c), icon: CAT_ICON[c], spent: spentBy.get(c) || 0, planned: x.planned.find(p => p.key === c)?.val || 0 }))
       .filter(c => c.spent || c.planned).map(c => ({ ...c, spentStr: fmt(c.spent), plannedStr: fmt(c.planned), pct: c.planned ? Math.min(100, Math.round(c.spent / c.planned * 100)) : 100, over: c.spent > c.planned })),
-    list: run.expenses.slice().reverse().map(e => ({ ...e, icon: CAT_ICON[e.cat] || CAT_ICON.Other, label: e.note || t(e.cat === 'Jeeps' ? 'Local jeeps' : e.cat), amountStr: fmt(e.amount), when: e.date ? dayLabel(e.date, 0) : '', remove: () => upd(r => ({ expenses: r.expenses.filter(y => y.id !== e.id) })) })),
-    people, perHead: s.groupSize > 0 ? fmt(spent / s.groupSize) : '',
-    settle: settleUp(paid).map(p => ({ ...p, text: t('{from} pays {to} {amount}', { from: p.from, to: p.to, amount: fmt(p.amount) }) })),
+    list: run.expenses.slice().reverse().map(e => ({ ...e, icon: CAT_ICON[e.cat] || CAT_ICON.Other, label: e.note || catName(e.cat), amountStr: fmt(e.amount), when: e.date ? dayLabel(e.date, 0) : '',
+      who: [e.payer ? t('Paid by {name}', { name: e.payer }) : '', e.split && e.split.length && e.split.length < people.length ? t('Split: {names}', { names: e.split.join(', ') }) : ''].filter(Boolean).join(' · '),
+      remove: () => upd(r => ({ expenses: r.expenses.filter(y => y.id !== e.id) })) })),
+    people, me, group: people.length > 1, shares,
+    rows: sett.rows.map(r => ({ ...r, paidStr: fmt(r.paid), shareStr: fmt(r.share), netStr: fmt(Math.abs(r.net)), units: shares[r.name] || 1 })),
+    settle: sett.owes.map(o => ({ ...o, text: t('{from} pays {to} {amount}', { from: o.from, to: o.to, amount: fmt(o.amount) }),
+      markPaid: () => { upd(r => ({ payments: [...r.payments, { id: Math.random().toString(36).slice(2, 10), from: o.from, to: o.to, amount: o.amount, date: today }] })); set({ toast: t('Marked as paid') }); } })),
+    payments: run.payments.slice().reverse().map(p => ({ ...p, text: t('{from} paid {to} {amount}', { from: p.from, to: p.to, amount: fmt(p.amount) }), undo: () => upd(r => ({ payments: r.payments.filter(y => y.id !== p.id) })) })),
     add: (e: Omit<Expense, 'id' | 'date'>) => { upd(r => ({ expenses: [...r.expenses, { ...e, id: Math.random().toString(36).slice(2, 10), date: today }] })); set({ sheet: 'none', toast: t('Added {amount}', { amount: fmt(e.amount) }) }); },
-    addPerson: (name: string) => { const n = name.trim().slice(0, 30); if (n && !people.includes(n)) upd(() => ({ people: [...people, n] })); },
-    removePerson: (name: string) => upd(r => ({ people: people.filter(p => p !== name), expenses: r.expenses.map(e => e.payer === name ? { ...e, payer: people[0] } : e) })),
-    open: () => set({ sheet: 'expense' })
+    addPerson: (name: string) => { const n = name.trim().slice(0, 30); if (n && !people.includes(n) && people.length < 20) upd(() => ({ people: [...people, n] })); },
+    removePerson: (name: string) => upd(r => ({ people: people.filter(p => p !== name), shares: Object.fromEntries(Object.entries(r.shares).filter(([k]) => k !== name)),
+      expenses: r.expenses.map(e => ({ ...e, payer: e.payer === name ? people[0] : e.payer, ...(e.split ? { split: e.split.filter(p => p !== name) } : {}) })) })),
+    rename: (from: string, to: string) => { const n = to.trim().slice(0, 30); if (!n || n === from || people.includes(n)) return;
+      const sw = (x: string) => x === from ? n : x;
+      upd(r => ({ people: people.map(sw), shares: Object.fromEntries(Object.entries(r.shares).map(([k, v]) => [sw(k), v])),
+        expenses: r.expenses.map(e => ({ ...e, payer: sw(e.payer), ...(e.split ? { split: e.split.map(sw) } : {}) })), payments: r.payments.map(x => ({ ...x, from: sw(x.from), to: sw(x.to) })) })); },
+    setShare: (name: string, n: number) => upd(r => ({ people, shares: { ...r.shares, [name]: Math.max(1, Math.min(20, n)) } })),
+    share: () => { window.open(waText(summary()), '_blank'); },
+    open: () => set({ sheet: people.length > 1 ? 'expense' : 'people' }),
+    openPeople: () => set({ sheet: 'people' }),
+    openAdd: () => set({ sheet: 'expense' })
   };
 
   // ---- After: what the trip came to, and where to next --------------------------------------

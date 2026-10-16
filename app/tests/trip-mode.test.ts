@@ -1,6 +1,7 @@
 // Before, during and after the trip: phases, the checklist, today's day, expenses and settling up.
 import { beforeEach, describe, expect, it } from 'vitest';
-import { daysBetween, getRun, phaseOf, runKey, settleUp, updateRun } from '../src/run';
+import { balances, daysBetween, getRun, phaseOf, runKey, settleUp, updateRun } from '../src/run';
+import { settle, splitFromUrl, splitUrl } from '../src/split';
 import { initialState } from '../src/state';
 import { buildView, type Api } from '../src/view';
 import { isoAdd } from '../src/engine/format';
@@ -25,6 +26,29 @@ describe('settling up', () => {
     expect(p).toEqual([{ from: 'Sara', to: 'Ali', amount: 10000 }, { from: 'Omar', to: 'Ali', amount: 10000 }]);
     expect(settleUp({ Ali: 5000 })).toEqual([]);
     expect(settleUp({ Ali: 100, Sara: 100 })).toEqual([]);
+  });
+  it('splits a cost only between the people in it, by their shares', () => {
+    const people = ['Ali', 'Sara', 'Omar'], shares = { Sara: 2 };
+    const ex = [{ id: '1', amount: 40000, cat: 'Stay', note: '', payer: 'Ali', date: '' }, { id: '2', amount: 3000, cat: 'Meals', note: '', payer: 'Omar', date: '', split: ['Ali', 'Omar'] }];
+    const r = balances(people, shares, ex);
+    expect(r.map(x => x.share)).toEqual([11500, 20000, 11500]);
+    expect(r.map(x => x.net)).toEqual([28500, -20000, -8500]);
+    const { owes } = settle({ people, shares, expenses: ex, payments: [] });
+    expect(owes).toEqual([{ from: 'Sara', to: 'Ali', amount: 20000 }, { from: 'Omar', to: 'Ali', amount: 8500 }]);
+    const after = settle({ people, shares, expenses: ex, payments: [{ id: 'p', from: 'Sara', to: 'Ali', amount: 20000, date: '' }] });
+    expect(after.owes).toEqual([{ from: 'Omar', to: 'Ali', amount: 8500 }]);
+  });
+  it('carries the whole list in a view-only link', () => {
+    (globalThis as any).location = { origin: 'https://www.safarco.pk' };
+    const snap = { title: 'Hunza', people: ['Ali', 'Sara'], shares: { Sara: 2 }, at: '2026-10-16T10:00:00Z',
+      expenses: [{ id: 'x', amount: 1200, cat: 'Fuel', note: 'Fuel at Besham', payer: 'Ali', date: '2026-10-15', split: ['Ali'] }], payments: [{ id: 'y', from: 'Sara', to: 'Ali', amount: 500, date: '2026-10-16' }] };
+    const url = splitUrl(snap), back = splitFromUrl(new URL(url).searchParams.get('d'))!;
+    expect(url.startsWith('https://www.safarco.pk/split?d=')).toBe(true);
+    expect(back.people).toEqual(['Ali', 'Sara']);
+    expect(back.shares).toEqual({ Sara: 2 });
+    expect(back.expenses[0]).toMatchObject({ amount: 1200, note: 'Fuel at Besham', payer: 'Ali', split: ['Ali'] });
+    expect(back.payments[0]).toMatchObject({ from: 'Sara', to: 'Ali', amount: 500 });
+    expect(splitFromUrl('nonsense')).toBeNull();
   });
 });
 

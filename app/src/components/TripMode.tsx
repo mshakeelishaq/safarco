@@ -127,7 +127,9 @@ export function MemoriesCard({ v, onCard, onNext }: { v: View; onCard: () => voi
 
 /** Budget tab: what's been spent against the plan, and who owes whom. */
 export function ExpensesCard({ v }: { v: View }) {
-  const e = v.trip.expenses;
+  const e = v.trip.expenses, [all, setAll] = useState(false);
+  const sub = css('margin:16px 0 6px;font-size:12px;font-weight:800;color:var(--mute);text-transform:uppercase;letter-spacing:.06em');
+  const small = css('height:34px;padding:0 11px;border-radius:11px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:5px');
   return (
     <section aria-label={t('Spent on this trip')} style={css(card)}>
       <div style={css('display:flex;align-items:center;gap:10px')}>
@@ -135,50 +137,104 @@ export function ExpensesCard({ v }: { v: View }) {
         <h2 style={css('flex:1;margin:0;font-size:15px;font-weight:800')}>{t('Spent on this trip')}</h2>
         <button onClick={e.open} style={css('height:36px;padding:0 12px;border-radius:12px;border:0;background:var(--cta);color:var(--onCta);font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:5px')}><i className="ph-bold ph-plus" />{t('Add')}</button>
       </div>
-      {!e.list.length ? <p style={css('margin:10px 0 0;font-size:13px;font-weight:600;color:var(--ink2);line-height:1.45')}>{t('Note what you spend as you go: fuel, hotels, food. SafarCo compares it with the plan and works out who owes whom.')}</p> : <>
-        <div style={css('display:flex;align-items:baseline;gap:8px;margin-top:10px;flex-wrap:wrap')}><span style={css('font-family:var(--fontH);font-size:26px;font-weight:600;font-variant-numeric:tabular-nums')}>{e.spentStr}</span><span style={css(`font-size:13px;font-weight:800;color:${e.over ? 'var(--cor)' : 'var(--g)'}`)}>{e.over ? t('{amount} over the plan', { amount: e.leftStr }) : t('{amount} left in the plan', { amount: e.leftStr })}</span></div>
+
+      {/* Who's on the trip comes first: costs are split between them. */}
+      <div style={css('display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap')}>
+        <i className="ph-fill ph-users-three" style={css('color:var(--mute)')} />
+        <span style={css('flex:1;min-width:0;font-size:13px;font-weight:700;color:var(--ink2)')}>{e.group ? e.people.map(p => (e.shares[p] || 1) > 1 ? `${p} ×${e.shares[p]}` : p).join(', ') : t('Just you so far')}</span>
+        <button onClick={e.openPeople} style={small}><i className="ph-bold ph-user-plus" />{e.group ? t('People') : t('Add people')}</button>
+      </div>
+
+      {!e.list.length ? <p style={css('margin:10px 0 0;font-size:13px;font-weight:600;color:var(--ink2);line-height:1.45')}>{e.group ? t('One person keeps the list: add each cost, who paid and who shares it. SafarCo works out who owes whom, and everyone can see it from a link.') : t('Add who is on the trip first, then each cost as you go: fuel, hotels, food. SafarCo works out who owes whom.')}</p> : <>
+        <div style={css('display:flex;align-items:baseline;gap:8px;margin-top:12px;flex-wrap:wrap')}><span style={css('font-family:var(--fontH);font-size:26px;font-weight:600;font-variant-numeric:tabular-nums')}>{e.spentStr}</span><span style={css(`font-size:13px;font-weight:800;color:${e.over ? 'var(--cor)' : 'var(--g)'}`)}>{e.over ? t('{amount} over the plan', { amount: e.leftStr }) : t('{amount} left in the plan', { amount: e.leftStr })}</span></div>
         <div role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={e.pct} aria-label={t('Spent against the plan')} style={css('height:8px;border-radius:4px;background:var(--fill2);margin-top:8px;overflow:hidden')}><div style={css(`height:100%;width:${e.pct}%;border-radius:4px;background:${e.over ? 'var(--cor)' : 'var(--g)'}`)} /></div>
         <div style={css('display:flex;flex-direction:column;gap:8px;margin-top:12px')}>
           {e.cats.map(c => <div key={c.key}>
-            <div style={css('display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700')}><i className={`ph-fill ${c.icon}`} style={css('color:var(--mute)')} /><span style={css('flex:1')}>{c.label}</span><span style={css(`font-variant-numeric:tabular-nums;color:${c.over ? 'var(--cor)' : 'var(--ink)'}`)}>{c.spentStr}</span><span style={css('font-size:11px;color:var(--mute);font-variant-numeric:tabular-nums')}>/ {c.plannedStr}</span></div>
+            <div style={css('display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700')}><i className={`ph-fill ${c.icon}`} style={css('color:var(--mute)')} /><span style={css('flex:1')}>{c.label}</span><span style={css('font-variant-numeric:tabular-nums')}>{c.spentStr}</span><span style={css('font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums')}>/ {c.plannedStr}</span></div>
             <div style={css('height:4px;border-radius:2px;background:var(--fill2);margin-top:4px;overflow:hidden')}><div style={css(`height:100%;width:${c.pct}%;background:${c.over ? 'var(--cor)' : 'var(--sky)'}`)} /></div>
           </div>)}
         </div>
-        <h3 style={css('margin:14px 0 6px;font-size:12px;font-weight:800;color:var(--mute);text-transform:uppercase;letter-spacing:.06em')}>{t('Latest')}</h3>
-        {e.list.slice(0, 6).map(x => <div key={x.id} style={css('display:flex;align-items:center;gap:10px;min-height:40px')}>
+
+        {e.group && <>
+          <h3 style={sub}>{t('Who paid what')}</h3>
+          <div style={css('display:flex;flex-direction:column')}>
+            {e.rows.map(r => <div key={r.name} style={css('display:flex;align-items:center;gap:8px;min-height:48px;padding:4px 0;border-bottom:1px solid var(--line)')}>
+              <span style={css('flex:1;min-width:0')}>
+                <span style={css('display:block;font-size:13px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap')}>{r.name}{r.units > 1 && <span style={css('font-weight:700;color:var(--mute)')}> ×{r.units}</span>}</span>
+                <span style={css('display:block;font-size:11px;font-weight:600;color:var(--mute);font-variant-numeric:tabular-nums')}>{t('paid {paid} · share {share}', { paid: r.paidStr, share: r.shareStr })}</span>
+              </span>
+              <span style={css(`min-width:84px;text-align:right;font-size:13px;font-weight:800;font-variant-numeric:tabular-nums;color:${r.net > 0 ? 'var(--g)' : r.net < 0 ? 'var(--cor)' : 'var(--mute)'}`)}>{r.net > 0 ? t('gets {amount}', { amount: r.netStr }) : r.net < 0 ? t('owes {amount}', { amount: r.netStr }) : t('even')}</span>
+            </div>)}
+          </div>
+          <h3 style={sub}>{t('To settle up')}</h3>
+          {e.settle.length ? <div style={css('display:flex;flex-direction:column;gap:6px')}>{e.settle.map(p => <div key={p.from + p.to} style={css('display:flex;align-items:center;gap:8px;min-height:40px;padding:4px 4px 4px 12px;border-radius:14px;background:var(--fill)')}>
+            <i className="ph-bold ph-arrow-right" style={css('color:var(--g);flex:none')} /><span style={css('flex:1;min-width:0;font-size:13px;font-weight:800')}>{p.text}</span>
+            <button onClick={p.markPaid} style={small}><i className="ph-bold ph-check" />{t('Mark paid')}</button>
+          </div>)}</div> : <div style={css('font-size:13px;font-weight:700;color:var(--g);display:flex;align-items:center;gap:6px')}><i className="ph-fill ph-check-circle" />{t('All settled up.')}</div>}
+          {e.payments.length > 0 && <div style={css('margin-top:8px;display:flex;flex-direction:column;gap:2px')}>{e.payments.slice(0, 4).map(p => <div key={p.id} style={css('display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--mute)')}><i className="ph-fill ph-check-circle" style={css('color:var(--g)')} /><span style={css('flex:1')}>{p.text}</span><button onClick={p.undo} style={css('border:0;background:none;color:var(--mute);font-size:12px;font-weight:800;cursor:pointer;text-decoration:underline')}>{t('Undo')}</button></div>)}</div>}
+          <button onClick={e.share} style={{ ...btn(false), width: '100%', marginTop: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><i className="ph-fill ph-whatsapp-logo" style={css('color:#25D366')} />{t('Send the group a summary')}</button>
+          <div style={css('font-size:11px;font-weight:600;color:var(--mute);margin-top:6px;text-align:center;line-height:1.4')}>{t('Everyone gets a link to see the list. Only this phone can change it.')}</div>
+        </>}
+
+        <h3 style={sub}>{t('Expenses')}</h3>
+        {(all ? e.list : e.list.slice(0, 6)).map(x => <div key={x.id} style={css('display:flex;align-items:center;gap:10px;min-height:44px')}>
           <i className={`ph-fill ${x.icon}`} style={css('font-size:17px;color:var(--mute);flex:none')} />
-          <div style={css('flex:1;min-width:0')}><div style={css('font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis')}>{x.label}</div><div style={css('font-size:11px;font-weight:600;color:var(--mute)')}>{[x.when, x.payer && e.people.length > 1 ? t('paid by {name}', { name: x.payer }) : ''].filter(Boolean).join(' · ')}</div></div>
+          <div style={css('flex:1;min-width:0')}><div style={css('font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis')}>{x.label}</div><div style={css('font-size:11px;font-weight:600;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis')}>{[x.when, e.group ? x.who : ''].filter(Boolean).join(' · ')}</div></div>
           <span style={css('font-size:13px;font-weight:800;font-variant-numeric:tabular-nums')}>{x.amountStr}</span>
           <button onClick={x.remove} aria-label={t('Remove {name}', { name: x.label })} style={css('flex:none;width:30px;height:30px;border-radius:9px;border:0;background:none;color:var(--mute);cursor:pointer')}><i className="ph-bold ph-x" /></button>
         </div>)}
-        <div style={css('margin-top:12px;padding:10px 12px;border-radius:14px;background:var(--fill)')}>
-          <div style={css('font-size:12px;font-weight:800;color:var(--ink2)')}>{t('Per person ({n}): {amount}', { n: v.s.groupSize, amount: e.perHead })}</div>
-          {e.settle.length > 0 && <div style={css('margin-top:6px;display:flex;flex-direction:column;gap:4px')}>{e.settle.map(p => <div key={p.from + p.to} style={css('font-size:13px;font-weight:800;display:flex;align-items:center;gap:6px')}><i className="ph-bold ph-arrow-right" style={css('color:var(--g)')} />{p.text}</div>)}</div>}
-        </div>
+        {e.list.length > 6 && <button onClick={() => setAll(!all)} style={css('min-height:32px;padding:0;border:0;background:none;color:var(--g);font-size:12px;font-weight:800;cursor:pointer')}>{all ? t('Show fewer') : t('Show all {n}', { n: e.list.length })}</button>}
       </>}
     </section>
   );
 }
 
-/** Adds an expense: amount, what for, and who paid. */
-export function ExpenseSheet({ v, open, onClose }: { v: View; open: boolean; onClose: () => void }) {
-  const e = v.trip.expenses, [amount, setAmount] = useState(''), [cat, setCat] = useState<string>('Fuel'), [note, setNote] = useState(''), [payer, setPayer] = useState(''), [name, setName] = useState('');
-  const n = Math.round(+amount.replace(/[^\d.]/g, ''));
-  const save = () => { if (!(n > 0)) return; e.add({ amount: n, cat, note: note.trim(), payer: payer || e.people[0] }); setAmount(''); setNote(''); };
+/** Who's on the trip, and how many shares each pays. Set up once, before the first expense. */
+export function PeopleSheet({ v, open, onClose }: { v: View; open: boolean; onClose: () => void }) {
+  const e = v.trip.expenses, [name, setName] = useState('');
+  const add = () => { e.addPerson(name); setName(''); };
+  const step = css('width:34px;height:34px;border-radius:11px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);font-size:16px;cursor:pointer');
   return (
-    <Panel open={open} onClose={onClose} title={t('Add an expense')} height={560}>
+    <Panel open={open} onClose={onClose} title={t('Who is on the trip')} sub={t('Costs are split between these people. A couple or a family can pay 2 or more shares.')} height={600}>
+      <div style={css('display:flex;flex-direction:column')}>
+        {e.people.map((p, i) => <div key={p} style={css('display:flex;align-items:center;gap:8px;min-height:50px;border-bottom:1px solid var(--line)')}>
+          {i === 0 ? <input key={p} defaultValue={p === e.me ? '' : p} placeholder={t('Your name')} aria-label={t('Your name')} onBlur={x => e.rename(p, x.target.value)} onKeyDown={x => { if (x.key === 'Enter') (x.target as HTMLInputElement).blur(); }} style={{ ...input, height: 40, flex: 1, minWidth: 0, fontWeight: 800 }} />
+            : <span style={css('flex:1;min-width:0;font-size:14px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap')}>{p}</span>}
+          <span style={css('font-size:11px;font-weight:700;color:var(--mute)')}>{t('Shares')}</span>
+          <button onClick={() => e.setShare(p, (e.shares[p] || 1) - 1)} aria-label={t('Fewer shares for {name}', { name: p })} style={step}>−</button>
+          <span style={css('min-width:18px;text-align:center;font-size:14px;font-weight:800')}>{e.shares[p] || 1}</span>
+          <button onClick={() => e.setShare(p, (e.shares[p] || 1) + 1)} aria-label={t('More shares for {name}', { name: p })} style={step}>+</button>
+          {i > 0 ? <button onClick={() => e.removePerson(p)} aria-label={t('Remove {name}', { name: p })} style={css('width:34px;height:34px;border:0;background:none;color:var(--mute);cursor:pointer')}><i className="ph-bold ph-x" /></button> : <span style={css('width:34px')} />}
+        </div>)}
+      </div>
+      <div style={css('display:flex;gap:6px;margin-top:12px')}>
+        <input value={name} onChange={x => setName(x.target.value)} onKeyDown={x => { if (x.key === 'Enter') add(); }} placeholder={t('Name, e.g. Ali')} aria-label={t('Add a person who shares costs')} style={{ ...input, height: 44 }} />
+        <button onClick={add} style={css('flex:none;height:44px;padding:0 16px;border-radius:14px;border:0;background:var(--cta);color:var(--onCta);font-size:13px;font-weight:800;cursor:pointer')}>{t('Add')}</button>
+      </div>
+      {e.group && <button onClick={e.openAdd} style={{ ...btn(true), width: '100%', marginTop: 16 }}>{t('Done: add an expense')}</button>}
+    </Panel>
+  );
+}
+
+/** Adds an expense: amount, what for, who paid, and who shares it. */
+export function ExpenseSheet({ v, open, onClose }: { v: View; open: boolean; onClose: () => void }) {
+  const e = v.trip.expenses, [amount, setAmount] = useState(''), [cat, setCat] = useState<string>('Fuel'), [note, setNote] = useState(''), [payer, setPayer] = useState(''), [out, setOut] = useState<string[]>([]);
+  const n = Math.round(+amount.replace(/[^\d.]/g, '')), who = e.people.filter(p => !out.includes(p)), by = e.people.includes(payer) ? payer : e.people[0];
+  const save = () => { if (!(n > 0) || !who.length) return; e.add({ amount: n, cat, note: note.trim(), payer: by, ...(who.length < e.people.length ? { split: who } : {}) }); setAmount(''); setNote(''); setOut([]); };
+  const label = css('font-size:12px;font-weight:800;color:var(--mute);margin:14px 0 6px');
+  return (
+    <Panel open={open} onClose={onClose} title={t('Add an expense')} height={640}>
       <input value={amount} onChange={x => setAmount(x.target.value)} inputMode="numeric" placeholder={t('Amount in PKR')} aria-label={t('Amount in PKR')} style={input} />
       <div style={css('display:flex;gap:6px;flex-wrap:wrap;margin-top:12px')}>{EXPENSE_CATS.map(c => <button key={c} onClick={() => setCat(c)} aria-pressed={cat === c} style={pill(cat === c)}>{t(c === 'Jeeps' ? 'Local jeeps' : c)}</button>)}</div>
       <input value={note} onChange={x => setNote(x.target.value)} placeholder={t('What for? (optional)')} aria-label={t('What for? (optional)')} style={{ ...input, marginTop: 12 }} />
-      <div style={css('font-size:12px;font-weight:800;color:var(--mute);margin:14px 0 6px')}>{t('Paid by')}</div>
-      <div style={css('display:flex;gap:6px;flex-wrap:wrap')}>
-        {e.people.map((p, i) => <span key={p} style={css('display:inline-flex')}><button onClick={() => setPayer(p)} aria-pressed={(payer || e.people[0]) === p} style={pill((payer || e.people[0]) === p)}>{p}</button>{i > 0 && <button onClick={() => e.removePerson(p)} aria-label={t('Remove {name}', { name: p })} style={css('width:28px;border:0;background:none;color:var(--mute);cursor:pointer')}><i className="ph-bold ph-x" /></button>}</span>)}
-      </div>
-      <div style={css('display:flex;gap:6px;margin-top:8px')}>
-        <input value={name} onChange={x => setName(x.target.value)} placeholder={t('Add a person who shares costs')} aria-label={t('Add a person who shares costs')} style={{ ...input, height: 42 }} />
-        <button onClick={() => { e.addPerson(name); setName(''); }} style={css('flex:none;height:42px;padding:0 14px;border-radius:14px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);font-size:13px;font-weight:800;cursor:pointer')}>{t('Add')}</button>
-      </div>
-      <button onClick={save} disabled={!(n > 0)} style={{ ...btn(true), width: '100%', marginTop: 16, opacity: n > 0 ? 1 : .5 }}>{t('Save expense')}</button>
+      {e.group && <>
+        <div style={label}>{t('Paid by')}</div>
+        <div role="radiogroup" aria-label={t('Paid by')} style={css('display:flex;gap:6px;flex-wrap:wrap')}>{e.people.map(p => <button key={p} role="radio" aria-checked={by === p} onClick={() => setPayer(p)} style={pill(by === p)}>{p}</button>)}</div>
+        <div style={label}>{t('Split between')} <span style={css('font-weight:600')}>· {who.length === e.people.length ? t('everyone') : t('{n} of {m}', { n: who.length, m: e.people.length })}</span></div>
+        <div style={css('display:flex;gap:6px;flex-wrap:wrap')}>{e.people.map(p => { const on = !out.includes(p); return <button key={p} role="checkbox" aria-checked={on} onClick={() => setOut(on ? [...out, p] : out.filter(x => x !== p))} style={pill(on)}><i className={on ? 'ph-bold ph-check' : 'ph-bold ph-minus'} style={css('margin-right:4px')} />{p}</button>; })}</div>
+      </>}
+      <button onClick={save} disabled={!(n > 0) || !who.length} style={{ ...btn(true), width: '100%', marginTop: 16, opacity: n > 0 && who.length ? 1 : .5 }}>{t('Save expense')}</button>
+      <button onClick={e.openPeople} style={css('width:100%;min-height:40px;margin-top:6px;border:0;background:none;color:var(--g);font-size:13px;font-weight:800;cursor:pointer')}>{e.group ? t('Change who is on the trip') : t('Splitting with friends? Add them first')}</button>
     </Panel>
   );
 }
