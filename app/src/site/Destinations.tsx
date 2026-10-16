@@ -5,7 +5,8 @@ import { DCard } from './Home';
 import { PROVINCES, allCards, guide, nowMonth, type Province } from './data';
 import { DESTS, MON } from '../engine/data';
 import { dur } from '../engine/format';
-import { GALLERY, PLACE_PHOTOS, webPhoto } from '../photos';
+import { GALLERY, MONTHLY, PLACE_PHOTOS, webPhoto } from '../photos';
+import { MonthStrip } from './MonthStrip';
 import { Slideshow } from './Slideshow';
 import { IG_HANDLE } from '../contact';
 
@@ -69,6 +70,7 @@ export function Guide({ id }: { id: string }) {
           <h2 style={{ fontSize: 30, margin: '40px 0 12px' }}>Photos</h2>
           <Slideshow photos={GALLERY[id]} />
         </>}
+        {MONTHLY[id] && <div style={{ marginTop: 32 }}><MonthStrip {...MONTHLY[id]} /></div>}
 
         <h2 style={{ fontSize: 30, margin: '40px 0 6px' }}>Places to see</h2>
         <p style={{ color: 'var(--mute)', margin: '0 0 8px' }}>SafarCo fits these into your days in a sensible order, with the drive times between them.</p>

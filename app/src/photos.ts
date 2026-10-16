@@ -498,3 +498,21 @@ export function cardPhoto(id: string, month: number, startDate = '') {
   if ([3, 4].includes(month)) return '/photos/blossom.webp';
   return '/photos/green-valley.webp';
 }
+
+/** One of our photos for each month of the year, January first, for a "through the year" strip on a guide page. */
+export const MONTHLY: Record<string, { title: string; photos: { src: string; caption: string }[] }> = {
+  lahore: { title: 'Model Town Park through the year', photos: [
+    { src: '/photos/model-town-01-jan.webp', caption: 'January: golden winter fog and fallen leaves at sunrise' },
+    { src: '/photos/model-town-02-feb.webp', caption: 'February: pink tabebuia in bloom along the brick walking path' },
+    { src: '/photos/model-town-03-mar.webp', caption: 'March: red simal (silk cotton) flowers carpeting the grass' },
+    { src: '/photos/model-town-04-apr.webp', caption: 'April: purple orchid trees in bloom on a misty morning' },
+    { src: '/photos/model-town-05-may.webp', caption: 'May: a deep green canopy of shade trees over the lawn' },
+    { src: '/photos/model-town-06-jun.webp', caption: 'June: amaltas in full yellow bloom, petals all over the grass' },
+    { src: '/photos/model-town-07-jul.webp', caption: 'July: monsoon puddles and paper boats by the playground' },
+    { src: '/photos/model-town-08-aug.webp', caption: 'August: the park’s flock of white geese crossing the jogging track' },
+    { src: '/photos/model-town-09-sep.webp', caption: 'September: morning sun rays through the trees onto a bench' },
+    { src: '/photos/model-town-10-oct.webp', caption: 'October: the trees turn gold and the leaves start to fall' },
+    { src: '/photos/model-town-11-nov.webp', caption: 'November: warm light through the first winter haze' },
+    { src: '/photos/model-town-12-dec.webp', caption: 'December: red and orange leaves under a misty morning' }
+  ] }
+};
