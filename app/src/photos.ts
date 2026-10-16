@@ -18,6 +18,7 @@ const OWN: Record<string, string> = {
   phander: '/photos/phander-valley-river.webp',
   chitral: '/photos/chitral-valley-aerial.webp',
   muzaffarabad: '/photos/muzaffarabad-domel-confluence.webp',
+  neelum: '/photos/ratti-gali-lake-flowers.webp',
   abbottabad: '/photos/abbottabad-valley-view.webp',
   // The Indus Highway through the date palms between Shikarpur and Sukkur, on the way south to Karachi.
   sukkur: '/photos/sukkur-lansdowne-bridge.webp',
@@ -45,6 +46,7 @@ export const PLACE_PHOTOS: Record<string, string> = {
   'gilgit|Gilgit polo ground': '/photos/gilgit-polo-statue.webp',
   'muzaffarabad|Domel river confluence': '/photos/muzaffarabad-domel-confluence.webp',
   'muzaffarabad|Leepa Valley': '/photos/leepa-valley-fields.webp',
+  'neelum|Ratti Gali Lake': '/photos/ratti-gali-lake-flowers.webp',
   'neelum|Keran': '/photos/keran-river-houses.webp',
   'rama|Minimarg': '/photos/minimarg-village-valley.webp',
   'rama|Rama Meadows': '/photos/rama-meadows-peaks.webp',
@@ -252,6 +254,10 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/leepa-road-village.webp', caption: 'On the way to Leepa: a village among fields and orchards, the road winding through' }
   ],
   neelum: [
+    { src: '/photos/ratti-gali-lake-flowers.webp', caption: 'Summer: Ratti Gali Lake, pink wildflowers on the shore below the glacier' },
+    { src: '/photos/ratti-gali-slope.webp', caption: 'Summer: a slope of pink bistort running down to Ratti Gali Lake' },
+    { src: '/photos/ratti-gali-glacier.webp', caption: 'Summer: wildflowers above the turquoise water and snowfields of Ratti Gali' },
+    { src: '/photos/ratti-gali-clouds.webp', caption: 'Summer: clouds rolling over the cliffs around Ratti Gali Lake' },
     { src: '/photos/keran-river-houses.webp', caption: 'Summer: wooden houses across the Neelum river at Keran, where the river marks the Line of Control' },
     { src: '/photos/keran-riverside-camp.webp', caption: 'Summer: a riverside tent camp on the Neelum at Keran' }
   ],
