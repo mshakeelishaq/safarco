@@ -38,6 +38,7 @@ export const PLACE_PHOTOS: Record<string, string> = {
   'hunza|Hoper Glacier, Nagar': '/photos/hoper-glacier-peaks.webp',
   'hunza|Khunjerab Pass': '/photos/khunjerab-border-gate.webp',
   'passu|Khunjerab Pass': '/photos/khunjerab-border-gate.webp',
+  'khaplu|Ghowari': '/photos/ghowari-poplar-avenue.webp',
   'khaplu|Barah Valley': '/photos/barah-pond-autumn.webp',
   'naran|Lake Saif-ul-Malook': '/photos/saif-ul-malook-summer.webp',
   'naran|Babusar Top': '/photos/babusar-top-road.webp',
@@ -178,6 +179,9 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
   khaplu: [
     { src: '/photos/khaplu-palace-autumn.webp', caption: 'Autumn: Khaplu Palace (Yabgo Khar) under golden chinar and poplar, late October to early November' },
     { src: '/photos/barah-pond-autumn.webp', caption: 'Autumn: a clear stream spilling into a still pond under golden willows in Barah Valley' },
+    { src: '/photos/ghowari-poplar-avenue.webp', caption: 'Autumn: a lane through towering golden poplars at Ghowari, on the Skardu to Khaplu road' },
+    { src: '/photos/ghowari-poplar-road.webp', caption: 'Autumn: the road through Ghowari between rows of golden poplars and stone walls' },
+    { src: '/photos/ghowari-willow-poplars.webp', caption: 'Autumn: willow branches in front of a wall of golden poplars at Ghowari' },
     { src: '/photos/keris-bridge-autumn.webp', caption: 'On the way: Keris bridge over the Shyok in autumn, with golden poplars on the far bank' },
     { src: '/photos/keris-bridge-reflection.webp', caption: 'On the way: poplars and the Keris bridge reflected in the river' },
     { src: '/photos/keris-bridge-sand.webp', caption: 'On the way: wind-rippled sand on the riverbank below Keris bridge' }
@@ -187,6 +191,9 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/skardu-city-autumn-peaks.webp', caption: 'Autumn: Skardu town among golden poplars on a misty morning, fresh snow on the peaks' },
     { src: '/photos/skardu-city-autumn-mist.webp', caption: 'Autumn: morning mist over the Skardu valley and the main road through town' },
     { src: '/photos/skardu-road-autumn.webp', caption: 'On the way: the Jaglot to Skardu road in autumn, golden poplars below fresh snow' },
+    { src: '/photos/ghowari-poplar-avenue.webp', caption: 'Day trip to Khaplu: a lane through towering golden poplars at Ghowari, on the Skardu to Khaplu road' },
+    { src: '/photos/ghowari-poplar-road.webp', caption: 'Day trip to Khaplu: the road through Ghowari between rows of golden poplars and stone walls' },
+    { src: '/photos/ghowari-willow-poplars.webp', caption: 'Day trip to Khaplu: willow branches in front of a wall of golden poplars at Ghowari' },
     { src: '/photos/keris-bridge-autumn.webp', caption: 'Day trip to Khaplu: Keris bridge over the Shyok in autumn, with golden poplars on the far bank' },
     { src: '/photos/keris-bridge-reflection.webp', caption: 'Day trip to Khaplu: poplars and the Keris bridge reflected in the river' },
     { src: '/photos/keris-bridge-sand.webp', caption: 'Day trip to Khaplu: wind-rippled sand on the riverbank below Keris bridge' }
