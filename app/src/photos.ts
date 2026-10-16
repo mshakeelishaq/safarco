@@ -295,6 +295,7 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/naran-town-summer.webp', caption: 'Summer: Naran town and its hotels above the Kunhar river' },
     { src: '/photos/naran-valley-approach.webp', caption: 'Summer: the road into Naran, the Kunhar river and town below snow-capped peaks' },
     { src: '/photos/naran-terraced-village.webp', caption: 'Summer: green terraced fields and a village in the Kaghan valley beyond Naran' },
+    { src: '/photos/sohni-waterfall-summer.webp', caption: 'Summer: Sohni Waterfall tumbling down a rocky gorge, just past Naran on the road to Babusar' },
     { src: '/photos/naran-summer-peaks.webp', caption: 'Summer: snow-streaked peaks above the valley beyond Naran' },
     { src: '/photos/naran-babusar-road-summer.webp', caption: 'Summer: the road from Naran towards Babusar Top, past terraced fields and roadside dhabas' },
     { src: '/photos/naran-babusar-village-summer.webp', caption: 'Summer: a village on the way up to Babusar Top' },
