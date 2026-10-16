@@ -49,7 +49,7 @@ if (import.meta.env.PROD) {
 const splash = document.getElementById('splash');
 if (splash) {
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const min = Page !== App && Page !== Site ? 0 : still ? 800 : 6500;
+  const min = Page !== App && Page !== Site ? 0 : still ? 800 : 5200;
   const hide = () => { splash.classList.add('sp-hide'); setTimeout(() => splash.remove(), 500); };
   setTimeout(hide, Math.max(0, min - performance.now()));
   // In a hurry? A tap anywhere skips it.

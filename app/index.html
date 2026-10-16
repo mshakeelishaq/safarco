@@ -29,12 +29,12 @@
       font-family: Georgia, 'Times New Roman', serif; transition: opacity .45s ease, transform .45s ease; }
     #splash.sp-hide { opacity: 0; transform: scale(1.04); pointer-events: none; }
     #splash .sp-mark { width: min(44vw, 170px); height: auto; overflow: visible; }
-    #splash .sp-road { opacity: 0; animation: sp-fade 1s .1s ease-out forwards; }
-    #splash .sp-dash { opacity: 0; animation: sp-fade 1s .1s ease-out forwards; }
-    #splash .sp-pin { transform-box: fill-box; transform-origin: 50% 100%; opacity: 0; animation: sp-fade 1s .1s ease-out forwards; }
-    #splash .sp-word { width: min(58vw, 230px); height: auto; margin-top: 22px; opacity: 0; animation: sp-in .9s 1s ease-out forwards; }
-    #splash .sp-tag { margin-top: 10px; font-size: 15px; opacity: .85; text-align: center; animation: sp-up .9s 1.2s ease-out both; }
-    #splash .sp-skip { margin-top: 18px; font-size: 13px; color: rgba(255,255,255,.65); opacity: 0; animation: sp-in .6s 1.6s ease-out forwards; font-family: system-ui, sans-serif; }
+    #splash .sp-road { opacity: 0; animation: sp-fade .5s ease-out forwards; }
+    #splash .sp-dash { opacity: 0; animation: sp-fade .5s ease-out forwards; }
+    #splash .sp-pin { transform-box: fill-box; transform-origin: 50% 100%; opacity: 0; animation: sp-fade .5s ease-out forwards; }
+    #splash .sp-word { width: min(58vw, 230px); height: auto; margin-top: 22px; opacity: 0; animation: sp-in .6s .5s ease-out forwards; }
+    #splash .sp-tag { margin-top: 10px; font-size: 15px; opacity: .85; text-align: center; animation: sp-up .6s .6s ease-out both; }
+    #splash .sp-skip { margin-top: 18px; font-size: 13px; color: rgba(255,255,255,.65); opacity: 0; animation: sp-in .6s .8s ease-out forwards; font-family: system-ui, sans-serif; }
     #splash.sp-quick .sp-skip { display: none; }
     #splash .sp-bar { margin-top: 26px; width: 140px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.2); overflow: hidden; }
     #splash .sp-bar i { display: block; width: 40%; height: 100%; border-radius: 2px; background: #FFC75F; animation: sp-load 1.2s ease-in-out infinite; }
@@ -59,9 +59,9 @@
       <path class="sp-road" d="M24 80 C 36 88, 64 88, 68 72 C 72 52, 42 58, 32 46 C 20 30, 42 20, 64 30" pathLength="100" fill="none" stroke="#fff" stroke-width="16" stroke-linecap="round"/>
       <path class="sp-dash" d="M24 80 C 36 88, 64 88, 68 72 C 72 52, 42 58, 32 46 C 20 30, 42 20, 64 30" fill="none" stroke="#F5B83D" stroke-width="2.4" stroke-dasharray="5 5" stroke-linecap="round"/>
       <g class="sp-car" opacity="0">
-        <animateMotion dur="4.5s" begin="1.2s" fill="freeze" rotate="auto" keyPoints="0;1" keyTimes="0;1" calcMode="spline" keySplines=".4 0 .6 1" path="M24 80 C 36 88, 64 88, 68 72 C 72 52, 42 58, 32 46 C 20 30, 42 20, 64 30"/>
-        <set attributeName="opacity" to="1" begin="1.2s" fill="freeze"/>
-        <animate attributeName="opacity" from="1" to="0" begin="5.7s" dur=".4s" fill="freeze"/>
+        <animateMotion dur="3.5s" begin="1s" fill="freeze" rotate="auto" keyPoints="0;1" keyTimes="0;1" calcMode="spline" keySplines=".4 0 .6 1" path="M24 80 C 36 88, 64 88, 68 72 C 72 52, 42 58, 32 46 C 20 30, 42 20, 64 30"/>
+        <set attributeName="opacity" to="1" begin="1s" fill="freeze"/>
+        <animate attributeName="opacity" from="1" to="0" begin="4.6s" dur=".4s" fill="freeze"/>
         <g transform="scale(1.4)">
         <rect x="-6" y="-3.6" width="12" height="7.2" rx="2.4" fill="#E8624A"/>
         <rect x="0.6" y="-2.6" width="3" height="5.2" rx="1" fill="#CFEFF6"/>
