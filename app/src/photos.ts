@@ -97,6 +97,9 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/road-to-mud-volcano.webp', caption: 'The road to the mud volcanoes, with the sea beyond' }
   ],
   naran: [
+    { src: '/photos/naran-summer-peaks.webp', caption: 'Summer: snow-streaked peaks above the valley beyond Naran' },
+    { src: '/photos/naran-babusar-road-summer.webp', caption: 'Summer: the road from Naran towards Babusar Top, past terraced fields and roadside dhabas' },
+    { src: '/photos/naran-babusar-village-summer.webp', caption: 'Summer: a village on the way up to Babusar Top' },
     { src: '/photos/kaghan-winter-river.webp', caption: 'Winter: the Kunhar river below Kaghan, with snow on the slopes' },
     { src: '/photos/kaghan-winter-stream.webp', caption: 'Winter: a side stream through snow-covered boulders in Kaghan valley' },
     { src: '/photos/kaghan-snowfall.webp', caption: 'Winter: snowfall over the river huts at Kaghan' },
@@ -209,7 +212,7 @@ type SeasonName = 'spring' | 'summer' | 'autumn' | 'winter';
 const SEASONAL: Record<string, Partial<Record<SeasonName, string>>> = {
   murree: { summer: '/photos/murree-summer.webp', winter: '/photos/murree-winter-snow-road.webp' },
   nathia: { summer: '/photos/mushkpuri-summer.webp' },
-  naran: { winter: '/photos/kaghan-winter-river.webp' },
+  naran: { summer: '/photos/naran-summer-peaks.webp', winter: '/photos/kaghan-winter-river.webp' },
   khaplu: { autumn: '/photos/khaplu-palace-autumn.webp' },
   shogran: { winter: '/photos/shogran-winter-view.webp' },
   thandiani: { summer: '/photos/thandiani-summer-road.webp' },
