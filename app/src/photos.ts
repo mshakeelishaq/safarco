@@ -285,7 +285,7 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
 /** Photos the admin set for a place (a web link), ahead of ours. */
 export const PHOTO_EDITS: Record<string, string> = {};
 /** Places we have no photo of yet: their Wikipedia article's main photo (free licences on Wikimedia Commons), with credit. */
-const WIKI_PAGES: Record<string, string> = { taxila: 'Taxila' };
+const WIKI_PAGES: Record<string, string> = { taxila: 'Taxila', fairy: 'Fairy_Meadows_National_Park' };
 export interface WebPhoto { src: string; page: string; credit: string }
 const WEB: Record<string, WebPhoto | null> = {};
 const webSubs = new Set<() => void>();
