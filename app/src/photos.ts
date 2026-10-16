@@ -12,6 +12,7 @@ const OWN: Record<string, string> = {
   nagar: '/photos/rakaposhi-view-autumn.webp',
   gilgit: '/photos/gilgit-night.webp',
   skardu: '/photos/shangrila-autumn.webp',
+  shigar: '/photos/shigar-garden-peaks.webp',
   // The Indus Highway through the date palms between Shikarpur and Sukkur, on the way south to Karachi.
   sukkur: '/photos/sukkur-lansdowne-bridge.webp',
   kundmalir: '/photos/kund-malir-beach.webp',
@@ -27,6 +28,8 @@ const OWN: Record<string, string> = {
 };
 /** Our photo of one place at a destination, by "destination|place name". */
 export const PLACE_PHOTOS: Record<string, string> = {
+  'shigar|Shigar Fort': '/photos/shigar-garden-peaks.webp',
+  'skardu|Shigar Fort': '/photos/shigar-garden-peaks.webp',
   'skardu|Katpana Cold Desert': '/photos/katpana-dunes.webp',
   'skardu|Shangrila, Lower Kachura': '/photos/shangrila-autumn.webp',
   'hunza|Baltit Fort': '/photos/baltit-fort-autumn.webp',
@@ -155,6 +158,11 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/hoper-glacier-ice.webp', caption: 'Hoper Glacier: rows of ice pinnacles up close' },
     { src: '/photos/hoper-viewpoint-huts.webp', caption: 'Hoper: stone huts and cafés on the ridge above the glacier' }
   ],
+  shigar: [
+    { src: '/photos/shigar-garden-peaks.webp', caption: 'Autumn: the royal garden at Shigar Fort, red and gold trees below snow peaks' },
+    { src: '/photos/shigar-garden-autumn.webp', caption: 'Autumn: sunlight through the orchard trees in the Shigar Fort garden' },
+    { src: '/photos/shigar-lane-autumn.webp', caption: 'Autumn: the lane beside the stream outside Shigar Fort, under golden poplars' }
+  ],
   naran: [
     { src: '/photos/saif-ul-malook-summer.webp', caption: 'Summer: Lake Saif-ul-Malook under rolling clouds, with snow patches on the slopes' },
     { src: '/photos/naran-summer-peaks.webp', caption: 'Summer: snow-streaked peaks above the valley beyond Naran' },
@@ -195,6 +203,9 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/skardu-city-autumn-mist.webp', caption: 'Autumn: morning mist over the Skardu valley and the main road through town' },
     { src: '/photos/katpana-mist-poplars.webp', caption: 'Autumn: dawn mist over poplars and a mosque, seen from the Katpana cold desert' },
     { src: '/photos/katpana-dunes.webp', caption: 'Katpana cold desert: sand dunes at sunrise, just outside Skardu' },
+    { src: '/photos/shigar-garden-peaks.webp', caption: 'Day trip to Shigar: the royal garden at Shigar Fort, red and gold trees below snow peaks' },
+    { src: '/photos/shigar-garden-autumn.webp', caption: 'Day trip to Shigar: sunlight through the orchard trees in the Shigar Fort garden' },
+    { src: '/photos/shigar-lane-autumn.webp', caption: 'Day trip to Shigar: the lane beside the stream outside Shigar Fort, under golden poplars' },
     { src: '/photos/skardu-road-autumn.webp', caption: 'On the way: the Jaglot to Skardu road in autumn, golden poplars below fresh snow' },
     { src: '/photos/ghowari-poplar-avenue.webp', caption: 'Day trip to Khaplu: a lane through towering golden poplars at Ghowari, on the Skardu to Khaplu road' },
     { src: '/photos/ghowari-poplar-road.webp', caption: 'Day trip to Khaplu: the road through Ghowari between rows of golden poplars and stone walls' },
