@@ -94,6 +94,12 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/mud-volcano-hingol.webp', caption: 'Mud volcano near the Makran coast, Hingol' },
     { src: '/photos/road-to-mud-volcano.webp', caption: 'The road to the mud volcanoes, with the sea beyond' }
   ],
+  naran: [
+    { src: '/photos/kaghan-winter-river.webp', caption: 'Winter: the Kunhar river below Kaghan, with snow on the slopes' },
+    { src: '/photos/kaghan-winter-stream.webp', caption: 'Winter: a side stream through snow-covered boulders in Kaghan valley' },
+    { src: '/photos/kaghan-snowfall.webp', caption: 'Winter: snowfall over the river huts at Kaghan' },
+    { src: '/photos/kaghan-winter-village.webp', caption: 'Winter: a village lane in Kaghan valley after snow. The road beyond Kaghan to Naran is closed from about December to April' }
+  ],
   khaplu: [{ src: '/photos/khaplu-palace-autumn.webp', caption: 'Autumn: Khaplu Palace (Yabgo Khar) under golden chinar and poplar, late October to early November' }],
   shogran: [
     { src: '/photos/shogran-winter-view.webp', caption: 'Winter: Shogran under snow, with the Kaghan peaks behind' },
@@ -182,6 +188,7 @@ type SeasonName = 'spring' | 'summer' | 'autumn' | 'winter';
 const SEASONAL: Record<string, Partial<Record<SeasonName, string>>> = {
   murree: { summer: '/photos/murree-summer.webp', winter: '/photos/murree-winter-snow-road.webp' },
   nathia: { summer: '/photos/mushkpuri-summer.webp' },
+  naran: { winter: '/photos/kaghan-winter-river.webp' },
   khaplu: { autumn: '/photos/khaplu-palace-autumn.webp' },
   shogran: { winter: '/photos/shogran-winter-view.webp' },
   lahore: { spring: '/photos/lahore-pink-blossom.webp', summer: '/photos/lahore-summer-amaltas-canal.webp', autumn: '/photos/lahore-model-town-autumn.webp', winter: '/photos/lahore-azadi-chowk-sunrise.webp' },
