@@ -126,6 +126,7 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/islamabad-autumn-sunset.webp', caption: 'Autumn: fallen leaves at sunset' }
   ],
   nathia: [
+    { src: '/photos/mushkpuri-daisies-mist.webp', caption: 'Summer: wild daisies carpeting the Mushkpuri meadow in the mist, a hut on the ridge' },
     { src: '/photos/mushkpuri-summer.webp', caption: 'Mushkpuri Top in summer: pine forest and wild daisies along the trail' },
     { src: '/photos/mushkpuri-mist.webp', caption: 'Clouds rolling over the Mushkpuri meadow, with cows grazing near the top' }
   ],
