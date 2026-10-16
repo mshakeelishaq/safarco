@@ -7,7 +7,7 @@ import { WELCOMED, Welcome, seenWelcome } from './components/Welcome';
 import { SeasonGuide } from './components/SeasonGuide';
 import { addCheckin, cloudDelete, cloudEnabled, cloudSave, cloudTrips, createFollow, currentUser, loadFoodTips, loadContent, loadPriceList, loadReviews, submitFoodTip, onUserChange, sendFeedback, signInWithGoogle, signOut, stopFollow, submitReview, updateFollow, type User } from './cloud';
 import { ExpenseSheet, PeopleSheet, ShareSheet, SosSheet } from './components/TripMode';
-import { RUN_SUBS, getRun, runKey, updateRun } from './run';
+import { RUN_SUBS, getRun, moveRun, runKey, updateRun } from './run';
 import { followLink } from './view-trip';
 import { drawCard, shareCard } from './sharecard';
 import { followCopyUrl } from './trips';
@@ -68,6 +68,17 @@ export function App() {
   useEffect(() => { const mq = matchMedia('(min-width: 1100px)'), f = () => setWide(mq.matches); mq.addEventListener('change', f); return () => mq.removeEventListener('change', f); }, []);
   // The install card appears once the browser offers to install the app.
   useEffect(() => onInstallChange(bump), []);
+  // Moving a trip's dates (Edit → Start date) brings its checklist, expenses, check-ins and family link along.
+  const prevTrip = useRef<{ screen: string; savedId: string | null; origin: string | null; corridor: string; startDate: string } | null>(null);
+  useEffect(() => {
+    const p = prevTrip.current; prevTrip.current = { screen: s.screen, savedId: s.savedId, origin: s.origin, corridor: s.corridor, startDate: s.startDate };
+    if (!p || p.screen !== 'app' || s.screen !== 'app' || p.savedId !== s.savedId || p.origin !== s.origin || p.corridor !== s.corridor || p.startDate === s.startDate) return;
+    if (!moveRun(p, s)) return;
+    set({ toast: tx('New dates saved. Your checklist, expenses and family link moved with the trip.') });
+    const id = getRun(runKey(s)).followId;
+    if (id && user) updateFollow(id, tripData(s), isoOff(s.startDate, s.days + 3)).catch(() => { /* updated next time it's shared */ });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [s.screen, s.savedId, s.origin, s.corridor, s.startDate]);
   const timers = useRef<number[]>([]);
   const later = useCallback((ms: number, fn: () => void) => { timers.current.push(window.setTimeout(fn, ms)); }, []);
   const sceneRef = useRef<HTMLDivElement>(null), scrollRef = useRef<HTMLDivElement>(null);

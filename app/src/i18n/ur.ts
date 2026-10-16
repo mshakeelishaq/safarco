@@ -2191,4 +2191,5 @@ export const UR: Record<string, string> = {
   "Open safarco.pk in Chrome or Edge.": "safarco.pk Chrome ya Edge mein kholein.",
   "Click the install icon at the right of the address bar, or the menu → “Install SafarCo”.": "Address bar ke daayen install icon dabayein, ya menu → “Install SafarCo”.",
   "SafarCo opens in its own window, like an app.": "SafarCo app ki tarah apni alag window mein khulta hai.",
+  "New dates saved. Your checklist, expenses and family link moved with the trip.": "Nayi tareekhein save ho gayin. Aap ki checklist, kharche aur family link bhi saath aa gaye.",
 };

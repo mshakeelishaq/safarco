@@ -62,6 +62,22 @@ export function updateRun(key: string, fn: (r: Run) => Partial<Run>) {
   try { localStorage.setItem(STORE + key, JSON.stringify(next)); } catch { /* storage full or blocked: kept for this visit */ }
   RUN_SUBS.forEach(f => f());
 }
+/**
+ * The trip's dates changed: bring its progress along (checklist, packing, expenses, check-ins,
+ * family link), unless the new dates already have their own. True if anything moved.
+ */
+export function moveRun(from: { origin: string | null; corridor: string; startDate: string }, to: { origin: string | null; corridor: string; startDate: string }) {
+  const a = runKey(from), b = runKey(to); if (a === b) return false;
+  let moved = false;
+  try {
+    const old = localStorage.getItem(STORE + a);
+    if (old && !localStorage.getItem(STORE + b)) { localStorage.setItem(STORE + b, old); localStorage.removeItem(STORE + a); moved = true; }
+    const pa = `safarco-pack:${from.corridor}|${from.startDate}`, pb = `safarco-pack:${to.corridor}|${to.startDate}`, pk = localStorage.getItem(pa);
+    if (pk && !localStorage.getItem(pb)) { localStorage.setItem(pb, pk); localStorage.removeItem(pa); moved = true; }
+  } catch { /* storage blocked */ }
+  if (moved) { cache.delete(a); cache.delete(b); RUN_SUBS.forEach(f => f()); }
+  return moved;
+}
 export const toggle = (list: string[], k: string) => list.includes(k) ? list.filter(x => x !== k) : [...list, k];
 
 /** Before, during or after the trip, by today's date. */

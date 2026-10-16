@@ -1,6 +1,6 @@
 // Before, during and after the trip: phases, the checklist, today's day, expenses and settling up.
 import { beforeEach, describe, expect, it } from 'vitest';
-import { balances, daysBetween, getRun, phaseOf, runKey, settleUp, updateRun } from '../src/run';
+import { balances, daysBetween, getRun, moveRun, phaseOf, runKey, settleUp, updateRun } from '../src/run';
 import { settle, splitFromUrl, splitUrl } from '../src/split';
 import { initialState } from '../src/state';
 import { buildView, type Api } from '../src/view';
@@ -9,6 +9,22 @@ import { isoAdd } from '../src/engine/format';
 const mem = new Map<string, string>();
 (globalThis as any).localStorage = { getItem: (k: string) => mem.get(k) ?? null, setItem: (k: string, v: string) => void mem.set(k, v), removeItem: (k: string) => void mem.delete(k) };
 beforeEach(() => mem.clear());
+
+describe('changing the dates', () => {
+  it('moves the checklist, expenses and family link to the new dates', () => {
+    const a = { origin: 'Lahore', corridor: 'hunza', startDate: '2026-11-02' }, b = { ...a, startDate: '2026-11-09' };
+    updateRun(runKey(a), () => ({ locked: '2026-10-01', ticks: ['family'], people: ['Ali', 'Sara'], followId: '11111111-2222-3333-4444-555555555555' }));
+    localStorage.setItem('safarco-pack:hunza|2026-11-02', '["jacket"]');
+    expect(moveRun(a, b)).toBe(true);
+    expect(getRun(runKey(b))).toMatchObject({ locked: '2026-10-01', ticks: ['family'], people: ['Ali', 'Sara'], followId: '11111111-2222-3333-4444-555555555555' });
+    expect(getRun(runKey(a)).locked).toBeNull();
+    expect(localStorage.getItem('safarco-pack:hunza|2026-11-09')).toBe('["jacket"]');
+    // A trip already on the new dates keeps its own progress.
+    updateRun(runKey(a), () => ({ ticks: ['other'] }));
+    expect(moveRun(a, b)).toBe(false);
+    expect(getRun(runKey(b)).ticks).toEqual(['family']);
+  });
+});
 
 describe('trip phases', () => {
   it('knows before, during and after', () => {
