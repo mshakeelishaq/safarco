@@ -1,6 +1,7 @@
 // /follow: the page family open from "Follow our trip". It shows where the travellers are in
 // their plan, the latest check-ins, tonight's stay and emergency numbers. No sign-in needed.
 // ?id=… reads a live link (supabase/follow.sql); ?trip=… is a plain copy of the plan.
+import { Logo } from '../components/Logo';
 import { useEffect, useState } from 'react';
 import { getFollow, type FollowView } from '../cloud';
 import { buildPlan } from '../engine/engine';
@@ -37,7 +38,7 @@ export function Follow() {
   const wrap = (children: React.ReactNode) => (
     <div data-sc="1" data-theme="paper" style={css('min-height:100vh;background:var(--bg);color:var(--ink);font-family:var(--font)')}>
       <main style={css('max-width:520px;margin:0 auto;padding:24px 16px 48px;display:flex;flex-direction:column;gap:12px')}>
-        <div style={css('display:flex;align-items:center;gap:8px')}><img src="/icon.svg" alt="" width="32" height="32" style={css('border-radius:9px')} /><span style={css('font-family:var(--fontH);font-size:18px;font-weight:700')}>SafarCo</span></div>
+        <div><Logo size={32} /></div>
         {children}
         <a href="/plan?start=1" style={css('align-self:center;margin-top:8px;font-size:13px;font-weight:800;color:var(--g);text-decoration:none')}>{t('Plan your own trip with SafarCo')} →</a>
       </main>

@@ -1,6 +1,7 @@
 // First-visit welcome: language, a full-screen photo of Pakistan, and one tap to start.
 // Shown once per device; "About SafarCo" in My trips opens it again.
 // Photos © shakeelnaturegraphy, cross-fading with a slow zoom, starting with the current season.
+import { Logo } from './Logo';
 import { useEffect, useState } from 'react';
 import { IG_HANDLE, IG_PROFILE } from '../contact';
 import { css } from '../lib/css';
@@ -69,8 +70,7 @@ export function Welcome({ open, onStart, onQuick, onGuide, onWish, lang, onLang 
         <div style={css('min-height:100%;box-sizing:border-box;max-width:460px;margin:0 auto;display:flex;flex-direction:column;padding:calc(20px + env(safe-area-inset-top)) 20px calc(18px + env(safe-area-inset-bottom))')}>
           <div style={css('display:flex;align-items:center;justify-content:space-between;gap:10px')}>
             <div style={css('display:flex;align-items:center;gap:8px')}>
-              <img src="/icon.svg" alt="" width="36" height="36" style={css('border-radius:10px;box-shadow:0 6px 16px -6px rgba(0,0,0,.6)')} />
-              <span style={css('font-family:var(--fontH);font-size:20px;font-weight:700;letter-spacing:-.02em;text-shadow:0 1px 8px rgba(0,0,0,.4)')}>SafarCo</span>
+              <span style={css('filter:drop-shadow(0 1px 8px rgba(0,0,0,.45))')}><Logo size={36} light /></span>
             </div>
             {/* Language first, readable in both languages. */}
             <div role="radiogroup" aria-label="Language · Zabaan" style={css('display:flex;padding:3px;border-radius:14px;background:rgba(0,0,0,.35);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.25)')}>

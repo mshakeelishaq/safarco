@@ -12,6 +12,7 @@ import { About } from './About';
 import { GetApp } from './GetApp';
 import { Contact } from './Contact';
 import { SITE_URL } from './url';
+import { Logo } from '../components/Logo';
 
 /** Pages of the website, by path. */
 const SITE_PAGES = ['/', '/destinations', '/about', '/app', '/contact'];
@@ -50,7 +51,7 @@ export function Header({ onPhoto = false }: { onPhoto?: boolean }) {
   return (
     <header className={`site-head${onPhoto ? ' on-photo' : ''}`}>
       <div className="site-wrap">
-        <A href="/" className="site-logo"><img src="/icon-192.png" alt="" />SafarCo</A>
+        <A href="/" className="site-logo" aria-label="SafarCo home"><Logo size={36} light={onPhoto} /></A>
         <nav className={`site-nav${open ? ' open' : ''}`} aria-label="Main">
           {NAV.map(([h, l]) => <A key={h} href={h} aria-current={(h === '/' ? here === '/' : here.startsWith(h)) ? 'page' : undefined} onClick={() => setOpen(false)}>{l}</A>)}
         </nav>
@@ -67,7 +68,7 @@ export function Footer() {
       <div className="site-wrap">
         <div className="cols">
           <div>
-            <div className="site-logo" style={{ color: '#fff' }}><img src="/icon-192.png" alt="" />SafarCo</div>
+            <div className="site-logo"><Logo size={36} light /></div>
             <p style={{ color: '#A8A29C', lineHeight: 1.6, maxWidth: 320 }}>Free trip planning for Pakistan: the route, the days, the stops, the budget and the weather, in one plan.</p>
           </div>
           <div><h4>Plan</h4><a href="/plan?start=1">Plan a trip</a><a href="/plan?start=quick">Plan it for me</a><A href="/destinations">Destinations</A><A href="/app">Get the app</A></div>
