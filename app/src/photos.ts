@@ -9,6 +9,7 @@ const AUTUMN_MONTHS = [10, 11];
 /** A place's own photo, used whenever it's the trip's place: Hunza is the view of Rakaposhi. */
 const OWN: Record<string, string> = {
   hunza: '/photos/autumn-hunza.webp',
+  gilgit: '/photos/gilgit-night.webp',
   // The Indus Highway through the date palms between Shikarpur and Sukkur, on the way south to Karachi.
   sukkur: '/photos/sukkur-lansdowne-bridge.webp',
   kundmalir: '/photos/kund-malir-beach.webp',
@@ -30,6 +31,7 @@ export const PLACE_PHOTOS: Record<string, string> = {
   'passu|Hussaini Suspension Bridge': '/photos/hussaini-bridge-summer.webp',
   'hunza|Khunjerab Pass': '/photos/khunjerab-border-gate.webp',
   'passu|Khunjerab Pass': '/photos/khunjerab-border-gate.webp',
+  'naran|Lake Saif-ul-Malook': '/photos/saif-ul-malook-summer.webp',
   'naran|Babusar Top': '/photos/babusar-top-road.webp',
   'nathia|Mushkpuri Top': '/photos/mushkpuri-summer.webp',
   'skardu|Keris, Ghowari, Barah and Khaplu': '/photos/keris-bridge-autumn.webp',
@@ -122,7 +124,11 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/khunjerab-glacier.webp', caption: 'Khunjerab Pass: a glacier between snow-covered peaks near the top' },
     { src: '/photos/khunjerab-border-gate.webp', caption: 'Khunjerab Pass: the China border gate at the end of the Karakoram Highway' }
   ],
+  gilgit: [
+    { src: '/photos/gilgit-night.webp', caption: 'Gilgit city lights at night, below the mountains' }
+  ],
   naran: [
+    { src: '/photos/saif-ul-malook-summer.webp', caption: 'Summer: Lake Saif-ul-Malook under rolling clouds, with snow patches on the slopes' },
     { src: '/photos/naran-summer-peaks.webp', caption: 'Summer: snow-streaked peaks above the valley beyond Naran' },
     { src: '/photos/naran-babusar-road-summer.webp', caption: 'Summer: the road from Naran towards Babusar Top, past terraced fields and roadside dhabas' },
     { src: '/photos/naran-babusar-village-summer.webp', caption: 'Summer: a village on the way up to Babusar Top' },
@@ -240,7 +246,7 @@ const SEASONAL: Record<string, Partial<Record<SeasonName, string>>> = {
   nathia: { summer: '/photos/mushkpuri-summer.webp' },
   hunza: { summer: '/photos/attabad-summer-cones.webp' },
   passu: { summer: '/photos/attabad-summer-cones.webp' },
-  naran: { summer: '/photos/naran-summer-peaks.webp', winter: '/photos/kaghan-winter-river.webp' },
+  naran: { summer: '/photos/saif-ul-malook-summer.webp', winter: '/photos/kaghan-winter-river.webp' },
   khaplu: { autumn: '/photos/khaplu-palace-autumn.webp' },
   shogran: { winter: '/photos/shogran-winter-view.webp' },
   thandiani: { summer: '/photos/thandiani-summer-road.webp' },
