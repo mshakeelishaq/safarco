@@ -74,6 +74,7 @@ export const PLACE_PHOTOS: Record<string, string> = {
   'khaplu|Ghowari': '/photos/ghowari-poplar-avenue.webp',
   'khaplu|Barah Valley': '/photos/barah-pond-autumn.webp',
   'naran|Lake Saif-ul-Malook': '/photos/saif-ul-malook-summer.webp',
+  'shogran|Balakot riverside': '/photos/balakot-bridge-kunhar.webp',
   'naran|Babusar Top': '/photos/babusar-top-road.webp',
   'nathia|Mushkpuri Top': '/photos/mushkpuri-summer.webp',
   'skardu|Keris, Ghowari, Barah and Khaplu': '/photos/keris-bridge-autumn.webp',
@@ -101,7 +102,7 @@ export const PLACE_PHOTOS: Record<string, string> = {
   'kundmalir|Hingol mud volcanoes': '/photos/mud-volcano-hingol.webp'
 };
 /** Our photo of a stop on the road (by the stop's name), shown on that day of the plan. */
-export const STOP_PHOTOS: Record<string, string> = { Ormara: '/photos/ormara-beach-evening.webp', Keris: '/photos/keris-bridge-autumn.webp' };
+export const STOP_PHOTOS: Record<string, string> = { Balakot: '/photos/balakot-bridge-kunhar.webp', Ormara: '/photos/ormara-beach-evening.webp', Keris: '/photos/keris-bridge-autumn.webp' };
 /** A photo for something in a day's plan: a road stop or one of a destination's places. */
 export const photoForStop = (label: string) => STOP_PHOTOS[label] || PLACE_PHOTOS[Object.keys(PLACE_PHOTOS).find(k => k.endsWith('|' + label)) || ''];
 /** More of our photos of a place, with what they show, for its guide page. */
@@ -301,7 +302,9 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/kaghan-winter-village.webp', caption: 'Winter: a village lane in Kaghan valley after snow. The road beyond Kaghan to Naran is closed from about December to April' },
     { src: '/photos/babusar-snow-walls.webp', caption: 'Early summer: the road over Babusar Top cut through walls of snow' },
     { src: '/photos/babusar-top-road.webp', caption: 'Summer: riding over Babusar Top at 13,690 ft, snow still on the slopes' },
-    { src: '/photos/babusar-valley-storm.webp', caption: 'Summer: the valley below Babusar Top as a storm rolls in' }
+    { src: '/photos/babusar-valley-storm.webp', caption: 'Summer: the valley below Babusar Top as a storm rolls in' },
+    { src: '/photos/balakot-bridge-kunhar.webp', caption: 'On the way: the bridge over the fast Kunhar river in Balakot, gateway to Kaghan valley' },
+    { src: '/photos/balakot-town-monsoon.webp', caption: 'On the way: Balakot town on the green hills above the Kunhar, in the monsoon' }
   ],
   thandiani: [
     { src: '/photos/thandiani-summer-road.webp', caption: 'Summer: the winding road up to Thandiani through pine forest' },
@@ -348,7 +351,9 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
   shogran: [
     { src: '/photos/shogran-winter-view.webp', caption: 'Winter: Shogran under snow, with the Kaghan peaks behind' },
     { src: '/photos/shogran-winter-aerial.webp', caption: 'Winter: hotels and huts on the Shogran plateau after a snowfall' },
-    { src: '/photos/shogran-winter-cabins.webp', caption: 'Winter: village houses and cabins buried in snow. The jeep road from Kiwai can close after heavy snow' }
+    { src: '/photos/shogran-winter-cabins.webp', caption: 'Winter: village houses and cabins buried in snow. The jeep road from Kiwai can close after heavy snow' },
+    { src: '/photos/balakot-bridge-kunhar.webp', caption: 'On the way: the bridge over the fast Kunhar river in Balakot, gateway to Kaghan valley' },
+    { src: '/photos/balakot-town-monsoon.webp', caption: 'On the way: Balakot town on the green hills above the Kunhar, in the monsoon' }
   ],
   lahore: [
     { src: '/photos/lahore-azadi-chowk-sunrise.webp', caption: 'Sunrise over Azadi Chowk, with Minar-e-Pakistan and the Badshahi Mosque' },
