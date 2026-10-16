@@ -17,6 +17,7 @@ const OWN: Record<string, string> = {
   kalam: '/photos/kalam-river-peaks.webp',
   phander: '/photos/phander-valley-river.webp',
   chitral: '/photos/chitral-valley-aerial.webp',
+  muzaffarabad: '/photos/muzaffarabad-domel-confluence.webp',
   abbottabad: '/photos/abbottabad-valley-view.webp',
   // The Indus Highway through the date palms between Shikarpur and Sukkur, on the way south to Karachi.
   sukkur: '/photos/sukkur-lansdowne-bridge.webp',
@@ -42,6 +43,7 @@ export const PLACE_PHOTOS: Record<string, string> = {
   'phander|Phander Lake': '/photos/phander-lake-poplars.webp',
   'phander|Phander village': '/photos/phander-valley-fields.webp',
   'gilgit|Gilgit polo ground': '/photos/gilgit-polo-statue.webp',
+  'muzaffarabad|Domel river confluence': '/photos/muzaffarabad-domel-confluence.webp',
   'muzaffarabad|Leepa Valley': '/photos/leepa-valley-fields.webp',
   'neelum|Keran': '/photos/keran-river-houses.webp',
   'rama|Minimarg': '/photos/minimarg-village-valley.webp',
@@ -239,6 +241,10 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/chitral-green-hills.webp', caption: 'Spring: green hills and jeep tracks in the mountains of Chitral, in the evening light' }
   ],
   muzaffarabad: [
+    { src: '/photos/muzaffarabad-domel-confluence.webp', caption: 'Muzaffarabad from above: the Neelum and Jhelum rivers meet at Domel' },
+    { src: '/photos/muzaffarabad-bridge.webp', caption: 'The cable-stayed bridge over the Neelum, in the heart of Muzaffarabad' },
+    { src: '/photos/muzaffarabad-river-bend.webp', caption: 'The Neelum river curving through Muzaffarabad city' },
+    { src: '/photos/muzaffarabad-night.webp', caption: 'Muzaffarabad at night, city lights climbing the hills' },
     { src: '/photos/leepa-valley-fields.webp', caption: 'Summer: Leepa Valley, rice fields and wooden houses under monsoon clouds' },
     { src: '/photos/leepa-maize-fields.webp', caption: 'Late summer: maize and ripening rice in the fields of Leepa' },
     { src: '/photos/leepa-road-terraces.webp', caption: 'On the way to Leepa: green terraced fields catching the evening light' },
