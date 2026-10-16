@@ -14,6 +14,7 @@ const OWN: Record<string, string> = {
   skardu: '/photos/shangrila-autumn.webp',
   shigar: '/photos/shigar-garden-peaks.webp',
   rama: '/photos/rama-meadows-peaks.webp',
+  abbottabad: '/photos/abbottabad-valley-view.webp',
   // The Indus Highway through the date palms between Shikarpur and Sukkur, on the way south to Karachi.
   sukkur: '/photos/sukkur-lansdowne-bridge.webp',
   kundmalir: '/photos/kund-malir-beach.webp',
@@ -194,6 +195,11 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/deosai-storm-peaks.webp', caption: 'Over Deosai to Skardu: storm clouds over the Deosai Plains, snow peaks on the horizon' },
     { src: '/photos/deosai-plains-clouds.webp', caption: 'Over Deosai to Skardu: low cloud over the open grassland of Deosai' },
     { src: '/photos/deosai-stream.webp', caption: 'Over Deosai to Skardu: a stream winding across the Deosai Plains' }
+  ],
+  abbottabad: [
+    { src: '/photos/abbottabad-valley-view.webp', caption: 'Abbottabad valley from the pine hills above the town' },
+    { src: '/photos/abbottabad-public-park.webp', caption: 'Winter morning: the old Cantonment Reading Room in Abbottabad’s Public Park' },
+    { src: '/photos/abbottabad-road-hills.webp', caption: 'Driving into Abbottabad, with the hills of Hazara behind' }
   ],
   naran: [
     { src: '/photos/saif-ul-malook-summer.webp', caption: 'Summer: Lake Saif-ul-Malook under rolling clouds, with snow patches on the slopes' },
