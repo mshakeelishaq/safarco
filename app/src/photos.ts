@@ -32,6 +32,8 @@ const OWN: Record<string, string> = {
 export const PLACE_PHOTOS: Record<string, string> = {
   'skardu|Deosai Plains': '/photos/deosai-sheosar-horses.webp',
   'rama|Deosai Plains via Chilam': '/photos/deosai-sheosar-horses.webp',
+  'abbottabad|Shimla Hill': '/photos/abbottabad-valley-view.webp',
+  'thandiani|Shimla Hill': '/photos/abbottabad-valley-view.webp',
   'rama|Minimarg': '/photos/minimarg-village-valley.webp',
   'rama|Rama Meadows': '/photos/rama-meadows-peaks.webp',
   'shigar|Shigar Fort': '/photos/shigar-garden-peaks.webp',
@@ -197,7 +199,7 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/deosai-stream.webp', caption: 'Over Deosai to Skardu: a stream winding across the Deosai Plains' }
   ],
   abbottabad: [
-    { src: '/photos/abbottabad-valley-view.webp', caption: 'Abbottabad valley from the pine hills above the town' },
+    { src: '/photos/abbottabad-valley-view.webp', caption: 'Abbottabad valley from Shimla Hill, through the pines' },
     { src: '/photos/abbottabad-public-park.webp', caption: 'Winter morning: the old Cantonment Reading Room in Abbottabad’s Public Park' },
     { src: '/photos/abbottabad-road-hills.webp', caption: 'Driving into Abbottabad, with the hills of Hazara behind' }
   ],
