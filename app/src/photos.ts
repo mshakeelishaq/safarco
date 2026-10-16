@@ -27,6 +27,7 @@ const OWN: Record<string, string> = {
 };
 /** Our photo of one place at a destination, by "destination|place name". */
 export const PLACE_PHOTOS: Record<string, string> = {
+  'skardu|Katpana Cold Desert': '/photos/katpana-dunes.webp',
   'skardu|Shangrila, Lower Kachura': '/photos/shangrila-autumn.webp',
   'hunza|Baltit Fort': '/photos/baltit-fort-autumn.webp',
   'hunza|Attabad Lake': '/photos/attabad-summer-boat-ride.webp',
@@ -192,6 +193,8 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/shangrila-autumn.webp', caption: 'Autumn: Shangrila (Lower Kachura Lake) from above, ringed by golden poplars and red roofs' },
     { src: '/photos/skardu-city-autumn-peaks.webp', caption: 'Autumn: Skardu town among golden poplars on a misty morning, fresh snow on the peaks' },
     { src: '/photos/skardu-city-autumn-mist.webp', caption: 'Autumn: morning mist over the Skardu valley and the main road through town' },
+    { src: '/photos/katpana-mist-poplars.webp', caption: 'Autumn: dawn mist over poplars and a mosque, seen from the Katpana cold desert' },
+    { src: '/photos/katpana-dunes.webp', caption: 'Katpana cold desert: sand dunes at sunrise, just outside Skardu' },
     { src: '/photos/skardu-road-autumn.webp', caption: 'On the way: the Jaglot to Skardu road in autumn, golden poplars below fresh snow' },
     { src: '/photos/ghowari-poplar-avenue.webp', caption: 'Day trip to Khaplu: a lane through towering golden poplars at Ghowari, on the Skardu to Khaplu road' },
     { src: '/photos/ghowari-poplar-road.webp', caption: 'Day trip to Khaplu: the road through Ghowari between rows of golden poplars and stone walls' },
