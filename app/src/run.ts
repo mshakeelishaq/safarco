@@ -5,7 +5,8 @@
 export interface Expense { id: string; amount: number; cat: string; note: string; payer: string; date: string; split?: string[] }
 /** Money handed over to settle up: `from` paid `to`. */
 export interface Payment { id: string; from: string; to: string; amount: number; date: string }
-export interface Checkin { place: string; at: string; lat?: number; lon?: number }
+/** `arrived` marks the end-of-day "arrived safely" check-in. */
+export interface Checkin { place: string; at: string; lat?: number; lon?: number; arrived?: boolean }
 export interface Run {
   /** The day the plan was locked (YYYY-MM-DD), or null. */
   locked: string | null;
@@ -39,7 +40,7 @@ function clean(raw: unknown): Run {
     locked: typeof r.locked === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(r.locked) ? r.locked : null,
     ticks: strs(r.ticks), stops: strs(r.stops, 500),
     checkins: (Array.isArray(r.checkins) ? r.checkins : []).filter((c: any) => c && typeof c.place === 'string').slice(-50)
-      .map((c: any) => ({ place: String(c.place).slice(0, 80), at: String(c.at || ''), ...(isFinite(c.lat) && isFinite(c.lon) ? { lat: +c.lat, lon: +c.lon } : {}) })),
+      .map((c: any) => ({ place: String(c.place).slice(0, 80), at: String(c.at || ''), ...(isFinite(c.lat) && isFinite(c.lon) ? { lat: +c.lat, lon: +c.lon } : {}), ...(c.arrived === true ? { arrived: true } : {}) })),
     expenses: (Array.isArray(r.expenses) ? r.expenses : []).filter((e: any) => e && isFinite(e.amount) && e.amount > 0).slice(0, 500)
       .map((e: any) => ({ id: String(e.id || Math.random().toString(36).slice(2)), amount: Math.round(+e.amount), cat: String(e.cat || 'Other').slice(0, 30), note: String(e.note || '').slice(0, 80), payer: String(e.payer || '').slice(0, 30), date: String(e.date || '').slice(0, 10), ...(Array.isArray(e.split) ? { split: strs(e.split, 20).map(x => x.slice(0, 30)) } : {}) })),
     people: strs(r.people, 20).map(x => x.slice(0, 30)),

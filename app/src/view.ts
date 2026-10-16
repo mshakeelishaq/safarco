@@ -37,7 +37,7 @@ export interface Api {
   share: () => void;
   newTrip: () => void;
   /** On the road: record a check-in, tell family on WhatsApp. */
-  checkIn?: (place: string) => void;
+  checkIn?: (place: string, arrived?: boolean) => void;
   /** Draw and share the trip card picture. */
   shareCard?: () => void;
   /** Start a new trip with a wish already chosen. */

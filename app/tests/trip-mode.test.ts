@@ -88,6 +88,20 @@ describe('on the road', () => {
     expect(r.wa).toMatch(/^https:\/\/wa\.me\/\?text=/);
     expect(getRun(runKey(s)).checkins[0].place).toBe('Naran');
   });
+  it('tells family when you arrive for the night, and when you are home', () => {
+    const s = { ...base, startDate: isoAdd(0) };
+    const a = buildView(s, api).trip.today!.arrival!;
+    expect(a.home).toBe(false);
+    expect(a.done).toBe(false);
+    const r = buildView(s, api).trip.checkIn(a.place, true);
+    expect(r.msg).toMatch(new RegExp(`^Arrived safely at ${a.place} ✅ Staying here tonight\\.`));
+    expect(r.label).toBe(`Arrived safely at ${a.place}`);
+    expect(buildView(s, api).trip.today!.arrival!.done).toBe(true);
+    const last = { ...base, startDate: isoAdd(-6) };
+    const h = buildView(last, api).trip.today!.arrival!;
+    expect(h).toMatchObject({ home: true, place: 'Lahore' });
+    expect(buildView(last, api).trip.checkIn('Lahore', true).msg).toMatch(/^Home safely ✅/);
+  });
 });
 
 describe('expenses and the trip summary', () => {

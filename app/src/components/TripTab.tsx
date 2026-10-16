@@ -164,7 +164,7 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
           </section>
         )}
 
-        <TodayCard v={v} api={api} onCheckIn={p => api.checkIn?.(p)} />
+        <TodayCard v={v} api={api} onCheckIn={(p, arrived) => api.checkIn?.(p, arrived)} />
         <MemoriesCard v={v} onCard={() => api.shareCard?.()} onNext={w => api.nextTrip?.(w)} />
         {v.gate.show && <BannerCard b={v.gate} />}
         {v.install && <div style={css('display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:20px;background:var(--card);border:1px solid rgba(46,229,157,.4)')}>

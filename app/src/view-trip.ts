@@ -99,8 +99,13 @@ export function tripMode(x: TripCtx) {
       skip: skippable.length ? { label: t('Skip {n} stops, save {m} min', { n: skippable.length, m: skipMin }), run: () => set({ edits: { ...x.edits, drops: [...new Set([...x.edits.drops, ...skippable.map(st => dropKey(di, st.label))])] }, toast: t('Stops skipped. Drive safe.') }) } : null,
       hotels: s.here ? `https://www.google.com/maps/search/hotels/@${s.here.lat.toFixed(4)},${s.here.lon.toFixed(4)},12z` : mapsQ('hotels near me')
     } : null;
+    // The end of the day: tonight's stay, or home on the last day.
+    const home = di === days.length - 1 && !d.stay?.place, place = home ? (s.origin || '') : (d.stay?.place || x.dest.name).split(' · ')[0];
+    const done = run.checkins.slice().reverse().find(c => c.arrived && c.at.slice(0, 10) === today && c.place === place);
+    const arrival = place ? { place, home, done: !!done, time: done ? new Date(done.at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }).toLowerCase() : '',
+      label: home ? t('Home safely in {place}', { place }) : t('Arrived safely at {place}', { place }) } : null;
     return {
-      num: di + 1, of: days.length, title: d.title, kind: d.kind, stops, next, fuel, progress, late: lateInfo,
+      num: di + 1, of: days.length, title: d.title, kind: d.kind, stops, next, fuel, progress, late: lateInfo, arrival,
       sunset: clock(sun), tonight: d.stay?.place || '',
       fixAge: s.here ? Math.round((Date.now() - s.here.at) / 60000) : null
     };
@@ -113,11 +118,14 @@ export function tripMode(x: TripCtx) {
       () => set({ toast: t('Couldn’t get your location. Check that location is on.') }), { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 });
   };
   const follow = run.followId ? followLink(run.followId) : '';
-  const checkIn = (place: string) => {
-    const at = new Date().toISOString(), tonight = today_?.tonight;
-    upd(r => ({ checkins: [...r.checkins, { place, at, ...(s.here ? { lat: s.here.lat, lon: s.here.lon } : {}) }], stops: today_ ? [...new Set([...r.stops, `${di}|${place}`])] : r.stops }));
-    const msg = [t('Reached {place} safely ✅', { place }), tonight ? t('Tonight: {place}.', { place: tonight }) : '', follow ? t('Follow our trip: {link}', { link: follow }) : ''].filter(Boolean).join(' ');
-    return { msg, wa: waText(msg) };
+  const checkIn = (place: string, arrived = false) => {
+    const at = new Date().toISOString(), tonight = today_?.tonight, home = arrived && !!today_?.arrival?.home;
+    upd(r => ({ checkins: [...r.checkins, { place, at, ...(s.here ? { lat: s.here.lat, lon: s.here.lon } : {}), ...(arrived ? { arrived: true } : {}) }], stops: today_ && !arrived ? [...new Set([...r.stops, `${di}|${place}`])] : r.stops }));
+    const head = !arrived ? t('Reached {place} safely ✅', { place }) : home ? t('Home safely ✅ Thank you for following our trip.') : t('Arrived safely at {place} ✅ Staying here tonight.', { place });
+    const msg = [head, !arrived && tonight ? t('Tonight: {place}.', { place: tonight }) : '', follow && !home ? t('Follow our trip: {link}', { link: follow }) : ''].filter(Boolean).join(' ');
+    // What the family page shows for this check-in.
+    const label = !arrived ? place : home ? t('Home safely in {place}', { place }) : t('Arrived safely at {place}', { place });
+    return { msg, wa: waText(msg), label };
   };
   const shareLocation = () => locate(p => { location.href = waText(t('We are here: {link}', { link: `https://maps.google.com/?q=${p.lat.toFixed(5)},${p.lon.toFixed(5)}` })); });
 

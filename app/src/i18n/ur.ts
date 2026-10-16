@@ -2159,4 +2159,11 @@ export const UR: Record<string, string> = {
   "See every expense: {link}": "Har kharcha dekhein: {link}",
   "Marked as paid": "Ada likh diya",
   "Your name": "Aap ka naam",
+  "Home safely in {place}": "Khairiyat se ghar pohanch gaye, {place}",
+  "Arrived safely at {place}": "Khairiyat se {place} pohanch gaye",
+  "Home safely ✅ Thank you for following our trip.": "Khairiyat se ghar pohanch gaye ✅ Hamara safar follow karne ka shukriya.",
+  "Arrived safely at {place} ✅ Staying here tonight.": "Khairiyat se {place} pohanch gaye ✅ Aaj raat yahin rukenge.",
+  "Family told you arrived": "Ghar walon ko bata diya ke aap pohanch gaye",
+  "{label} · {time}. Family know.": "{label} · {time}. Ghar walon ko pata hai.",
+  "One tap tells family on WhatsApp and the follow page": "Ek tap se ghar walon ko WhatsApp aur follow page par khabar ho jati hai",
 };

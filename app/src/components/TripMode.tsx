@@ -59,7 +59,7 @@ export function GetReadyCard({ v }: { v: View }) {
 }
 
 /** Plan tab during the trip: today's road, the next stop, fuel, sunset and help. */
-export function TodayCard({ v, api, onCheckIn }: { v: View; api: Api; onCheckIn: (place: string) => void }) {
+export function TodayCard({ v, api, onCheckIn }: { v: View; api: Api; onCheckIn: (place: string, arrived?: boolean) => void }) {
   const d = v.trip.today, [picking, setPicking] = useState(false), [all, setAll] = useState(false); if (!d) return null;
   // The next few stops; the rest (and those done) behind "show all".
   const shown = all ? d.stops : d.stops.filter(st => !st.done).slice(0, 4), hidden = d.stops.length - shown.length;
@@ -97,6 +97,12 @@ export function TodayCard({ v, api, onCheckIn }: { v: View; api: Api; onCheckIn:
         <div style={css('font-size:12px;font-weight:800;color:var(--ink2)')}>{t('Where have you reached?')}</div>
         <div style={css('display:flex;gap:6px;flex-wrap:wrap;margin-top:8px')}>{[...new Set(d.stops.filter(st => st.kind !== 'go').map(st => st.label))].map(p => <button key={p} onClick={() => { setPicking(false); onCheckIn(p); }} style={pill(false)}>{p}</button>)}</div>
       </div>}
+      {d.arrival && (d.arrival.done
+        ? <div style={css('margin-top:12px;min-height:48px;padding:0 14px;border-radius:14px;background:rgba(46,229,157,.12);border:1px solid rgba(46,229,157,.4);display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800')}><i className="ph-fill ph-check-circle" style={css('font-size:20px;color:var(--g)')} />{t('{label} · {time}. Family know.', { label: d.arrival.label, time: d.arrival.time })}</div>
+        : <button onClick={() => onCheckIn(d.arrival!.place, true)} style={css('margin-top:12px;width:100%;min-height:56px;padding:8px 14px;border-radius:16px;border:0;background:linear-gradient(135deg,#2EE59D,#0FA678);color:#06291C;cursor:pointer;display:flex;align-items:center;gap:10px;text-align:left')}>
+            <i className={`ph-fill ${d.arrival.home ? 'ph-house-line' : 'ph-bed'}`} style={css('font-size:24px;flex:none')} />
+            <span style={css('flex:1;min-width:0')}><span style={css('display:block;font-size:15px;font-weight:800')}>{d.arrival.label}</span><span style={css('display:block;font-size:12px;font-weight:700;opacity:.8')}>{t('One tap tells family on WhatsApp and the follow page')}</span></span>
+          </button>)}
       <div style={css('display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:12px')}>
         <button onClick={() => setPicking(!picking)} style={css('min-height:48px;border-radius:14px;border:0;background:var(--cta);color:var(--onCta);font-size:12px;font-weight:800;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px')}><i className="ph-fill ph-check-circle" style={css('font-size:18px')} />{t('Check in')}</button>
         <button onClick={v.trip.shareLocation} style={css('min-height:48px;border-radius:14px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);font-size:12px;font-weight:800;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px')}><i className="ph-fill ph-map-pin" style={css('font-size:18px;color:var(--sky)')} />{t('Send location')}</button>

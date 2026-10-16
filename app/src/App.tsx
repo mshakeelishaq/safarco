@@ -288,11 +288,11 @@ export function App() {
     const key = runKey(stRef.current), id = getRun(key).followId; if (!id) return;
     try { await stopFollow(id); updateRun(key, () => ({ followId: null })); set({ sheet: 'none', toast: tx('Family link stopped.') }); } catch { set({ toast: tx('Couldn’t stop the link. Try again when online.') }); }
   };
-  const checkIn = (place: string) => {
-    const st = stRef.current, id = getRun(runKey(st)).followId, r = view.trip.checkIn(place);
-    if (id && user) addCheckin(id, place, st.here?.lat, st.here?.lon).catch(() => { /* WhatsApp still tells family */ });
+  const checkIn = (place: string, arrived = false) => {
+    const st = stRef.current, id = getRun(runKey(st)).followId, r = view.trip.checkIn(place, arrived);
+    if (id && user) addCheckin(id, r.label, st.here?.lat, st.here?.lon).catch(() => { /* WhatsApp still tells family */ });
     window.open(r.wa, '_blank');
-    set({ toast: tx('Checked in at {place}', { place }) });
+    set({ toast: arrived ? tx('Family told you arrived') : tx('Checked in at {place}', { place }) });
   };
   const makeCard = async () => {
     const st = stRef.current, v = view, D = DST(st.corridor), m = monthOf(st);
