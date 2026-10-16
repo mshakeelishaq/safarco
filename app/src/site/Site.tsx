@@ -13,6 +13,7 @@ import { GetApp } from './GetApp';
 import { Contact } from './Contact';
 import { SITE_URL } from './url';
 import { Logo } from '../components/Logo';
+import { isInstalled, onInstallChange, startInstall } from '../install';
 
 /** Pages of the website, by path. */
 const SITE_PAGES = ['/', '/destinations', '/about', '/app', '/contact'];
@@ -81,6 +82,24 @@ export function Footer() {
   );
 }
 
+/** On phones: a slim bar offering the app, until it's installed or closed. */
+function AppBar({ here }: { here: string }) {
+  const KEY = 'safarco-appbar-closed';
+  const [closed, setClosed] = useState(() => { try { return localStorage.getItem(KEY) === '1'; } catch { return false; } });
+  const [, bump] = useReducer((x: number) => x + 1, 0);
+  useEffect(() => onInstallChange(bump), []);
+  if (closed || isInstalled() || here === '/app') return null;
+  const close = () => { setClosed(true); try { localStorage.setItem(KEY, '1'); } catch { /* storage blocked */ } };
+  return (
+    <div className="app-bar" role="region" aria-label="Get the app">
+      <img src="/icon-192.png" alt="" />
+      <div className="txt"><b>SafarCo app</b><span>Free · works offline</span></div>
+      <button className="btn btn-sun btn-sm" onClick={() => startInstall()}>Install</button>
+      <button className="x" onClick={close} aria-label="Close"><i className="ph-bold ph-x" /></button>
+    </div>
+  );
+}
+
 export function NotFound() {
   usePage('Page not found', 'This page doesn’t exist.');
   return <><Header /><section className="band"><div className="site-wrap"><h1>This page doesn’t exist</h1><p>It may have moved. Try the <A href="/destinations" className="more">destinations</A> or <a href="/plan?start=1" className="more">plan a trip</a>.</p></div></section><Footer /></>;
@@ -101,5 +120,5 @@ export function Site() {
   }, []);
   const g = /^\/destinations\/([a-z0-9-]+)$/.exec(p);
   const page = p === '/' ? <Home /> : p === '/destinations' ? <DestinationList /> : g ? <Guide id={g[1]} /> : p === '/about' ? <About /> : p === '/app' ? <GetApp /> : p === '/contact' ? <Contact /> : <NotFound />;
-  return <div className="site" data-sc="1" data-theme="paper">{page}</div>;
+  return <div className="site" data-sc="1" data-theme="paper">{page}<AppBar here={p} /></div>;
 }

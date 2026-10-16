@@ -19,6 +19,7 @@ import { Admin } from './pages/Admin';
 import { Privacy, Terms } from './pages/Legal';
 import { Follow } from './pages/Follow';
 import { Split } from './pages/Split';
+import { InstallHost } from './components/InstallSheet';
 import { Site } from './site/Site';
 
 const path = location.pathname.replace(/\/+$/, '') || '/';
@@ -27,7 +28,7 @@ const path = location.pathname.replace(/\/+$/, '') || '/';
 const q = new URLSearchParams(location.search), installed = matchMedia('(display-mode: standalone)').matches || (navigator as Navigator & { standalone?: boolean }).standalone === true;
 const planner = path === '/plan' || (path === '/' && !q.has('home') && (installed || q.has('trip')));
 const Page = path === '/admin' ? Admin : path === '/privacy' ? Privacy : path === '/terms' ? Terms : path === '/follow' ? Follow : path === '/split' ? Split : planner ? App : Site;
-createRoot(document.getElementById('root')!).render(<Page />);
+createRoot(document.getElementById('root')!).render(<><Page /><InstallHost /></>);
 
 if (import.meta.env.PROD) {
   // Anonymous visit counts (Vercel Web Analytics, no cookies).

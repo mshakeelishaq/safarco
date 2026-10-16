@@ -3,7 +3,7 @@
 import { CLOSED_NOTES } from './content';
 import { HIDE_SPOTS, SECURITY_AREAS, riskOf, HAVE_VEHICLE, EDGES, MODES, MON, MONTH_FULL, NODES, NODE_INFO, POPULAR, POP_DEST, SUGGEST_POOL, SUNRISE, SUNSET, TIERS, TIER_G, VEH, CAT, CAT2, GRADS, DESTS, STOP_KIND, type VehicleId } from './engine/data';
 import { FOOD } from './engine/food';
-import { canPrompt, dismissInstall, isIOS, isInstalled, promptInstall, wasDismissed } from './install';
+import { dismissInstall, isInstalled, startInstall, wasDismissed } from './install';
 import { foodTipsFor } from './foodtips';
 import { AIR_IN, bestAirport, closedOnRoute, flyNorth, viaIsb, DAY_OUT_H, SHORT2_H, MAX_DRIVE_H, plannedJeeps, roomPlan, circuit, sideTrips, dayTripOptions, tripFrom, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
 import { clock, dayLabel, dur, fmt, fmtN, isoAdd, isoOf, isoOff, kShort, mapsQ, mon } from './engine/format';
@@ -779,9 +779,9 @@ export function buildView(s: AppState, api: Api) {
   const tripRun = tripMode({ s, set, days: view.plan.days, edits, road: roadLine, points: rPoints, dest: { lat: D.lat, lon: D.lon, town: D.town, name: D.name },
     planned: budget.segs.map(x => ({ key: x.key, val: x.val })), total, km: c.km, isAir, mtn: c.mtnKm > 0, packDone: pack, packTotal: rw.pack.length, toggleOffline: api.toggleOffline });
   // After the first saved or locked trip: offer to put SafarCo on the home screen (once, until dismissed).
-  const install = s.screen === 'app' && (s.savedId || tripRun.getReady?.locked) && !isInstalled() && !wasDismissed() && (canPrompt() || isIOS()) ? {
-    ios: !canPrompt(),
-    install: () => { promptInstall().then(ok => { if (ok) set({ toast: t('SafarCo is on your home screen.') }); }); },
+  const install = s.screen === 'app' && !isInstalled() && !wasDismissed() ? {
+    ios: false,
+    install: () => { startInstall(); },
     dismiss: () => dismissInstall()
   } : null;
   return { ...view, trip: tripRun, install };

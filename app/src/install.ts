@@ -26,3 +26,23 @@ export async function promptInstall() {
   const { outcome } = await e.userChoice; changed();
   return outcome === 'accepted';
 }
+
+/** How this phone or computer adds SafarCo: the browser's own prompt, or the steps to follow. */
+export type InstallHow = 'installed' | 'prompt' | 'ios-safari' | 'ios-other' | 'android' | 'inapp' | 'desktop';
+export function installHow(): InstallHow {
+  if (isInstalled()) return 'installed';
+  const ua = typeof navigator === 'undefined' ? '' : navigator.userAgent;
+  // Instagram, Facebook, TikTok and similar open links in their own browser, which can't install apps.
+  if (/Instagram|FBAN|FBAV|FB_IAB|Line\/|Twitter|Snapchat|TikTok|BytedanceWebview|; wv\)/i.test(ua)) return 'inapp';
+  if (deferred) return 'prompt';
+  if (isIOS()) return /CriOS|FxiOS|EdgiOS|OPiOS/.test(ua) ? 'ios-other' : 'ios-safari';
+  if (/android/i.test(ua)) return 'android';
+  return 'desktop';
+}
+const OPEN = 'sc-install-open';
+/** "Install the app" anywhere: the browser's prompt if it has one, else a sheet with the steps for this phone. */
+export async function startInstall() {
+  if (installHow() === 'prompt') { await promptInstall(); return; }
+  window.dispatchEvent(new Event(OPEN));
+}
+export const onInstallOpen = (f: () => void) => { window.addEventListener(OPEN, f); return () => window.removeEventListener(OPEN, f); };

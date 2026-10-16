@@ -171,9 +171,9 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
           <i className="ph-fill ph-device-mobile" style={css('font-size:24px;color:var(--g);flex:none;margin-top:2px')} />
           <div style={css('flex:1;min-width:0')}>
             <div style={css('font-size:14px;font-weight:800')}>{t('Add SafarCo to your home screen')}</div>
-            <div style={css('font-size:12px;font-weight:600;color:var(--ink2);margin-top:2px;line-height:1.45')}>{v.install.ios ? t('Tap Share, then “Add to Home Screen”. It opens like an app, and your plan works offline in the mountains.') : t('It opens like an app, and your plan works offline in the mountains.')}</div>
+            <div style={css('font-size:12px;font-weight:600;color:var(--ink2);margin-top:2px;line-height:1.45')}>{t('It opens like an app, and your plan works offline in the mountains.')}</div>
             <div style={css('display:flex;gap:8px;margin-top:10px')}>
-              {!v.install.ios && <button onClick={v.install.install} style={css('height:40px;padding:0 16px;border-radius:12px;border:0;background:var(--cta);color:var(--onCta);font-size:13px;font-weight:800;cursor:pointer')}>{t('Install')}</button>}
+              {<button onClick={v.install.install} style={css('height:40px;padding:0 16px;border-radius:12px;border:0;background:var(--cta);color:var(--onCta);font-size:13px;font-weight:800;cursor:pointer')}>{t('Install')}</button>}
               <button onClick={v.install.dismiss} style={css('height:40px;padding:0 12px;border-radius:12px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);font-size:13px;font-weight:800;cursor:pointer')}>{t('Not now')}</button>
             </div>
           </div>

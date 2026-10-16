@@ -1,4 +1,5 @@
 // Bottom sheets for saving and sharing trips, signing in, and sending feedback.
+import { isInstalled, startInstall } from '../install';
 import { useEffect, useState } from 'react';
 import type { User } from '../cloud';
 import { cloudEnabled } from '../cloud';
@@ -105,6 +106,7 @@ export function TripsSheet({ open, trips, user, currentId, onOpen, onDelete, onS
       <a href={IG_MESSAGE} target="_blank" rel="noopener" style={css('margin-top:18px;height:50px;border-radius:16px;background:linear-gradient(90deg,#F58529,#DD2A7B 45%,#8134AF 75%,#515BD4);color:#fff;font-size:15px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none')}><i className="ph-bold ph-instagram-logo" style={css('font-size:20px')} />{t('Contact us on Instagram')}</a>
       <div style={css('display:flex;flex-wrap:wrap;justify-content:center;gap:2px 10px;margin-top:18px;font-size:12px;font-weight:700')}>
         <button onClick={onGuide} style={css('padding:8px;border:0;background:none;color:var(--g);font-size:12px;font-weight:700;cursor:pointer')}>{t('Best time to go')}</button>
+        {!isInstalled() && <button onClick={() => startInstall()} style={css('padding:8px;border:0;background:none;color:var(--g);font-size:12px;font-weight:700;cursor:pointer')}>{t('Install the app')}</button>}
         <button onClick={onAbout} style={css('padding:8px;border:0;background:none;color:var(--g);font-size:12px;font-weight:700;cursor:pointer')}>{t('About SafarCo')}</button>
         <button onClick={onFeedback} style={css('padding:8px;border:0;background:none;color:var(--g);font-size:12px;font-weight:700;cursor:pointer')}>{t('Send feedback')}</button>
         <a href="/privacy" style={css('padding:8px;text-decoration:none')}>{t('Privacy')}</a>

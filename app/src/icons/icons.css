@@ -42,6 +42,9 @@
 .ph-fill.ph-arrow-right:before {
   content: "\e06c";
 }
+.ph-fill.ph-arrow-square-out:before {
+  content: "\e5de";
+}
 .ph-fill.ph-arrow-up-right:before {
   content: "\e092";
 }
@@ -80,6 +83,9 @@
 }
 .ph-fill.ph-bowl-food:before {
   content: "\eaa4";
+}
+.ph-fill.ph-browser:before {
+  content: "\e0f4";
 }
 .ph-fill.ph-buildings:before {
   content: "\e102";
@@ -183,11 +189,20 @@
 .ph-fill.ph-door:before {
   content: "\e61c";
 }
+.ph-fill.ph-dots-three:before {
+  content: "\e1fe";
+}
+.ph-fill.ph-dots-three-vertical:before {
+  content: "\e208";
+}
 .ph-fill.ph-download-simple:before {
   content: "\e20c";
 }
 .ph-fill.ph-drop:before {
   content: "\e210";
+}
+.ph-fill.ph-export:before {
+  content: "\eaf0";
 }
 .ph-fill.ph-first-aid:before {
   content: "\e56e";
@@ -224,6 +239,9 @@
 }
 .ph-fill.ph-hourglass:before {
   content: "\e2b2";
+}
+.ph-fill.ph-house-line:before {
+  content: "\e2c4";
 }
 .ph-fill.ph-info:before {
   content: "\e2ce";
@@ -312,6 +330,9 @@
 .ph-fill.ph-plus-circle:before {
   content: "\e3d6";
 }
+.ph-fill.ph-plus-square:before {
+  content: "\ed4a";
+}
 .ph-fill.ph-prohibit:before {
   content: "\e3de";
 }
@@ -396,6 +417,9 @@
 .ph-fill.ph-user:before {
   content: "\e4c2";
 }
+.ph-fill.ph-user-plus:before {
+  content: "\e4d0";
+}
 .ph-fill.ph-users-three:before {
   content: "\e68e";
 }
@@ -475,6 +499,9 @@
 .ph-bold.ph-arrow-right:before {
   content: "\e06c";
 }
+.ph-bold.ph-arrow-square-out:before {
+  content: "\e5de";
+}
 .ph-bold.ph-arrow-up-right:before {
   content: "\e092";
 }
@@ -513,6 +540,9 @@
 }
 .ph-bold.ph-bowl-food:before {
   content: "\eaa4";
+}
+.ph-bold.ph-browser:before {
+  content: "\e0f4";
 }
 .ph-bold.ph-buildings:before {
   content: "\e102";
@@ -616,11 +646,20 @@
 .ph-bold.ph-door:before {
   content: "\e61c";
 }
+.ph-bold.ph-dots-three:before {
+  content: "\e1fe";
+}
+.ph-bold.ph-dots-three-vertical:before {
+  content: "\e208";
+}
 .ph-bold.ph-download-simple:before {
   content: "\e20c";
 }
 .ph-bold.ph-drop:before {
   content: "\e210";
+}
+.ph-bold.ph-export:before {
+  content: "\eaf0";
 }
 .ph-bold.ph-first-aid:before {
   content: "\e56e";
@@ -657,6 +696,9 @@
 }
 .ph-bold.ph-hourglass:before {
   content: "\e2b2";
+}
+.ph-bold.ph-house-line:before {
+  content: "\e2c4";
 }
 .ph-bold.ph-info:before {
   content: "\e2ce";
@@ -745,6 +787,9 @@
 .ph-bold.ph-plus-circle:before {
   content: "\e3d6";
 }
+.ph-bold.ph-plus-square:before {
+  content: "\ed4a";
+}
 .ph-bold.ph-prohibit:before {
   content: "\e3de";
 }
@@ -828,6 +873,9 @@
 }
 .ph-bold.ph-user:before {
   content: "\e4c2";
+}
+.ph-bold.ph-user-plus:before {
+  content: "\e4d0";
 }
 .ph-bold.ph-users-three:before {
   content: "\e68e";
@@ -926,6 +974,14 @@
 }
 .ph-duotone.ph-arrow-right:after {
   content: "\e06d";
+  margin-left: -1em;
+}
+.ph-duotone.ph-arrow-square-out:before {
+  content: "\e5de";
+  opacity: 0.2;
+}
+.ph-duotone.ph-arrow-square-out:after {
+  content: "\e5df";
   margin-left: -1em;
 }
 .ph-duotone.ph-arrow-up-right:before {
@@ -1030,6 +1086,14 @@
 }
 .ph-duotone.ph-bowl-food:after {
   content: "\eaa5";
+  margin-left: -1em;
+}
+.ph-duotone.ph-browser:before {
+  content: "\e0f4";
+  opacity: 0.2;
+}
+.ph-duotone.ph-browser:after {
+  content: "\e0f5";
   margin-left: -1em;
 }
 .ph-duotone.ph-buildings:before {
@@ -1304,6 +1368,22 @@
   content: "\e61d";
   margin-left: -1em;
 }
+.ph-duotone.ph-dots-three:before {
+  content: "\e1fe";
+  opacity: 0.2;
+}
+.ph-duotone.ph-dots-three:after {
+  content: "\e1ff";
+  margin-left: -1em;
+}
+.ph-duotone.ph-dots-three-vertical:before {
+  content: "\e208";
+  opacity: 0.2;
+}
+.ph-duotone.ph-dots-three-vertical:after {
+  content: "\e209";
+  margin-left: -1em;
+}
 .ph-duotone.ph-download-simple:before {
   content: "\e20c";
   opacity: 0.2;
@@ -1318,6 +1398,14 @@
 }
 .ph-duotone.ph-drop:after {
   content: "\e211";
+  margin-left: -1em;
+}
+.ph-duotone.ph-export:before {
+  content: "\eaf0";
+  opacity: 0.2;
+}
+.ph-duotone.ph-export:after {
+  content: "\eaf1";
   margin-left: -1em;
 }
 .ph-duotone.ph-first-aid:before {
@@ -1414,6 +1502,14 @@
 }
 .ph-duotone.ph-hourglass:after {
   content: "\e2b3";
+  margin-left: -1em;
+}
+.ph-duotone.ph-house-line:before {
+  content: "\e2c4";
+  opacity: 0.2;
+}
+.ph-duotone.ph-house-line:after {
+  content: "\e2c5";
   margin-left: -1em;
 }
 .ph-duotone.ph-info:before {
@@ -1648,6 +1744,14 @@
   content: "\e3d7";
   margin-left: -1em;
 }
+.ph-duotone.ph-plus-square:before {
+  content: "\ed4a";
+  opacity: 0.2;
+}
+.ph-duotone.ph-plus-square:after {
+  content: "\ed56";
+  margin-left: -1em;
+}
 .ph-duotone.ph-prohibit:before {
   content: "\e3de";
   opacity: 0.2;
@@ -1870,6 +1974,14 @@
 }
 .ph-duotone.ph-user:after {
   content: "\e4c3";
+  margin-left: -1em;
+}
+.ph-duotone.ph-user-plus:before {
+  content: "\e4d0";
+  opacity: 0.2;
+}
+.ph-duotone.ph-user-plus:after {
+  content: "\e4d1";
   margin-left: -1em;
 }
 .ph-duotone.ph-users-three:before {

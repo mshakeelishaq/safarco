@@ -1,7 +1,7 @@
 // Get the app: SafarCo installs from the browser to the home screen (Android, iPhone, laptop), no app store needed.
 import { useEffect, useReducer } from 'react';
 import { Footer, Header, usePage } from './Site';
-import { canPrompt, isIOS, isInstalled, onInstallChange, promptInstall } from '../install';
+import { isInstalled, onInstallChange, startInstall } from '../install';
 
 const STEPS: [string, string, string[]][] = [
   ['ph-android-logo', 'Android', ['Open SafarCo in Chrome.', 'Tap “Install app” below, or the ⋮ menu → “Install app” (or “Add to Home screen”).', 'SafarCo appears on your home screen like any app.']],
@@ -23,11 +23,9 @@ export function GetApp() {
         <p>SafarCo installs straight from your browser in a few seconds. No app store, no account, and it keeps working when you lose signal in the mountains.</p>
         <div className="hero-actions" style={{ marginTop: 24 }}>
           {installed ? <a href="/plan" className="btn btn-sun">Open SafarCo</a>
-            : canPrompt() ? <button className="btn btn-sun" onClick={() => promptInstall()}>Install app <i className="ph-bold ph-download-simple" /></button>
-              : <a href="/plan?start=1" className="btn btn-sun">Open SafarCo</a>}
+            : <button className="btn btn-sun" onClick={() => startInstall()}>Install the app <i className="ph-bold ph-download-simple" /></button>}
           <a href="/plan?start=1" className="btn btn-ghost">Use it in the browser</a>
         </div>
-        {!installed && !canPrompt() && <p style={{ fontSize: 15, color: 'var(--mute)', marginTop: 14 }}>{isIOS() ? 'On iPhone, use Safari’s Share button → Add to Home Screen (steps below).' : 'If you don’t see an install button, follow the steps below for your phone.'}</p>}
       </div>
       <div className="phone app-phone" style={{ width: 230 }}><div className="scr" style={{ backgroundImage: 'url(/photos/altit-fort.webp)' }}>
         <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: '.08em', color: '#FFD27A' }}>TODAY · DAY 3</div>
