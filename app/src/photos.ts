@@ -24,6 +24,7 @@ const OWN: Record<string, string> = {
 };
 /** Our photo of one place at a destination, by "destination|place name". */
 export const PLACE_PHOTOS: Record<string, string> = {
+  'naran|Babusar Top': '/photos/babusar-top-road.webp',
   'nathia|Mushkpuri Top': '/photos/mushkpuri-summer.webp',
   'skardu|Keris, Ghowari, Barah and Khaplu': '/photos/keris-bridge-autumn.webp',
   'khaplu|Khaplu Palace': '/photos/khaplu-palace-autumn.webp',
@@ -99,7 +100,15 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/kaghan-winter-river.webp', caption: 'Winter: the Kunhar river below Kaghan, with snow on the slopes' },
     { src: '/photos/kaghan-winter-stream.webp', caption: 'Winter: a side stream through snow-covered boulders in Kaghan valley' },
     { src: '/photos/kaghan-snowfall.webp', caption: 'Winter: snowfall over the river huts at Kaghan' },
-    { src: '/photos/kaghan-winter-village.webp', caption: 'Winter: a village lane in Kaghan valley after snow. The road beyond Kaghan to Naran is closed from about December to April' }
+    { src: '/photos/kaghan-winter-village.webp', caption: 'Winter: a village lane in Kaghan valley after snow. The road beyond Kaghan to Naran is closed from about December to April' },
+    { src: '/photos/babusar-snow-walls.webp', caption: 'Early summer: the road over Babusar Top cut through walls of snow' },
+    { src: '/photos/babusar-top-road.webp', caption: 'Summer: riding over Babusar Top at 13,690 ft, snow still on the slopes' },
+    { src: '/photos/babusar-valley-storm.webp', caption: 'Summer: the valley below Babusar Top as a storm rolls in' }
+  ],
+  thandiani: [
+    { src: '/photos/thandiani-summer-road.webp', caption: 'Summer: the winding road up to Thandiani through pine forest' },
+    { src: '/photos/thandiani-summer-forest.webp', caption: 'Summer: red-roofed hotels among the pines' },
+    { src: '/photos/thandiani-summer-mosque.webp', caption: 'Summer: a hillside mosque in the green hills' }
   ],
   khaplu: [
     { src: '/photos/khaplu-palace-autumn.webp', caption: 'Autumn: Khaplu Palace (Yabgo Khar) under golden chinar and poplar, late October to early November' },
@@ -203,6 +212,7 @@ const SEASONAL: Record<string, Partial<Record<SeasonName, string>>> = {
   naran: { winter: '/photos/kaghan-winter-river.webp' },
   khaplu: { autumn: '/photos/khaplu-palace-autumn.webp' },
   shogran: { winter: '/photos/shogran-winter-view.webp' },
+  thandiani: { summer: '/photos/thandiani-summer-road.webp' },
   lahore: { spring: '/photos/lahore-pink-blossom.webp', summer: '/photos/lahore-summer-amaltas-canal.webp', autumn: '/photos/lahore-model-town-autumn.webp', winter: '/photos/lahore-azadi-chowk-sunrise.webp' },
   islamabad: { spring: '/photos/islamabad-jacaranda-path.webp', summer: '/photos/islamabad-amaltas-road.webp', autumn: '/photos/islamabad-autumn-road.webp' }
 };
