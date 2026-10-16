@@ -61,11 +61,21 @@ function LiveMap({ v, onFail, fill }: { v: View; onFail: () => void; fill?: bool
   const update = () => {
     const { map: m, ml, ok } = st.current; if (!m || !ml || !ok || !m.getSource('route')) return;
     // Weather colours along the road (way there), redrawn whenever the forecast changes.
-    const pts = v.wx.mapPts, wxKey = pts.map(p => p.color + p.text).join('|');
+    const road: [number, number][] | null = !rm.loop && !rm.isAir && r && r.status === 'ok' ? r.data.coords : null;
+    const pts = v.wx.mapPts, wxKey = pts.map(p => p.color + p.text).join('|') + (road ? road.length : 0);
     if (wxKey !== st.current.wxKey) {
       st.current.wxKey = wxKey;
       const feats: { type: 'Feature'; properties: Record<string, string>; geometry: { type: 'LineString'; coordinates: number[][] } | { type: 'Point'; coordinates: number[] } }[] = [];
-      for (let i = 0; i < pts.length - 1; i++) if (pts[i].day === pts[i + 1].day) feats.push({ type: 'Feature', properties: { color: pts[i].color }, geometry: { type: 'LineString', coordinates: [[pts[i].lon, pts[i].lat], [pts[i + 1].lon, pts[i + 1].lat]] } });
+      // Colour the road itself between weather points (never a straight line across the bends); without the road, just the dots.
+      if (road) {
+        const near = (lat: number, lon: number) => { let bi = 0, bd = Infinity; road.forEach(([x, y], i) => { const d = (x - lon) ** 2 + (y - lat) ** 2; if (d < bd) { bd = d; bi = i; } }); return bi; };
+        const at = pts.map(p => near(p.lat, p.lon));
+        for (let i = 0; i < pts.length - 1; i++) {
+          if (pts[i].day !== pts[i + 1].day) continue;
+          const a = Math.min(at[i], at[i + 1]), b = Math.max(at[i], at[i + 1]); if (b - a < 1) continue;
+          feats.push({ type: 'Feature', properties: { color: pts[i].color }, geometry: { type: 'LineString', coordinates: road.slice(a, b + 1) } });
+        }
+      }
       pts.forEach(p => feats.push({ type: 'Feature', properties: { color: p.color, text: p.text }, geometry: { type: 'Point', coordinates: [p.lon, p.lat] } }));
       (m.getSource('wx') as import('maplibre-gl').GeoJSONSource | undefined)?.setData({ type: 'FeatureCollection', features: feats } as never);
     }
