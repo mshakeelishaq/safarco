@@ -25,6 +25,7 @@ const OWN: Record<string, string> = {
 /** Our photo of one place at a destination, by "destination|place name". */
 export const PLACE_PHOTOS: Record<string, string> = {
   'nathia|Mushkpuri Top': '/photos/mushkpuri-summer.webp',
+  'khaplu|Khaplu Palace': '/photos/khaplu-palace-autumn.webp',
   'chakwal|Swaik Lake': '/photos/swaik-lake.webp',
   'chakwal|Kallar Kahar Lake': '/photos/kallar-kahar-lake.webp',
   'islamabad|Faisal Mosque': '/photos/faisal-mosque-dusk.webp',
@@ -93,6 +94,7 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/mud-volcano-hingol.webp', caption: 'Mud volcano near the Makran coast, Hingol' },
     { src: '/photos/road-to-mud-volcano.webp', caption: 'The road to the mud volcanoes, with the sea beyond' }
   ],
+  khaplu: [{ src: '/photos/khaplu-palace-autumn.webp', caption: 'Autumn: Khaplu Palace (Yabgo Khar) under golden chinar and poplar, late October to early November' }],
   shogran: [
     { src: '/photos/shogran-winter-view.webp', caption: 'Winter: Shogran under snow, with the Kaghan peaks behind' },
     { src: '/photos/shogran-winter-aerial.webp', caption: 'Winter: hotels and huts on the Shogran plateau after a snowfall' },
@@ -180,6 +182,7 @@ type SeasonName = 'spring' | 'summer' | 'autumn' | 'winter';
 const SEASONAL: Record<string, Partial<Record<SeasonName, string>>> = {
   murree: { summer: '/photos/murree-summer.webp', winter: '/photos/murree-winter-snow-road.webp' },
   nathia: { summer: '/photos/mushkpuri-summer.webp' },
+  khaplu: { autumn: '/photos/khaplu-palace-autumn.webp' },
   shogran: { winter: '/photos/shogran-winter-view.webp' },
   lahore: { spring: '/photos/lahore-pink-blossom.webp', summer: '/photos/lahore-summer-amaltas-canal.webp', autumn: '/photos/lahore-model-town-autumn.webp', winter: '/photos/lahore-azadi-chowk-sunrise.webp' },
   islamabad: { spring: '/photos/islamabad-jacaranda-path.webp', summer: '/photos/islamabad-amaltas-road.webp', autumn: '/photos/islamabad-autumn-road.webp' }
