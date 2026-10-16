@@ -27,10 +27,10 @@ import { DayPage } from './components/DayPage';
 import { PrepareTab } from './components/PrepareTab';
 import { Onboarding } from './components/Onboarding';
 import { TripTab } from './components/TripTab';
-import { LIVE, fxFetch, geoSearch, placesFetch, placesKey, placesUrl, reverseGeo, routeFetch, routeKey, routeUrl, wikiFetch } from './engine/live';
+import { LIVE, fxFetch, geoSearch, placesFetch, placesKey, placesUrl, reverseGeo, routeFetch, routeUrl, wikiFetch } from './engine/live';
 import { allUrls, fetchWeather } from './weather/route';
 import { mapsQ, mon } from './engine/format';
-import { bestAirport, trip, usualDays } from './engine/engine';
+import { bestAirport, liveRoadKey, roadVia, trip, usualDays } from './engine/engine';
 import { DESTS, NODES } from './engine/data';
 import { DST, cityOr, nearestCity } from './engine/places';
 import { css } from './lib/css';
@@ -91,7 +91,7 @@ export function App() {
   useEffect(() => {
     if (s.screen !== 'app') return;
     const o = cityOr(s.origin), D = DST(s.corridor);
-    if (s.vehicle !== 'air' || s.tab === 'map') routeFetch(o, D);
+    if (s.vehicle !== 'air' || s.tab === 'map') routeFetch(o, D, roadVia(s.corridor, s.origin, mon(s)));
   }, [s.screen, s.origin, s.corridor, s.vehicle, s.tab, s.startDate, s.days]);
 
   // Destination guide, sights and places to stay (destination and each night stop).
@@ -229,10 +229,10 @@ export function App() {
     const st = stRef.current;
     if (st.offline === 'ready') { clearOffline().then(() => set({ offline: 'off', progress: 0, offlineMB: 0, offlineErr: '' })); return; }
     if (st.offline === 'downloading') return;
-    const o = cityOr(st.origin), D = DST(st.corridor), r = LIVE.route[routeKey(o.n, D.id)];
+    const o = cityOr(st.origin), D = DST(st.corridor), via = roadVia(st.corridor, st.origin, mon(st)), r = LIVE.route[liveRoadKey(st.corridor, st.origin, mon(st))];
     const coords: [number, number][] = r && r.status === 'ok' ? r.data.coords : view.routeMap.dots.map(d => [+d.p[1], +d.p[0]]);
     const abs = (u: string) => new URL(u, location.origin).href;
-    const extra = [abs(routeUrl(o, D)), ...allUrls(view.wPlan), abs(placesUrl('hotels', D.lat, D.lon)), abs(placesUrl('sights', D.lat, D.lon)), ...view.fuelPoints.map(p => abs(placesUrl('fuel', p.lat, p.lon)))];
+    const extra = [abs(routeUrl(o, D, via.pts)), ...allUrls(view.wPlan), abs(placesUrl('hotels', D.lat, D.lon)), abs(placesUrl('sights', D.lat, D.lon)), ...view.fuelPoints.map(p => abs(placesUrl('fuel', p.lat, p.lon)))];
     const ac = new AbortController(); dlAbort.current = ac;
     set({ offline: 'downloading', progress: 0, offlineMB: 0, offlineErr: '' });
     downloadOffline(coords, extra, p => set({ progress: Math.round(p.done / Math.max(1, p.total) * 100), offlineMB: p.bytes / 1e6 }), ac.signal)

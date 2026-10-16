@@ -1,4 +1,5 @@
-// GET /api/route?from=lon,lat&to=lon,lat
+// GET /api/route?from=lon,lat&to=lon,lat[&via=lon,lat;lon,lat…]
+// `via` keeps the road on the same towns as SafarCo's day plan (e.g. over Babusar, not round by Chitral).
 // Driving route from OpenRouteService. The key (ORS_API_KEY) stays on the server.
 // Answers are cached at Vercel's edge for a week, so each city pair costs one ORS request.
 
@@ -16,10 +17,14 @@ export async function GET(request: Request) {
   if (!key) return fail(503, 'Routing is not configured');
   const u = new URL(request.url), from = point(u.searchParams.get('from')), to = point(u.searchParams.get('to'));
   if (!from || !to) return fail(400, 'from and to must be lon,lat inside Pakistan');
+  const viaRaw = (u.searchParams.get('via') || '').split(';').filter(Boolean);
+  const via = viaRaw.map(point);
+  if (viaRaw.length > 23 || via.some(v => !v)) return fail(400, 'via must be up to 23 lon,lat points inside Pakistan');
+  const coordinates = [from, ...(via as number[][]), to];
   const r = await fetch('https://api.heigit.org/openrouteservice/v2/directions/driving-car/geojson', {
     method: 'POST',
     headers: { Authorization: key, 'Content-Type': 'application/json', Accept: 'application/geo+json' },
-    body: JSON.stringify({ coordinates: [from, to], radiuses: [5000, 5000] })
+    body: JSON.stringify({ coordinates, radiuses: coordinates.map(() => 5000) })
   }).catch(() => null);
   if (!r) return fail(502, 'Routing service unreachable');
   if (r.status === 429) return fail(429, 'Routing limit reached for today');

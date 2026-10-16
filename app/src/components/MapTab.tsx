@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
-import { LIVE, routeKey } from '../engine/live';
+import { LIVE } from '../engine/live';
 import { cityOr } from '../engine/places';
+import { liveRoadKey } from '../engine/engine';
+import { mon } from '../engine/format';
 import { css } from '../lib/css';
 import { t } from '../i18n';
 import { DEM_TILES, MAP_STYLE } from '../mapConfig';
@@ -13,7 +15,7 @@ const escH = (s: string) => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '
 function LiveMap({ v, onFail, fill }: { v: View; onFail: () => void; fill?: boolean }) {
   const el = useRef<HTMLDivElement>(null);
   const st = useRef<{ ml?: ML; map?: import('maplibre-gl').Map; ok?: boolean; key?: string; wxKey?: string; fuelKey?: string; markers: import('maplibre-gl').Marker[] }>({ markers: [] });
-  const { s } = v, rm = v.routeMap, o = cityOr(s.origin), r = LIVE.route[routeKey(o.n, s.corridor)];
+  const { s } = v, rm = v.routeMap, o = cityOr(s.origin), r = LIVE.route[liveRoadKey(s.corridor, s.origin, mon(s))];
 
   useEffect(() => {
     let dead = false;

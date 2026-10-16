@@ -20,9 +20,15 @@ const newPlaces = new Set(['skardu', ...Object.keys(DEST_PATCH)]);
 const cases: [string, string, number][] = [];
 for (const o of origins) for (const d of dests) for (const m of [1, 7]) cases.push([o, d, m]);
 
+// Routes now take the fastest roads, not the fewest km (the prototype's way): motorways over the Indus
+// Highway, Babusar over the Shandur jeep road. Those trips only have to be about as quick as the prototype's
+// (within 5%: the Lowari, Mastuj and Shandur roads are now slower, closer to real driving times).
+const FASTER = new Set(['Karachi|chitral', 'Karachi|kumrat', 'Islamabad|ziarat', 'Peshawar|gwadar', 'Peshawar|city:Sukkur', 'Quetta|chitral', 'Quetta|kumrat', 'Gilgit|kumrat', 'Gilgit|ziarat']);
+
 describe('parity with the v7 prototype engine', () => {
   it.each(cases)('%s → %s in month %i', (origin, dest, m) => {
     const a = trip(dest, origin, m), b = orig.trip(dest, origin, 10, m);
+    if (FASTER.has(`${origin}|${dest}`) && a.via !== b.via) { expect(a.hours).toBeLessThan(b.hours * 1.05); return; }
     // Owner-added stops on the coastal highway (Buzi Pass, Pasni) move where a long drive to Gwadar stops for the night, not how many days it takes.
     const sameNights = !['gwadar', 'kundmalir'].includes(dest);
     expect([a.km, a.legDays, a.minDays, sameNights ? a.cuts : 0]).toEqual([b.km, b.legDays, b.minDays, sameNights ? b.cuts : 0]);

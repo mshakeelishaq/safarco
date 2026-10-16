@@ -2,6 +2,8 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { balances, daysBetween, getRun, moveRun, phaseOf, runKey, settleUp, updateRun } from '../src/run';
 import { settle, splitFromUrl, splitUrl } from '../src/split';
+import { roadVia } from '../src/engine/engine';
+import { NODES } from '../src/engine/data';
 import { initialState } from '../src/state';
 import { buildView, type Api } from '../src/view';
 import { isoAdd } from '../src/engine/format';
@@ -9,6 +11,18 @@ import { isoAdd } from '../src/engine/format';
 const mem = new Map<string, string>();
 (globalThis as any).localStorage = { getItem: (k: string) => mem.get(k) ?? null, setItem: (k: string, v: string) => void mem.set(k, v), removeItem: (k: string) => void mem.delete(k) };
 beforeEach(() => mem.clear());
+
+describe('the road on the map and in Google Maps', () => {
+  it('goes to Phander in summer over Babusar and Gilgit, the same way as the day plan', () => {
+    const s = { ...base, dest: 'phander', corridor: 'phander', startDate: '2026-07-10', days: 8 };
+    const v = buildView(s, api);
+    expect(v.plan.days.slice(0, 3).map(d => d.title)).toEqual(['Lahore → Mansehra', 'Mansehra → Chilas', 'Chilas → Phander']);
+    const link = decodeURIComponent((v as unknown as { routeLink: string }).routeLink);
+    expect(link).toContain(`${NODES.NRN[0].toFixed(4)},${NODES.NRN[1].toFixed(4)}`);
+    expect(link).not.toContain(`${NODES.CTR[0].toFixed(4)},${NODES.CTR[1].toFixed(4)}`);
+    expect(roadVia('phander', 'Lahore', 7).id.split(',')).toEqual(expect.arrayContaining(['NRN', 'CHL', 'GLT', 'PHD']));
+  });
+});
 
 describe('changing the dates', () => {
   it('moves the checklist, expenses and family link to the new dates', () => {

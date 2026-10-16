@@ -5,7 +5,7 @@ import { HIDE_SPOTS, SECURITY_AREAS, riskOf, HAVE_VEHICLE, EDGES, MODES, MON, MO
 import { FOOD } from './engine/food';
 import { dismissInstall, offerInstallNow, startInstall, wasDismissed } from './install';
 import { foodTipsFor } from './foodtips';
-import { AIR_IN, bestAirport, closedOnRoute, flyNorth, viaIsb, DAY_OUT_H, SHORT2_H, MAX_DRIVE_H, plannedJeeps, roomPlan, circuit, sideTrips, dayTripOptions, tripFrom, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
+import { liveRoadKey, AIR_IN, bestAirport, closedOnRoute, flyNorth, viaIsb, DAY_OUT_H, SHORT2_H, MAX_DRIVE_H, plannedJeeps, roomPlan, circuit, sideTrips, dayTripOptions, tripFrom, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
 import { clock, dayLabel, dur, fmt, fmtN, isoAdd, isoOf, isoOff, kShort, mapsQ, mon } from './engine/format';
 import { LIVE, fxRate, placesKey, routeKey, type Spot } from './engine/live';
 import { sunTimes } from './engine/sun';
@@ -74,7 +74,7 @@ export function buildView(s: AppState, api: Api) {
   const ringConic = (p: number, a: string, b: string) => `conic-gradient(${a} 0%, ${b} ${p}%, rgba(255,255,255,.08) ${p}% 100%)`;
   const mb = (n: number) => n >= 10 ? Math.round(n) : n.toFixed(1);
   // Rough download size: vector + terrain tile per square along the route, ~35 kB each.
-  const liveRoute = LIVE.route[routeKey(cityOr(s.origin).n, s.corridor)];
+  const liveRoute = LIVE.route[liveRoadKey(s.corridor, s.origin, mon(s))];
   const routeCoords: [number, number][] = !L && liveRoute && liveRoute.status === 'ok' ? liveRoute.data.coords
     : [cityOr(s.origin), ...c.legs.map(l => pointAt(l.b))].map(p => [p.lon, p.lat] as [number, number]);
   const estMB = Math.max(5, Math.round(tilesAlong(routeCoords).length * 2 * 0.035));
@@ -174,7 +174,7 @@ export function buildView(s: AppState, api: Api) {
     : set({ edits: { ...edits, drops: [...edits.drops, dropKey(day, x.label)] } });
 
   // Weather along the whole route (see src/weather).
-  const liveRoad = LIVE.route[routeKey(cityOr(s.origin).n, s.corridor)];
+  const liveRoad = LIVE.route[liveRoadKey(s.corridor, s.origin, mon(s))];
   const rPoints = routePoints(s, plan, !L && liveRoad && liveRoad.status === 'ok' ? liveRoad.data.coords : null);
   const wPlan = weatherPlan(s, plan, rPoints), rw = weatherView(s, plan, rPoints, wPlan);
 
@@ -544,13 +544,13 @@ export function buildView(s: AppState, api: Api) {
         (() => { const o = cityOr(s.origin), st = sunTimes(o.lat, o.lon, s.startDate); return { icon: 'ph-sun-horizon', color: 'var(--vio)', text: t('Sunrise {rise}, sunset {set} in {place} on {date}.', { rise: clock(st.rise), set: clock(st.set), place: o.n, date: dayLabel(s.startDate, 0) }) }; })()];
     })(),
     mapRouteLabel: (() => {
-      const r = LIVE.route[routeKey(cityOr(s.origin).n, s.corridor)];
+      const r = LIVE.route[liveRoadKey(s.corridor, s.origin, mon(s))];
       return isAir ? t('Flight path') : r && r.status === 'ok' ? t('Road from OpenRouteService · {km} km', { km: fmtN(r.data.km) }) : r && r.status === 'loading' ? t('Loading road from OpenRouteService…') : t('Route from SafarCo road table');
     })(),
     wx: rw,
     liveRoadNotes: (() => {
       if (s.screen !== 'app' || isAir) return [];
-      const o = cityOr(s.origin), r = LIVE.route[routeKey(o.n, s.corridor)];
+      const o = cityOr(s.origin), r = LIVE.route[liveRoadKey(s.corridor, s.origin, mon(s))];
       if (!r) return [];
       if (r.status === 'loading') return [{ icon: 'ph-globe-hemisphere-east', color: 'var(--mute)', text: t('Checking the road with OpenRouteService…') }];
       if (r.status === 'error') return [{ icon: 'ph-wifi-slash', color: 'var(--mute)', text: t('Live road check unavailable. Using SafarCo’s road table.') }];
@@ -717,7 +717,12 @@ export function buildView(s: AppState, api: Api) {
       if (isAir) return '';
       const nights = plan.days.filter(d => (d.kind === 'drive' || d.kind === 'explore' || d.kind === 'arrive') && d.stay).map(d => `${d.stay!.lat.toFixed(4)},${d.stay!.lon.toFixed(4)}`).filter((x, i, a) => a.indexOf(x) === i);
       if (!nights.length) return '';
-      const dest = nights[nights.length - 1], via = nights.slice(0, -1).slice(0, 9);
+      // Where the road changes (onto Babusar at Naran, onto the KKH at Chilas), so Google takes the same way as the plan.
+      const turns = L ? [] : c.legs.filter((l, i) => i > 0 && NODES[l.a] && l.road !== c.legs[i - 1].road).map(l => `${NODES[l.a][0].toFixed(4)},${NODES[l.a][1].toFixed(4)}`);
+      const dest = nights[nights.length - 1], stays = nights.slice(0, -1);
+      // Keep the road-change towns first (they decide the way), then nights, in route order, at most nine.
+      const order = (x: string) => { const [la, lo] = x.split(',').map(Number); return Math.hypot(la - cityOr(s.origin).lat, lo - cityOr(s.origin).lon); };
+      const via = [...new Set([...turns, ...stays])].slice(0, 9).sort((a, b) => order(a) - order(b));
       return `https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=${encodeURIComponent(c.from + ', Pakistan')}&destination=${dest}${via.length ? `&waypoints=${encodeURIComponent(via.join('|'))}` : ''}`;
     })(),
     routeMap: (() => {

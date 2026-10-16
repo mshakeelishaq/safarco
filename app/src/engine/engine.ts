@@ -156,7 +156,7 @@ function shortest(dest: string, month: number, anyway = false) {
   while (true) {
     let u: string | null = null; for (const k in dist) if (!done.has(k) && (u === null || dist[k] < dist[u])) u = k;
     if (u === null) break; done.add(u); const uu = u;
-    (ADJ[uu] || []).forEach(([v, e]) => { if ((e[7] && !e[7].includes(month)) || (!anyway && CLOSED.has(e[6]))) return; const d = dist[uu] + e[2]; if (dist[v] === undefined || d < dist[v]) { dist[v] = d; next[v] = [uu, e]; } });
+    (ADJ[uu] || []).forEach(([v, e]) => { if ((e[7] && !e[7].includes(month)) || (!anyway && CLOSED.has(e[6]))) return; const d = dist[uu] + e[2] / e[3]; if (dist[v] === undefined || d < dist[v]) { dist[v] = d; next[v] = [uu, e]; } });
   }
   return (SPT[key] = { dist, next });
 }
@@ -237,6 +237,17 @@ export function resetTripCache() { for (const k in TRIP_CACHE) delete TRIP_CACHE
 export const closedOnRoute = (key: string, origin: string | null, month: number) => CLOSED.size ? [...new Set(tripFrom(key, cityOr(origin), month, true).legs.map(l => l.road).filter(r => CLOSED.has(r)))] : [];
 LIVE.routeHooks.add(resetTripCache);
 
+/** The towns a trip's roads pass through, so the map's road follows the day plan (at most 23, evenly picked). */
+function viaOf(legs: Leg[]) {
+  const ids = legs.flatMap(l => [l.a, l.b]).filter((n, i, a) => n !== 'HOME' && n !== 'DEST' && NODES[n] && a.indexOf(n) === i);
+  const pick = ids.length <= 23 ? ids : Array.from({ length: 23 }, (_, i) => ids[Math.round(i * (ids.length - 1) / 22)]);
+  return { id: pick.join(','), pts: pick.map(n => NODES[n]) as [number, number][] };
+}
+/** The towns on the way for a trip, as routeFetch wants them. */
+export const roadVia = (key: string, origin: string | null, month: number) => viaOf(trip(key, origin, month).legs);
+/** The live-road key for a trip, matching the day plan's roads. */
+export const liveRoadKey = (key: string, origin: string | null, month: number) => routeKey(cityOr(origin).n, key, roadVia(key, origin, month).id);
+
 /** Road trip from `origin` to destination `key` in `month`, using the road table, corrected by the live OSRM distance when close. */
 export function trip(key: string, origin: string | null, month = 7): Trip { return tripFrom(key, cityOr(origin), month); }
 
@@ -246,7 +257,7 @@ export function tripFrom(key: string, o: { n: string; lat: number; lon: number }
   const D = DST(key);
   const oc = attachTo(o.lat, o.lon, false), dc = D.node ? [{ n: D.node, local: 0, mtn: MTN_NODES.has(D.node) }] : attachTo(D.lat, D.lon, (D.ft ?? D.ftEst ?? 0) > 3000);
   let best: { st: typeof oc[number]; d: typeof dc[number]; tot: number } | null = null;
-  dc.forEach(d => { const { dist } = shortest(d.n, month, anyway); oc.forEach(st => { if (dist[st.n] === undefined) return; const tot = st.local + dist[st.n] + d.local; if (!best || tot < best.tot) best = { st, d, tot }; }); });
+  dc.forEach(d => { const { dist } = shortest(d.n, month, anyway); oc.forEach(st => { if (dist[st.n] === undefined) return; const tot = st.local / (st.mtn ? 30 : 55) + dist[st.n] + d.local / (d.mtn ? 30 : 55); if (!best || tot < best.tot) best = { st, d, tot }; }); });
   // A closed road with no way round: plan on it anyway (the closure shows as a warning).
   if (!best && !anyway) return (TRIP_CACHE[ck] = tripFrom(key, o, month, true));
   const { st: start, d: end } = best!, { next } = shortest(end.n, month, anyway);
@@ -261,7 +272,7 @@ export function tripFrom(key: string, o: { n: string; lat: number; lon: number }
   }
   if (end.local > 0) addLocal(end.n, 'DEST', end);
   if (!legs.length) addLocal('HOME', 'DEST', { local: Math.max(10, hav(o.lat, o.lon, D.lat, D.lon) * 1.3), mtn: false });
-  const lvR = LIVE.route[routeKey(o.n, D.id)]; let live: Trip['live'] = null;
+  const lvR = LIVE.route[routeKey(o.n, D.id, viaOf(legs).id)]; let live: Trip['live'] = null;
   if (lvR && lvR.status === 'ok') {
     const ratio = lvR.data.km / Math.max(1, flat + mtn);
     if (ratio > 0.85 && ratio < 1.15) { legs.forEach(l => { l.km *= ratio; l.h *= ratio; }); flat *= ratio; mtn *= ratio; hours *= ratio; live = { km: lvR.data.km, ratio }; }

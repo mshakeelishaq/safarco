@@ -22,6 +22,16 @@ describe('/api/route', () => {
     expect(r.headers.get('Cache-Control')).toContain('s-maxage');
   });
 
+  it('routes through the day plan’s towns when given via points', async () => {
+    reply({ features: [{ properties: { summary: { distance: 900000, duration: 72000 } }, geometry: { coordinates: [[74.34, 31.55], [73.6, 35.1]] } }] });
+    const r = await get(route, '/api/route?from=74.34,31.55&to=72.93,36.17&via=73.6,34.9;74.1,35.4;74.3,35.9');
+    expect(r.status).toBe(200);
+    const body = JSON.parse(String(calls[0].init?.body));
+    expect(body.coordinates).toEqual([[74.34, 31.55], [73.6, 34.9], [74.1, 35.4], [74.3, 35.9], [72.93, 36.17]]);
+    expect(body.radiuses).toHaveLength(5);
+    expect((await get(route, '/api/route?from=74.34,31.55&to=72.93,36.17&via=1,2')).status).toBe(400);
+  });
+
   it('rejects points outside Pakistan and works without a key by failing cleanly', async () => {
     expect((await get(route, '/api/route?from=1,2&to=3,4')).status).toBe(400);
     delete process.env.ORS_API_KEY;
