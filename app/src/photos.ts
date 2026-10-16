@@ -177,6 +177,7 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/keris-bridge-sand.webp', caption: 'On the way: wind-rippled sand on the riverbank below Keris bridge' }
   ],
   skardu: [
+    { src: '/photos/skardu-road-autumn.webp', caption: 'On the way: the Jaglot to Skardu road in autumn, golden poplars below fresh snow' },
     { src: '/photos/keris-bridge-autumn.webp', caption: 'Day trip to Khaplu: Keris bridge over the Shyok in autumn, with golden poplars on the far bank' },
     { src: '/photos/keris-bridge-reflection.webp', caption: 'Day trip to Khaplu: poplars and the Keris bridge reflected in the river' },
     { src: '/photos/keris-bridge-sand.webp', caption: 'Day trip to Khaplu: wind-rippled sand on the riverbank below Keris bridge' }
