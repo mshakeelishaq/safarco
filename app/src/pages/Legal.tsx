@@ -1,7 +1,8 @@
 // /privacy and /terms. Plain-language pages; have a lawyer review them before a large launch.
 import { css } from '../lib/css';
+import { CONTACT_EMAIL } from '../contact';
 
-const CONTACT = (import.meta.env.VITE_CONTACT_EMAIL as string | undefined) || '';
+const CONTACT = CONTACT_EMAIL;
 const UPDATED = '10 October 2026';
 
 const Page = ({ title, children }: { title: string; children: React.ReactNode }) => (

@@ -2,9 +2,9 @@
 import { useState } from 'react';
 import { Footer, Header, usePage } from './Site';
 import { cloudEnabled, sendFeedback } from '../cloud';
-import { IG_HANDLE, IG_MESSAGE } from '../contact';
+import { CONTACT_EMAIL, IG_HANDLE, IG_MESSAGE } from '../contact';
 
-const EMAIL = (import.meta.env.VITE_CONTACT_EMAIL as string | undefined) || '';
+const EMAIL = CONTACT_EMAIL;
 
 export function Contact() {
   usePage('Contact', 'Get in touch with SafarCo: questions, corrections to a guide, partnerships with hotels and drivers, or feedback.');

@@ -3,3 +3,5 @@
 export const IG_HANDLE = 'shakeelnaturegraphy';
 export const IG_PROFILE = `https://www.instagram.com/${IG_HANDLE}/`;
 export const IG_MESSAGE = `https://ig.me/m/${IG_HANDLE}`;
+/** Forwards to the owner's Gmail (ImprovMX). */
+export const CONTACT_EMAIL = (import.meta.env.VITE_CONTACT_EMAIL as string | undefined) || 'info@safarco.pk';

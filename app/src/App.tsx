@@ -38,6 +38,7 @@ import { clearOffline, downloadOffline, savedOffline } from './offline';
 import { Scene } from './scene/Scene';
 import { initialState, type AppState, type Patch } from './state';
 import { buildView, type Api } from './view';
+import { CONTACT_EMAIL } from './contact';
 
 /** Road-network nodes where the trip stops overnight. */
 const view0NightNodes = (s: AppState) => s.vehicle === 'air' ? [] : trip(s.corridor, s.origin, mon(s)).cuts.map(i => trip(s.corridor, s.origin, mon(s)).legs[i].b).filter(n => NODES[n]);
@@ -253,7 +254,7 @@ export function App() {
   const google = () => { try { localStorage.setItem('safarco-after-signin', '1'); } catch { /* storage blocked */ } signInWithGoogle().catch(() => set({ sheet: 'none', toast: tx('Couldn’t open Google sign-in. Try again.') })); };
   const feedback = (message: string, contact: string) => {
     if (cloudEnabled) return sendFeedback(message, contact, location.pathname + (stRef.current.screen === 'app' ? ` · ${defaultName(tripData(stRef.current))}` : ''));
-    const to = import.meta.env.VITE_FEEDBACK_EMAIL as string | undefined;
+    const to = (import.meta.env.VITE_FEEDBACK_EMAIL as string | undefined) || CONTACT_EMAIL;
     if (!to) return Promise.reject(new Error('Feedback is not set up'));
     location.href = `mailto:${to}?subject=${encodeURIComponent('SafarCo feedback')}&body=${encodeURIComponent(message + (contact ? `\n\nContact: ${contact}` : ''))}`;
     return Promise.resolve();
