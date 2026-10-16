@@ -16,6 +16,7 @@ const OWN: Record<string, string> = {
   rama: '/photos/rama-meadows-peaks.webp',
   kalam: '/photos/kalam-river-peaks.webp',
   phander: '/photos/phander-valley-river.webp',
+  chitral: '/photos/chitral-valley-aerial.webp',
   abbottabad: '/photos/abbottabad-valley-view.webp',
   // The Indus Highway through the date palms between Shikarpur and Sukkur, on the way south to Karachi.
   sukkur: '/photos/sukkur-lansdowne-bridge.webp',
@@ -225,6 +226,10 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/phander-lake-poplars.webp', caption: 'Summer: Phander Lake, turquoise water fringed with poplars' },
     { src: '/photos/ghizer-valley-gorge.webp', caption: 'Summer: a green village deep in the Ghizer valley below snow peaks' },
     { src: '/photos/ghizer-road-cliff.webp', caption: 'Summer: riding the Ghizer road under a cliff of golden rock' }
+  ],
+  chitral: [
+    { src: '/photos/chitral-valley-aerial.webp', caption: 'Spring: the green Chitral valley from above, below red rock and snow peaks' },
+    { src: '/photos/chitral-green-hills.webp', caption: 'Spring: green hills and jeep tracks in the mountains of Chitral, in the evening light' }
   ],
   naran: [
     { src: '/photos/saif-ul-malook-summer.webp', caption: 'Summer: Lake Saif-ul-Malook under rolling clouds, with snow patches on the slopes' },
