@@ -429,23 +429,28 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
 /** Photos the admin set for a place (a web link), ahead of ours. */
 export const PHOTO_EDITS: Record<string, string> = {};
 /** Places we have no photo of yet: their Wikipedia article's main photo (free licences on Wikimedia Commons), with credit. */
-const WIKI_PAGES: Record<string, string> = { taxila: 'Taxila', fairy: 'Fairy_Meadows_National_Park', hushe: 'Hushe_Valley', ishkoman: 'Ishkoman_Valley', yasin: 'Yasin_Valley', bagh: 'Sudhan_Gali', sehwan: 'Sehwan_Sharif' };
+/** Wikipedia pages to try in turn: the first one with a photo is used. */
+const WIKI_PAGES: Record<string, string[]> = { taxila: ['Taxila'], fairy: ['Fairy_Meadows_National_Park'], hushe: ['Hushe_Valley'], ishkoman: ['Ishkoman_Valley'], yasin: ['Yasin_Valley'],
+  bagh: ['Sudhan_Gali', 'Bagh,_Azad_Kashmir', 'Bagh_District'], sehwan: ['Sehwan_Sharif', 'Shrine_of_Lal_Shahbaz_Qalandar'] };
 export interface WebPhoto { src: string; page: string; credit: string }
 const WEB: Record<string, WebPhoto | null> = {};
 const webSubs = new Set<() => void>();
 export const onWebPhoto = (f: () => void) => { webSubs.add(f); return () => { webSubs.delete(f); }; };
 /** The Wikipedia photo for a place without one of ours, loading it the first time it's asked for. */
 export function webPhoto(id: string): WebPhoto | null {
-  const page = WIKI_PAGES[id]; if (!page || OWN[id]) return null;
+  const pages = WIKI_PAGES[id]; if (!pages || OWN[id]) return null;
   if (!(id in WEB)) {
     WEB[id] = null;
-    fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(page)}`).then(r => r.json()).then(j => {
-      const src = j?.originalimage?.source || j?.thumbnail?.source; if (!src) return;
-      // A 1280 px copy is plenty, and much lighter than the original.
-      const sized = j?.thumbnail?.source && /\/\d+px-/.test(j.thumbnail.source) ? j.thumbnail.source.replace(/\/\d+px-/, '/1280px-') : src;
-      WEB[id] = { src: sized, page: j?.content_urls?.desktop?.page || `https://en.wikipedia.org/wiki/${page}`, credit: 'Photo from Wikipedia (Wikimedia Commons)' };
-      webSubs.forEach(f => f());
-    }).catch(() => {});
+    const tryPage = (k: number) => { const page = pages[k]; if (!page) return;
+      fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(page)}`).then(r => r.json()).then(j => {
+        const src = j?.originalimage?.source || j?.thumbnail?.source; if (!src) return tryPage(k + 1);
+        // A 1280 px copy is plenty, and much lighter than the original.
+        const sized = j?.thumbnail?.source && /\/\d+px-/.test(j.thumbnail.source) ? j.thumbnail.source.replace(/\/\d+px-/, '/1280px-') : src;
+        WEB[id] = { src: sized, page: j?.content_urls?.desktop?.page || `https://en.wikipedia.org/wiki/${page}`, credit: 'Photo from Wikipedia (Wikimedia Commons)' };
+        webSubs.forEach(f => f());
+      }).catch(() => tryPage(k + 1));
+    };
+    tryPage(0);
   }
   return WEB[id];
 }
