@@ -24,6 +24,8 @@ const OWN: Record<string, string> = {
 };
 /** Our photo of one place at a destination, by "destination|place name". */
 export const PLACE_PHOTOS: Record<string, string> = {
+  'hunza|Attabad Lake': '/photos/attabad-summer-boat-ride.webp',
+  'passu|Attabad Lake': '/photos/attabad-summer-boat-ride.webp',
   'hunza|Khunjerab Pass': '/photos/khunjerab-border-gate.webp',
   'passu|Khunjerab Pass': '/photos/khunjerab-border-gate.webp',
   'naran|Babusar Top': '/photos/babusar-top-road.webp',
@@ -99,11 +101,17 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/road-to-mud-volcano.webp', caption: 'The road to the mud volcanoes, with the sea beyond' }
   ],
   hunza: [
+    { src: '/photos/attabad-summer-cones.webp', caption: 'Summer: speedboats on Attabad Lake, with the Passu Cones behind' },
+    { src: '/photos/attabad-summer-boats.webp', caption: 'Summer: boats and jet skis at the Attabad Lake jetty' },
+    { src: '/photos/attabad-summer-boat-ride.webp', caption: 'Summer: a boat ride on the turquoise water of Attabad Lake' },
     { src: '/photos/khunjerab-reflection.webp', caption: 'Khunjerab Pass: snow peaks mirrored in a meltwater pool at 15,397 ft' },
     { src: '/photos/khunjerab-glacier.webp', caption: 'Khunjerab Pass: a glacier between snow-covered peaks near the top' },
     { src: '/photos/khunjerab-border-gate.webp', caption: 'Khunjerab Pass: the China border gate at the end of the Karakoram Highway' }
   ],
   passu: [
+    { src: '/photos/attabad-summer-cones.webp', caption: 'Summer: speedboats on Attabad Lake, with the Passu Cones behind' },
+    { src: '/photos/attabad-summer-boats.webp', caption: 'Summer: boats and jet skis at the Attabad Lake jetty' },
+    { src: '/photos/attabad-summer-boat-ride.webp', caption: 'Summer: a boat ride on the turquoise water of Attabad Lake' },
     { src: '/photos/khunjerab-reflection.webp', caption: 'Khunjerab Pass: snow peaks mirrored in a meltwater pool at 15,397 ft' },
     { src: '/photos/khunjerab-glacier.webp', caption: 'Khunjerab Pass: a glacier between snow-covered peaks near the top' },
     { src: '/photos/khunjerab-border-gate.webp', caption: 'Khunjerab Pass: the China border gate at the end of the Karakoram Highway' }
@@ -224,6 +232,8 @@ type SeasonName = 'spring' | 'summer' | 'autumn' | 'winter';
 const SEASONAL: Record<string, Partial<Record<SeasonName, string>>> = {
   murree: { summer: '/photos/murree-summer.webp', winter: '/photos/murree-winter-snow-road.webp' },
   nathia: { summer: '/photos/mushkpuri-summer.webp' },
+  hunza: { summer: '/photos/attabad-summer-cones.webp' },
+  passu: { summer: '/photos/attabad-summer-cones.webp' },
   naran: { summer: '/photos/naran-summer-peaks.webp', winter: '/photos/kaghan-winter-river.webp' },
   khaplu: { autumn: '/photos/khaplu-palace-autumn.webp' },
   shogran: { winter: '/photos/shogran-winter-view.webp' },
