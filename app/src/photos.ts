@@ -19,6 +19,7 @@ const OWN: Record<string, string> = {
   chitral: '/photos/chitral-valley-aerial.webp',
   muzaffarabad: '/photos/muzaffarabad-domel-confluence.webp',
   neelum: '/photos/ratti-gali-lake-flowers.webp',
+  rawalakot: '/photos/banjosa-lake-autumn.webp',
   abbottabad: '/photos/abbottabad-valley-view.webp',
   // The Indus Highway through the date palms between Shikarpur and Sukkur, on the way south to Karachi.
   sukkur: '/photos/sukkur-lansdowne-bridge.webp',
@@ -47,6 +48,7 @@ export const PLACE_PHOTOS: Record<string, string> = {
   'muzaffarabad|Domel river confluence': '/photos/muzaffarabad-domel-confluence.webp',
   'muzaffarabad|Leepa Valley': '/photos/leepa-valley-fields.webp',
   'neelum|Ratti Gali Lake': '/photos/ratti-gali-lake-flowers.webp',
+  'rawalakot|Banjosa Lake': '/photos/banjosa-lake-autumn.webp',
   'neelum|Sharda': '/photos/sharda-temple-snow.webp',
   'neelum|Keran': '/photos/keran-river-houses.webp',
   'rama|Minimarg': '/photos/minimarg-village-valley.webp',
@@ -269,6 +271,12 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/neelum-snowfall-cabin.webp', caption: 'Winter: walking past a wooden cabin in heavy snowfall in the Neelum valley' },
     { src: '/photos/keran-river-houses.webp', caption: 'Summer: wooden houses across the Neelum river at Keran, where the river marks the Line of Control' },
     { src: '/photos/keran-riverside-camp.webp', caption: 'Summer: a riverside tent camp on the Neelum at Keran' }
+  ],
+  rawalakot: [
+    { src: '/photos/banjosa-lake-autumn.webp', caption: 'Autumn morning: Banjosa Lake mirroring the pines and the first autumn colours' },
+    { src: '/photos/rawalakot-suspension-bridge.webp', caption: 'A yellow suspension bridge over the river, on the road to Rawalakot' },
+    { src: '/photos/rawalakot-road-winter.webp', caption: 'Winter: a tree-lined road into Rawalakot under bare branches' },
+    { src: '/photos/rawalakot-dawn.webp', caption: 'Dawn over Rawalakot town and the hills of Poonch' }
   ],
   naran: [
     { src: '/photos/saif-ul-malook-summer.webp', caption: 'Summer: Lake Saif-ul-Malook under rolling clouds, with snow patches on the slopes' },
