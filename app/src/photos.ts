@@ -22,6 +22,7 @@ const OWN: Record<string, string> = {
   rawalakot: '/photos/banjosa-lake-autumn.webp',
   ziarat: '/photos/ziarat-residency.webp',
   peshawar: '/photos/peshawar-islamia-college-aerial.webp',
+  kumrat: '/photos/kumrat-river-sunrise.webp',
   abbottabad: '/photos/abbottabad-valley-view.webp',
   // The Indus Highway through the date palms between Shikarpur and Sukkur, on the way south to Karachi.
   sukkur: '/photos/sukkur-lansdowne-bridge.webp',
@@ -50,6 +51,9 @@ export const PLACE_PHOTOS: Record<string, string> = {
   'muzaffarabad|Domel river confluence': '/photos/muzaffarabad-domel-confluence.webp',
   'muzaffarabad|Leepa Valley': '/photos/leepa-valley-fields.webp',
   'neelum|Ratti Gali Lake': '/photos/ratti-gali-lake-flowers.webp',
+  'kumrat|Kumrat forest': '/photos/kumrat-river-sunrise.webp',
+  'kumrat|Panjkora riverside': '/photos/kumrat-forest-river.webp',
+  'kumrat|Thal wooden mosque': '/photos/thal-wooden-mosque.webp',
   'peshawar|Islamia College': '/photos/peshawar-islamia-college-aerial.webp',
   'ziarat|Quaid-e-Azam Residency': '/photos/ziarat-residency.webp',
   'rawalakot|Banjosa Lake': '/photos/banjosa-lake-autumn.webp',
@@ -294,6 +298,12 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
   ],
   peshawar: [
     { src: '/photos/peshawar-islamia-college-aerial.webp', caption: 'Islamia College Peshawar from above: the red-brick main hall, its gardens and the campus mosque' }
+  ],
+  kumrat: [
+    { src: '/photos/kumrat-river-sunrise.webp', caption: 'Summer morning: the Panjkora river winding through the deodar forest of Kumrat, first sun on the peaks' },
+    { src: '/photos/kumrat-forest-river.webp', caption: 'Summer: turquoise water of the Panjkora along a wall of young deodars' },
+    { src: '/photos/thal-wooden-mosque.webp', caption: 'The carved wooden mosque at Thal, on the river at the gateway to Kumrat' },
+    { src: '/photos/kumrat-fields-summer.webp', caption: 'Summer: maize fields and wooden fences below the forested mountains on the way to Kumrat' }
   ],
   naran: [
     { src: '/photos/saif-ul-malook-snow-peaks.webp', caption: 'Lake Saif-ul-Malook after fresh snow, the valley of Malika Parbat mirrored in green water' },
