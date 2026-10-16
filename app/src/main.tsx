@@ -52,7 +52,9 @@ if (splash) {
   try { seen = sessionStorage.getItem('safarco-splash') === '1'; sessionStorage.setItem('safarco-splash', '1'); } catch { /* storage blocked */ }
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (seen) splash.classList.add('sp-quick');
-  const min = Page !== App ? 0 : seen || still ? 500 : 3000;
+  const min = Page !== App ? 0 : seen || still ? 500 : 6000;
   const hide = () => { splash.classList.add('sp-hide'); setTimeout(() => splash.remove(), 500); };
   setTimeout(hide, Math.max(0, min - performance.now()));
+  // In a hurry? A tap anywhere skips it.
+  splash.addEventListener('click', e => { if (!(e.target as Element).closest('a')) hide(); });
 }
