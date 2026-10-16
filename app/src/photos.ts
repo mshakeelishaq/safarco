@@ -25,6 +25,7 @@ const OWN: Record<string, string> = {
 /** Our photo of one place at a destination, by "destination|place name". */
 export const PLACE_PHOTOS: Record<string, string> = {
   'nathia|Mushkpuri Top': '/photos/mushkpuri-summer.webp',
+  'skardu|Keris, Ghowari, Barah and Khaplu': '/photos/keris-bridge-autumn.webp',
   'khaplu|Khaplu Palace': '/photos/khaplu-palace-autumn.webp',
   'chakwal|Swaik Lake': '/photos/swaik-lake.webp',
   'chakwal|Kallar Kahar Lake': '/photos/kallar-kahar-lake.webp',
@@ -49,7 +50,7 @@ export const PLACE_PHOTOS: Record<string, string> = {
   'kundmalir|Hingol mud volcanoes': '/photos/mud-volcano-hingol.webp'
 };
 /** Our photo of a stop on the road (by the stop's name), shown on that day of the plan. */
-export const STOP_PHOTOS: Record<string, string> = { Ormara: '/photos/ormara-beach-evening.webp' };
+export const STOP_PHOTOS: Record<string, string> = { Ormara: '/photos/ormara-beach-evening.webp', Keris: '/photos/keris-bridge-autumn.webp' };
 /** A photo for something in a day's plan: a road stop or one of a destination's places. */
 export const photoForStop = (label: string) => STOP_PHOTOS[label] || PLACE_PHOTOS[Object.keys(PLACE_PHOTOS).find(k => k.endsWith('|' + label)) || ''];
 /** More of our photos of a place, with what they show, for its guide page. */
@@ -100,7 +101,17 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/kaghan-snowfall.webp', caption: 'Winter: snowfall over the river huts at Kaghan' },
     { src: '/photos/kaghan-winter-village.webp', caption: 'Winter: a village lane in Kaghan valley after snow. The road beyond Kaghan to Naran is closed from about December to April' }
   ],
-  khaplu: [{ src: '/photos/khaplu-palace-autumn.webp', caption: 'Autumn: Khaplu Palace (Yabgo Khar) under golden chinar and poplar, late October to early November' }],
+  khaplu: [
+    { src: '/photos/khaplu-palace-autumn.webp', caption: 'Autumn: Khaplu Palace (Yabgo Khar) under golden chinar and poplar, late October to early November' },
+    { src: '/photos/keris-bridge-autumn.webp', caption: 'On the way: Keris bridge over the Shyok in autumn, with golden poplars on the far bank' },
+    { src: '/photos/keris-bridge-reflection.webp', caption: 'On the way: poplars and the Keris bridge reflected in the river' },
+    { src: '/photos/keris-bridge-sand.webp', caption: 'On the way: wind-rippled sand on the riverbank below Keris bridge' }
+  ],
+  skardu: [
+    { src: '/photos/keris-bridge-autumn.webp', caption: 'Day trip to Khaplu: Keris bridge over the Shyok in autumn, with golden poplars on the far bank' },
+    { src: '/photos/keris-bridge-reflection.webp', caption: 'Day trip to Khaplu: poplars and the Keris bridge reflected in the river' },
+    { src: '/photos/keris-bridge-sand.webp', caption: 'Day trip to Khaplu: wind-rippled sand on the riverbank below Keris bridge' }
+  ],
   shogran: [
     { src: '/photos/shogran-winter-view.webp', caption: 'Winter: Shogran under snow, with the Kaghan peaks behind' },
     { src: '/photos/shogran-winter-aerial.webp', caption: 'Winter: hotels and huts on the Shogran plateau after a snowfall' },
