@@ -47,6 +47,7 @@ export const PLACE_PHOTOS: Record<string, string> = {
   'muzaffarabad|Domel river confluence': '/photos/muzaffarabad-domel-confluence.webp',
   'muzaffarabad|Leepa Valley': '/photos/leepa-valley-fields.webp',
   'neelum|Ratti Gali Lake': '/photos/ratti-gali-lake-flowers.webp',
+  'neelum|Sharda': '/photos/sharda-winter-river.webp',
   'neelum|Keran': '/photos/keran-river-houses.webp',
   'rama|Minimarg': '/photos/minimarg-village-valley.webp',
   'rama|Rama Meadows': '/photos/rama-meadows-peaks.webp',
@@ -258,6 +259,10 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/ratti-gali-slope.webp', caption: 'Summer: a slope of pink bistort running down to Ratti Gali Lake' },
     { src: '/photos/ratti-gali-glacier.webp', caption: 'Summer: wildflowers above the turquoise water and snowfields of Ratti Gali' },
     { src: '/photos/ratti-gali-clouds.webp', caption: 'Summer: clouds rolling over the cliffs around Ratti Gali Lake' },
+    { src: '/photos/sharda-winter-river.webp', caption: 'Winter: Sharda under fresh snow, the Neelum still and blue below the town' },
+    { src: '/photos/sharda-winter-valley.webp', caption: 'Winter: the Neelum river winding through snow-covered forest near Sharda' },
+    { src: '/photos/sharda-winter-village.webp', caption: 'Winter: Sharda village buried in snow below the pine slopes' },
+    { src: '/photos/sharda-winter-hillside.webp', caption: 'Winter: wooden houses across a snowy hillside in the Neelum valley at Sharda' },
     { src: '/photos/keran-river-houses.webp', caption: 'Summer: wooden houses across the Neelum river at Keran, where the river marks the Line of Control' },
     { src: '/photos/keran-riverside-camp.webp', caption: 'Summer: a riverside tent camp on the Neelum at Keran' }
   ],
@@ -414,6 +419,7 @@ const SEASONAL: Record<string, Partial<Record<SeasonName, string>>> = {
   khaplu: { autumn: '/photos/khaplu-palace-autumn.webp' },
   shogran: { winter: '/photos/shogran-winter-view.webp' },
   thandiani: { summer: '/photos/thandiani-summer-road.webp' },
+  neelum: { winter: '/photos/sharda-winter-river.webp' },
   lahore: { spring: '/photos/lahore-pink-blossom.webp', summer: '/photos/lahore-summer-amaltas-canal.webp', autumn: '/photos/lahore-model-town-autumn.webp', winter: '/photos/lahore-azadi-chowk-sunrise.webp' },
   islamabad: { spring: '/photos/islamabad-jacaranda-path.webp', summer: '/photos/islamabad-amaltas-road.webp', autumn: '/photos/islamabad-autumn-road.webp' }
 };
