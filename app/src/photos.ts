@@ -26,6 +26,7 @@ const OWN: Record<string, string> = {
 };
 /** Our photo of one place at a destination, by "destination|place name". */
 export const PLACE_PHOTOS: Record<string, string> = {
+  'hunza|Baltit Fort': '/photos/baltit-fort-autumn.webp',
   'hunza|Attabad Lake': '/photos/attabad-summer-boat-ride.webp',
   'passu|Attabad Lake': '/photos/attabad-summer-boat-ride.webp',
   'hunza|Hussaini Suspension Bridge': '/photos/hussaini-bridge-summer.webp',
@@ -110,6 +111,10 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/road-to-mud-volcano.webp', caption: 'The road to the mud volcanoes, with the sea beyond' }
   ],
   hunza: [
+    { src: '/photos/baltit-fort-autumn.webp', caption: 'Autumn: Baltit Fort among golden poplars above Karimabad' },
+    { src: '/photos/baltit-balcony-arches.webp', caption: 'Autumn: Rakaposhi and the Hunza valley through the carved arches of Baltit Fort' },
+    { src: '/photos/baltit-balcony-throne.webp', caption: 'Autumn: the Mir’s balcony seat at Baltit Fort, looking down the valley' },
+    { src: '/photos/baltit-window-autumn.webp', caption: 'Autumn: stained glass and an open window over the valley, inside Baltit Fort' },
     { src: '/photos/attabad-summer-cones.webp', caption: 'Summer: speedboats on Attabad Lake, with the Passu Cones behind' },
     { src: '/photos/attabad-summer-boats.webp', caption: 'Summer: boats and jet skis at the Attabad Lake jetty' },
     { src: '/photos/attabad-summer-boat-ride.webp', caption: 'Summer: a boat ride on the turquoise water of Attabad Lake' },
