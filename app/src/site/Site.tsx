@@ -11,6 +11,7 @@ import { DestinationList, Guide } from './Destinations';
 import { About } from './About';
 import { GetApp } from './GetApp';
 import { Contact } from './Contact';
+import { SITE_URL } from './url';
 
 /** Pages of the website, by path. */
 const SITE_PAGES = ['/', '/destinations', '/about', '/app', '/contact'];
@@ -33,6 +34,12 @@ export function usePage(title: string, description: string) {
     set('meta[name="description"]', 'name=description', description);
     set('meta[property="og:title"]', 'property=og:title', document.title);
     set('meta[property="og:description"]', 'property=og:description', description);
+    // One address for search engines, whichever one the visitor came in on.
+    const url = SITE_URL + (path() === '/' ? '/' : path());
+    set('meta[property="og:url"]', 'property=og:url', url);
+    let c = document.head.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+    if (!c) { c = document.createElement('link'); c.rel = 'canonical'; document.head.appendChild(c); }
+    c.href = url;
   }, [title, description]);
 }
 

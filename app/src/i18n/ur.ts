@@ -1166,7 +1166,7 @@ export const UR: Record<string, string> = {
   "days": "din",
   "places": "jagahen",
   "Places": "Jagahen",
-  "Planned with SafarCo · safarco.vercel.app": "SafarCo se plan kiya · safarco.vercel.app",
+  "Planned with SafarCo · safarco.pk": "SafarCo se plan kiya · safarco.pk",
   "Photo © {handle}": "Tasveer © {handle}",
   "My trip to {place}, planned with SafarCo": "Mera {place} ka safar, SafarCo se plan kiya",
   "Trip card saved. Post it from your gallery.": "Trip card save ho gaya. Gallery se post karein.",

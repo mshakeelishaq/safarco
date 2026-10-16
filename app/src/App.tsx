@@ -301,7 +301,7 @@ export function App() {
       const blob = await drawCard({
         photo: v.cardPhoto, kicker: `${v.c.from} → ${v.c.to}`, title: v.c.loop ? v.tripPlaces.list.map(x => x.name).join(' · ') : D.name, when: `${MONTH_FULL[m - 1]} ${st.startDate.slice(0, 4)} · ${tx('{n} days', { n: v.plan.days.length })}`,
         stats: [{ value: v.isAir ? tx('By air') : tx('{km} km', { km: v.c.kmStr }), label: v.isAir ? '' : v.c.loop ? tx('round trip') : tx('each way') }, { value: String(v.plan.days.length), label: tx('days') }, { value: String(places.length), label: tx('places') }],
-        places, placesLabel: tx('Places').toUpperCase(), stops: v.cardStops, footer: tx('Planned with SafarCo · safarco.vercel.app'), credit: tx('Photo © {handle}', { handle: 'shakeelnaturegraphy' })
+        places, placesLabel: tx('Places').toUpperCase(), stops: v.cardStops, footer: tx('Planned with SafarCo · safarco.pk'), credit: tx('Photo © {handle}', { handle: 'shakeelnaturegraphy' })
       });
       const how = await shareCard(blob, `safarco-${D.id}.jpg`, tx('My trip to {place}, planned with SafarCo', { place: D.name }));
       if (how === 'saved') set({ toast: tx('Trip card saved. Post it from your gallery.') });

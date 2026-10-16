@@ -6,7 +6,8 @@
     "build": "tsc && vite build",
     "test": "vitest run",
     "typecheck": "tsc",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "sitemap": "tsx scripts/sitemap.ts"
   },
   "type": "module",
   "private": true,
