@@ -9,6 +9,7 @@ const AUTUMN_MONTHS = [10, 11];
 /** A place's own photo, used whenever it's the trip's place: Hunza is the view of Rakaposhi. */
 const OWN: Record<string, string> = {
   hunza: '/photos/autumn-hunza.webp',
+  nagar: '/photos/rakaposhi-view-autumn.webp',
   gilgit: '/photos/gilgit-night.webp',
   // The Indus Highway through the date palms between Shikarpur and Sukkur, on the way south to Karachi.
   sukkur: '/photos/sukkur-lansdowne-bridge.webp',
@@ -29,6 +30,9 @@ export const PLACE_PHOTOS: Record<string, string> = {
   'passu|Attabad Lake': '/photos/attabad-summer-boat-ride.webp',
   'hunza|Hussaini Suspension Bridge': '/photos/hussaini-bridge-summer.webp',
   'passu|Hussaini Suspension Bridge': '/photos/hussaini-bridge-summer.webp',
+  'nagar|Rakaposhi View Point, Ghulmet': '/photos/rakaposhi-view-autumn.webp',
+  'nagar|Hoper Glacier viewpoint': '/photos/hoper-glacier-peaks.webp',
+  'hunza|Hoper Glacier, Nagar': '/photos/hoper-glacier-peaks.webp',
   'hunza|Khunjerab Pass': '/photos/khunjerab-border-gate.webp',
   'passu|Khunjerab Pass': '/photos/khunjerab-border-gate.webp',
   'khaplu|Barah Valley': '/photos/barah-pond-autumn.webp',
@@ -111,6 +115,10 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/attabad-summer-boat-ride.webp', caption: 'Summer: a boat ride on the turquoise water of Attabad Lake' },
     { src: '/photos/hussaini-bridge-summer.webp', caption: 'Summer: walking the Hussaini Suspension Bridge, with the Passu Cones ahead' },
     { src: '/photos/hussaini-bridge-peaks.webp', caption: 'Summer: Hussaini bridge over the Hunza river, below snow peaks' },
+    { src: '/photos/rakaposhi-view-autumn.webp', caption: 'Autumn: Rakaposhi above the Hunza river and golden poplars, from the Ghulmet viewpoint' },
+    { src: '/photos/hoper-glacier-peaks.webp', caption: 'Hoper Glacier: the ice field below snow peaks in Nagar' },
+    { src: '/photos/hoper-glacier-ice.webp', caption: 'Hoper Glacier: rows of ice pinnacles up close' },
+    { src: '/photos/hoper-viewpoint-huts.webp', caption: 'Hoper: stone huts and cafés on the ridge above the glacier' },
     { src: '/photos/khunjerab-reflection.webp', caption: 'Khunjerab Pass: snow peaks mirrored in a meltwater pool at 15,397 ft' },
     { src: '/photos/khunjerab-glacier.webp', caption: 'Khunjerab Pass: a glacier between snow-covered peaks near the top' },
     { src: '/photos/khunjerab-border-gate.webp', caption: 'Khunjerab Pass: the China border gate at the end of the Karakoram Highway' }
@@ -127,6 +135,12 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
   ],
   gilgit: [
     { src: '/photos/gilgit-night.webp', caption: 'Gilgit city lights at night, below the mountains' }
+  ],
+  nagar: [
+    { src: '/photos/rakaposhi-view-autumn.webp', caption: 'Autumn: Rakaposhi above the Hunza river and golden poplars, from the Ghulmet viewpoint' },
+    { src: '/photos/hoper-glacier-peaks.webp', caption: 'Hoper Glacier: the ice field below snow peaks in Nagar' },
+    { src: '/photos/hoper-glacier-ice.webp', caption: 'Hoper Glacier: rows of ice pinnacles up close' },
+    { src: '/photos/hoper-viewpoint-huts.webp', caption: 'Hoper: stone huts and cafés on the ridge above the glacier' }
   ],
   naran: [
     { src: '/photos/saif-ul-malook-summer.webp', caption: 'Summer: Lake Saif-ul-Malook under rolling clouds, with snow patches on the slopes' },
