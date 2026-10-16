@@ -14,6 +14,7 @@ const OWN: Record<string, string> = {
   skardu: '/photos/shangrila-autumn.webp',
   shigar: '/photos/shigar-garden-peaks.webp',
   rama: '/photos/rama-meadows-peaks.webp',
+  kalam: '/photos/kalam-river-peaks.webp',
   abbottabad: '/photos/abbottabad-valley-view.webp',
   // The Indus Highway through the date palms between Shikarpur and Sukkur, on the way south to Karachi.
   sukkur: '/photos/sukkur-lansdowne-bridge.webp',
@@ -34,6 +35,7 @@ export const PLACE_PHOTOS: Record<string, string> = {
   'rama|Deosai Plains via Chilam': '/photos/deosai-sheosar-horses.webp',
   'abbottabad|Shimla Hill': '/photos/abbottabad-valley-view.webp',
   'thandiani|Shimla Hill': '/photos/abbottabad-valley-view.webp',
+  'kalam|Kalam bazaar & riverside': '/photos/kalam-river-peaks.webp',
   'rama|Minimarg': '/photos/minimarg-village-valley.webp',
   'rama|Rama Meadows': '/photos/rama-meadows-peaks.webp',
   'shigar|Shigar Fort': '/photos/shigar-garden-peaks.webp',
@@ -202,6 +204,12 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/abbottabad-valley-view.webp', caption: 'Abbottabad valley from Shimla Hill, through the pines' },
     { src: '/photos/abbottabad-public-park.webp', caption: 'Winter morning: the old Cantonment Reading Room in Abbottabad’s Public Park' },
     { src: '/photos/abbottabad-road-hills.webp', caption: 'Driving into Abbottabad, with the hills of Hazara behind' }
+  ],
+  kalam: [
+    { src: '/photos/kalam-river-peaks.webp', caption: 'Summer: the Swat river at Kalam, with snow peaks at the head of the valley' },
+    { src: '/photos/kalam-forest-river.webp', caption: 'Summer: evening light on the cedar forest along the river near Kalam' },
+    { src: '/photos/kalam-peaks-town.webp', caption: 'Summer: jagged snow peaks above the forested ridges around Kalam' },
+    { src: '/photos/kalam-village-cedars.webp', caption: 'Summer: tall cedars and a village below the snow peaks of Kalam valley' }
   ],
   naran: [
     { src: '/photos/saif-ul-malook-summer.webp', caption: 'Summer: Lake Saif-ul-Malook under rolling clouds, with snow patches on the slopes' },
