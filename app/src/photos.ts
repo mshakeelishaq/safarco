@@ -20,6 +20,7 @@ const OWN: Record<string, string> = {
   muzaffarabad: '/photos/muzaffarabad-domel-confluence.webp',
   neelum: '/photos/ratti-gali-lake-flowers.webp',
   rawalakot: '/photos/banjosa-lake-autumn.webp',
+  ziarat: '/photos/ziarat-residency.webp',
   abbottabad: '/photos/abbottabad-valley-view.webp',
   // The Indus Highway through the date palms between Shikarpur and Sukkur, on the way south to Karachi.
   sukkur: '/photos/sukkur-lansdowne-bridge.webp',
@@ -48,6 +49,7 @@ export const PLACE_PHOTOS: Record<string, string> = {
   'muzaffarabad|Domel river confluence': '/photos/muzaffarabad-domel-confluence.webp',
   'muzaffarabad|Leepa Valley': '/photos/leepa-valley-fields.webp',
   'neelum|Ratti Gali Lake': '/photos/ratti-gali-lake-flowers.webp',
+  'ziarat|Quaid-e-Azam Residency': '/photos/ziarat-residency.webp',
   'rawalakot|Banjosa Lake': '/photos/banjosa-lake-autumn.webp',
   'neelum|Sharda': '/photos/sharda-temple-snow.webp',
   'neelum|Keran': '/photos/keran-river-houses.webp',
@@ -277,6 +279,12 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/rawalakot-suspension-bridge.webp', caption: 'A yellow suspension bridge over the river, on the road to Rawalakot' },
     { src: '/photos/rawalakot-road-winter.webp', caption: 'Winter: a tree-lined road into Rawalakot under bare branches' },
     { src: '/photos/rawalakot-dawn.webp', caption: 'Dawn over Rawalakot town and the hills of Poonch' }
+  ],
+  ziarat: [
+    { src: '/photos/ziarat-residency.webp', caption: 'Spring: the Quaid-e-Azam Residency in Ziarat, its green wooden verandas among the trees' },
+    { src: '/photos/ziarat-foxtail-lilies.webp', caption: 'Spring: yellow foxtail lilies in bloom across the Ziarat valley' },
+    { src: '/photos/ziarat-juniper-valley.webp', caption: 'Spring: wildflower meadows below the juniper-covered hills of Ziarat' },
+    { src: '/photos/ziarat-gate.webp', caption: 'Bab-e-Ziarat, the gateway on the road into Ziarat through the juniper hills' }
   ],
   naran: [
     { src: '/photos/saif-ul-malook-summer.webp', caption: 'Summer: Lake Saif-ul-Malook under rolling clouds, with snow patches on the slopes' },
