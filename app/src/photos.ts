@@ -21,6 +21,7 @@ const OWN: Record<string, string> = {
   neelum: '/photos/ratti-gali-lake-flowers.webp',
   rawalakot: '/photos/banjosa-lake-autumn.webp',
   ziarat: '/photos/ziarat-residency.webp',
+  peshawar: '/photos/peshawar-islamia-college-aerial.webp',
   abbottabad: '/photos/abbottabad-valley-view.webp',
   // The Indus Highway through the date palms between Shikarpur and Sukkur, on the way south to Karachi.
   sukkur: '/photos/sukkur-lansdowne-bridge.webp',
@@ -49,6 +50,7 @@ export const PLACE_PHOTOS: Record<string, string> = {
   'muzaffarabad|Domel river confluence': '/photos/muzaffarabad-domel-confluence.webp',
   'muzaffarabad|Leepa Valley': '/photos/leepa-valley-fields.webp',
   'neelum|Ratti Gali Lake': '/photos/ratti-gali-lake-flowers.webp',
+  'peshawar|Islamia College': '/photos/peshawar-islamia-college-aerial.webp',
   'ziarat|Quaid-e-Azam Residency': '/photos/ziarat-residency.webp',
   'rawalakot|Banjosa Lake': '/photos/banjosa-lake-autumn.webp',
   'neelum|Sharda': '/photos/sharda-temple-snow.webp',
@@ -289,6 +291,9 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/ziarat-foxtail-lilies.webp', caption: 'Spring: yellow foxtail lilies in bloom across the Ziarat valley' },
     { src: '/photos/ziarat-juniper-valley.webp', caption: 'Spring: wildflower meadows below the juniper-covered hills of Ziarat' },
     { src: '/photos/ziarat-gate.webp', caption: 'Bab-e-Ziarat, the gateway on the road into Ziarat through the juniper hills' }
+  ],
+  peshawar: [
+    { src: '/photos/peshawar-islamia-college-aerial.webp', caption: 'Islamia College Peshawar from above: the red-brick main hall, its gardens and the campus mosque' }
   ],
   naran: [
     { src: '/photos/saif-ul-malook-snow-peaks.webp', caption: 'Lake Saif-ul-Malook after fresh snow, the valley of Malika Parbat mirrored in green water' },
