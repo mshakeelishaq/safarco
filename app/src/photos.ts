@@ -215,6 +215,7 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
   abbottabad: [
     { src: '/photos/abbottabad-valley-view.webp', caption: 'Abbottabad valley from Shimla Hill, through the pines' },
     { src: '/photos/abbottabad-public-park.webp', caption: 'Winter morning: the old Cantonment Reading Room in Abbottabad’s Public Park' },
+    { src: '/photos/umbrella-waterfall.webp', caption: 'Summer: Umbrella Waterfall, water spilling over mossy rock domes, a short drive from Abbottabad' },
     { src: '/photos/abbottabad-road-hills.webp', caption: 'Driving into Abbottabad, with the hills of Hazara behind' }
   ],
   kalam: [
