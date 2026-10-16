@@ -44,15 +44,12 @@ if (import.meta.env.PROD) {
   if ('serviceWorker' in navigator) addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(() => { /* offline support unavailable */ }); });
 }
 
-// The splash in index.html shows while the app loads: the full drive on the first open of a
-// visit, a short one after that, and none on the admin and legal pages.
+// The splash in index.html shows while SafarCo opens: the car drives up the S on every open of the
+// planner, the installed app and the website (a tap skips it), and not on admin, legal, follow or split pages.
 const splash = document.getElementById('splash');
 if (splash) {
-  let seen = false;
-  try { seen = sessionStorage.getItem('safarco-splash') === '1'; sessionStorage.setItem('safarco-splash', '1'); } catch { /* storage blocked */ }
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (seen) splash.classList.add('sp-quick');
-  const min = Page !== App ? 0 : seen || still ? 500 : 6000;
+  const min = Page !== App && Page !== Site ? 0 : still ? 800 : 6000;
   const hide = () => { splash.classList.add('sp-hide'); setTimeout(() => splash.remove(), 500); };
   setTimeout(hide, Math.max(0, min - performance.now()));
   // In a hurry? A tap anywhere skips it.
