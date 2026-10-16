@@ -31,6 +31,7 @@ export const PLACE_PHOTOS: Record<string, string> = {
   'passu|Hussaini Suspension Bridge': '/photos/hussaini-bridge-summer.webp',
   'hunza|Khunjerab Pass': '/photos/khunjerab-border-gate.webp',
   'passu|Khunjerab Pass': '/photos/khunjerab-border-gate.webp',
+  'khaplu|Barah Valley': '/photos/barah-pond-autumn.webp',
   'naran|Lake Saif-ul-Malook': '/photos/saif-ul-malook-summer.webp',
   'naran|Babusar Top': '/photos/babusar-top-road.webp',
   'nathia|Mushkpuri Top': '/photos/mushkpuri-summer.webp',
@@ -147,6 +148,7 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
   ],
   khaplu: [
     { src: '/photos/khaplu-palace-autumn.webp', caption: 'Autumn: Khaplu Palace (Yabgo Khar) under golden chinar and poplar, late October to early November' },
+    { src: '/photos/barah-pond-autumn.webp', caption: 'Autumn: a clear stream spilling into a still pond under golden willows in Barah Valley' },
     { src: '/photos/keris-bridge-autumn.webp', caption: 'On the way: Keris bridge over the Shyok in autumn, with golden poplars on the far bank' },
     { src: '/photos/keris-bridge-reflection.webp', caption: 'On the way: poplars and the Keris bridge reflected in the river' },
     { src: '/photos/keris-bridge-sand.webp', caption: 'On the way: wind-rippled sand on the riverbank below Keris bridge' }
