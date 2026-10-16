@@ -29,6 +29,7 @@ const OWN: Record<string, string> = {
 };
 /** Our photo of one place at a destination, by "destination|place name". */
 export const PLACE_PHOTOS: Record<string, string> = {
+  'rama|Minimarg': '/photos/minimarg-village-valley.webp',
   'rama|Rama Meadows': '/photos/rama-meadows-peaks.webp',
   'shigar|Shigar Fort': '/photos/shigar-garden-peaks.webp',
   'skardu|Shigar Fort': '/photos/shigar-garden-peaks.webp',
@@ -182,7 +183,11 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/chilam-lake-summer.webp', caption: 'Summer: a lake in the high meadows past Chilam, on the road to Minimarg' },
     { src: '/photos/minimarg-road-switchbacks.webp', caption: 'Summer: the road zigzagging down from Burzil Pass towards Minimarg' },
     { src: '/photos/burzil-road-summer.webp', caption: 'Summer: the road climbing to Burzil Pass through green alpine slopes' },
-    { src: '/photos/burzil-top-sign.webp', caption: 'Burzil Top at 13,808 ft, the army checkpost on the way to Minimarg' }
+    { src: '/photos/burzil-top-sign.webp', caption: 'Burzil Top at 13,808 ft, the army checkpost on the way to Minimarg' },
+    { src: '/photos/minimarg-village-valley.webp', caption: 'Summer: Minimarg village and its fields, in a valley of pine slopes' },
+    { src: '/photos/minimarg-wooden-village.webp', caption: 'Summer: wooden houses and haystacks among the fields at Minimarg' },
+    { src: '/photos/minimarg-river-houses.webp', caption: 'Summer: log houses above the stream at Minimarg' },
+    { src: '/photos/minimarg-forest-evening.webp', caption: 'Summer: evening light over the forests around Minimarg' }
   ],
   naran: [
     { src: '/photos/saif-ul-malook-summer.webp', caption: 'Summer: Lake Saif-ul-Malook under rolling clouds, with snow patches on the slopes' },
