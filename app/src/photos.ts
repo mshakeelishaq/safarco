@@ -36,6 +36,7 @@ export const PLACE_PHOTOS: Record<string, string> = {
   'rama|Deosai Plains via Chilam': '/photos/deosai-sheosar-horses.webp',
   'abbottabad|Shimla Hill': '/photos/abbottabad-valley-view.webp',
   'thandiani|Shimla Hill': '/photos/abbottabad-valley-view.webp',
+  'kalam|Mahodand Lake': '/photos/mahodand-lake-summer.webp',
   'kalam|Kalam bazaar & riverside': '/photos/kalam-river-peaks.webp',
   'phander|Phander Lake': '/photos/phander-lake-poplars.webp',
   'phander|Phander village': '/photos/phander-valley-fields.webp',
@@ -212,6 +213,7 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/abbottabad-road-hills.webp', caption: 'Driving into Abbottabad, with the hills of Hazara behind' }
   ],
   kalam: [
+    { src: '/photos/mahodand-lake-summer.webp', caption: 'Summer: Mahodand Lake, pines and rock peaks mirrored in green water above Kalam' },
     { src: '/photos/kalam-river-peaks.webp', caption: 'Summer: the Swat river at Kalam, with snow peaks at the head of the valley' },
     { src: '/photos/kalam-forest-river.webp', caption: 'Summer: evening light on the cedar forest along the river near Kalam' },
     { src: '/photos/kalam-peaks-town.webp', caption: 'Summer: jagged snow peaks above the forested ridges around Kalam' },
