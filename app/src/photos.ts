@@ -42,6 +42,7 @@ export const PLACE_PHOTOS: Record<string, string> = {
   'phander|Phander Lake': '/photos/phander-lake-poplars.webp',
   'phander|Phander village': '/photos/phander-valley-fields.webp',
   'gilgit|Gilgit polo ground': '/photos/gilgit-polo-statue.webp',
+  'muzaffarabad|Leepa Valley': '/photos/leepa-valley-fields.webp',
   'rama|Minimarg': '/photos/minimarg-village-valley.webp',
   'rama|Rama Meadows': '/photos/rama-meadows-peaks.webp',
   'shigar|Shigar Fort': '/photos/shigar-garden-peaks.webp',
@@ -235,6 +236,13 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
   chitral: [
     { src: '/photos/chitral-valley-aerial.webp', caption: 'Spring: the green Chitral valley from above, below red rock and snow peaks' },
     { src: '/photos/chitral-green-hills.webp', caption: 'Spring: green hills and jeep tracks in the mountains of Chitral, in the evening light' }
+  ],
+  muzaffarabad: [
+    { src: '/photos/leepa-valley-fields.webp', caption: 'Summer: Leepa Valley, rice fields and wooden houses under monsoon clouds' },
+    { src: '/photos/leepa-maize-fields.webp', caption: 'Late summer: maize and ripening rice in the fields of Leepa' },
+    { src: '/photos/leepa-road-terraces.webp', caption: 'On the way to Leepa: green terraced fields catching the evening light' },
+    { src: '/photos/leepa-road-hillside.webp', caption: 'On the way to Leepa: villages scattered across a forested hillside' },
+    { src: '/photos/leepa-road-village.webp', caption: 'On the way to Leepa: a village among fields and orchards, the road winding through' }
   ],
   naran: [
     { src: '/photos/saif-ul-malook-summer.webp', caption: 'Summer: Lake Saif-ul-Malook under rolling clouds, with snow patches on the slopes' },
