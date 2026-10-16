@@ -32,6 +32,16 @@ describe('/api/route', () => {
     expect((await get(route, '/api/route?from=74.34,31.55&to=72.93,36.17&via=1,2')).status).toBe(400);
   });
 
+  it('falls back when a town on the way is off the road, then to start and end only', async () => {
+    let n = 0;
+    vi.stubGlobal('fetch', vi.fn(async (url: string, init?: RequestInit) => { calls.push({ url, init }); n++;
+      return n < 3 ? new Response('{"error":{"code":2010}}', { status: 404 }) : new Response(JSON.stringify({ features: [{ properties: { summary: { distance: 1000, duration: 3600 } }, geometry: { coordinates: [[74.34, 31.55], [72.93, 36.17]] } }] })); }));
+    const r = await get(route, '/api/route?from=74.34,31.55&to=72.93,36.17&via=73.6,34.9');
+    expect(r.status).toBe(200);
+    expect(JSON.parse(String(calls[1].init?.body)).radiuses).toEqual([5000, -1, 5000]);
+    expect(JSON.parse(String(calls[2].init?.body)).coordinates).toHaveLength(2);
+  });
+
   it('rejects points outside Pakistan and works without a key by failing cleanly', async () => {
     expect((await get(route, '/api/route?from=1,2&to=3,4')).status).toBe(400);
     delete process.env.ORS_API_KEY;

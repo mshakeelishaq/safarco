@@ -85,7 +85,8 @@ function LiveMap({ v, onFail, fill }: { v: View; onFail: () => void; fill?: bool
       (m.getSource('fuel') as import('maplibre-gl').GeoJSONSource | undefined)?.setData({ type: 'FeatureCollection', features: v.fuelPins.map(p => ({ type: 'Feature', properties: { text: p.text }, geometry: { type: 'Point', coordinates: [p.lon, p.lat] } })) } as never);
     }
     const key = `${o.n}|${s.corridor}|${(s.extra || []).join()}|${s.startDate}|${s.days}|${s.vehicle}|${r ? r.status : ''}`; if (key === st.current.key) return; st.current.key = key;
-    const coords: [number, number][] = rm.loop ? rm.line.map(p => [p[1], p[0]]) : !rm.isAir && r && r.status === 'ok' ? r.data.coords : rm.dots.map(d => [+d.p[1], +d.p[0]]);
+    // Until the real road loads (or offline), the line still goes through every town on the plan's roads.
+    const coords: [number, number][] = rm.loop ? rm.line.map(p => [p[1], p[0]]) : !rm.isAir && r && r.status === 'ok' ? r.data.coords : rm.isAir ? rm.dots.map(d => [+d.p[1], +d.p[0]]) : rm.line.map(p => [p[1], p[0]]);
     (m.getSource('route') as import('maplibre-gl').GeoJSONSource).setData({ type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: coords } });
     m.setPaintProperty('route-line', 'line-dasharray', rm.isAir ? [2, 1.5] : undefined);
     st.current.markers.forEach(x => x.remove());

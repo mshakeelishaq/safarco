@@ -21,11 +21,17 @@ export async function GET(request: Request) {
   const via = viaRaw.map(point);
   if (viaRaw.length > 23 || via.some(v => !v)) return fail(400, 'via must be up to 23 lon,lat points inside Pakistan');
   const coordinates = [from, ...(via as number[][]), to];
-  const r = await fetch('https://api.heigit.org/openrouteservice/v2/directions/driving-car/geojson', {
+  // A town a little way off a mapped road makes OpenRouteService refuse the whole route, so try:
+  // 1) every point within 5 km of a road, 2) the towns snapped to their nearest road at any distance,
+  // 3) start and end only. The first that works is used.
+  const ask = (pts: number[][], radiuses: number[]) => fetch('https://api.heigit.org/openrouteservice/v2/directions/driving-car/geojson', {
     method: 'POST',
     headers: { Authorization: key, 'Content-Type': 'application/json', Accept: 'application/geo+json' },
-    body: JSON.stringify({ coordinates, radiuses: coordinates.map(() => 5000) })
+    body: JSON.stringify({ coordinates: pts, radiuses })
   }).catch(() => null);
+  let r = await ask(coordinates, coordinates.map(() => 5000));
+  if (r && !r.ok && r.status !== 429 && via.length) r = await ask(coordinates, coordinates.map((_, i) => i === 0 || i === coordinates.length - 1 ? 5000 : -1));
+  if (r && !r.ok && r.status !== 429 && via.length) r = await ask([from, to], [5000, 5000]);
   if (!r) return fail(502, 'Routing service unreachable');
   if (r.status === 429) return fail(429, 'Routing limit reached for today');
   if (!r.ok) return fail(502, `Routing failed (${r.status})`);
