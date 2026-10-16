@@ -29,6 +29,8 @@ const OWN: Record<string, string> = {
 };
 /** Our photo of one place at a destination, by "destination|place name". */
 export const PLACE_PHOTOS: Record<string, string> = {
+  'skardu|Deosai Plains': '/photos/deosai-sheosar-horses.webp',
+  'rama|Deosai Plains via Chilam': '/photos/deosai-sheosar-horses.webp',
   'rama|Minimarg': '/photos/minimarg-village-valley.webp',
   'rama|Rama Meadows': '/photos/rama-meadows-peaks.webp',
   'shigar|Shigar Fort': '/photos/shigar-garden-peaks.webp',
@@ -187,7 +189,11 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/minimarg-village-valley.webp', caption: 'Summer: Minimarg village and its fields, in a valley of pine slopes' },
     { src: '/photos/minimarg-wooden-village.webp', caption: 'Summer: wooden houses and haystacks among the fields at Minimarg' },
     { src: '/photos/minimarg-river-houses.webp', caption: 'Summer: log houses above the stream at Minimarg' },
-    { src: '/photos/minimarg-forest-evening.webp', caption: 'Summer: evening light over the forests around Minimarg' }
+    { src: '/photos/minimarg-forest-evening.webp', caption: 'Summer: evening light over the forests around Minimarg' },
+    { src: '/photos/deosai-sheosar-horses.webp', caption: 'Over Deosai to Skardu: horses grazing by Sheosar Lake on the Deosai Plains' },
+    { src: '/photos/deosai-storm-peaks.webp', caption: 'Over Deosai to Skardu: storm clouds over the Deosai Plains, snow peaks on the horizon' },
+    { src: '/photos/deosai-plains-clouds.webp', caption: 'Over Deosai to Skardu: low cloud over the open grassland of Deosai' },
+    { src: '/photos/deosai-stream.webp', caption: 'Over Deosai to Skardu: a stream winding across the Deosai Plains' }
   ],
   naran: [
     { src: '/photos/saif-ul-malook-summer.webp', caption: 'Summer: Lake Saif-ul-Malook under rolling clouds, with snow patches on the slopes' },
@@ -229,6 +235,10 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/skardu-city-autumn-mist.webp', caption: 'Autumn: morning mist over the Skardu valley and the main road through town' },
     { src: '/photos/katpana-mist-poplars.webp', caption: 'Autumn: dawn mist over poplars and a mosque, seen from the Katpana cold desert' },
     { src: '/photos/katpana-dunes.webp', caption: 'Katpana cold desert: sand dunes at sunrise, just outside Skardu' },
+    { src: '/photos/deosai-sheosar-horses.webp', caption: 'Day trip to Deosai: horses grazing by Sheosar Lake on the Deosai Plains' },
+    { src: '/photos/deosai-storm-peaks.webp', caption: 'Day trip to Deosai: storm clouds over the Deosai Plains, snow peaks on the horizon' },
+    { src: '/photos/deosai-plains-clouds.webp', caption: 'Day trip to Deosai: low cloud over the open grassland of Deosai' },
+    { src: '/photos/deosai-stream.webp', caption: 'Day trip to Deosai: a stream winding across the Deosai Plains' },
     { src: '/photos/shigar-garden-peaks.webp', caption: 'Day trip to Shigar: the royal garden at Shigar Fort, red and gold trees below snow peaks' },
     { src: '/photos/shigar-garden-autumn.webp', caption: 'Day trip to Shigar: sunlight through the orchard trees in the Shigar Fort garden' },
     { src: '/photos/shigar-lane-autumn.webp', caption: 'Day trip to Shigar: the lane beside the stream outside Shigar Fort, under golden poplars' },
