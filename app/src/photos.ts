@@ -13,7 +13,7 @@ const OWN: Record<string, string> = {
   gilgit: '/photos/gilgit-night.webp',
   skardu: '/photos/shangrila-autumn.webp',
   shigar: '/photos/shigar-garden-peaks.webp',
-  rama: '/photos/rama-meadows-summer.webp',
+  rama: '/photos/rama-meadows-peaks.webp',
   // The Indus Highway through the date palms between Shikarpur and Sukkur, on the way south to Karachi.
   sukkur: '/photos/sukkur-lansdowne-bridge.webp',
   kundmalir: '/photos/kund-malir-beach.webp',
@@ -29,7 +29,7 @@ const OWN: Record<string, string> = {
 };
 /** Our photo of one place at a destination, by "destination|place name". */
 export const PLACE_PHOTOS: Record<string, string> = {
-  'rama|Rama Meadows': '/photos/rama-meadows-summer.webp',
+  'rama|Rama Meadows': '/photos/rama-meadows-peaks.webp',
   'shigar|Shigar Fort': '/photos/shigar-garden-peaks.webp',
   'skardu|Shigar Fort': '/photos/shigar-garden-peaks.webp',
   'skardu|Katpana Cold Desert': '/photos/katpana-dunes.webp',
@@ -174,10 +174,11 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/shigar-lane-autumn.webp', caption: 'Autumn: the lane beside the stream outside Shigar Fort, under golden poplars' }
   ],
   rama: [
-    { src: '/photos/rama-meadows-summer.webp', caption: 'Summer: Rama Meadows, pine forest below the glaciers of Nanga Parbat' },
-    { src: '/photos/astore-terraces-summer.webp', caption: 'Summer: terraced fields in the morning sun, on the way up to Rama' },
-    { src: '/photos/astore-road-summer.webp', caption: 'Summer: the road winding through green fields above Astore' },
-    { src: '/photos/astore-river-summer.webp', caption: 'Summer: the Astore river along the road from the Karakoram Highway' }
+    { src: '/photos/rama-meadows-peaks.webp', caption: 'Summer: Rama Meadows, pine forest below the glaciers of Nanga Parbat' },
+    { src: '/photos/rama-fields-evening.webp', caption: 'Summer: evening light on the fields and pines below Rama' },
+    { src: '/photos/astore-river-bridge.webp', caption: 'Summer: a log footbridge over the clear Astore river' },
+    { src: '/photos/astore-valley-village.webp', caption: 'Summer: a village in Astore valley below the mountains' },
+    { src: '/photos/astore-village-hillside.webp', caption: 'Summer: colourful houses on a green hillside in Astore' }
   ],
   naran: [
     { src: '/photos/saif-ul-malook-summer.webp', caption: 'Summer: Lake Saif-ul-Malook under rolling clouds, with snow patches on the slopes' },
