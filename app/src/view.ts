@@ -5,7 +5,7 @@ import { P as PR, HIDE_SPOTS, SECURITY_AREAS, riskOf, HAVE_VEHICLE, EDGES, MODES
 import { FOOD } from './engine/food';
 import { dismissInstall, offerInstallNow, startInstall, wasDismissed } from './install';
 import { foodTipsFor } from './foodtips';
-import { pickAt, roadParts, roadSig, roadsOnlyIn, routeOptions, setRoutePick, type Trip, legClosure, liveRoadKey, AIR_IN, bestAirport, closedOnRoute, flyNorth, viaIsb, DAY_OUT_H, SHORT2_H, MAX_DRIVE_H, plannedJeeps, roomPlan, circuit, sideTrips, dayTripOptions, tripFrom, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
+import { drivingDays, pickAt, roadParts, roadSig, roadsOnlyIn, routeOptions, setRoutePick, type Trip, legClosure, liveRoadKey, AIR_IN, bestAirport, closedOnRoute, flyNorth, viaIsb, DAY_OUT_H, SHORT2_H, MAX_DRIVE_H, plannedJeeps, roomPlan, circuit, sideTrips, dayTripOptions, tripFrom, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
 import { clock, dayLabel, dur, fmt, fmtN, isoAdd, isoOf, isoOff, kShort, mapsQ, mon } from './engine/format';
 import { LIVE, fxRate, placesKey, routeKey, type Spot } from './engine/live';
 import { sunTimes } from './engine/sun';
@@ -699,6 +699,19 @@ export function buildView(s: AppState, api: Api) {
             apply: () => set({ extra: (s.extra || []).filter(k => k !== d.side!.id), dayTrips: s.dayTrips.filter(k => k !== d.side!.id), dayOpen: null, toast: t('Day trip removed. That day is free again.') }) }] }
           : d.roadNight ? (() => {
             const rn = d.roadNight!, key = (n: string) => `${rn.dir}:${n}`;
+            if (rn.next) {
+              // Sleep somewhere else tonight: the nights after it are worked out again from there.
+              const others = s.breaks.filter(b => !b.startsWith(rn.dir + ':')), now = drivingDays(s), endTown = rn.dir === 'out' ? DST(s.corridor).town : cityOr(s.origin).n;
+              const night = (node: string) => { const breaks = [...others, ...(rn.keep || []).map(key), ...(node ? [key(node)] : [])]; return { breaks, days: Math.min(14, Math.max(2, s.days + drivingDays({ ...s, breaks }) - now)) }; };
+              const more = (dd: number) => dd === 1 ? ' ' + t('(+1 day)') : dd > 1 ? ' ' + t('(+{n} days)', { n: dd }) : dd === -1 ? ' ' + t('(−1 day)') : dd < -1 ? ' ' + t('(−{n} days)', { n: -dd }) : '';
+              const chips = rn.next.map(x => {
+                const p = night(x.node), town = x.node ? x.town : endTown;
+                return { label: t('{place} · {time}', { place: town, time: dur(x.h) }) + more(p.days - s.days), apply: () => set({ ...p, dayOpen: null, toast: x.node ? t('A night in {place} is in the plan. The days after it follow on from there.', { place: town }) : t('Straight on to {place}.', { place: town }) }) };
+              });
+              if (rn.chosen && !rn.next.some(x => !x.node)) { const p = night(''); chips.push({ label: t('Let SafarCo choose') + more(p.days - s.days), apply: () => set({ ...p, dayOpen: null, toast: t('SafarCo picks the nights on the road from here.') }) }); }
+              const tonight = rn.tonight ? NODE_INFO[rn.tonight]?.[0] || rn.tonight : endTown;
+              return chips.length ? { text: rn.tonight ? t('Tonight in {place}. Or end today’s drive in:', { place: tonight }) : t('Today’s drive ends in {place}. Or stop for the night in:', { place: tonight }), chips } : null;
+            }
             if (rn.chosen) return { text: t('Night in {place}, your stop on the road.', { place: d.stay?.town || rn.chosen }), chips: [{ label: t('Drive through (−1 day)'), apply: () => set({ breaks: s.breaks.filter(b => b !== key(rn.chosen!)), days: Math.max(2, s.days - 1), dayOpen: null, toast: t('No night on the road here.') }) }] };
             if (!rn.options.length) return null;
             return { text: t('Long drive? Break it with a night in (+1 day):'), chips: rn.options.map(o => ({ label: o.town, apply: () => set({ breaks: [...s.breaks, key(o.node)], days: Math.min(14, s.days + 1), dayOpen: null, toast: t('A night in {place} is in the plan.', { place: o.town }) }) })) };

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildPlan, costFor, roadsOnlyIn, routeOptions, trip, type TripState } from '../src/engine/engine';
+import { buildPlan, costFor, drivingDays, roadsOnlyIn, routeOptions, trip, type TripState } from '../src/engine/engine';
 
 const s = (origin: string, dest: string, roadPick: TripState['roadPick'] = null): TripState => ({ origin, mode: 'know', dest, corridor: dest, startDate: '2027-07-10', days: 6, depart: null, vehicle: 'sedan', tier: 'standard', adults: 2, kids: 0, elders: 0, groupSize: 2, rooms: 'separate', cap: 300000, roadPick });
 const roads = (o: string, d: string) => trip(d, o, 7).legs.map(l => l.road);
@@ -30,5 +30,21 @@ describe('which road', () => {
     // A pick for another trip is ignored, and nothing leaks into plain trip() calls afterwards.
     expect(day1(s('Lahore', 'hunza', pick))).not.toContain('GT Road (N-5)');
     expect(roads('Lahore', 'naran')).toContain('M-2');
+  });
+});
+
+describe('nights on the road', () => {
+  const plan = (breaks: string[], days = 8) => buildPlan({ ...s('Lahore', 'hunza'), days, breaks }).days.filter(d => d.track).map(d => d.title);
+  it('a night in Mansehra moves the next night on, instead of a short day to Naran', () => {
+    expect(plan([], 7).slice(0, 2)).toEqual(['Lahore → Naran', 'Naran → Karimabad, Hunza']);
+    expect(plan(['out:MNS']).slice(0, 3)).toEqual(['Lahore → Mansehra', 'Mansehra → Chilas', 'Chilas → Karimabad, Hunza']);
+    // The traveller can still choose Naran for the second night.
+    expect(plan(['out:MNS', 'out:NRN']).slice(0, 3)).toEqual(['Lahore → Mansehra', 'Mansehra → Naran', 'Naran → Karimabad, Hunza']);
+  });
+  it('offers the towns a day can end in, and counts the days', () => {
+    const d2 = buildPlan({ ...s('Lahore', 'hunza'), days: 8, breaks: ['out:MNS'] }).days[1].roadNight!;
+    expect(d2.tonight).toBe('CHL');
+    expect(d2.next!.map(x => x.town)).toContain('Naran');
+    expect(drivingDays({ ...s('Lahore', 'hunza'), breaks: ['out:MNS'] })).toBe(drivingDays({ ...s('Lahore', 'hunza'), breaks: ['out:MNS', 'out:NRN'] }));
   });
 });
