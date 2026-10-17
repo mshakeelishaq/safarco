@@ -13,6 +13,10 @@ The owner sends photos with a place and season. Use only the owner's own photos,
 It shrinks each photo to ~1300 px WebP under 250 KB, lists it in `app/src/photos-added.json`,
 checks the build and tests, bumps the service worker, commits and pushes. Leave out `--ship` to try it first.
 
+## Logo
+The logo family (main, .pk, badge, mark) is drawn by `python3 app/scripts/brand.py` into `app/public/brand/` and
+`app/src/components/logo-paths.ts`; the brand guide is `app/public/brand/safarco-brand-guide.png`.
+
 ## Rules
 - Every `t()` string needs Roman Urdu in `app/src/i18n/ur.ts` (a test checks).
 - No em dashes in user-facing text.
