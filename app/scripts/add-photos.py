@@ -1,0 +1,129 @@
+#!/usr/bin/env python3
+"""Add photos to SafarCo in one go: shrink to WebP, register them, and (with --ship) build, commit and push.
+
+Usage:
+  python3 scripts/add-photos.py photos.txt [--ship "Commit message"]
+
+photos.txt has one photo per line, fields split by "|":
+  /path/to/photo.jpg | hunza | gallery,main | Autumn: Baltit Fort above the poplars
+
+  - destination id: hunza, naran, skardu… (as in the destination guides)
+  - uses, comma separated (every photo goes in the gallery unless "nogallery"):
+      main            the destination's main photo
+      spring|summer|autumn|winter   main photo for that season
+      place:Attabad Lake            the photo for a place in the guide ("hunza|Attabad Lake")
+      stop:Balakot                  the photo for a stop on the road
+      first                         put it first in the gallery
+      nogallery                     don't add it to the gallery
+  - caption, shown under the photo in the gallery
+Blank lines and lines starting with # are skipped.
+
+Photos become ~1300 px WebP under ~250 KB in public/photos, and are listed in src/photos-added.json
+(read by src/photos.ts). RAW files (ARW, NEF, CR2, DNG) use the full-size JPEG the camera stores inside them.
+"""
+import io, json, os, re, subprocess, sys
+from PIL import Image, ImageOps
+
+APP = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OUT = os.path.join(APP, 'public', 'photos')
+REG = os.path.join(APP, 'src', 'photos-added.json')
+MAX_SIDE, MAX_KB = 1300, 250
+SEASONS = {'spring', 'summer', 'autumn', 'winter'}
+
+
+def dest_ids():
+    ids = set()
+    for f in ('data.ts', 'imported.ts'):
+        p = os.path.join(APP, 'src', 'engine', f)
+        if os.path.exists(p):
+            ids |= set(re.findall(r"\bid: '([a-z0-9-]+)'", open(p, encoding='utf8').read()))
+    return ids
+
+
+def open_image(path):
+    try:
+        return Image.open(path)
+    except Exception:
+        # A RAW file: use the biggest JPEG stored inside it.
+        data = open(path, 'rb').read()
+        best, i = b'', 0
+        while True:
+            s = data.find(b'\xff\xd8\xff', i)
+            if s < 0: break
+            e = data.find(b'\xff\xd9', s)
+            while e > 0 and e - s < len(best):
+                e = data.find(b'\xff\xd9', e + 2)
+            if e < 0: break
+            if e + 2 - s > len(best): best = data[s:e + 2]
+            i = s + 3
+        if len(best) < 50_000: raise SystemExit(f'Can’t read {path}: not a photo this script knows')
+        return Image.open(io.BytesIO(best))
+
+
+def shrink(path, name):
+    im = ImageOps.exif_transpose(open_image(path)).convert('RGB')
+    im.thumbnail((MAX_SIDE, MAX_SIDE), Image.LANCZOS)
+    out = os.path.join(OUT, name + '.webp')
+    for q in (58, 54, 50, 46, 42, 38):
+        im.save(out, 'WEBP', quality=q, method=6)
+        if os.path.getsize(out) <= MAX_KB * 1024: break
+    return os.path.getsize(out) // 1024, im.size
+
+
+def slug(dest, caption, taken):
+    words = re.sub(r'^(spring|summer|autumn|winter|day trip[^:]*):\s*', '', caption.lower())
+    words = [w for w in re.findall(r'[a-z0-9]+', words) if w not in {'the', 'a', 'an', 'of', 'and', 'in', 'on', 'at', 'to', 'by', 'from', 'with', 'its'}]
+    base = '-'.join([dest] + [w for w in words if w != dest][:3]) or dest
+    name, n = base, 2
+    while name in taken or os.path.exists(os.path.join(OUT, name + '.webp')):
+        name, n = f'{base}-{n}', n + 1
+    taken.add(name)
+    return name
+
+
+def main():
+    args = sys.argv[1:]
+    if not args: raise SystemExit(__doc__)
+    ship = None
+    if '--ship' in args:
+        k = args.index('--ship'); ship = args[k + 1] if k + 1 < len(args) else 'Add photos'; del args[k:k + 2]
+    lines = [l.strip() for l in open(args[0], encoding='utf8') if l.strip() and not l.strip().startswith('#')]
+    reg = json.load(open(REG)) if os.path.exists(REG) else {}
+    for k in ('own', 'seasonal', 'gallery', 'place', 'stop'): reg.setdefault(k, {})
+    ids, taken, done = dest_ids(), set(), []
+    for line in lines:
+        parts = [p.strip() for p in line.split('|')]
+        if len(parts) < 4: raise SystemExit(f'Need 4 fields (photo | destination | uses | caption): {line}')
+        path, dest, uses, caption = parts[0], parts[1], [u.strip() for u in parts[2].split(',') if u.strip()], '|'.join(parts[3:])
+        if dest not in ids: raise SystemExit(f'Unknown destination "{dest}" in: {line}')
+        name = slug(dest, caption, taken)
+        kb, size = shrink(path, name)
+        src = f'/photos/{name}.webp'
+        for u in uses:
+            if u == 'main': reg['own'][dest] = src
+            elif u in SEASONS: reg['seasonal'].setdefault(dest, {})[u] = src
+            elif u.startswith('place:'): reg['place'][f'{dest}|{u[6:].strip()}'] = src
+            elif u.startswith('stop:'): reg['stop'][u[5:].strip()] = src
+            elif u not in ('first', 'nogallery', 'gallery'): raise SystemExit(f'Unknown use "{u}" in: {line}')
+        if 'nogallery' not in uses:
+            g = [x for x in reg['gallery'].setdefault(dest, []) if x['src'] != src]
+            item = {'src': src, 'caption': caption, **({'first': True} if 'first' in uses else {})}
+            reg['gallery'][dest] = [item] + g if 'first' in uses else g + [item]
+        done.append(f'{src}  {size[0]}x{size[1]}  {kb} KB  [{",".join(uses) or "gallery"}]')
+    json.dump(reg, open(REG, 'w'), ensure_ascii=False, indent=1)
+    print('\n'.join(done))
+    if ship:
+        sw = os.path.join(APP, 'public', 'sw.js'); s = open(sw).read()
+        s = re.sub(r"safarco-shell-v(\d+)", lambda m: f"safarco-shell-v{int(m.group(1)) + 1}", s, count=1); open(sw, 'w').write(s)
+        run = lambda c: subprocess.run(c, cwd=APP, shell=True, check=True, capture_output=True, text=True)
+        run('npx tsc -b'); run('npx vitest run tests/photos.test.ts'); run('npx vite build')
+        trailer = '\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_016igYTkJfUr5gXwGpezEfdx'
+        run('git add -A public/photos src/photos-added.json public/sw.js')
+        subprocess.run(['git', 'commit', '-qm', ship + trailer], cwd=APP, check=True)
+        for i in range(4):
+            if subprocess.run('git push -q origin HEAD:main', cwd=APP, shell=True).returncode == 0: break
+        print('Shipped:', subprocess.run('git log --oneline -1', cwd=APP, shell=True, capture_output=True, text=True).stdout.strip())
+
+
+if __name__ == '__main__':
+    main()

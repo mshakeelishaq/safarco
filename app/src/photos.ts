@@ -2,6 +2,7 @@
 // summary photo for trips in the right season. For now the autumn photos are one shared mix;
 // photos for each destination will come later.
 import { wishPlaces } from './engine/seasons';
+import ADDED from './photos-added.json';
 
 /** Autumn colours across Gilgit-Baltistan, for trips in October and November. */
 const AUTUMN = ['/photos/autumn-hunza.webp', '/photos/hunza-autumn-peaks.webp', '/photos/hunza-orchards.webp', '/photos/hunza-autumn-valley.webp', '/photos/hunza-golden-light.webp', '/photos/altit-fort.webp'];
@@ -544,3 +545,14 @@ export const MONTHLY: Record<string, { title: string; photos: { src: string; cap
     { src: '/photos/model-town-12-dec.webp', caption: 'December: red and orange leaves under a misty morning' }
   ] }
 };
+
+// Photos added with scripts/add-photos.py (shrunk to WebP and listed in photos-added.json).
+{
+  const a = ADDED as { own: Record<string, string>; seasonal: Record<string, Partial<Record<SeasonName, string>>>; gallery: Record<string, { src: string; caption: string; first?: boolean }[]>; place: Record<string, string>; stop: Record<string, string> };
+  Object.assign(OWN, a.own); Object.assign(PLACE_PHOTOS, a.place); Object.assign(STOP_PHOTOS, a.stop);
+  for (const [id, by] of Object.entries(a.seasonal)) SEASONAL[id] = { ...SEASONAL[id], ...by };
+  for (const [id, list] of Object.entries(a.gallery)) {
+    const known = new Set(list.map(x => x.src)), old = (GALLERY[id] || []).filter(x => !known.has(x.src));
+    GALLERY[id] = [...list.filter(x => x.first), ...old, ...list.filter(x => !x.first)].map(({ src, caption }) => ({ src, caption }));
+  }
+}
