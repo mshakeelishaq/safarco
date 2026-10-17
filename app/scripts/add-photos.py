@@ -29,6 +29,7 @@ OUT = os.path.join(APP, 'public', 'photos')
 REG = os.path.join(APP, 'src', 'photos-added.json')
 MAX_SIDE, MAX_KB = 1300, 250
 SEASONS = {'spring', 'summer', 'autumn', 'winter'}
+KNOWN = {'main', 'gallery', 'first', 'nogallery'}
 
 
 def dest_ids():
@@ -36,7 +37,7 @@ def dest_ids():
     for f in ('data.ts', 'imported.ts'):
         p = os.path.join(APP, 'src', 'engine', f)
         if os.path.exists(p):
-            ids |= set(re.findall(r"\bid: '([a-z0-9-]+)'", open(p, encoding='utf8').read()))
+            ids |= set(re.findall(r"""\bid"?: ['"]([a-z0-9-]+)['"]""", open(p, encoding='utf8').read()))
     return ids
 
 
@@ -94,7 +95,14 @@ def main():
     for line in lines:
         parts = [p.strip() for p in line.split('|')]
         if len(parts) < 4: raise SystemExit(f'Need 4 fields (photo | destination | uses | caption): {line}')
-        path, dest, uses, caption = parts[0], parts[1], [u.strip() for u in parts[2].split(',') if u.strip()], '|'.join(parts[3:])
+        path, dest, caption = parts[0], parts[1], '|'.join(parts[3:])
+        # A place or stop name may have a comma ("place:Rakaposhi View Point, Ghulmet").
+        uses = []
+        for u in (x.strip() for x in parts[2].split(',') if x.strip()):
+            if uses and uses[-1].startswith(('place:', 'stop:')) and u not in KNOWN and u not in SEASONS and not u.startswith(('place:', 'stop:')): uses[-1] += ', ' + u
+            else: uses.append(u)
+        bad = [u for u in uses if u not in KNOWN and u not in SEASONS and not u.startswith(('place:', 'stop:'))]
+        if bad: raise SystemExit(f'Unknown use "{bad[0]}" in: {line}')
         if dest not in ids: raise SystemExit(f'Unknown destination "{dest}" in: {line}')
         name = slug(dest, caption, taken)
         kb, size = shrink(path, name)
