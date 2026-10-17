@@ -2234,4 +2234,11 @@ export const UR: Record<string, string> = {
   "SafarCo picks the nights on the road from here.": "Yahan se raaste ki raatein SafarCo chunega.",
   "Tonight in {place}. Or end today’s drive in:": "Aaj raat {place} mein. Ya aaj ka safar yahan khatam karein:",
   "Today’s drive ends in {place}. Or stop for the night in:": "Aaj ka safar {place} par khatam hota hai. Ya raat yahan rukein:",
+  "+1 day": "+1 din",
+  "+{n} days": "+{n} din",
+  "−{n} days": "−{n} din",
+  "long day": "lamba din",
+  "A long day to {place}: about {time} at the wheel. Leave early, about 4:30 am.": "{place} tak lamba din: taqreeban {time} driving. Jaldi niklein, taqreeban subah 4:30 baje.",
+  "in after dark": "andhere mein pohanch",
+  "A long day to {place}: about {time} at the wheel, in after dark. Leave at 4:30 am, and take care on mountain roads at night.": "{place} tak lamba din: taqreeban {time} driving, andhera hone ke baad pohanchenge. Subah 4:30 baje niklein, aur raat ko pahari sarkon par ehtiyat karein.",
 };

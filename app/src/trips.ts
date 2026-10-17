@@ -70,7 +70,7 @@ export function cleanTrip(raw: unknown): TripData | null {
     // Trips saved before the limit was optional always had one.
     capOn: r.capOn !== false,
     sleepAt: (Array.isArray(r.sleepAt) ? r.sleepAt : []).filter((k: unknown): k is string => typeof k === 'string' && DEST_IDS.has(k)).slice(0, 3),
-    breaks: (Array.isArray(r.breaks) ? r.breaks : []).filter((k: unknown): k is string => typeof k === 'string' && /^(out|back):/.test(k) && k.split(':')[1] in NODES).slice(0, 6),
+    breaks: (Array.isArray(r.breaks) ? r.breaks : []).filter((k: unknown): k is string => typeof k === 'string' && /^(out|back):/.test(k) && (k.split(':')[1] in NODES || (k.split(':')[1] === 'thru' && (k.split(':')[2] in NODES || k.split(':')[2] === 'HOME' || k.split(':')[2] === 'DEST')))).slice(0, 8),
     comfort: r.comfort === true,
     roadPick: cleanPick(r.roadPick),
     abroad: r.abroad === true, airAuto: r.abroad === true && r.airAuto === true,

@@ -702,13 +702,14 @@ export function buildView(s: AppState, api: Api) {
             if (rn.next) {
               // Sleep somewhere else tonight: the nights after it are worked out again from there.
               const others = s.breaks.filter(b => !b.startsWith(rn.dir + ':')), now = drivingDays(s), endTown = rn.dir === 'out' ? DST(s.corridor).town : cityOr(s.origin).n;
-              const night = (node: string) => { const breaks = [...others, ...(rn.keep || []).map(key), ...(node ? [key(node)] : [])]; return { breaks, days: Math.min(14, Math.max(2, s.days + drivingDays({ ...s, breaks }) - now)) }; };
-              const more = (dd: number) => dd === 1 ? ' ' + t('(+1 day)') : dd > 1 ? ' ' + t('(+{n} days)', { n: dd }) : dd === -1 ? ' ' + t('(−1 day)') : dd < -1 ? ' ' + t('(−{n} days)', { n: -dd }) : '';
+              const night = (node: string, long = false) => { const breaks = [...others, ...(rn.keep || []).map(key), ...(node ? [key(node)] : []), ...(long && rn.from ? [key('thru:' + rn.from)] : [])]; return { breaks, days: Math.min(14, Math.max(2, s.days + drivingDays({ ...s, breaks }) - now)) }; };
+              const more = (dd: number, long: boolean, dark = false) => { const d = dd === 1 ? t('+1 day') : dd > 1 ? t('+{n} days', { n: dd }) : dd === -1 ? t('−1 day') : dd < -1 ? t('−{n} days', { n: -dd }) : ''; const x = [d, long ? t('long day') : '', dark ? t('in after dark') : ''].filter(Boolean).join(', '); return x ? ` (${x})` : ''; };
               const chips = rn.next.map(x => {
-                const p = night(x.node), town = x.node ? x.town : endTown;
-                return { label: t('{place} · {time}', { place: town, time: dur(x.h) }) + more(p.days - s.days), apply: () => set({ ...p, dayOpen: null, toast: x.node ? t('A night in {place} is in the plan. The days after it follow on from there.', { place: town }) : t('Straight on to {place}.', { place: town }) }) };
+                const p = night(x.node, x.long), town = x.node ? x.town : endTown;
+                return { label: t('{place} · {time}', { place: town, time: dur(x.h) }) + more(p.days - s.days, x.long, x.dark), apply: () => set({ ...p, dayOpen: null,
+                  toast: x.long ? (x.dark ? t('A long day to {place}: about {time} at the wheel, in after dark. Leave at 4:30 am, and take care on mountain roads at night.', { place: town, time: dur(x.h) }) : t('A long day to {place}: about {time} at the wheel. Leave early, about 4:30 am.', { place: town, time: dur(x.h) })) : x.node ? t('A night in {place} is in the plan. The days after it follow on from there.', { place: town }) : t('Straight on to {place}.', { place: town }) }) };
               });
-              if (rn.chosen && !rn.next.some(x => !x.node)) { const p = night(''); chips.push({ label: t('Let SafarCo choose') + more(p.days - s.days), apply: () => set({ ...p, dayOpen: null, toast: t('SafarCo picks the nights on the road from here.') }) }); }
+              if ((rn.chosen || rn.thru) && !rn.next.some(x => !x.node && !x.long)) { const p = night(''); chips.push({ label: t('Let SafarCo choose') + more(p.days - s.days, false), apply: () => set({ ...p, dayOpen: null, toast: t('SafarCo picks the nights on the road from here.') }) }); }
               const tonight = rn.tonight ? NODE_INFO[rn.tonight]?.[0] || rn.tonight : endTown;
               return chips.length ? { text: rn.tonight ? t('Tonight in {place}. Or end today’s drive in:', { place: tonight }) : t('Today’s drive ends in {place}. Or stop for the night in:', { place: tonight }), chips } : null;
             }

@@ -72,7 +72,7 @@ export function DayPage({ v }: { v: View }) {
           <div style={css('flex:1;min-width:0;font-size:13px;font-weight:700;line-height:1.4')}>{d.roadOffer.text}</div>
         </div>
         <div style={css('display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;padding-left:30px')}>
-          {d.roadOffer.chips.map(c => <button key={c.label} onClick={c.apply} style={css('height:38px;padding:0 14px;border-radius:12px;border:0;background:var(--ink);color:var(--bg);font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap')}>{c.label}</button>)}
+          {d.roadOffer.chips.map(c => <button key={c.label} onClick={c.apply} style={css('min-height:38px;max-width:100%;padding:8px 14px;border-radius:12px;border:0;background:var(--ink);color:var(--bg);font-size:12px;font-weight:800;line-height:1.3;cursor:pointer;text-align:left')}>{c.label}</button>)}
         </div>
       </div>}
       {d.destWx && <div style={css('display:flex;align-items:center;gap:6px;margin-top:6px;font-size:12px;font-weight:700;color:var(--ink2)')}><i className={`ph-duotone ${d.destWx.icon}`} style={css(`font-size:17px;color:${d.destWx.color}`)} />{d.destWx.typical ? t('Usually') + ' ' : ''}{d.destWx.hi}° / {d.destWx.lo}°{d.destWx.wet ? ` · ${d.destWx.wet}` : ''}</div>}

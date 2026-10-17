@@ -48,3 +48,16 @@ describe('nights on the road', () => {
     expect(drivingDays({ ...s('Lahore', 'hunza'), breaks: ['out:MNS'] })).toBe(drivingDays({ ...s('Lahore', 'hunza'), breaks: ['out:MNS', 'out:NRN'] }));
   });
 });
+
+describe('a long day instead of a night', () => {
+  const st = (breaks: string[]) => ({ ...s('Lahore', 'hunza'), days: 8, breaks });
+  it('offers Mansehra straight to Hunza as a long day, and drives it without the Chilas night', () => {
+    const d2 = buildPlan(st(['out:MNS'])).days[1].roadNight!;
+    const hunza = d2.next!.find(x => !x.node)!;
+    expect(hunza.long).toBe(true);
+    expect(d2.from).toBe('MNS');
+    const titles = buildPlan(st(['out:MNS', 'out:thru:MNS'])).days.filter(d => d.track).map(d => d.title);
+    expect(titles.slice(0, 2)).toEqual(['Lahore → Mansehra', 'Mansehra → Karimabad, Hunza']);
+    expect(drivingDays(st(['out:MNS', 'out:thru:MNS']))).toBe(drivingDays(st(['out:MNS'])) - 1);
+  });
+});
