@@ -30,7 +30,7 @@ import { TripTab } from './components/TripTab';
 import { LIVE, fxFetch, geoSearch, placesFetch, placesKey, placesUrl, reverseGeo, routeFetch, routeUrl, wikiFetch } from './engine/live';
 import { allUrls, fetchWeather } from './weather/route';
 import { mapsQ, mon } from './engine/format';
-import { bestAirport, liveRoadKey, roadVia, trip, usualDays } from './engine/engine';
+import { bestAirport, liveRoadKey, roadVia, setRoutePick, trip, usualDays } from './engine/engine';
 import { DESTS, NODES } from './engine/data';
 import { DST, cityOr, nearestCity } from './engine/places';
 import { css } from './lib/css';
@@ -41,7 +41,7 @@ import { buildView, type Api } from './view';
 import { CONTACT_EMAIL } from './contact';
 
 /** Road-network nodes where the trip stops overnight. */
-const view0NightNodes = (s: AppState) => s.vehicle === 'air' ? [] : trip(s.corridor, s.origin, mon(s)).cuts.map(i => trip(s.corridor, s.origin, mon(s)).legs[i].b).filter(n => NODES[n]);
+const view0NightNodes = (s: AppState) => s.vehicle === 'air' ? [] : (setRoutePick(s), trip(s.corridor, s.origin, mon(s)).cuts.map(i => trip(s.corridor, s.origin, mon(s)).legs[i].b).filter(n => NODES[n]));
 
 /** ?frame shows the app inside the design's phone mock-up (for previews and screenshots). */
 const framed = (() => { try { return new URLSearchParams(location.search).has('frame'); } catch { return false; } })();
@@ -92,8 +92,9 @@ export function App() {
   useEffect(() => {
     if (s.screen !== 'app') return;
     const o = cityOr(s.origin), D = DST(s.corridor);
+    setRoutePick(s);
     if (s.vehicle !== 'air' || s.tab === 'map') routeFetch(o, D, roadVia(s.corridor, s.origin, mon(s)));
-  }, [s.screen, s.origin, s.corridor, s.vehicle, s.tab, s.startDate, s.days, closures]);
+  }, [s.screen, s.origin, s.corridor, s.vehicle, s.tab, s.startDate, s.days, s.roadPick, closures]);
 
   // Destination guide, sights and places to stay (destination and each night stop).
   const nightNodes = view0NightNodes(s);
@@ -246,6 +247,7 @@ export function App() {
     const st = stRef.current;
     if (st.offline === 'ready') { clearOffline().then(() => set({ offline: 'off', progress: 0, offlineMB: 0, offlineErr: '' })); return; }
     if (st.offline === 'downloading') return;
+    setRoutePick(st);
     const o = cityOr(st.origin), D = DST(st.corridor), via = roadVia(st.corridor, st.origin, mon(st)), r = LIVE.route[liveRoadKey(st.corridor, st.origin, mon(st))];
     const coords: [number, number][] = r && r.status === 'ok' ? r.data.coords : view.routeMap.dots.map(d => [+d.p[1], +d.p[0]]);
     const abs = (u: string) => new URL(u, location.origin).href;

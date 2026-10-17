@@ -89,12 +89,14 @@ export const NODES: Record<string, [number, number]> = { KLK: [32.78, 72.70], KH
   MGR: [34.78, 72.36], KLM: [35.49, 72.58], MNS: [34.33, 73.20], NRN: [34.91, 73.65], CHL: [35.42, 74.10], BSM: [34.92, 72.87], RKT: [35.47, 74.60], GLT: [35.92, 74.31], KRM: [36.32, 74.66],
   SKD: [35.30, 75.63], QTA: [30.18, 67.00], DGK: [30.05, 70.63], DIK: [31.83, 70.90], GWD: [25.13, 62.32], MZD: [34.37, 73.47],
   MRE: [33.91, 73.39], KEL: [34.82, 74.35], CKD: [34.66, 72.03], DIR: [35.21, 71.88], CTR: [35.85, 71.79], KHP: [35.15, 76.33], ORM: [25.21, 64.64], PSU: [36.47, 74.89], ZRT: [30.38, 67.73], KML: [25.40, 65.47], MJD: [27.33, 68.14], MJB: [34.80, 72.57], LRL: [30.37, 68.60], KZD: [27.81, 66.61],
-  ABT: [34.15, 73.21], KWI: [34.60, 73.50], SHG: [34.64, 73.46], NTG: [34.07, 73.38], AST: [35.37, 74.86], NLT: [36.16, 74.18], PHD: [36.16, 72.94], MSJ: [36.28, 72.52], SST: [36.69, 74.82], KJB: [36.85, 75.42], BMB: [35.73, 71.73], THL: [35.47, 72.24], KMT: [35.53, 72.22], ZHB: [31.34, 69.45], MTH: [24.74, 69.80], BWP: [29.40, 71.68], TBT: [26.00, 63.05] };
+  ABT: [34.15, 73.21], KWI: [34.60, 73.50], SHG: [34.64, 73.46], NTG: [34.07, 73.38], AST: [35.37, 74.86], NLT: [36.16, 74.18], PHD: [36.16, 72.94], MSJ: [36.28, 72.52], SST: [36.69, 74.82], KJB: [36.85, 75.42], BMB: [35.73, 71.73], THL: [35.47, 72.24], KMT: [35.53, 72.22], ZHB: [31.34, 69.45], MTH: [24.74, 69.80], BWP: [29.40, 71.68], TBT: [26.00, 63.05],
+  GRW: [32.16, 74.19], WZB: [32.44, 74.12], SKT: [32.49, 74.53], GJT: [32.57, 74.08], JLM: [32.94, 73.73], SWL: [30.66, 73.11], RYK: [28.42, 70.30], SGD: [32.08, 72.67], OKR: [30.81, 73.45] };
 export const NODE_INFO: Record<string, [string, number]> = { KLK: ['Kallar Kahar', 2000], KHI: ['Karachi', 30], HYD: ['Hyderabad', 80], SKR: ['Sukkur', 220], MUL: ['Multan', 400], FSD: ['Faisalabad', 600], LHR: ['Lahore', 710], ISB: ['Islamabad', 1770], PSH: ['Peshawar', 1100],
   MGR: ['Mingora, Swat', 3200], KLM: ['Kalam', 6560], MNS: ['Mansehra', 3570], NRN: ['Naran', 7900], CHL: ['Chilas', 4100], BSM: ['Besham', 2000], RKT: ['Raikot Bridge', 3800], GLT: ['Gilgit', 4900],
   KRM: ['Karimabad, Hunza', 8000], SKD: ['Skardu', 7310], QTA: ['Quetta', 5500], DGK: ['Dera Ghazi Khan', 400], DIK: ['Dera Ismail Khan', 570], GWD: ['Gwadar', 30], MZD: ['Muzaffarabad', 2420],
   MRE: ['Murree', 7500], KEL: ['Kel, Neelum', 6900], CKD: ['Chakdara', 2300], DIR: ['Dir', 4600], CTR: ['Chitral', 4900], KHP: ['Khaplu', 8500], ORM: ['Ormara', 30], PSU: ['Passu', 8200], ZRT: ['Ziarat', 8200], KML: ['Kund Malir', 30], MJD: ['Mohenjo-daro', 150], MJB: ['Malam Jabba', 8700], LRL: ['Loralai', 4700], KZD: ['Khuzdar', 4000],
-  ABT: ['Abbottabad', 4120], KWI: ['Kiwai', 5500], SHG: ['Shogran', 7750], NTG: ['Nathia Gali', 8200], AST: ['Astore', 8500], NLT: ['Naltar', 9500], PHD: ['Phander', 9500], MSJ: ['Mastuj', 7600], SST: ['Sost', 9200], KJB: ['Khunjerab Pass', 15397], BMB: ['Bumburet', 6400], THL: ['Thal, Upper Dir', 7000], KMT: ['Kumrat', 7550], ZHB: ['Zhob', 4700], MTH: ['Mithi', 90], BWP: ['Bahawalpur', 380], TBT: ['Turbat', 420] };
+  ABT: ['Abbottabad', 4120], KWI: ['Kiwai', 5500], SHG: ['Shogran', 7750], NTG: ['Nathia Gali', 8200], AST: ['Astore', 8500], NLT: ['Naltar', 9500], PHD: ['Phander', 9500], MSJ: ['Mastuj', 7600], SST: ['Sost', 9200], KJB: ['Khunjerab Pass', 15397], BMB: ['Bumburet', 6400], THL: ['Thal, Upper Dir', 7000], KMT: ['Kumrat', 7550], ZHB: ['Zhob', 4700], MTH: ['Mithi', 90], BWP: ['Bahawalpur', 380], TBT: ['Turbat', 420],
+  GRW: ['Gujranwala', 740], WZB: ['Wazirabad', 720], SKT: ['Sialkot', 840], GJT: ['Gujrat', 760], JLM: ['Jhelum', 770], SWL: ['Sahiwal', 500], RYK: ['Rahim Yar Khan', 270], SGD: ['Sargodha', 620], OKR: ['Okara', 560] };
 /** Places on OpenStreetMap that aren't really there (or are somewhere else): never shown in the live "nearby" lists. The admin can add more. */
 export const HIDE_SPOTS = ['View on Nanga Parbat'];
 /** Areas with a security advisory because of the law and order situation, shown on any trip that goes to or through them. The admin can switch them on or off, edit them and add more. */
@@ -125,6 +127,8 @@ export const STOP_HOTELS: Record<string, Hotel[]> = {
 export const BASE_EDGE_STOPS: Record<string, EdgeStop[]> = {
   'LHR-ISB': [[185, 'food', 'Bhera service area', 'Fuel and clean washrooms'], [245, 'view', 'Kallar Kahar', 'Salt Range views and pakoras']],
   'LHR-KLK': [[185, 'food', 'Bhera service area', 'Fuel and clean washrooms']],
+  'GJT-JLM': [[25, 'tea', 'Kharian', 'Tea, fuel and washrooms on the GT Road']], 'JLM-ISB': [[55, 'food', 'Gujar Khan', 'Food, fuel and washrooms on the GT Road']],
+  'LHR-OKR': [[60, 'tea', 'Pattoki', 'Tea and fuel on the N-5']], 'RYK-SKR': [[80, 'food', 'Ghotki', 'Food and fuel on the N-5']],
   'FSD-ISB': [[75, 'tea', 'Pindi Bhattian interchange', 'Tea and fuel'], [145, 'food', 'Bhera service area', 'Fuel and clean washrooms'], [195, 'view', 'Kallar Kahar', 'Salt Range views']],
   'MUL-FSD': [[100, 'food', 'Abdul Hakeem service area', 'Fuel and washrooms']], 'MUL-LHR': [[165, 'food', 'Motorway service area', 'Fuel and washrooms']], 'FSD-LHR': [[90, 'tea', 'M-3 service area', 'Tea and fuel']],
   'SKR-MUL': [[200, 'food', 'M-5 service area', 'Fuel and washrooms'], [300, 'view', 'Uch Sharif turn-off', 'Shrines of Uch, 15 min detour']],
@@ -189,7 +193,13 @@ export const EDGES: Edge[] = [
   ['PSU', 'SST', 35, 45, 0, 1, 'KKH'], ['SST', 'KJB', 85, 40, 0, 1, 'KKH to Khunjerab (Apr–Nov)', [4, 5, 6, 7, 8, 9, 10, 11]], ['CTR', 'BMB', 40, 20, 0, 1, 'Ayun–Bumburet Road'],
   ['DIR', 'THL', 100, 30, 0, 1, 'Dir–Kalkot–Thal Road'], ['THL', 'KMT', 20, 15, 0, 1, 'Kumrat jeep track'],
   ['QTA', 'ZHB', 330, 50, 0, 0, 'N-50'], ['ZHB', 'DIK', 210, 50, 0, 0, 'N-50'], ['SKR', 'DGK', 390, 60, 0, 0, 'N-55 Indus Highway'], ['DIK', 'PSH', 300, 65, 300, 0, 'N-55 via Kohat'],
-  ['HYD', 'MTH', 230, 60, 0, 0, 'Hyderabad–Mithi Road'], ['MUL', 'BWP', 100, 80, 0, 0, 'N-5'], ['GWD', 'TBT', 170, 70, 0, 0, 'M-8']];
+  ['HYD', 'MTH', 230, 60, 0, 0, 'Hyderabad–Mithi Road'], ['MUL', 'BWP', 100, 80, 0, 0, 'N-5'], ['GWD', 'TBT', 170, 70, 0, 0, 'M-8'],
+  // The old highways beside the motorways: slower (towns, trucks), no tolls. The planner takes whichever is quicker
+  // from the traveller's city and offers the other when it's close (routeOptions).
+  ['LHR', 'GRW', 68, 52, 0, 0, 'GT Road (N-5)'], ['GRW', 'WZB', 33, 55, 0, 0, 'GT Road (N-5)'], ['WZB', 'GJT', 20, 55, 0, 0, 'GT Road (N-5)'], ['GJT', 'JLM', 50, 55, 0, 0, 'GT Road (N-5)'], ['JLM', 'ISB', 115, 50, 0, 0, 'GT Road (N-5)'],
+  ['SKT', 'WZB', 40, 50, 0, 0, 'Sialkot–Wazirabad Road'], ['SKT', 'GRW', 55, 50, 0, 0, 'Sialkot–Gujranwala Road'], ['SKT', 'LHR', 125, 90, 500, 0, 'M-11'],
+  ['LHR', 'OKR', 115, 65, 0, 0, 'N-5'], ['OKR', 'SWL', 55, 65, 0, 0, 'N-5'], ['SWL', 'MUL', 175, 65, 0, 0, 'N-5'], ['BWP', 'RYK', 185, 65, 0, 0, 'N-5'], ['RYK', 'SKR', 170, 65, 0, 0, 'N-5'],
+  ['SGD', 'KLK', 105, 75, 600, 0, 'Sargodha Road + M-2'], ['SGD', 'FSD', 95, 60, 0, 0, 'Sargodha–Faisalabad Road']];
 export const DIESEL = 395, LOCAL_CAR = 15000;
 /** Prices the engine reads at run time. The admin price list (src/prices.ts) overwrites these. */
 export const P = { petrol: PETROL, diesel: DIESEL, localCar: LOCAL_CAR, coachFlat: 6.5, coachMtn: 9, airportCoach: 6.5, raikotJeep: 10000 };

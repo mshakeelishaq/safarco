@@ -1,11 +1,11 @@
 // Everything the screens display, derived from app state. Ported from the
 // design's renderVals(); the screens in components/ read from this.
 import { CLOSED_NOTES } from './content';
-import { HIDE_SPOTS, SECURITY_AREAS, riskOf, HAVE_VEHICLE, EDGES, MODES, MON, MONTH_FULL, NODES, NODE_INFO, POPULAR, POP_DEST, SUGGEST_POOL, SUNRISE, SUNSET, TIERS, TIER_G, VEH, CAT, CAT2, GRADS, DESTS, STOP_KIND, type VehicleId } from './engine/data';
+import { P as PR, HIDE_SPOTS, SECURITY_AREAS, riskOf, HAVE_VEHICLE, EDGES, MODES, MON, MONTH_FULL, NODES, NODE_INFO, POPULAR, POP_DEST, SUGGEST_POOL, SUNRISE, SUNSET, TIERS, TIER_G, VEH, CAT, CAT2, GRADS, DESTS, STOP_KIND, type VehicleId } from './engine/data';
 import { FOOD } from './engine/food';
 import { dismissInstall, offerInstallNow, startInstall, wasDismissed } from './install';
 import { foodTipsFor } from './foodtips';
-import { legClosure, liveRoadKey, AIR_IN, bestAirport, closedOnRoute, flyNorth, viaIsb, DAY_OUT_H, SHORT2_H, MAX_DRIVE_H, plannedJeeps, roomPlan, circuit, sideTrips, dayTripOptions, tripFrom, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
+import { pickAt, roadParts, roadSig, roadsOnlyIn, routeOptions, setRoutePick, type Trip, legClosure, liveRoadKey, AIR_IN, bestAirport, closedOnRoute, flyNorth, viaIsb, DAY_OUT_H, SHORT2_H, MAX_DRIVE_H, plannedJeeps, roomPlan, circuit, sideTrips, dayTripOptions, tripFrom, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
 import { clock, dayLabel, dur, fmt, fmtN, isoAdd, isoOf, isoOff, kShort, mapsQ, mon } from './engine/format';
 import { LIVE, fxRate, placesKey, routeKey, type Spot } from './engine/live';
 import { sunTimes } from './engine/sun';
@@ -49,6 +49,8 @@ export function buildView(s: AppState, api: Api) {
   const { set } = api;
   // From abroad, the trip starts at the airport that suits the destination (until the traveller picks one).
   if (s.abroad && s.airAuto) s = { ...s, origin: bestAirport(s.corridor, mon(s)) };
+  // The road the traveller picked (GT Road over the M-2) holds for every trip figure below.
+  setRoutePick(s);
   /** Places with a security advisory: still offered, after the others, and always marked. */
   const risky = (id: string) => !!riskOf(id);
   const M = mon(s), c0 = trip(s.corridor, s.origin, M), nights = Math.max(1, s.days - 1), sug = suggestions(s);
@@ -316,6 +318,39 @@ export function buildView(s: AppState, api: Api) {
   const jeepNote = jeepTrips.length ? [{ icon: 'ph-jeep', color: 'var(--amb)', text: t('{places}: hire a local jeep and driver, even with your own 4x4, unless you know these roads and have driven them before.', { places: jeepTrips.map(j => t(j[1])).join(', ') }) }] : [];
   // The trip goes to or through an area with a security advisory (the Makran coast).
   const securityOn = SECURITY_AREAS.filter(a => a.on && ([s.corridor, ...(s.extra || [])].some(k => a.dests.includes(k)) || c.legs.some(l => a.roads.includes(l.road) || a.nodes.includes(l.a) || a.nodes.includes(l.b))));
+  /** Other roads worth a thought for this trip (GT Road or the M-2, the KKH or Babusar), with what each changes. */
+  const roadChoice = (() => {
+    if (L || isAir || s.vehicle === 'public' || s.vehicle === 'bike' || s.abroad) return null;
+    const { best, options } = routeOptions(s.corridor, s.origin, M), cur = c0;
+    const others = [{ avoid: [] as string[], trip: best }, ...options].filter(o => roadSig(o.trip) !== roadSig(cur));
+    if (!others.length) return null;
+    const veh = VEH[s.vehicle], units = Math.max(1, Math.ceil(s.groupSize / (veh.cap || 4)));
+    // Fuel and tolls there and back, as the budget works them out.
+    const spend = (tr: Trip) => ((tr.flatKm / (veh.mileage || 1) + tr.mtnKm / (veh.mtn || 1)) * (veh.diesel ? PR.diesel : PR.petrol) + tr.tolls.reduce((a, x) => a + x[1], 0) * (veh.tollX || 1)) * units * 2;
+    const name = (a: Trip, b: Trip) => { const r = roadsOnlyIn(a, b); return { roads: r.roads, label: (r.roads.slice(0, 2).join(' + ') || a.via) + (r.via ? ' ' + t('via {town}', { town: r.via }) : '') }; };
+    const note = (roads: string[], tr: Trip) => {
+      const r = roads[0] || '';
+      if (tr.legs.some(l => l.road === r && l.mtn)) return t('Mountain road: slower, so check the weather and landslides before you go.');
+      if (roadParts(r).some(x => /^M-\d|Motorway|Expressway/.test(x))) return t('Motorway: fewer stops, clean service areas, safer at night. Tolls.');
+      return t('Through towns: more food and fuel choices, but busier, with trucks. No tolls.');
+    };
+    const mins = (h: number) => dur(Math.round(Math.abs(h) * 12) / 12), mine = name(cur, others[0].trip);
+    return {
+      fastest: roadSig(cur) === roadSig(best),
+      current: { label: mine.label, detail: `${cur.kmStr} km · ${t('about {time}', { time: mins(cur.hours) })}`, note: note(mine.roads, cur) },
+      options: others.map(o => {
+        const n = name(o.trip, cur), dKm = o.trip.km - cur.km, dH = o.trip.hours - cur.hours, dRs = Math.round((spend(o.trip) - spend(cur)) / 100) * 100, dDays = o.trip.legDays - cur.legDays;
+        const bits = [
+          dKm <= -5 ? t('{n} km shorter', { n: fmtN(-dKm) }) : dKm >= 5 ? t('{n} km longer', { n: fmtN(dKm) }) : t('about the same distance'),
+          Math.abs(dH) < 0.1 ? t('about the same time') : dH > 0 ? t('about {time} slower', { time: mins(dH) }) : t('about {time} quicker', { time: mins(dH) }),
+          Math.abs(dRs) < 500 ? '' : dRs < 0 ? t('saves about {amount} on fuel and tolls, both ways', { amount: fmt(-dRs) }) : t('about {amount} more on fuel and tolls, both ways', { amount: fmt(dRs) }),
+          dDays > 0 ? (dDays === 1 ? t('1 more driving day each way') : t('{n} more driving days each way', { n: dDays })) : dDays < 0 ? (dDays === -1 ? t('1 driving day less each way') : t('{n} driving days less each way', { n: -dDays })) : ''
+        ].filter(Boolean);
+        return { key: o.avoid.join(',') || 'fastest', fastest: !o.avoid.length, label: n.label, detail: bits.join(' · '), note: note(n.roads, o.trip),
+          apply: () => set({ roadPick: o.avoid.length ? { at: pickAt(s), avoid: o.avoid } : null }) };
+      })
+    };
+  })();
   // Roads the admin marked closed that this trip would normally take.
   const closedNotes = (L ? [] : closedOnRoute(s.corridor, s.origin, M)).map(r => ({ icon: 'ph-road-horizon', color: 'var(--cor)', text: [c.legs.some(l => legClosure(l) === r) ? t('{road} is closed now, and there is no other way: check before you go.', { road: r }) : t('{road} is closed now. SafarCo plans the way round it.', { road: r }), CLOSED_NOTES[r] ? t(CLOSED_NOTES[r]) : ''].filter(Boolean).join(' ') }));
   const alertNotes = activeAlerts().filter(a => !a.areas?.length || onTrip(a.areas, tripLine, tripStops)).map(a => ({ icon: 'ph-megaphone', color: 'var(--cor)', text: a.date ? t('{alert} (posted {date})', { alert: `${a.title}${a.message ? `: ${a.message}` : ''}`, date: dayLabel(a.date, 0) }) : `${a.title}${a.message ? `: ${a.message}` : ''}` }));
@@ -558,6 +593,7 @@ export function buildView(s: AppState, api: Api) {
       if (lv && !lv.ignored) return [{ icon: 'ph-check-circle', color: 'var(--g)', text: t('Distance checked with OpenRouteService: {km} km. Drive times use mountain and town speeds, so they are longer than map apps show.', { km: fmtN(r.data.km) }) }];
       return [{ icon: 'ph-warning', color: 'var(--cor)', text: t('OpenRouteService’s fastest road is {km} km; this plan is {planKm} km. It may use a road closed in {month}. Check before you leave.', { km: fmtN(r.data.km), planKm: c.kmStr, month: MON[M - 1] }) }];
     })(),
+    roadChoice,
     seasonNotes: [...alertNotes, ...closedNotes, ...securityOn.map(a => ({ icon: 'ph-shield-warning', color: 'var(--cor)', text: t(a.text) })), ...seasonInfo(s, s.corridor), ...jeepNote],
     dayHint: (() => {
       const o = s.origin || 'Islamabad', okS = { tile: 'linear-gradient(135deg,#2EE59D,#0FA678)', bg: 'rgba(46,229,157,.1)', border: 'rgba(46,229,157,.3)' }, badS = { tile: 'linear-gradient(135deg,#FF8A6B,#FF4F7B)', bg: 'rgba(255,107,91,.12)', border: 'rgba(255,107,91,.4)' };

@@ -94,7 +94,7 @@ export const initialState = (): AppState => ({
   corridor: 'hunza', tab: 'trip', settings: false, flash: null,
   offline: 'off', progress: 0, offlineMB: 0, offlineErr: '', mapFail: false, theme: savedTheme(),
   sheet: 'none', savedId: null, toast: null, lite: prefersLite(), chosen: null, reviewFor: null, foodFor: null, welcome: false, guide: false, lang: currentLang(),
-  have: 'any', wish: null, extra: [], capOn: false, overnight: null, roomCount: null, sleepAt: [], daysSet: false, quick: false, mood: null, breaks: [], comfort: false, dayTrips: [], abroad: false, airAuto: false, here: null, building: null, dayOpen: null, edits: NO_EDITS
+  have: 'any', wish: null, extra: [], capOn: false, overnight: null, roomCount: null, sleepAt: [], daysSet: false, quick: false, mood: null, breaks: [], roadPick: null, comfort: false, dayTrips: [], abroad: false, airAuto: false, here: null, building: null, dayOpen: null, edits: NO_EDITS
 });
 
 export type Patch = Partial<AppState>;

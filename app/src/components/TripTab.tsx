@@ -118,6 +118,33 @@ export const TabHero = ({ v, title, sub }: { v: View; title: string; sub?: strin
 
 const tile = 'flex:1;min-width:0;padding:10px 10px 9px;border-radius:16px;background:var(--fill);border:0;color:var(--ink);text-align:left';
 
+/** Which road: the one the plan takes, and the others worth a thought, with what each changes. */
+function RoadChoice({ rc }: { rc: NonNullable<View['roadChoice']> }) {
+  return (
+    <div style={css('margin:12px 4px 4px;padding:12px;border-radius:18px;background:var(--fill);border:1px solid var(--line2)')}>
+      <div style={css('display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800')}><i className="ph-fill ph-road-horizon" style={css('font-size:18px;color:var(--sky)')} />{t('Which road?')}</div>
+      <div style={css('display:flex;gap:8px;align-items:flex-start;margin-top:8px')}>
+        <i className="ph-fill ph-check-circle" style={css('font-size:18px;color:var(--g);flex:none;margin-top:1px')} />
+        <div style={css('flex:1;min-width:0')}>
+          <div style={css('font-size:13px;font-weight:800;line-height:1.35')}>{rc.fastest ? t('Your road: {road} (fastest)', { road: rc.current.label }) : t('Your road: {road}', { road: rc.current.label })}</div>
+          <div style={css('font-size:12px;font-weight:600;color:var(--ink2);margin-top:2px;line-height:1.4')}>{rc.current.detail}</div>
+          <div style={css('font-size:12px;font-weight:600;color:var(--mute);margin-top:2px;line-height:1.4')}>{rc.current.note}</div>
+        </div>
+      </div>
+      {rc.options.map(o => (
+        <div key={o.key} style={css('margin-top:10px;padding-top:10px;border-top:1px solid var(--line2)')}>
+          <div style={css('font-size:13px;font-weight:800;line-height:1.35')}>{o.fastest ? t('Fastest: {road}', { road: o.label }) : t('Or {road}', { road: o.label })}</div>
+          <div style={css('font-size:12px;font-weight:700;color:var(--ink2);margin-top:2px;line-height:1.4')}>{o.detail}</div>
+          <div style={css('font-size:12px;font-weight:600;color:var(--mute);margin-top:2px;line-height:1.4')}>{o.note}</div>
+          <button onClick={o.apply} style={css('margin-top:8px;min-height:38px;padding:0 14px;border-radius:12px;border:1px solid var(--line2);background:var(--card);color:var(--ink);font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px')}>
+            <i className={`ph-bold ${o.fastest ? 'ph-arrow-counter-clockwise' : 'ph-arrows-left-right'}`} />{o.fastest ? t('Back to the fastest road') : t('Use this road')}
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 /** The Plan tab: the trip at a glance, then one row per day (tap for the day's page). */
 export function TripTab({ v, api }: { v: View; api: Api }) {
   const { s, c, plan } = v, { set } = api;
@@ -234,6 +261,7 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
             <h2 style={css('margin:0;font-size:16px;font-weight:800')}>{t('Your route, day by day')}</h2>
             <div style={css('font-size:12px;color:var(--mute);font-weight:600;margin-top:4px;line-height:1.45')}>{plan.via}</div>
           </div>
+          {v.roadChoice && <RoadChoice rc={v.roadChoice} />}
           <ol style={css('display:flex;flex-direction:column;margin:10px 0 0;padding:0;list-style:none;position:relative')}>
             {plan.days.map((d, i) => {
               const q = dayQuick(d);

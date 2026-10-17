@@ -41,6 +41,8 @@ export interface TripState {
   abroad?: boolean;
   /** From abroad, SafarCo picks the arrival airport that suits the destination (until the traveller picks one). */
   airAuto?: boolean;
+  /** Another road the traveller picked over the fastest (GT Road instead of the M-2), for this destination and city. */
+  roadPick?: RoadPick | null;
 }
 
 /** Airports with flights from abroad that a trip can start from. */
@@ -159,14 +161,31 @@ export const closureLabel = (road: string, a?: string, b?: string) => a && b && 
 /** The closure a leg runs into, if any. */
 export const legClosure = (l: { a: string; b: string; road: string }) => CLOSED.has(l.road) ? l.road : CLOSED_EDGES.has(`${l.a}-${l.b}`) ? closureLabel(l.road, ...([l.a, l.b].sort() as [string, string]) as [string, string]) : null;
 
+/** The roads a road name is made of ('M-1 + Swat Motorway' is M-1 and Swat Motorway). */
+export const roadParts = (road: string) => road.split(/ [/+] /);
+const avoids = (road: string, avoid: string[]) => roadParts(road).some(r => avoid.includes(r));
+
+/** The road the traveller picked over the fastest one, for one trip: the roads it keeps off. */
+let PICK: { key: string; origin: string; avoid: string[] } | null = null;
+export interface RoadPick { at: string; avoid: string[] }
+/** Use the traveller's road choice for the trip in `s` (from `s.roadPick`, if it's still for this trip). */
+export function setRoutePick(s: { corridor: string; origin: string | null; roadPick?: RoadPick | null }) {
+  const at = `${s.corridor}|${s.origin ?? ''}`;
+  PICK = s.roadPick && s.roadPick.at === at && s.roadPick.avoid.length ? { key: s.corridor, origin: s.origin ?? '', avoid: s.roadPick.avoid } : null;
+}
+export const pickAt = (s: { corridor: string; origin: string | null }) => `${s.corridor}|${s.origin ?? ''}`;
+/** Run `f` with the road choice of `s`, then put back the one before (plans for other trips don't keep it). */
+function withPick<T>(s: TripState, f: () => T): T { const prev = PICK; setRoutePick(s); try { return f(); } finally { PICK = prev; } }
+const pickFor = (key: string, origin: string | null) => PICK && PICK.key === key && PICK.origin === (origin ?? '') ? PICK.avoid : [];
+
 /** Dijkstra from `dest` over roads open in `month` (and not closed, unless `anyway`). */
-function shortest(dest: string, month: number, anyway = false) {
-  const key = dest + '|' + month + (anyway ? '|any' : ''); if (SPT[key]) return SPT[key];
+function shortest(dest: string, month: number, anyway = false, avoid: string[] = []) {
+  const key = dest + '|' + month + (anyway ? '|any' : '') + (avoid.length ? '|' + avoid.join(',') : ''); if (SPT[key]) return SPT[key];
   const dist: Record<string, number> = { [dest]: 0 }, next: Record<string, [string, Edge]> = {}, done = new Set<string>();
   while (true) {
     let u: string | null = null; for (const k in dist) if (!done.has(k) && (u === null || dist[k] < dist[u])) u = k;
     if (u === null) break; done.add(u); const uu = u;
-    (ADJ[uu] || []).forEach(([v, e]) => { if ((e[7] && !e[7].includes(month)) || (!anyway && (CLOSED.has(e[6]) || CLOSED_EDGES.has(`${uu}-${v}`)))) return; const d = dist[uu] + e[2] / e[3]; if (dist[v] === undefined || d < dist[v]) { dist[v] = d; next[v] = [uu, e]; } });
+    (ADJ[uu] || []).forEach(([v, e]) => { if ((e[7] && !e[7].includes(month)) || (!anyway && (CLOSED.has(e[6]) || CLOSED_EDGES.has(`${uu}-${v}`))) || (avoid.length && avoids(e[6], avoid))) return; const d = dist[uu] + e[2] / e[3]; if (dist[v] === undefined || d < dist[v]) { dist[v] = d; next[v] = [uu, e]; } });
   }
   return (SPT[key] = { dist, next });
 }
@@ -244,7 +263,7 @@ const TRIP_CACHE: Record<string, Trip> = {};
 /** Forget computed trips, e.g. after a live route arrives or prices change. */
 export function resetTripCache() { for (const k in TRIP_CACHE) delete TRIP_CACHE[k]; }
 /** Closed roads this trip would normally take (it goes round them, or uses them when there's no other way). */
-export const closedOnRoute = (key: string, origin: string | null, month: number) => CLOSED.size || CLOSED_EDGES.size ? [...new Set(tripFrom(key, cityOr(origin), month, true).legs.map(legClosure).filter((r): r is string => !!r))] : [];
+export const closedOnRoute = (key: string, origin: string | null, month: number) => CLOSED.size || CLOSED_EDGES.size ? [...new Set(tripFrom(key, cityOr(origin), month, true, pickFor(key, origin)).legs.map(legClosure).filter((r): r is string => !!r))] : [];
 LIVE.routeHooks.add(resetTripCache);
 
 /** The towns a trip's roads pass through, so the map's road follows the day plan (at most 23, evenly picked). */
@@ -274,18 +293,51 @@ export const roadVia = (key: string, origin: string | null, month: number) => vi
 export const liveRoadKey = (key: string, origin: string | null, month: number) => routeKey(cityOr(origin).n, key, roadVia(key, origin, month).id);
 
 /** Road trip from `origin` to destination `key` in `month`, using the road table, corrected by the live OSRM distance when close. */
-export function trip(key: string, origin: string | null, month = 7): Trip { return tripFrom(key, cityOr(origin), month); }
+export function trip(key: string, origin: string | null, month = 7): Trip {
+  return tripFrom(key, cityOr(origin), month, false, pickFor(key, origin));
+}
+
+export interface RoadOption { avoid: string[]; trip: Trip }
+const tollOf = (tr: Trip) => tr.tolls.reduce((a, x) => a + x[1], 0);
+/**
+ * Other sensible roads for a trip: for each main road on the fastest route (80 km or more of it), the quickest
+ * way that keeps off it. Offered when it's no more than 2 h slower, not much longer, and good for something:
+ * shorter (GT Road beside the M-2), cheaper (no tolls), or keeping off a mountain pass (the KKH beside Babusar).
+ */
+export function routeOptions(key: string, origin: string | null, month: number): { best: Trip; options: RoadOption[] } {
+  const o = cityOr(origin), best = tripFrom(key, o, month), seen = new Set([roadSig(best)]), options: RoadOption[] = [];
+  const on = (r: string) => best.legs.filter(l => roadParts(l.road).includes(r));
+  [...new Set(best.legs.filter(l => l.road !== 'Local roads').flatMap(l => roadParts(l.road)))].filter(r => on(r).reduce((a, l) => a + l.km, 0) >= 80).forEach(r => {
+    const alt = tripFrom(key, o, month, false, [r]), sig = roadSig(alt);
+    if (seen.has(sig)) return; seen.add(sig);
+    const worth = alt.km < best.km - 20 || tollOf(alt) < tollOf(best) - 300 || on(r).some(l => l.mtn);
+    if (worth && alt.hours - best.hours <= 2 && alt.km - best.km <= Math.max(100, best.km * 0.2)) options.push({ avoid: [r], trip: alt });
+  });
+  return { best, options: options.sort((a, b) => a.trip.hours - b.trip.hours).slice(0, 2) };
+}
+/** Which roads a trip takes, to tell two routes apart. */
+export const roadSig = (tr: Trip) => tr.legs.map(l => `${l.a}-${l.b}:${l.road}`).join('|');
+/** What sets route `a` apart from `b`: its own roads, longest first, and the first town only it goes through ("GT Road (N-5)" by Gujranwala). */
+export function roadsOnlyIn(a: Trip, b: Trip) {
+  const pair = (l: Leg) => [l.a, l.b].sort().join('-') + l.road, inB = new Set(b.legs.map(pair)), townsB = new Set(b.legs.flatMap(l => [l.a, l.b])), km: Record<string, number> = {};
+  const own = a.legs.filter(l => l.road !== 'Local roads' && !inB.has(pair(l)));
+  own.forEach(l => { km[l.road] = (km[l.road] || 0) + l.km; });
+  const town = own.flatMap(l => [l.a, l.b]).find(n => NODE_INFO[n] && !townsB.has(n));
+  return { roads: Object.keys(km).sort((x, y) => km[y] - km[x]), via: town ? NODE_INFO[town][0] : null };
+}
 
 /** Road trip to destination `key` from any point `o` (a city, or another destination on a circuit). */
-export function tripFrom(key: string, o: { n: string; lat: number; lon: number }, month = 7, anyway = false): Trip {
-  const ck = `${key}|${o.n}|${month}${anyway ? '|any' : ''}`; if (TRIP_CACHE[ck]) return TRIP_CACHE[ck];
+export function tripFrom(key: string, o: { n: string; lat: number; lon: number }, month = 7, anyway = false, avoid: string[] = []): Trip {
+  const ck = `${key}|${o.n}|${month}${anyway ? '|any' : ''}${avoid.length ? '|' + avoid.join(',') : ''}`; if (TRIP_CACHE[ck]) return TRIP_CACHE[ck];
   const D = DST(key);
   const oc = attachTo(o.lat, o.lon, false), dc = D.node ? [{ n: D.node, local: 0, mtn: MTN_NODES.has(D.node) }] : attachTo(D.lat, D.lon, (D.ft ?? D.ftEst ?? 0) > 3000);
   let best: { st: typeof oc[number]; d: typeof dc[number]; tot: number } | null = null;
-  dc.forEach(d => { const { dist } = shortest(d.n, month, anyway); oc.forEach(st => { if (dist[st.n] === undefined) return; const tot = st.local / (st.mtn ? 30 : 55) + dist[st.n] + d.local / (d.mtn ? 30 : 55); if (!best || tot < best.tot) best = { st, d, tot }; }); });
+  dc.forEach(d => { const { dist } = shortest(d.n, month, anyway, avoid); oc.forEach(st => { if (dist[st.n] === undefined) return; const tot = st.local / (st.mtn ? 30 : 55) + dist[st.n] + d.local / (d.mtn ? 30 : 55); if (!best || tot < best.tot) best = { st, d, tot }; }); });
   // A closed road with no way round: plan on it anyway (the closure shows as a warning).
+  // No way round the roads the traveller would rather skip: back to the usual roads.
+  if (!best && avoid.length) return (TRIP_CACHE[ck] = tripFrom(key, o, month, anyway));
   if (!best && !anyway) return (TRIP_CACHE[ck] = tripFrom(key, o, month, true));
-  const { st: start, d: end } = best!, { next } = shortest(end.n, month, anyway);
+  const { st: start, d: end } = best!, { next } = shortest(end.n, month, anyway, avoid);
   let flat = 0, mtn = 0, hours = 0; const tolls: [string, number][] = [], via: string[] = [], legs: Leg[] = [];
   const addLocal = (a: string, b: string, x: { local: number; mtn: boolean }) => { const sp = x.mtn ? 30 : 55; legs.push({ a, b, km: x.local, h: x.local / sp, road: 'Local roads', mtn: x.mtn }); hours += x.local / sp; if (x.mtn) mtn += x.local; else flat += x.local; };
   if (start.local > 0) addLocal('HOME', start.n, start);
@@ -513,7 +565,8 @@ export function seasonInfo(s: TripState, key: string): Note[] {
 }
 
 export interface Plan { days: PlanDay[]; total: number; sunset: number; rec: number; dep: number; late: boolean; hasDrive: boolean; air: AirOption | null; /** A circuit: the days go round a loop, not out and back. */ loop?: boolean }
-export function buildPlan(s: TripState): Plan {
+export function buildPlan(s: TripState): Plan { return withPick(s, () => planFor(s)); }
+function planFor(s: TripState): Plan {
   const outer = SEEN; SEEN = new Set();
   try { return s.abroad ? abroadPlan(s) : planOf(s); } finally { SEEN = outer; }
 }
@@ -653,7 +706,8 @@ export function roomPlan(o: Pick<TripState, 'adults' | 'kids' | 'elders' | 'grou
   return { r, auto, extra, crowded: extra > r, people: P };
 }
 
-export function costFor(o: TripState): Cost {
+export function costFor(o: TripState): Cost { return withPick(o, () => costOf(o)); }
+function costOf(o: TripState): Cost {
   // Flying north after landing in Lahore or Karachi: the trip from Islamabad, plus getting there and back, and a day for it.
   if (viaIsb(o)) {
     const r = costFor({ ...o, origin: 'Islamabad', hop: true } as TripState), P = (o.adults ?? o.groupSize ?? 2) + (o.elders || 0), K = o.kids || 0, from = o.origin!;
