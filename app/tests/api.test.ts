@@ -42,6 +42,24 @@ describe('/api/route', () => {
     expect(JSON.parse(String(calls[2].init?.body)).coordinates).toHaveLength(2);
   });
 
+  it('keeps the plan’s towns: routes each stretch, and draws a stretch the router can’t do straight', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (url: string, init?: RequestInit) => { calls.push({ url, init });
+      const pts = JSON.parse(String(init?.body)).coordinates as number[][];
+      // The whole route fails; the stretch from Naran over Babusar (73.65,34.91 → 74.1,35.42) fails too.
+      if (pts.length > 2 || pts[0][0] === 73.65) return new Response('{"error":{"code":2009}}', { status: 404 });
+      return new Response(JSON.stringify({ features: [{ properties: { summary: { distance: 100000, duration: 7200 } }, geometry: { coordinates: [pts[0], [(pts[0][0] + pts[1][0]) / 2, (pts[0][1] + pts[1][1]) / 2], pts[1]] } }] }));
+    }));
+    const r = await get(route, '/api/route?from=74.34,31.55&to=72.93,36.17&via=73.65,34.91;74.1,35.42');
+    expect(r.status).toBe(200);
+    const j = await r.json();
+    // Lahore → Naran routed, Naran → Chilas straight, Chilas → Phander routed: never round by Chitral.
+    expect(j.coords[0]).toEqual([74.34, 31.55]);
+    expect(j.coords).toContainEqual([73.65, 34.91]);
+    expect(j.coords).toContainEqual([74.1, 35.42]);
+    expect(j.coords[j.coords.length - 1]).toEqual([72.93, 36.17]);
+    expect(calls.some(c => JSON.parse(String(c.init?.body)).coordinates.length === 2 && JSON.parse(String(c.init?.body)).coordinates[0][0] === 74.34 && JSON.parse(String(c.init?.body)).coordinates[1][0] === 72.93)).toBe(false);
+  });
+
   it('rejects points outside Pakistan and works without a key by failing cleanly', async () => {
     expect((await get(route, '/api/route?from=1,2&to=3,4')).status).toBe(400);
     delete process.env.ORS_API_KEY;

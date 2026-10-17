@@ -21,25 +21,38 @@ export async function GET(request: Request) {
   const via = viaRaw.map(point);
   if (viaRaw.length > 23 || via.some(v => !v)) return fail(400, 'via must be up to 23 lon,lat points inside Pakistan');
   const coordinates = [from, ...(via as number[][]), to];
-  // A town a little way off a mapped road makes OpenRouteService refuse the whole route, so try:
-  // 1) every point within 5 km of a road, 2) the towns snapped to their nearest road at any distance,
-  // 3) start and end only. The first that works is used.
+  // The road must follow SafarCo's day plan, so the towns on the way are never dropped. Try:
+  // 1) the whole route in one go (each point within 5 km of a road, then snapped at any distance);
+  // 2) each stretch between towns on its own, stitched together. A stretch the router can't do
+  //    (e.g. a seasonal pass it treats as closed) is drawn straight, so the line still goes that way.
   const ask = (pts: number[][], radiuses: number[]) => fetch('https://api.heigit.org/openrouteservice/v2/directions/driving-car/geojson', {
     method: 'POST',
     headers: { Authorization: key, 'Content-Type': 'application/json', Accept: 'application/geo+json' },
     body: JSON.stringify({ coordinates: pts, radiuses })
   }).catch(() => null);
-  let r = await ask(coordinates, coordinates.map(() => 5000));
-  if (r && !r.ok && r.status !== 429 && via.length) r = await ask(coordinates, coordinates.map((_, i) => i === 0 || i === coordinates.length - 1 ? 5000 : -1));
-  if (r && !r.ok && r.status !== 429 && via.length) r = await ask([from, to], [5000, 5000]);
-  if (!r) return fail(502, 'Routing service unreachable');
-  if (r.status === 429) return fail(429, 'Routing limit reached for today');
-  if (!r.ok) return fail(502, `Routing failed (${r.status})`);
-  const j = await r.json();
-  const f = j.features && j.features[0];
-  if (!f) return fail(404, 'No route');
-  let coords: [number, number][] = f.geometry.coordinates;
+  type Route = { km: number; h: number; coords: number[][] };
+  const read = async (r: Response | null): Promise<Route | null> => {
+    if (!r || !r.ok) return null;
+    const f = (await r.json().catch(() => null))?.features?.[0]; if (!f) return null;
+    return { km: f.properties.summary.distance / 1000, h: f.properties.summary.duration / 3600, coords: f.geometry.coordinates };
+  };
+  let first = await ask(coordinates, coordinates.map(() => 5000));
+  if (first?.status === 429) return fail(429, 'Routing limit reached for today');
+  let route = await read(first);
+  if (!route && via.length) route = await read(await ask(coordinates, coordinates.map((_, i) => i === 0 || i === coordinates.length - 1 ? 5000 : -1)));
+  if (!route && via.length) {
+    const parts = await Promise.all(coordinates.slice(1).map((b, i) => ask([coordinates[i], b], [-1, -1]).then(read)));
+    const hav = (a: number[], b: number[]) => { const R = 6371, dLa = (b[1] - a[1]) * Math.PI / 180, dLo = (b[0] - a[0]) * Math.PI / 180, x = Math.sin(dLa / 2) ** 2 + Math.cos(a[1] * Math.PI / 180) * Math.cos(b[1] * Math.PI / 180) * Math.sin(dLo / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(x)); };
+    if (parts.some(Boolean)) route = parts.reduce<Route>((acc, p, i) => {
+      const a = coordinates[i], b = coordinates[i + 1];
+      // A stretch with no road: straight across, at mountain-road length and speed.
+      const seg = p || { km: hav(a, b) * 1.4, h: hav(a, b) * 1.4 / 30, coords: [a, b] };
+      return { km: acc.km + seg.km, h: acc.h + seg.h, coords: [...acc.coords, ...(acc.coords.length ? seg.coords.slice(1) : seg.coords)] };
+    }, { km: 0, h: 0, coords: [] });
+  }
+  if (!route) return fail(first ? 502 : 502, first ? `Routing failed (${first.status})` : 'Routing service unreachable');
+  let coords = route.coords as [number, number][];
   const step = Math.ceil(coords.length / 1500);
   if (step > 1) coords = coords.filter((_, i) => i % step === 0 || i === coords.length - 1);
-  return ok({ km: f.properties.summary.distance / 1000, h: f.properties.summary.duration / 3600, coords: coords.map(c => [+c[0].toFixed(5), +c[1].toFixed(5)]) });
+  return ok({ km: route.km, h: route.h, coords: coords.map(c => [+c[0].toFixed(5), +c[1].toFixed(5)]) });
 }
