@@ -162,7 +162,11 @@ export const MTN_NODES: Set<string> = new Set(['MGR', 'KLM', 'MNS', 'NRN', 'CHL'
  */
 export const ROAD_SHAPES: Record<string, [number, number][]> = {
   // Babusar Pass road: Naran, Batakundi, Burawai, Besal, Lulusar, Gittidas, Babusar Top, Babusar village, Thak.
-  'NRN-CHL': [[34.935, 73.766], [34.992, 73.838], [35.040, 73.886], [35.083, 73.932], [35.090, 73.965], [35.112, 74.010], [35.146, 74.047], [35.205, 74.070], [35.270, 74.083], [35.345, 74.095]]
+  'NRN-CHL': [[34.935, 73.766], [34.992, 73.838], [35.040, 73.886], [35.083, 73.932], [35.090, 73.965], [35.112, 74.010], [35.146, 74.047], [35.205, 74.070], [35.270, 74.083], [35.345, 74.095]],
+  // M-2 by Bhera and Kallar Kahar: left to itself the router takes the GT Road, and fuel follows it.
+  'LHR-ISB': [[32.445, 72.870], [32.775, 72.700]],
+  'LHR-KLK': [[32.445, 72.870]],
+  'FSD-ISB': [[32.445, 72.870], [32.775, 72.700]]
 };
 
 export const EDGES: Edge[] = [
