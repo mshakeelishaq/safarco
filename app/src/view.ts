@@ -609,7 +609,7 @@ export function buildView(s: AppState, api: Api) {
         back: () => set({ destPick: null }), close: () => set({ sheet: 'none', destPick: null, dq: '' }), open: () => set({ sheet: 'dest', destPick: null, dq: '' }) };
     })() : null,
     openDestChange: () => set({ settings: false, sheet: 'dest', destPick: null, dq: '' }),
-    seasonNotes: [...alertNotes, ...closedNotes, ...securityOn.map(a => ({ icon: 'ph-shield-warning', color: 'var(--cor)', text: t(a.text) })), ...seasonInfo(s, s.corridor), ...jeepNote],
+    seasonNotes: [...alertNotes, ...closedNotes, ...(s.vehicle === 'bike' && !isAir ? [{ icon: 'ph-motorcycle', color: 'var(--g)', text: t('Motorbikes aren’t allowed on motorways, so this plan takes the GT Road and other highways.') }] : []), ...securityOn.map(a => ({ icon: 'ph-shield-warning', color: 'var(--cor)', text: t(a.text) })), ...seasonInfo(s, s.corridor), ...jeepNote],
     dayHint: (() => {
       const o = s.origin || 'Islamabad', okS = { tile: 'linear-gradient(135deg,#2EE59D,#0FA678)', bg: 'rgba(46,229,157,.1)', border: 'rgba(46,229,157,.3)' }, badS = { tile: 'linear-gradient(135deg,#FF8A6B,#FF4F7B)', bg: 'rgba(255,107,91,.12)', border: 'rgba(255,107,91,.4)' };
       if (s.mode === 'know' && L) {

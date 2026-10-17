@@ -79,8 +79,12 @@ export interface Leg { a: string; b: string; km: number; h: number; road: string
 /** `keep`: a place in a day plan people follow, kept in its order when the day is timed. */
 export interface StopItem { time: string; kind: StopKind; label: string; note: string; dur?: string; isDrive?: boolean; walk?: boolean; keep?: boolean; href?: string; arrive?: boolean; driveH?: number }
 
+/** The road a pair of towns' stops belong to (the first one listed): another road between them gets roadside stops instead. */
+const MAIN_ROAD: Record<string, string> = {};
+EDGES.forEach(e => { MAIN_ROAD[`${e[0]}-${e[1]}`] ??= e[6]; MAIN_ROAD[`${e[1]}-${e[0]}`] ??= e[6]; });
 function stopsOn(l: Leg): EdgeStop[] {
-  const f = EDGE_STOPS[`${l.a}-${l.b}`], r = EDGE_STOPS[`${l.b}-${l.a}`];
+  const own = !MAIN_ROAD[`${l.a}-${l.b}`] || MAIN_ROAD[`${l.a}-${l.b}`] === l.road;
+  const f = own ? EDGE_STOPS[`${l.a}-${l.b}`] : undefined, r = own ? EDGE_STOPS[`${l.b}-${l.a}`] : undefined;
   const st: EdgeStop[] = f ? f.map(x => [...x] as EdgeStop) : r ? r.map(x => [l.km - x[0], x[1], x[2], x[3]] as EdgeStop) : [];
   if (!st.length && l.h > 2.5) { const n = Math.floor(l.h / 2.5); for (let i = 1; i <= n; i++) st.push([l.km * i / (n + 1), 'tea', t('Roadside dhaba'), t('Tea, fuel and washrooms')]); }
   return st.filter(x => x[0] > 0 && x[0] < l.km).sort((a, b) => a[0] - b[0]);
@@ -167,16 +171,21 @@ const avoids = (road: string, avoid: string[]) => roadParts(road).some(r => avoi
 
 /** The road the traveller picked over the fastest one, for one trip: the roads it keeps off. */
 let PICK: { key: string; origin: string; avoid: string[] } | null = null;
+/** Motorways (motorbikes aren't allowed on them). The M-8 in Balochistan is a two-lane highway that bikes use. */
+export const MOTORWAYS = [...new Set(EDGES.flatMap(e => roadParts(e[6])))].filter(r => (/^M-\d+$/.test(r) && r !== 'M-8') || /Motorway$/.test(r));
+/** The trip is on a motorbike: every route keeps off the motorways. */
+let BIKE = false;
 export interface RoadPick { at: string; avoid: string[] }
 /** Use the traveller's road choice for the trip in `s` (from `s.roadPick`, if it's still for this trip). */
-export function setRoutePick(s: { corridor: string; origin: string | null; roadPick?: RoadPick | null }) {
+export function setRoutePick(s: { corridor: string; origin: string | null; roadPick?: RoadPick | null; vehicle?: string }) {
   const at = `${s.corridor}|${s.origin ?? ''}`;
+  BIKE = s.vehicle === 'bike';
   PICK = s.roadPick && s.roadPick.at === at && s.roadPick.avoid.length ? { key: s.corridor, origin: s.origin ?? '', avoid: s.roadPick.avoid } : null;
 }
 export const pickAt = (s: { corridor: string; origin: string | null }) => `${s.corridor}|${s.origin ?? ''}`;
 /** Run `f` with the road choice of `s`, then put back the one before (plans for other trips don't keep it). */
-function withPick<T>(s: TripState, f: () => T): T { const prev = PICK; setRoutePick(s); try { return f(); } finally { PICK = prev; } }
-const pickFor = (key: string, origin: string | null) => PICK && PICK.key === key && PICK.origin === (origin ?? '') ? PICK.avoid : [];
+function withPick<T>(s: TripState, f: () => T): T { const prev = PICK, bike = BIKE; setRoutePick(s); try { return f(); } finally { PICK = prev; BIKE = bike; } }
+const pickFor = (key: string, origin: string | null) => [...(BIKE ? MOTORWAYS : []), ...(PICK && PICK.key === key && PICK.origin === (origin ?? '') ? PICK.avoid : [])];
 
 /** Dijkstra from `dest` over roads open in `month` (and not closed, unless `anyway`). */
 function shortest(dest: string, month: number, anyway = false, avoid: string[] = []) {
@@ -322,7 +331,9 @@ function viaOf(legs: Leg[]) {
   seq.forEach((n, i) => {
     if (NODES[n] && seq.indexOf(n) === i) pts.push({ p: NODES[n], town: true });
     const next = seq[i + 1]; if (!next) return;
-    const fwd = ROAD_SHAPES[`${n}-${next}`], back = ROAD_SHAPES[`${next}-${n}`];
+    // A shape for this road between the two towns, else for the pair's main road (only when that's the road taken).
+    const road = legs[i].road, main = !MAIN_ROAD[`${n}-${next}`] || MAIN_ROAD[`${n}-${next}`] === road;
+    const fwd = ROAD_SHAPES[`${n}-${next}|${road}`] || (main ? ROAD_SHAPES[`${n}-${next}`] : undefined), back = ROAD_SHAPES[`${next}-${n}|${road}`] || (main ? ROAD_SHAPES[`${next}-${n}`] : undefined);
     (fwd || (back ? [...back].reverse() : [])).forEach(p => pts.push({ p, town: false }));
   });
   // At most 23 points: road shapes always stay, towns are thinned evenly.
@@ -375,7 +386,7 @@ export function roadsOnlyIn(a: Trip, b: Trip) {
 }
 
 /** Road trip to destination `key` from any point `o` (a city, or another destination on a circuit). */
-export function tripFrom(key: string, o: { n: string; lat: number; lon: number }, month = 7, anyway = false, avoid: string[] = []): Trip {
+export function tripFrom(key: string, o: { n: string; lat: number; lon: number }, month = 7, anyway = false, avoid: string[] = BIKE ? MOTORWAYS : []): Trip {
   const ck = `${key}|${o.n}|${month}${anyway ? '|any' : ''}${avoid.length ? '|' + avoid.join(',') : ''}`; if (TRIP_CACHE[ck]) return TRIP_CACHE[ck];
   const D = DST(key);
   const oc = attachTo(o.lat, o.lon, false), dc = D.node ? [{ n: D.node, local: 0, mtn: MTN_NODES.has(D.node) }] : attachTo(D.lat, D.lon, (D.ft ?? D.ftEst ?? 0) > 3000);

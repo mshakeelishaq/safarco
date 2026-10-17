@@ -90,13 +90,13 @@ export const NODES: Record<string, [number, number]> = { KLK: [32.78, 72.70], KH
   SKD: [35.30, 75.63], QTA: [30.18, 67.00], DGK: [30.05, 70.63], DIK: [31.83, 70.90], GWD: [25.13, 62.32], MZD: [34.37, 73.47],
   MRE: [33.91, 73.39], KEL: [34.82, 74.35], CKD: [34.66, 72.03], DIR: [35.21, 71.88], CTR: [35.85, 71.79], KHP: [35.15, 76.33], ORM: [25.21, 64.64], PSU: [36.47, 74.89], ZRT: [30.38, 67.73], KML: [25.40, 65.47], MJD: [27.33, 68.14], MJB: [34.80, 72.57], LRL: [30.37, 68.60], KZD: [27.81, 66.61],
   ABT: [34.15, 73.21], KWI: [34.60, 73.50], SHG: [34.64, 73.46], NTG: [34.07, 73.38], AST: [35.37, 74.86], NLT: [36.16, 74.18], PHD: [36.16, 72.94], MSJ: [36.28, 72.52], SST: [36.69, 74.82], KJB: [36.85, 75.42], BMB: [35.73, 71.73], THL: [35.47, 72.24], KMT: [35.53, 72.22], ZHB: [31.34, 69.45], MTH: [24.74, 69.80], BWP: [29.40, 71.68], TBT: [26.00, 63.05],
-  GRW: [32.16, 74.19], WZB: [32.44, 74.12], SKT: [32.49, 74.53], GJT: [32.57, 74.08], JLM: [32.94, 73.73], SWL: [30.66, 73.11], RYK: [28.42, 70.30], SGD: [32.08, 72.67], OKR: [30.81, 73.45] };
+  GRW: [32.16, 74.19], WZB: [32.44, 74.12], SKT: [32.49, 74.53], GJT: [32.57, 74.08], JLM: [32.94, 73.73], SWL: [30.66, 73.11], RYK: [28.42, 70.30], SGD: [32.08, 72.67], OKR: [30.81, 73.45], HSA: [33.82, 72.69] };
 export const NODE_INFO: Record<string, [string, number]> = { KLK: ['Kallar Kahar', 2000], KHI: ['Karachi', 30], HYD: ['Hyderabad', 80], SKR: ['Sukkur', 220], MUL: ['Multan', 400], FSD: ['Faisalabad', 600], LHR: ['Lahore', 710], ISB: ['Islamabad', 1770], PSH: ['Peshawar', 1100],
   MGR: ['Mingora, Swat', 3200], KLM: ['Kalam', 6560], MNS: ['Mansehra', 3570], NRN: ['Naran', 7900], CHL: ['Chilas', 4100], BSM: ['Besham', 2000], RKT: ['Raikot Bridge', 3800], GLT: ['Gilgit', 4900],
   KRM: ['Karimabad, Hunza', 8000], SKD: ['Skardu', 7310], QTA: ['Quetta', 5500], DGK: ['Dera Ghazi Khan', 400], DIK: ['Dera Ismail Khan', 570], GWD: ['Gwadar', 30], MZD: ['Muzaffarabad', 2420],
   MRE: ['Murree', 7500], KEL: ['Kel, Neelum', 6900], CKD: ['Chakdara', 2300], DIR: ['Dir', 4600], CTR: ['Chitral', 4900], KHP: ['Khaplu', 8500], ORM: ['Ormara', 30], PSU: ['Passu', 8200], ZRT: ['Ziarat', 8200], KML: ['Kund Malir', 30], MJD: ['Mohenjo-daro', 150], MJB: ['Malam Jabba', 8700], LRL: ['Loralai', 4700], KZD: ['Khuzdar', 4000],
   ABT: ['Abbottabad', 4120], KWI: ['Kiwai', 5500], SHG: ['Shogran', 7750], NTG: ['Nathia Gali', 8200], AST: ['Astore', 8500], NLT: ['Naltar', 9500], PHD: ['Phander', 9500], MSJ: ['Mastuj', 7600], SST: ['Sost', 9200], KJB: ['Khunjerab Pass', 15397], BMB: ['Bumburet', 6400], THL: ['Thal, Upper Dir', 7000], KMT: ['Kumrat', 7550], ZHB: ['Zhob', 4700], MTH: ['Mithi', 90], BWP: ['Bahawalpur', 380], TBT: ['Turbat', 420],
-  GRW: ['Gujranwala', 740], WZB: ['Wazirabad', 720], SKT: ['Sialkot', 840], GJT: ['Gujrat', 760], JLM: ['Jhelum', 770], SWL: ['Sahiwal', 500], RYK: ['Rahim Yar Khan', 270], SGD: ['Sargodha', 620], OKR: ['Okara', 560] };
+  GRW: ['Gujranwala', 740], WZB: ['Wazirabad', 720], SKT: ['Sialkot', 840], GJT: ['Gujrat', 760], JLM: ['Jhelum', 770], SWL: ['Sahiwal', 500], RYK: ['Rahim Yar Khan', 270], SGD: ['Sargodha', 620], OKR: ['Okara', 560], HSA: ['Hasan Abdal', 1500] };
 /** Places on OpenStreetMap that aren't really there (or are somewhere else): never shown in the live "nearby" lists. The admin can add more. */
 export const HIDE_SPOTS = ['View on Nanga Parbat'];
 /** Areas with a security advisory because of the law and order situation, shown on any trip that goes to or through them. The admin can switch them on or off, edit them and add more. */
@@ -170,7 +170,11 @@ export const ROAD_SHAPES: Record<string, [number, number][]> = {
   // M-2 by Bhera and Kallar Kahar: left to itself the router takes the GT Road, and fuel follows it.
   'LHR-ISB': [[32.445, 72.870], [32.775, 72.700]],
   'LHR-KLK': [[32.445, 72.870]],
-  'FSD-ISB': [[32.445, 72.870], [32.775, 72.700]]
+  'FSD-ISB': [[32.445, 72.870], [32.775, 72.700]],
+  // The old roads beside motorways, by the towns on them ('A-B|road' for one road between two towns).
+  'HSA-PSH|GT Road (N-5)': [[33.89, 72.25], [34.01, 71.98]], 'ISB-HSA|GT Road (N-5)': [[33.74, 72.80]], 'HSA-ABT|N-35 by Haripur': [[33.99, 72.93]],
+  'PSH-CKD|N-45 by Mardan and Malakand': [[34.20, 72.04], [34.57, 71.93]], 'KHI-HYD|N-5 National Highway': [[24.75, 67.92]],
+  'FSD-LHR|Faisalabad Road': [[31.71, 73.98]], 'MUL-FSD|Multan–Faisalabad Road': [[30.97, 72.48]], 'KLK-ISB|Chakwal Road': [[32.93, 72.86]]
 };
 
 export const EDGES: Edge[] = [
@@ -199,7 +203,11 @@ export const EDGES: Edge[] = [
   ['LHR', 'GRW', 68, 52, 0, 0, 'GT Road (N-5)'], ['GRW', 'WZB', 33, 55, 0, 0, 'GT Road (N-5)'], ['WZB', 'GJT', 20, 55, 0, 0, 'GT Road (N-5)'], ['GJT', 'JLM', 50, 55, 0, 0, 'GT Road (N-5)'], ['JLM', 'ISB', 115, 50, 0, 0, 'GT Road (N-5)'],
   ['SKT', 'WZB', 40, 50, 0, 0, 'Sialkot–Wazirabad Road'], ['SKT', 'GRW', 55, 50, 0, 0, 'Sialkot–Gujranwala Road'], ['SKT', 'LHR', 125, 90, 500, 0, 'M-11'],
   ['LHR', 'OKR', 115, 65, 0, 0, 'N-5'], ['OKR', 'SWL', 55, 65, 0, 0, 'N-5'], ['SWL', 'MUL', 175, 65, 0, 0, 'N-5'], ['BWP', 'RYK', 185, 65, 0, 0, 'N-5'], ['RYK', 'SKR', 170, 65, 0, 0, 'N-5'],
-  ['SGD', 'KLK', 105, 75, 600, 0, 'Sargodha Road + M-2'], ['SGD', 'FSD', 95, 60, 0, 0, 'Sargodha–Faisalabad Road']];
+  ['SGD', 'KLK', 105, 75, 600, 0, 'Sargodha Road + M-2'], ['SGD', 'FSD', 95, 60, 0, 0, 'Sargodha–Faisalabad Road'],
+  // Roads beside the motorways, for motorbikes (not allowed on motorways). Slower, so cars only take them when they're quicker.
+  ['ISB', 'HSA', 50, 45, 0, 0, 'GT Road (N-5)'], ['HSA', 'PSH', 125, 50, 0, 0, 'GT Road (N-5)'], ['HSA', 'ABT', 70, 40, 0, 0, 'N-35 by Haripur'], ['ABT', 'MNS', 35, 35, 0, 0, 'N-35'],
+  ['PSH', 'CKD', 135, 45, 0, 0, 'N-45 by Mardan and Malakand'], ['KHI', 'HYD', 185, 55, 0, 0, 'N-5 National Highway'], ['FSD', 'LHR', 135, 50, 0, 0, 'Faisalabad Road'],
+  ['MUL', 'FSD', 230, 55, 0, 0, 'Multan–Faisalabad Road'], ['KLK', 'ISB', 125, 50, 0, 0, 'Chakwal Road']];
 export const DIESEL = 395, LOCAL_CAR = 15000;
 /** Prices the engine reads at run time. The admin price list (src/prices.ts) overwrites these. */
 export const P = { petrol: PETROL, diesel: DIESEL, localCar: LOCAL_CAR, coachFlat: 6.5, coachMtn: 9, airportCoach: 6.5, raikotJeep: 10000 };

@@ -223,7 +223,6 @@ export const GALLERY: Record<string, { src: string; caption: string }[]> = {
     { src: '/photos/chilam-lake-summer.webp', caption: 'Summer: a lake in the high meadows past Chilam, on the road to Minimarg' },
     { src: '/photos/minimarg-road-switchbacks.webp', caption: 'Summer: the road zigzagging down from Burzil Pass towards Minimarg' },
     { src: '/photos/burzil-road-summer.webp', caption: 'Summer: the road climbing to Burzil Pass through green alpine slopes' },
-    { src: '/photos/burzil-top-sign.webp', caption: 'Burzil Top at 13,808 ft, the army checkpost on the way to Minimarg' },
     { src: '/photos/minimarg-village-valley.webp', caption: 'Summer: Minimarg village and its fields, in a valley of pine slopes' },
     { src: '/photos/minimarg-wooden-village.webp', caption: 'Summer: wooden houses and haystacks among the fields at Minimarg' },
     { src: '/photos/minimarg-river-houses.webp', caption: 'Summer: log houses above the stream at Minimarg' },
@@ -458,6 +457,8 @@ export const PHOTO_EDITS: Record<string, string> = {};
 const WIKI_PAGES: Record<string, string[]> = { taxila: ['Taxila'], fairy: ['Fairy_Meadows_National_Park'], hushe: ['Hushe_Valley'], ishkoman: ['Ishkoman_Valley'], yasin: ['Yasin_Valley'],
   bagh: ['Sudhan_Gali', 'Bagh,_Azad_Kashmir', 'Bagh_District'], sehwan: ['Sehwan_Sharif', 'Shrine_of_Lal_Shahbaz_Qalandar'] };
 export interface WebPhoto { src: string; page: string; credit: string }
+/** Whether a place's photo comes from Wikipedia (it has none of ours). */
+export const hasWebPhoto = (id: string) => !!WIKI_PAGES[id] && !OWN[id];
 const WEB: Record<string, WebPhoto | null> = {};
 const webSubs = new Set<() => void>();
 export const onWebPhoto = (f: () => void) => { webSubs.add(f); return () => { webSubs.delete(f); }; };
@@ -505,6 +506,8 @@ const pick = (key: string, n: number) => { let h = 0; for (const c of key) h = (
 
 /** This trip's photo: one of ours for an autumn trip to an autumn-colour place, or null to use the guide's photo. */
 export function destPhoto(id: string, month: number, startDate = '') {
+  // A place with its own Wikipedia photo shows that, not another valley's autumn.
+  if (hasWebPhoto(id) && !ownPhoto(id, month)) return null;
   if (!AUTUMN_MONTHS.includes(month) || !wishPlaces('autumn').some(p => p.id === id)) return null;
   if (ownPhoto(id, month)) return { src: ownPhoto(id, month)! };
   return { src: AUTUMN[pick(id + startDate, AUTUMN.length)] };

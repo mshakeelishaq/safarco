@@ -2263,4 +2263,5 @@ export const UR: Record<string, string> = {
   "{place}, then {next}, in one trip.": "Pehle {place}, phir {next}, ek hi trip mein.",
   "{n}+ days": "{n}+ din",
   "{place} needs at least {n} days from {from}. The plan will offer to make it longer.": "{from} se {place} ke liye kam az kam {n} din chahiye. Plan aap ko din barhane ka option dega.",
+  "Motorbikes aren’t allowed on motorways, so this plan takes the GT Road and other highways.": "Motorbike ko motorway par jaane ki ijazat nahi, is liye yeh plan GT Road aur doosri highways se jata hai.",
 };

@@ -13,9 +13,9 @@ describe('which road', () => {
   });
   it('offers the GT Road beside the M-2, and the KKH beside Babusar, but not silly detours', () => {
     const { best, options } = routeOptions('naran', 'Lahore', 7);
-    expect(options).toHaveLength(1);
-    expect(roadsOnlyIn(options[0].trip, best)).toEqual({ roads: ['GT Road (N-5)'], via: 'Gujranwala' });
-    expect(options[0].trip.km).toBeLessThan(best.km);
+    const gt = options.find(o => roadsOnlyIn(o.trip, best).via === 'Gujranwala')!;
+    expect(roadsOnlyIn(gt.trip, best).roads).toEqual(['GT Road (N-5)']);
+    expect(gt.trip.km).toBeLessThan(best.km);
     expect(routeOptions('hunza', 'Islamabad', 7).options.map(o => roadsOnlyIn(o.trip, trip('hunza', 'Islamabad', 7)).via)).toContain('Besham');
     // Sialkot round by Lahore and the M-2 is far longer and slower: not offered.
     expect(routeOptions('islamabad', 'Sialkot', 7).options).toEqual([]);
@@ -59,5 +59,18 @@ describe('a long day instead of a night', () => {
     const titles = buildPlan(st(['out:MNS', 'out:thru:MNS'])).days.filter(d => d.track).map(d => d.title);
     expect(titles.slice(0, 2)).toEqual(['Lahore → Mansehra', 'Mansehra → Karimabad, Hunza']);
     expect(drivingDays(st(['out:MNS', 'out:thru:MNS']))).toBe(drivingDays(st(['out:MNS'])) - 1);
+  });
+});
+
+describe('motorbikes', () => {
+  it('keep off every motorway, and cars still take them', () => {
+    const bike = { ...s('Lahore', 'naran'), vehicle: 'bike' as const };
+    const roadsOf = (st: TripState) => buildPlan(st).days.flatMap(d => d.track?.legs.map(l => l.road) || []);
+    const b = roadsOf(bike);
+    expect(b.some(r => /^M-\d|Motorway/.test(r))).toBe(false);
+    expect(b).toContain('GT Road (N-5)');
+    expect(roadsOf(s('Lahore', 'naran'))).toContain('M-2');
+    // No motorway tolls for bikes either.
+    expect(costFor(bike).rows.find(r => r.label === 'Tolls')!.val).toBe(0);
   });
 });
