@@ -14,6 +14,7 @@ import { Contact } from './Contact';
 import { SITE_URL } from './url';
 import { Logo } from '../components/Logo';
 import { isInstalled, offerInstallNow, onInstallChange, startInstall } from '../install';
+import { planHref, seasonNow } from './Hero';
 
 /** Pages of the website, by path. */
 const SITE_PAGES = ['/', '/destinations', '/about', '/app', '/contact'];
@@ -49,18 +50,36 @@ const NAV: [string, string][] = [['/', 'Home'], ['/destinations', 'Destinations'
 
 export function Header({ onPhoto = false }: { onPhoto?: boolean }) {
   const [open, setOpen] = useState(false), here = path();
-  return (
-    <header className={`site-head${onPhoto ? ' on-photo' : ''}`}>
+  // Over a photo the bar is clear; past it, a slim frosted bar. On phones it slides away going down and back going up.
+  const [solid, setSolid] = useState(!onPhoto), [hidden, setHidden] = useState(false);
+  useEffect(() => {
+    let last = scrollY;
+    const f = () => {
+      const y = scrollY, top = (document.querySelector('.hero2, .hero, .photo-band') as HTMLElement | null)?.offsetHeight || 0;
+      setSolid(!onPhoto || y > Math.max(40, top - 90));
+      if (innerWidth > 760 || y < 140) setHidden(false);
+      else if (y > last + 6) setHidden(true);
+      else if (y < last - 6) setHidden(false);
+      last = y;
+    };
+    f(); addEventListener('scroll', f, { passive: true }); addEventListener('resize', f);
+    return () => { removeEventListener('scroll', f); removeEventListener('resize', f); };
+  }, [onPhoto]);
+  const hide = hidden && !open, clear = onPhoto && !solid;
+  return <>
+    <header className={`site-head${onPhoto ? ' on-photo' : ''}${solid ? ' solid' : ''}${hide ? ' tucked' : ''}`}>
       <div className="site-wrap">
-        <A href="/" className="site-logo" aria-label="SafarCo home"><Logo size={36} light={onPhoto} /></A>
+        <A href="/" className="site-logo" aria-label="SafarCo home"><Logo size={solid ? 32 : 36} light={clear} /></A>
         <nav className={`site-nav${open ? ' open' : ''}`} aria-label="Main">
           {NAV.map(([h, l]) => <A key={h} href={h} aria-current={(h === '/' ? here === '/' : here.startsWith(h)) ? 'page' : undefined} onClick={() => setOpen(false)}>{l}</A>)}
         </nav>
-        <a href="/plan?start=1" className="btn btn-sun btn-sm head-cta">Plan a trip</a>
+        <a href={planHref()} className="btn btn-sun btn-sm head-cta">Plan a trip</a>
         <button className="site-menu" aria-label="Menu" aria-expanded={open} onClick={() => setOpen(!open)}><i className={`ph-bold ${open ? 'ph-x' : 'ph-list'}`} /></button>
       </div>
     </header>
-  );
+    {/* Phones: while the bar is tucked away, "Plan a trip" stays a tap away. */}
+    <a href={planHref()} className={`plan-fab${hide ? ' show' : ''}`} aria-hidden={!hide} tabIndex={hide ? 0 : -1}><i className="ph-fill ph-path" />Plan a trip</a>
+  </>;
 }
 
 export function Footer() {
@@ -120,5 +139,13 @@ export function Site() {
   }, []);
   const g = /^\/destinations\/([a-z0-9-]+)$/.exec(p);
   const page = p === '/' ? <Home /> : p === '/destinations' ? <DestinationList /> : g ? <Guide id={g[1]} /> : p === '/about' ? <About /> : p === '/app' ? <GetApp /> : p === '/contact' ? <Contact /> : <NotFound />;
-  return <div className="site" data-sc="1" data-theme="paper">{page}<AppBar here={p} /></div>;
+  // Sections fade in as they come into view (not for visitors who prefer less motion).
+  useEffect(() => {
+    const els = [...document.querySelectorAll('.site .reveal:not(.in)')];
+    if (!('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) { els.forEach(e => e.classList.add('in')); return; }
+    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    els.forEach(e => io.observe(e));
+    return () => io.disconnect();
+  });
+  return <div className="site" data-sc="1" data-theme="paper" data-season={seasonNow()}>{page}<AppBar here={p} /></div>;
 }

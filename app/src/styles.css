@@ -233,3 +233,15 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
 @keyframes sc-kb { from { transform: scale(1.02); } to { transform: scale(1.12); } }
 .sc-kb { animation: sc-kb 7s ease-out both; }
 @media (prefers-reduced-motion: reduce) { .sc-kb { animation: none; } }
+
+/* The website's travellers (also on the "getting ready" screen): legs walk, wheels turn, cars bob. */
+.tf .tf-leg-a, .tf .tf-leg-b { transform-box: fill-box; transform-origin: 50% 0%; }
+.tf .tf-wheel { transform-box: fill-box; transform-origin: 50% 50%; }
+.walking .tf-leg-a, .tf-moving .tf-leg-a { animation: tf-leg .46s ease-in-out infinite alternate; }
+.walking .tf-leg-b, .tf-moving .tf-leg-b { animation: tf-leg .46s ease-in-out infinite alternate-reverse; }
+.walking .tf-wheel, .tf-moving .tf-wheel { animation: tf-spin .55s linear infinite; }
+.walking .tf-bob, .tf-moving .tf-bob { animation: tf-bob .3s ease-in-out infinite alternate; }
+@keyframes tf-leg { from { transform: rotate(24deg); } to { transform: rotate(-24deg); } }
+@keyframes tf-spin { to { transform: rotate(360deg); } }
+@keyframes tf-bob { from { transform: translateY(0); } to { transform: translateY(-.9px); } }
+@media (prefers-reduced-motion: reduce) { .tf * { animation: none !important; } }

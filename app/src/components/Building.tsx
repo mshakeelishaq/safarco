@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { css } from '../lib/css';
 import { t } from '../i18n';
 import type { View } from '../view';
+import { getTraveller } from '../traveller';
+import { TravellerFig } from './TravellerFig';
 
 const ROAD = 'M14 128 C 54 132, 66 104, 108 108 S 168 134, 196 104 S 236 60, 286 42';
 const MIN_MS = 2800, MAX_MS = 10000;
@@ -16,6 +18,8 @@ export function Building({ v, started, onDone }: { v: View; started: number; onD
   useEffect(() => { if (finished) onDone(); }, [finished, onDone]);
   const tips = v.buildTips, tip = tips.length ? tips[Math.floor(elapsed / 3200) % tips.length] : '';
   const done = v.buildSteps.filter(x => x.done).length;
+  // The traveller chosen on the website rides the road here too.
+  const who = getTraveller();
 
   return (
     <div role="dialog" aria-modal="true" aria-label={t('Your plan is getting ready…')} style={css('position:absolute;inset:0;z-index:45;background:var(--bg);color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 22px calc(30px + env(safe-area-inset-bottom));text-align:center')}>
@@ -35,7 +39,7 @@ export function Building({ v, started, onDone }: { v: View; started: number; onD
           <circle cx="286" cy="42" r="5" fill="#FF5A72" stroke="#FFFFFF" strokeWidth="2" />
         </svg>
         <div className="sc-drive" style={{ position: 'absolute', left: 0, top: 0, offsetPath: `path('${ROAD}')`, offsetAnchor: '50% 85%' } as React.CSSProperties}>
-          <div className="sc-bob" style={css('width:34px;height:34px;border-radius:12px;background:var(--card);border:1px solid var(--line2);box-shadow:0 6px 14px -6px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;font-size:21px;color:var(--g)')}><i className={`ph-fill ${v.vehIcon}`} /></div>
+          <div className="sc-bob" style={css('width:34px;height:34px;border-radius:12px;background:var(--card);border:1px solid var(--line2);box-shadow:0 6px 14px -6px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;font-size:21px;color:var(--g)')}>{who ? <TravellerFig id={who} size={30} moving /> : <i className={`ph-fill ${v.vehIcon}`} />}</div>
         </div>
         <div style={css('position:absolute;left:0;top:140px;font-size:11px;font-weight:800;color:var(--ink2);white-space:nowrap')}>{v.c.from}</div>
         <div style={css('position:absolute;right:0;top:14px;font-size:11px;font-weight:800;color:var(--ink2);white-space:nowrap')}>{v.c.to}</div>

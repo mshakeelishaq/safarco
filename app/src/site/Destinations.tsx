@@ -1,4 +1,5 @@
 // All destinations (filter by province or "in season now") and a guide page for each one.
+import { planHref } from './Hero';
 import { useState } from 'react';
 import { A, Footer, Header, NotFound, usePage } from './Site';
 import { DCard } from './Home';
@@ -50,7 +51,7 @@ export function Guide({ id }: { id: string }) {
       <div className="kicker" style={{ color: '#FFD27A', marginTop: 18 }}>{g.region}</div>
       <h1 style={{ fontSize: 'clamp(40px,6vw,68px)', margin: '0 0 10px', lineHeight: 1.05 }}>{g.name}</h1>
       <p style={{ fontSize: 19, maxWidth: 700, margin: '0 0 22px' }}>{g.line}</p>
-      <div className="hero-actions"><a href={`/plan?go=${id}`} className="btn btn-sun">Plan a trip to {g.name} <i className="ph-bold ph-arrow-right" /></a></div>
+      <div className="hero-actions"><a href={planHref({ to: id })} className="btn btn-sun">Plan a trip to {g.name} <i className="ph-bold ph-arrow-right" /></a></div>
       {webPhoto(id) && <a href={webPhoto(id)!.page} target="_blank" rel="noreferrer" style={{ display: 'inline-block', marginTop: 14, color: '#fff', opacity: .8, fontSize: 12 }}>{webPhoto(id)!.credit}</a>}
     </div></section>
 
@@ -119,7 +120,7 @@ export function Guide({ id }: { id: string }) {
         <div className="panel" style={{ background: '#0B5F7C', color: '#fff', border: 0 }}>
           <h3 style={{ color: '#fff' }}>Plan this trip</h3>
           <p style={{ margin: '0 0 14px', lineHeight: 1.5, opacity: .9 }}>Your city, days and budget, and SafarCo makes the plan: drives, stops, hotels, weather and cost.</p>
-          <a href={`/plan?go=${id}`} className="btn btn-sun" style={{ width: '100%' }}>Plan a trip to {g.name}</a>
+          <a href={planHref({ to: id })} className="btn btn-sun" style={{ width: '100%' }}>Plan a trip to {g.name}</a>
         </div>
       </aside>
     </div></section>

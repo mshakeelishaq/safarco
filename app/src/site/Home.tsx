@@ -2,21 +2,53 @@
 import { A, Footer, Header, usePage } from './Site';
 import { bestNow, nowMonth } from './data';
 import { seasonOf } from '../engine/seasons';
-import { DESTS } from '../engine/data';
-import { IG_HANDLE } from '../contact';
+import { Hero, planHref, useTraveller } from './Hero';
+import { TravellerFig } from '../components/TravellerFig';
+import { TRAVELLERS, setTraveller } from '../traveller';
 
-const HERO: Record<string, string> = { autumn: '/photos/autumn-hunza.webp', winter: '/photos/snowfall.webp', spring: '/photos/blossom.webp', summer: '/photos/green-valley.webp' };
-
-export const DCard = ({ c }: { c: ReturnType<typeof bestNow>[number] }) => (
-  <A href={c.href} className="dcard">
-    <div className="ph" style={{ backgroundImage: `url(${c.photo})` }}><b>{c.name}</b></div>
+export function DCard({ c }: { c: ReturnType<typeof bestNow>[number] }) {
+  const who = useTraveller();
+  return <A href={c.href} className="dcard">
+    <div className="ph" style={{ backgroundImage: `url(${c.photo})` }}><b>{c.name}</b>
+      {/* On hover: a pin drops on the place and the visitor's traveller arrives. */}
+      <span className="dc-pin" aria-hidden="true"><i className="ph-fill ph-map-pin" /></span>
+      <span className="dc-fig" aria-hidden="true"><TravellerFig id={who} size={46} moving /></span>
+    </div>
     <div className="tx">
       <span className="rg">{c.region}</span>
       {c.line && <span className="ln">{c.line}</span>}
       {c.risk ? <span className="risk"><i className="ph-fill ph-shield-warning" />{c.risk}</span> : <span className="wh"><i className="ph-fill ph-calendar-check" />{c.when}</span>}
     </div>
-  </A>
-);
+  </A>;
+}
+
+/** "Who's travelling?": the visitor's character on the site, and a head start in the planner. */
+function ChooseTraveller() {
+  const who = useTraveller();
+  let chosen = false; try { chosen = !!localStorage.getItem('safarco-traveller'); } catch { /* storage blocked */ }
+  return (
+    <section className="sec traveller-sec">
+      <div className="site-wrap">
+        <div className="row-head reveal">
+          <div><div className="kicker">Your travel style</div><h2>Who’s travelling?</h2><p className="sub">Pick your traveller. They’ll walk the site with you, and the planner starts set up for you.</p></div>
+          <a href={planHref()} className="more">Plan as {TRAVELLERS.find(t => t.id === who)!.name.toLowerCase()} <i className="ph-bold ph-arrow-right" /></a>
+        </div>
+        <div className="grid g4 tv-grid" role="radiogroup" aria-label="Your traveller">
+          {TRAVELLERS.map((t, k) => {
+            const on = chosen ? who === t.id : false;
+            // The fade-in sits on a wrapper: React redraws the card's own class when it's chosen.
+            return <div key={t.id} className="reveal" style={{ transitionDelay: `${k * 70}ms`, display: 'flex' }}><button role="radio" aria-checked={on} className={`tv${on ? ' on' : ''}`} onClick={() => setTraveller(t.id)}>
+              <span className="tv-fig"><TravellerFig id={t.id} size={84} moving={on} /></span>
+              <b>{t.name}</b><span className="tv-line">{t.line}</span>
+              <span className="tv-sets"><i className="ph-fill ph-sliders-horizontal" />{t.sets}</span>
+              {on && <span className="tv-check"><i className="ph-fill ph-check-circle" /></span>}
+            </button></div>;
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
 
 const FEATURES: [string, string, string, string][] = [
   ['ph-clock', '#0B5F7C', 'Every day, hour by hour', 'When to leave, where to stop for tea and fuel, lunch near the right place, and arriving before dark.'],
@@ -32,57 +64,55 @@ export function Home() {
   const m = nowMonth(), season = seasonOf(m), picks = bestNow(6);
   return <>
     <Header onPhoto />
-    <section className="hero" style={{ backgroundImage: `url(${HERO[season.id]})` }}>
-      <div className="site-wrap">
-        <div className="kicker" style={{ color: '#FFD27A' }}>Pakistan trip planner</div>
-        <h1>Your days. Your budget. Your perfect trip across Pakistan.</h1>
-        <p className="lead">Tell SafarCo where you’re starting, how many days you have and what you want to see. Get the whole trip planned: the route, every stop, where to stay and what it will cost.</p>
-        <div className="hero-actions">
-          <a href="/plan?start=1" className="btn btn-sun">Start planning <i className="ph-bold ph-arrow-right" /></a>
-          <a href="/plan?start=quick" className="btn btn-glass"><i className="ph-fill ph-magic-wand" />Plan it for me · 2 questions</a>
-        </div>
-        <div className="hero-trust"><span><i className="ph-fill ph-check-circle" />Free</span><span><i className="ph-fill ph-check-circle" />No sign-up</span><span><i className="ph-fill ph-check-circle" />{DESTS.length} destinations</span><span><i className="ph-fill ph-check-circle" />Works offline</span></div>
-      </div>
-      <div className="credit"><i className="ph-fill ph-instagram-logo" />{IG_HANDLE}</div>
-    </section>
+    <Hero />
+    <ChooseTraveller />
 
     <section className="sec">
       <div className="site-wrap">
-        <div className="row-head">
+        <div className="row-head reveal">
           <div><div className="kicker">{season.label} in Pakistan</div><h2>Where’s best right now</h2><p className="sub">{season.blurb}</p></div>
           <A href="/destinations" className="more">All destinations <i className="ph-bold ph-arrow-right" /></A>
         </div>
-        <div className="grid g3">{picks.map(c => <DCard key={c.id} c={c} />)}</div>
+        <div className="grid g3">{picks.map((c, k) => <div key={c.id} className="reveal" style={{ transitionDelay: `${(k % 3) * 80}ms` }}><DCard c={c} /></div>)}</div>
       </div>
     </section>
 
     <section className="sec sec-alt">
       <div className="site-wrap">
-        <div className="kicker">How it works</div>
+        <div className="reveal"><div className="kicker">How it works</div>
         <h2>A full plan in a minute</h2>
-        <p className="sub">No forms to fill and nothing to sign up for. Change anything you like after.</p>
+        <p className="sub">No forms to fill and nothing to sign up for. Change anything you like after.</p></div>
+        {/* The route draws itself, Lahore to Hunza, as the section comes into view. */}
+        <div className="route-wrap" aria-hidden="true">
+        <svg className="route-draw reveal" viewBox="0 0 1000 120">
+          <path className="rd-base" d="M30 92 C 180 92, 220 28, 360 40 S 560 104, 690 70 S 880 18, 970 30" />
+          <path className="rd-line" pathLength={1} d="M30 92 C 180 92, 220 28, 360 40 S 560 104, 690 70 S 880 18, 970 30" />
+          <circle cx="30" cy="92" r="9" className="rd-a" /><circle cx="970" cy="30" r="9" className="rd-b" />
+        </svg>
+        <div className="route-labels"><span style={{ left: '3%' }}>Lahore</span><span style={{ left: '69%' }}>Naran</span><span style={{ left: '97%' }}>Hunza</span></div>
+        </div>
         <div className="grid g3">
-          <div className="step"><span className="n">1</span><div><h3>Say what you want to see</h3><p>Autumn colours, snow, lakes, the sea, food, or just a long drive. Or pick a place you already have in mind.</p></div></div>
-          <div className="step"><span className="n">2</span><div><h3>Your city, days and budget</h3><p>Coming from abroad? SafarCo starts you at the best airport and gives you a day to rest.</p></div></div>
-          <div className="step"><span className="n">3</span><div><h3>Get your trip, day by day</h3><p>The route and stops, places to see in a sensible order, hotels, food, weather and the full cost.</p></div></div>
+          <div className="step reveal"><span className="n">1</span><div><h3>Say what you want to see</h3><p>Autumn colours, snow, lakes, the sea, food, or just a long drive. Or pick a place you already have in mind.</p></div></div>
+          <div className="step reveal" style={{ transitionDelay: '120ms' }}><span className="n">2</span><div><h3>Your city, days and budget</h3><p>Coming from abroad? SafarCo starts you at the best airport and gives you a day to rest.</p></div></div>
+          <div className="step reveal" style={{ transitionDelay: '240ms' }}><span className="n">3</span><div><h3>Get your trip, day by day</h3><p>The route and stops, places to see in a sensible order, hotels, food, weather and the full cost.</p></div></div>
         </div>
       </div>
     </section>
 
     <section className="sec">
       <div className="site-wrap">
-        <div className="kicker">Why SafarCo</div>
+        <div className="reveal"><div className="kicker">Why SafarCo</div>
         <h2>Everything a road trip needs</h2>
-        <p className="sub">Built for Pakistan’s roads: mountain passes that close, long drives that need a night on the way, and places where the signal drops.</p>
+        <p className="sub">Built for Pakistan’s roads: mountain passes that close, long drives that need a night on the way, and places where the signal drops.</p></div>
         <div className="grid g3">
-          {FEATURES.map(([icon, color, title, text]) => <div key={title} className="fcard"><i className={`ic ph-fill ${icon}`} style={{ background: color }} /><h3>{title}</h3><p>{text}</p></div>)}
+          {FEATURES.map(([icon, color, title, text], k) => <div key={title} className="fcard reveal" style={{ transitionDelay: `${(k % 3) * 80}ms` }}><i className={`ic ph-fill ${icon}`} style={{ background: color }} /><h3>{title}</h3><p>{text}</p></div>)}
         </div>
       </div>
     </section>
 
     <section className="sec" style={{ paddingTop: 0 }}>
       <div className="site-wrap">
-        <div className="appband">
+        <div className="appband reveal">
           <div>
             <div className="kicker" style={{ color: '#FFD27A' }}>The SafarCo app</div>
             <h2>Take the plan with you</h2>
@@ -92,7 +122,7 @@ export function Home() {
               <li><i className="ph-fill ph-check-circle" style={{ color: '#FFD27A' }} />Offline maps and plan</li>
               <li><i className="ph-fill ph-check-circle" style={{ color: '#FFD27A' }} />Expenses and splitting costs with the group</li>
             </ul>
-            <div className="hero-actions"><A href="/app" className="btn btn-sun">Get the app</A><a href="/plan?start=1" className="btn btn-glass">Open in the browser</a></div>
+            <div className="hero-actions"><A href="/app" className="btn btn-sun">Get the app</A><a href={planHref()} className="btn btn-glass">Open in the browser</a></div>
           </div>
           <div className="phone home-phone"><div className="scr" style={{ backgroundImage: 'url(/photos/attabad-summer-cones.webp)', backgroundPosition: '60% center' }}>
             <div style={{ fontFamily: 'var(--fontH)', fontSize: 26, fontWeight: 700 }}>Where to next?</div>

@@ -1,4 +1,5 @@
 // About SafarCo: why it exists, how plans are made, and what it promises travellers.
+import { planHref } from './Hero';
 import { A, Footer, Header, usePage } from './Site';
 import { IG_HANDLE, IG_PROFILE } from '../contact';
 
@@ -45,7 +46,7 @@ export function About() {
         <h2 style={{ marginTop: 0 }}>The photos</h2>
         <p>The photographs across SafarCo are by <a href={IG_PROFILE} target="_blank" rel="noreferrer" style={{ color: 'var(--g)', fontWeight: 700 }}>@{IG_HANDLE}</a>, taken on the same roads SafarCo plans.</p>
       </div>
-      <div className="hero-actions"><a href="/plan?start=1" className="btn btn-sun">Plan a trip</a><A href="/contact" className="btn btn-ghost">Get in touch</A></div>
+      <div className="hero-actions"><a href={planHref()} className="btn btn-sun">Plan a trip</a><A href="/contact" className="btn btn-ghost">Get in touch</A></div>
     </div></section>
     <Footer />
   </>;
