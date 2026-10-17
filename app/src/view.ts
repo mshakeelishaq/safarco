@@ -5,7 +5,7 @@ import { HIDE_SPOTS, SECURITY_AREAS, riskOf, HAVE_VEHICLE, EDGES, MODES, MON, MO
 import { FOOD } from './engine/food';
 import { dismissInstall, offerInstallNow, startInstall, wasDismissed } from './install';
 import { foodTipsFor } from './foodtips';
-import { liveRoadKey, AIR_IN, bestAirport, closedOnRoute, flyNorth, viaIsb, DAY_OUT_H, SHORT2_H, MAX_DRIVE_H, plannedJeeps, roomPlan, circuit, sideTrips, dayTripOptions, tripFrom, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
+import { legClosure, liveRoadKey, AIR_IN, bestAirport, closedOnRoute, flyNorth, viaIsb, DAY_OUT_H, SHORT2_H, MAX_DRIVE_H, plannedJeeps, roomPlan, circuit, sideTrips, dayTripOptions, tripFrom, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
 import { clock, dayLabel, dur, fmt, fmtN, isoAdd, isoOf, isoOff, kShort, mapsQ, mon } from './engine/format';
 import { LIVE, fxRate, placesKey, routeKey, type Spot } from './engine/live';
 import { sunTimes } from './engine/sun';
@@ -317,7 +317,7 @@ export function buildView(s: AppState, api: Api) {
   // The trip goes to or through an area with a security advisory (the Makran coast).
   const securityOn = SECURITY_AREAS.filter(a => a.on && ([s.corridor, ...(s.extra || [])].some(k => a.dests.includes(k)) || c.legs.some(l => a.roads.includes(l.road) || a.nodes.includes(l.a) || a.nodes.includes(l.b))));
   // Roads the admin marked closed that this trip would normally take.
-  const closedNotes = (L ? [] : closedOnRoute(s.corridor, s.origin, M)).map(r => ({ icon: 'ph-road-horizon', color: 'var(--cor)', text: [c.legs.some(l => l.road === r) ? t('{road} is closed now, and there is no other way: check before you go.', { road: r }) : t('{road} is closed now. SafarCo plans the way round it.', { road: r }), CLOSED_NOTES[r] ? t(CLOSED_NOTES[r]) : ''].filter(Boolean).join(' ') }));
+  const closedNotes = (L ? [] : closedOnRoute(s.corridor, s.origin, M)).map(r => ({ icon: 'ph-road-horizon', color: 'var(--cor)', text: [c.legs.some(l => legClosure(l) === r) ? t('{road} is closed now, and there is no other way: check before you go.', { road: r }) : t('{road} is closed now. SafarCo plans the way round it.', { road: r }), CLOSED_NOTES[r] ? t(CLOSED_NOTES[r]) : ''].filter(Boolean).join(' ') }));
   const alertNotes = activeAlerts().filter(a => !a.areas?.length || onTrip(a.areas, tripLine, tripStops)).map(a => ({ icon: 'ph-megaphone', color: 'var(--cor)', text: a.date ? t('{alert} (posted {date})', { alert: `${a.title}${a.message ? `: ${a.message}` : ''}`, date: dayLabel(a.date, 0) }) : `${a.title}${a.message ? `: ${a.message}` : ''}` }));
 
   // "What do you want to see?": the first question, then a check that the dates and place fit the wish.

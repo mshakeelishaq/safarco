@@ -5,7 +5,7 @@ import { DESTS, PLACE_INFO, POP_DEST, SECURITY_AREAS, SUGGEST_POOL, type DestInp
 import type { PlaceInfo } from './engine/imported';
 import { FOOD, type Food } from './engine/food';
 import { rebuildDests } from './engine/places';
-import { resetTripCache, setClosedRoads } from './engine/engine';
+import { closureLabel, resetTripCache, setClosedRoads } from './engine/engine';
 import { PHOTO_EDITS } from './photos';
 import { UR } from './i18n/ur';
 
@@ -27,7 +27,8 @@ export interface ContentEdits {
   dests: Record<string, DestEdit>;
   /** Replaces the built-in security areas when set. */
   security: SecurityArea[] | null;
-  closures: { road: string; note: string }[];
+  /** Closed roads: the whole road, or just `from`–`to` (two towns on it); ends by itself after `until` (YYYY-MM-DD). */
+  closures: { road: string; note: string; from?: string; to?: string; until?: string }[];
   /** Roman Urdu for the admin's own text, by its English. */
   ur: Record<string, string>;
   saved?: string;
@@ -89,7 +90,8 @@ export function cleanContent(raw: unknown): ContentEdits {
     dests: (Array.isArray(a?.dests) ? a.dests : []).map(x => str(x, 40)).filter(Boolean), roads: (Array.isArray(a?.roads) ? a.roads : []).map(x => str(x, 60)).filter(Boolean),
     nodes: (Array.isArray(a?.nodes) ? a.nodes : []).map(x => str(x, 6)).filter(Boolean), short: str(a?.short, 80) || 'Security risk area: check before you go', text: str(a?.text, 500)
   })) : null;
-  const closures = (Array.isArray(r.closures) ? r.closures : []).slice(0, 40).map(c => ({ road: str(c?.road, 60), note: str(c?.note, 200) })).filter(c => c.road);
+  const closures = (Array.isArray(r.closures) ? r.closures : []).slice(0, 40).map(c => ({ road: str(c?.road, 60), note: str(c?.note, 200),
+    ...(c?.from && c?.to ? { from: str(c.from, 6), to: str(c.to, 6) } : {}), ...(/^\d{4}-\d{2}-\d{2}$/.test(str(c?.until, 10)) ? { until: str(c.until, 10) } : {}) })).filter(c => c.road);
   const ur = Object.fromEntries(Object.entries(r.ur || {}).slice(0, 2000).map(([k, v]) => [str(k, 500), str(v, 600)]).filter(([k, v]) => k && v));
   return { places, food, dests, security, closures, ur, saved: r.saved ? str(r.saved, 30) : undefined };
 }
@@ -143,8 +145,10 @@ export function applyContent(raw: unknown) {
   Object.entries(c.dests).forEach(([id, e]) => { if (e.photo) PHOTO_EDITS[id] = e.photo; });
   SECURITY_AREAS.splice(0, SECURITY_AREAS.length, ...(c.security || clone(BASE.security)));
   for (const k in CLOSED_NOTES) delete CLOSED_NOTES[k];
-  c.closures.forEach(x => { CLOSED_NOTES[x.road] = x.note; });
-  setClosedRoads(c.closures.map(x => x.road));
+  // Closures past their "until" date have reopened by themselves.
+  const today = new Date().toISOString().slice(0, 10), open = c.closures.filter(x => !x.until || x.until >= today);
+  open.forEach(x => { CLOSED_NOTES[closureLabel(x.road, ...(x.from && x.to ? [x.from, x.to].sort() : [])) ] = x.note; });
+  setClosedRoads(open.filter(x => !x.from || !x.to).map(x => x.road), open.filter(x => x.from && x.to).map(x => [x.from!, x.to!] as [string, string]));
   // The admin's Roman Urdu, without overwriting the app's own.
   addedUr.splice(0).forEach(k => delete UR[k]);
   Object.entries(c.ur).forEach(([en, ur]) => { if (!(en in UR)) { UR[en] = ur; addedUr.push(en); } });

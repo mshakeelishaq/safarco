@@ -1,12 +1,14 @@
 // Roads closed now (routes go round them) and security areas (a warning on every trip there).
 import { css } from '../../lib/css';
-import { EDGES, type SecurityArea } from '../../engine/data';
+import { EDGES, NODE_INFO, type SecurityArea } from '../../engine/data';
 import { allDests, baseSecurity, type ContentEdits } from '../../content';
 import { DST } from '../../engine/places';
 import { H2, Tag, TextUr, box, btn, lbl, small, text } from './ui';
 import type { Edit } from './PlacesTab';
 
 const ROADS = [...new Set(EDGES.map(e => e[6]))].sort();
+/** The stretches of a road, town to town, for closing just one part of it. */
+const stretches = (road: string) => EDGES.filter(e => e[6] === road).map(e => ({ key: `${e[0]}|${e[1]}`, label: `${NODE_INFO[e[0]]?.[0] || e[0]} – ${NODE_INFO[e[1]]?.[0] || e[1]}` }));
 
 /** Chosen items as chips, with a list to add more. */
 function Chips({ value, options, onChange, label, empty }: { value: string[]; options: [string, string][]; onChange: (v: string[]) => void; label: string; empty: string }) {
@@ -31,11 +33,14 @@ export function SafetyTab({ c, edit, setUr }: { c: ContentEdits; edit: Edit; set
   const roadOpts: [string, string][] = ROADS.map(r => [r, r]);
   return <>
     <section style={box}>
-      <H2 sub="A closed road (landslide, snow, protest): plans go round it while there is another way, and trips that would use it get a red note. Remove it when it opens again.">Closed roads</H2>
+      <H2 sub="A closed road (landslide, snow, protest): plans and maps go round it while there is another way, and trips that would use it get a red note. Close the whole road or just one stretch; with an “opens again” date it reopens by itself, otherwise press Open again.">Closed roads</H2>
       {c.closures.map((x, i) => (
         <div key={i} style={css('display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px;padding:8px 0;border-bottom:1px solid var(--line)')}>
-          <select value={x.road} onChange={e => edit(cc => { cc.closures[i].road = e.target.value; })} style={text}>{ROADS.map(r => <option key={r}>{r}</option>)}</select>
+          <select value={x.road} aria-label="Road" onChange={e => edit(cc => { cc.closures[i] = { ...cc.closures[i], road: e.target.value, from: undefined, to: undefined }; })} style={text}>{ROADS.map(r => <option key={r}>{r}</option>)}</select>
+          {stretches(x.road).length > 1 && <select value={x.from && x.to ? `${x.from}|${x.to}` : ''} aria-label="Which part" onChange={e => edit(cc => { const [a, b] = e.target.value.split('|'); cc.closures[i] = { ...cc.closures[i], from: a || undefined, to: b || undefined }; })} style={text}>
+            <option value="">The whole road</option>{stretches(x.road).map(o => <option key={o.key} value={o.key}>Only {o.label}</option>)}</select>}
           <input value={x.note} placeholder="Landslide near Shatial, opening expected Friday" onChange={e => edit(cc => { cc.closures[i].note = e.target.value; })} style={text} />
+          <label style={css('display:flex;align-items:center;gap:6px;font-size:13px;color:var(--mute)')}>Opens again on <input type="date" value={x.until || ''} onChange={e => edit(cc => { cc.closures[i].until = e.target.value || undefined; })} style={{ ...text, flex: 1 }} /></label>
           <button onClick={() => edit(cc => { cc.closures.splice(i, 1); })} style={small}>Open again</button>
         </div>
       ))}

@@ -147,7 +147,17 @@ const SPT: Record<string, { dist: Record<string, number>; next: Record<string, [
 
 /** Roads the admin marked closed right now (by road name): routes go round them while there is another way. */
 export const CLOSED = new Set<string>();
-export function setClosedRoads(roads: string[]) { CLOSED.clear(); roads.forEach(r => CLOSED.add(r)); for (const k in SPT) delete SPT[k]; resetTripCache(); }
+/** Closed stretches between two towns ("CHL-RKT"), both directions. */
+export const CLOSED_EDGES = new Set<string>();
+export function setClosedRoads(roads: string[], stretches: [string, string][] = []) {
+  CLOSED.clear(); roads.forEach(r => CLOSED.add(r));
+  CLOSED_EDGES.clear(); stretches.forEach(([a, b]) => { CLOSED_EDGES.add(`${a}-${b}`); CLOSED_EDGES.add(`${b}-${a}`); });
+  for (const k in SPT) delete SPT[k]; resetTripCache();
+}
+/** What a closure is called: the road, or the road between two towns. */
+export const closureLabel = (road: string, a?: string, b?: string) => a && b && NODE_INFO[a] && NODE_INFO[b] ? `${road} (${NODE_INFO[a][0]} – ${NODE_INFO[b][0]})` : road;
+/** The closure a leg runs into, if any. */
+export const legClosure = (l: { a: string; b: string; road: string }) => CLOSED.has(l.road) ? l.road : CLOSED_EDGES.has(`${l.a}-${l.b}`) ? closureLabel(l.road, ...([l.a, l.b].sort() as [string, string]) as [string, string]) : null;
 
 /** Dijkstra from `dest` over roads open in `month` (and not closed, unless `anyway`). */
 function shortest(dest: string, month: number, anyway = false) {
@@ -156,7 +166,7 @@ function shortest(dest: string, month: number, anyway = false) {
   while (true) {
     let u: string | null = null; for (const k in dist) if (!done.has(k) && (u === null || dist[k] < dist[u])) u = k;
     if (u === null) break; done.add(u); const uu = u;
-    (ADJ[uu] || []).forEach(([v, e]) => { if ((e[7] && !e[7].includes(month)) || (!anyway && CLOSED.has(e[6]))) return; const d = dist[uu] + e[2] / e[3]; if (dist[v] === undefined || d < dist[v]) { dist[v] = d; next[v] = [uu, e]; } });
+    (ADJ[uu] || []).forEach(([v, e]) => { if ((e[7] && !e[7].includes(month)) || (!anyway && (CLOSED.has(e[6]) || CLOSED_EDGES.has(`${uu}-${v}`)))) return; const d = dist[uu] + e[2] / e[3]; if (dist[v] === undefined || d < dist[v]) { dist[v] = d; next[v] = [uu, e]; } });
   }
   return (SPT[key] = { dist, next });
 }
@@ -234,7 +244,7 @@ const TRIP_CACHE: Record<string, Trip> = {};
 /** Forget computed trips, e.g. after a live route arrives or prices change. */
 export function resetTripCache() { for (const k in TRIP_CACHE) delete TRIP_CACHE[k]; }
 /** Closed roads this trip would normally take (it goes round them, or uses them when there's no other way). */
-export const closedOnRoute = (key: string, origin: string | null, month: number) => CLOSED.size ? [...new Set(tripFrom(key, cityOr(origin), month, true).legs.map(l => l.road).filter(r => CLOSED.has(r)))] : [];
+export const closedOnRoute = (key: string, origin: string | null, month: number) => CLOSED.size || CLOSED_EDGES.size ? [...new Set(tripFrom(key, cityOr(origin), month, true).legs.map(legClosure).filter((r): r is string => !!r))] : [];
 LIVE.routeHooks.add(resetTripCache);
 
 /** The towns a trip's roads pass through, so the map's road follows the day plan (at most 23, evenly picked). */

@@ -3,7 +3,7 @@ import { applyContent, cleanContent } from '../src/content';
 import { DESTS, PLACE_INFO, POP_DEST, SECURITY_AREAS, riskOf } from '../src/engine/data';
 import { DST } from '../src/engine/places';
 import { FOOD } from '../src/engine/food';
-import { buildPlan, closedOnRoute, trip } from '../src/engine/engine';
+import { buildPlan, closedOnRoute, roadVia, trip } from '../src/engine/engine';
 import { ownPhoto } from '../src/photos';
 import { UR } from '../src/i18n/ur';
 
@@ -64,6 +64,20 @@ describe('admin content edits', () => {
     expect(closedOnRoute('hunza', 'Islamabad', 7)).toContain(road);
     const after = trip('hunza', 'Islamabad', 7).legs.map(l => l.road);
     expect(after.length).toBeGreaterThan(0);
+  });
+  it('closes just one stretch, the map’s towns follow, and it reopens by itself after its date', () => {
+    expect(trip('phander', 'Lahore', 7).via).toContain('Babusar Pass');
+    applyContent({ closures: [{ road: 'Babusar Pass', from: 'NRN', to: 'CHL', note: 'Snow at Babusar Top' }] });
+    expect(trip('phander', 'Lahore', 7).via).not.toContain('Babusar Pass');
+    // Hunza goes up the KKH by Besham instead, and the map is sent through Besham too.
+    expect(trip('hunza', 'Lahore', 7).legs.map(l => l.b)).toContain('BSM');
+    expect(roadVia('hunza', 'Lahore', 7).id).toContain('BSM');
+    expect(roadVia('hunza', 'Lahore', 7).id).not.toContain('NRN');
+    expect(closedOnRoute('phander', 'Lahore', 7)).toEqual(['Babusar Pass (Chilas – Naran)']);
+    // The KKH stays open: only the stretch is closed.
+    expect(trip('hunza', 'Lahore', 12).via).toContain('KKH');
+    applyContent({ closures: [{ road: 'Babusar Pass', from: 'NRN', to: 'CHL', note: '', until: '2020-01-01' }] });
+    expect(trip('phander', 'Lahore', 7).via).toContain('Babusar Pass');
   });
   it('cleans bad data', () => {
     const c = cleanContent({ places: { hunza: { add: [{ name: '' }, { name: 'X', months: [0, 13, 5] }] } }, dests: { naran: { photo: 'javascript:alert(1)' } } });

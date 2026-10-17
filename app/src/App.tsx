@@ -61,6 +61,7 @@ export function App() {
   const [trips, setTrips] = useState<SavedTrip[]>(() => localTrips());
   const [user, setUser] = useState<User | null>(null);
   const stRef = useRef(s); stRef.current = s;
+  const [closures, setClosures] = useState('');
   const set = useCallback((p: Patch) => setS(prev => ({ ...prev, ...p })), []);
   const [, bump] = useReducer((x: number) => x + 1, 0);
   // Laptops: the plan on the left and the route map beside it.
@@ -92,7 +93,7 @@ export function App() {
     if (s.screen !== 'app') return;
     const o = cityOr(s.origin), D = DST(s.corridor);
     if (s.vehicle !== 'air' || s.tab === 'map') routeFetch(o, D, roadVia(s.corridor, s.origin, mon(s)));
-  }, [s.screen, s.origin, s.corridor, s.vehicle, s.tab, s.startDate, s.days]);
+  }, [s.screen, s.origin, s.corridor, s.vehicle, s.tab, s.startDate, s.days, closures]);
 
   // Destination guide, sights and places to stay (destination and each night stop).
   const nightNodes = view0NightNodes(s);
@@ -123,6 +124,17 @@ export function App() {
   }, []);
 
   // Prices and approved reviews: the admin's lists (cached on the device), else the built-in ones.
+  // The admin's closures, alerts and edits. A change to closed roads re-plans the route, and the map follows.
+  const contentAt = useRef(0);
+  const refreshContent = () => {
+    contentAt.current = Date.now();
+    loadContent().then(v => {
+      if (!v) return; applyContent(v); bump();
+      const key = JSON.stringify((v as { closures?: unknown }).closures || []);
+      setClosures(prev => { if (prev && prev !== key) set({ toast: tx('Road news updated. Your route has been checked again.') }); return key; });
+      try { localStorage.setItem('safarco-content', JSON.stringify(v)); } catch { /* storage blocked */ }
+    }).catch(() => {});
+  };
   useEffect(() => {
     try { const c = JSON.parse(localStorage.getItem('safarco-prices') || 'null'); if (c) { applyPrices(c); bump(); } } catch { /* storage blocked */ }
     try { const c = JSON.parse(localStorage.getItem('safarco-content') || 'null'); if (c) { applyContent(c); bump(); } } catch { /* storage blocked */ }
@@ -132,7 +144,12 @@ export function App() {
     loadReviews().then(r => { if (!r) return; setReviews(r); bump(); try { localStorage.setItem('safarco-reviews', JSON.stringify(r)); } catch { /* storage blocked */ } }).catch(() => {});
     loadPriceList().then(v => { if (!v) return; applyPrices(v); bump(); try { localStorage.setItem('safarco-prices', JSON.stringify(v)); } catch { /* storage blocked */ } }).catch(() => {});
     // The admin's changes to places, food and destinations; kept on the phone for next time and for offline.
-    loadContent().then(v => { if (!v) return; applyContent(v); bump(); try { localStorage.setItem('safarco-content', JSON.stringify(v)); } catch { /* storage blocked */ } }).catch(() => {});
+    refreshContent();
+    // On the road with the app open: check for new closures and alerts every 15 minutes, and when it comes back to the screen.
+    const every = setInterval(() => { if (document.visibilityState === 'visible') refreshContent(); }, 15 * 60000);
+    const back = () => { if (document.visibilityState === 'visible' && Date.now() - contentAt.current > 5 * 60000) refreshContent(); };
+    document.addEventListener('visibilitychange', back);
+    return () => { clearInterval(every); document.removeEventListener('visibilitychange', back); };
   }, []);
 
 
