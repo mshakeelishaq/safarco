@@ -762,6 +762,11 @@ function planOf(s: TripState): Plan {
   return finish({ rec, dep, late, hasDrive: segs.length > 0 });
 }
 
+/** Seats a group takes in a car: two small children share one. */
+export const seatsFor = (o: { adults: number; kids: number; elders: number }) => o.adults + o.elders + Math.ceil(o.kids / 2);
+/** Cars (or bikes) the group needs: a Corolla takes 5 with the driver, a Prado 7, a hired car 4 besides its driver. */
+export const vehiclesFor = (o: { adults: number; kids: number; elders: number }, v: { cap?: number }) => Math.max(1, Math.ceil(seatsFor(o) / (v.cap || 4)));
+
 export interface CostRow { icon: string; label: string; detail: string; val: number }
 export interface Cost { rows: CostRow[]; total: number; ok: boolean; minDays: number; why: string }
 export const coachFare = (c: Trip) => Math.round((c.flatKm * PR.coachFlat + c.mtnKm * PR.coachMtn) / 100) * 100;
@@ -810,14 +815,14 @@ function costOf(o: TripState): Cost {
       rows.push({ icon: 'ph-airplane-tilt', label: 'Flights', detail: `${a.dep} ⇄ ${a.arr} · ${t('about {price} one way (tentative)', { price: fmt(a.fare) })} × ${adults(AD)}${kidTxt('75%')}`, val: a.fare * 2 * (AD + K * 0.75) });
       if (a.pp) rows.push({ icon: 'ph-bus', label: 'To the airport', detail: t('{from} ⇄ {to} by coach · {price} return per person', { from: c.from, to: a.dep, price: fmt(a.pp) }), val: a.pp * P });
       // Days in the north: not the day landing in Pakistan, nor the day getting to Islamabad.
-      const cars = Math.ceil(P / 4), cd = Math.max(1, o.days - (o.abroad ? 1 : 0) - ((o as { hop?: boolean }).hop ? 1 : 0));
+      const cars = Math.max(1, Math.ceil(seatsFor(o) / 4)), cd = Math.max(1, o.days - (o.abroad ? 1 : 0) - ((o as { hop?: boolean }).hop ? 1 : 0));
       rows.push({ icon: 'ph-steering-wheel', label: 'Car + driver there', detail: cars > 1 ? t('{n} cars × {days} days × {price}, fuel included', { n: cars, days: cd, price: fmt(PR.localCar) }) : t('{n} car × {days} days × {price}, fuel included', { n: cars, days: cd, price: fmt(PR.localCar) }), val: cars * cd * PR.localCar });
     }
   } else if (o.vehicle === 'public') {
     const fare = L ? coachFare({ flatKm, mtnKm } as Trip) : coachFare(c);
     rows.push({ icon: 'ph-bus', label: 'Transport', detail: L ? `${t('Coaches {price} for the whole route', { price: fmt(fare) })} × ${adults(AD)}${kidTxt(t('half fare'))}` : `${t('Coach {price} each way', { price: fmt(fare) })} × ${adults(AD)}${kidTxt(t('half fare'))}`, val: fare * (L ? 1 : 2) * (AD + K * 0.5) });
   } else {
-    const units = Math.max(1, Math.ceil(P / (v.cap || 4))), per = flatKm / (v.mileage || 1) + mtnKm / (v.mtn || 1), price = v.diesel ? PR.diesel : PR.petrol, bike = o.vehicle === 'bike';
+    const units = vehiclesFor(o, v), per = flatKm / (v.mileage || 1) + mtnKm / (v.mtn || 1), price = v.diesel ? PR.diesel : PR.petrol, bike = o.vehicle === 'bike';
     if (v.rate) rows.push({ icon: v.icon, label: 'Rental', detail: t('{n} × {vehicle} · ({rate} + {allow} driver) × {days} days', { n: units, vehicle: v.short, rate: fmt(v.rate), allow: fmtN(v.allow || 0), days: o.days }), val: units * (v.rate + (v.allow || 0)) * o.days });
     rows.push({ icon: 'ph-gas-pump', label: 'Fuel', detail: `${fmtN(rt)} km · ${units > 1 ? `${bike ? t('{n} bikes', { n: units }) : t('{n} vehicles', { n: units })} × ` : ''}${v.diesel ? t('{litres} L diesel (about {flat} km/L on the plains, {mtn} in the mountains)', { litres: fmtN(per), flat: String(v.mileage), mtn: String(v.mtn) }) : t('{litres} L petrol (about {flat} km/L on the plains, {mtn} in the mountains)', { litres: fmtN(per), flat: String(v.mileage), mtn: String(v.mtn) })}`, val: per * units * price });
     const tollSum = tollList.reduce((a, b) => a + b[1], 0) * units * (v.tollX || 1);

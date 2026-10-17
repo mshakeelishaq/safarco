@@ -5,7 +5,7 @@ import { P as PR, HIDE_SPOTS, SECURITY_AREAS, riskOf, HAVE_VEHICLE, EDGES, MODES
 import { FOOD } from './engine/food';
 import { dismissInstall, offerInstallNow, startInstall, wasDismissed } from './install';
 import { foodTipsFor } from './foodtips';
-import { drivingDays, pickAt, roadParts, roadSig, roadsOnlyIn, routeOptions, setRoutePick, type Trip, legClosure, liveRoadKey, AIR_IN, bestAirport, closedOnRoute, flyNorth, viaIsb, DAY_OUT_H, SHORT2_H, MAX_DRIVE_H, plannedJeeps, roomPlan, circuit, sideTrips, dayTripOptions, tripFrom, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
+import { drivingDays, vehiclesFor, pickAt, roadParts, roadSig, roadsOnlyIn, routeOptions, setRoutePick, type Trip, legClosure, liveRoadKey, AIR_IN, bestAirport, closedOnRoute, flyNorth, viaIsb, DAY_OUT_H, SHORT2_H, MAX_DRIVE_H, plannedJeeps, roomPlan, circuit, sideTrips, dayTripOptions, tripFrom, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
 import { clock, dayLabel, dur, fmt, fmtN, isoAdd, isoOf, isoOff, kShort, mapsQ, mon } from './engine/format';
 import { LIVE, fxRate, placesKey, routeKey, type Spot } from './engine/live';
 import { sunTimes } from './engine/sun';
@@ -330,7 +330,7 @@ export function buildView(s: AppState, api: Api) {
     const { best, options } = routeOptions(s.corridor, s.origin, M), cur = c0;
     const others = [{ avoid: [] as string[], trip: best }, ...options].filter(o => roadSig(o.trip) !== roadSig(cur));
     if (!others.length) return null;
-    const veh = VEH[s.vehicle], units = Math.max(1, Math.ceil(s.groupSize / (veh.cap || 4)));
+    const veh = VEH[s.vehicle], units = vehiclesFor(s, veh);
     // Fuel and tolls there and back, as the budget works them out.
     const spend = (tr: Trip) => ((tr.flatKm / (veh.mileage || 1) + tr.mtnKm / (veh.mtn || 1)) * (veh.diesel ? PR.diesel : PR.petrol) + tr.tolls.reduce((a, x) => a + x[1], 0) * (veh.tollX || 1)) * units * 2;
     const name = (a: Trip, b: Trip) => { const r = roadsOnlyIn(a, b); return { roads: r.roads, label: (r.roads.slice(0, 2).join(' + ') || a.via) + (r.via ? ' ' + t('via {town}', { town: r.via }) : '') }; };

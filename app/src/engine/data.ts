@@ -54,9 +54,10 @@ export const OWN_CONFIGS: Record<Exclude<Have, 'any'>, TripConfig[]> = {
 };
 /** The vehicle a traveller's own transport means. */
 export const HAVE_VEHICLE: Record<Exclude<Have, 'any'>, VehicleId> = { car: 'sedan', suv: 'suv', bike: 'bike' };
+/** Seats per vehicle, the driver's included (a hired car's driver takes one, so it carries one fewer of the group). */
 export const VEH: Record<VehicleId, Vehicle> = {
-  sedan: { short: 'Sedan', icon: 'ph-car-profile', label: 'Standard Sedan / Hatchback', sub: 'Corolla GLi, City, Alto', mileage: 13, mtn: 9, cap: 4 },
-  suv: { short: '4x4 SUV', icon: 'ph-jeep', label: '4x4 SUV', sub: 'Prado, Fortuner, Land Cruiser', mileage: 8, mtn: 5.5, cap: 6 },
+  sedan: { short: 'Sedan', icon: 'ph-car-profile', label: 'Standard Sedan / Hatchback', sub: 'Corolla GLi, City, Alto', mileage: 13, mtn: 9, cap: 5 },
+  suv: { short: '4x4 SUV', icon: 'ph-jeep', label: '4x4 SUV', sub: 'Prado, Fortuner, Land Cruiser', mileage: 8, mtn: 5.5, cap: 7 },
   bike: { short: 'Motorbike', icon: 'ph-motorcycle', label: 'Motorbike', sub: 'CG-125, YBR, heavy bikes', mileage: 45, mtn: 30, cap: 2 },
   public: { short: 'Coach', icon: 'ph-bus', label: 'Public Transport', sub: 'Daewoo, NATCO, coasters', mileage: 0 },
   air: { short: 'By air', icon: 'ph-airplane-tilt', label: 'By air', sub: 'PIA to Skardu / Gilgit' },
