@@ -2194,4 +2194,5 @@ export const UR: Record<string, string> = {
   "New dates saved. Your checklist, expenses and family link moved with the trip.": "Nayi tareekhein save ho gayin. Aap ki checklist, kharche aur family link bhi saath aa gaye.",
   "Changes saved to “{name}”, on this phone and in your account.": "Tabdeeliyan “{name}” mein save ho gayin, is phone aur aap ke account mein.",
   "Changes saved to “{name}”.": "Tabdeeliyan “{name}” mein save ho gayin.",
+  "Load the full map again": "Poora naqsha dobara load karein",
 };

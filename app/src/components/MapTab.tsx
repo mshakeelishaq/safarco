@@ -19,7 +19,8 @@ function LiveMap({ v, onFail, fill }: { v: View; onFail: () => void; fill?: bool
 
   useEffect(() => {
     let dead = false;
-    const fail = setTimeout(() => { if (!st.current.ok) onFail(); }, 12000);
+    // Phones on mobile data can take a while: give the map 30 seconds before showing the drawn one.
+    const fail = setTimeout(() => { if (!st.current.ok) onFail(); }, 30000);
     Promise.all([import('maplibre-gl'), import('maplibre-gl/dist/maplibre-gl-worker.mjs?url'), import('maplibre-gl/dist/maplibre-gl.css')]).then(([ML, worker]) => {
       if (dead || !el.current) return;
       const mod = (ML as unknown as { default?: ML }).default ?? ML;
@@ -29,7 +30,8 @@ function LiveMap({ v, onFail, fill }: { v: View; onFail: () => void; fill?: bool
       st.current.map = m;
       m.addControl(new mod.NavigationControl({ visualizePitch: true }), 'top-right');
       // If the map style itself can't load (no connection), show the drawn map instead.
-      m.on('error', () => { if (!dead && !st.current.ok && !m.isStyleLoaded()) onFail(); });
+      // Only the style itself failing counts: a missing terrain tile or font shouldn't drop the whole map.
+      m.on('error', ev => { const e = ev as unknown as { sourceId?: string; tile?: unknown }; if (!dead && !st.current.ok && !e.sourceId && !e.tile && !m.isStyleLoaded() && !navigator.onLine) onFail(); });
       m.on('load', () => {
         if (dead) return; st.current.ok = true;
         const dem = { type: 'raster-dem' as const, tiles: [DEM_TILES], encoding: 'terrarium' as const, tileSize: 256, maxzoom: 13, attribution: 'Terrain: Mapzen / AWS' };
@@ -154,7 +156,7 @@ function DrawnMap({ v }: { v: View }) {
 export function SideMap({ v, api }: { v: View; api: Api }) {
   return (
     <div className="sc-side" aria-label={t('Route map')}>
-      {v.s.mapFail ? <div style={css('padding:16px;height:100%;box-sizing:border-box;overflow:auto;background:var(--sheet)')}><DrawnMap v={v} /></div> : <LiveMap v={v} fill onFail={() => api.set({ mapFail: true })} />}
+      {v.s.mapFail ? <div style={css('padding:16px;height:100%;box-sizing:border-box;overflow:auto;background:var(--sheet)')}><DrawnMap v={v} /><button onClick={() => api.set({ mapFail: false })} style={css('margin:12px auto 0;display:flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border-radius:12px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);font-size:13px;font-weight:800;cursor:pointer')}><i className="ph-bold ph-arrow-clockwise" />{t('Load the full map again')}</button></div> : <LiveMap v={v} fill onFail={() => api.set({ mapFail: true })} />}
       {v.routeLink && <a href={v.routeLink} target="_blank" rel="noopener" style={css('position:absolute;left:16px;bottom:16px;z-index:2;display:flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:14px;background:var(--cta);color:var(--onCta);font-size:14px;font-weight:800;text-decoration:none;box-shadow:0 10px 24px -10px rgba(0,0,0,.5)')}><i className="ph-fill ph-navigation-arrow" />{t('Open the route in Google Maps')}</a>}
     </div>
   );
@@ -173,7 +175,7 @@ export function MapTab({ v, api }: { v: View; api: Api }) {
       </div>
       <div className="sc-flow" style={css('padding:4px 16px 150px;display:flex;flex-direction:column;gap:14px;pointer-events:auto;background:var(--bg)')}>
         <div style={css('border-radius:30px;padding:16px 12px 22px;background:var(--sheet);border:1px solid var(--line);overflow:hidden')}>
-          {s.mapFail ? <DrawnMap v={v} /> : <>
+          {s.mapFail ? <><DrawnMap v={v} /><button onClick={() => api.set({ mapFail: false })} style={css('margin:12px auto 0;display:flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border-radius:12px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);font-size:13px;font-weight:800;cursor:pointer')}><i className="ph-bold ph-arrow-clockwise" />{t('Load the full map again')}</button></> : <>
             <LiveMap v={v} onFail={() => api.set({ mapFail: true })} />
             <div style={css('display:flex;gap:8px 14px;flex-wrap:wrap;margin:12px 6px 0;font-size:11px;font-weight:700;color:var(--mute)')}><span style={css('display:flex;align-items:center;gap:6px')}><span style={css('width:16px;height:4px;border-radius:2px;background:var(--sky)')} />{v.mapRouteLabel}</span><span>{t('Drag to pan · two fingers or the compass to tilt')}</span></div>
             {v.fuelPins.length > 0 && <div style={css('display:flex;align-items:center;gap:6px;margin:8px 6px 0;font-size:11px;font-weight:700;color:var(--mute)')}><span style={css('width:10px;height:10px;border-radius:50%;background:#7B5BFF;box-shadow:0 0 0 1.5px #FFFFFF')} />{t('Fuel pumps on your road · zoom in and tap one')}</div>}

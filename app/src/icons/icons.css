@@ -33,6 +33,9 @@
 .ph-fill.ph-apple-logo:before {
   content: "\e516";
 }
+.ph-fill.ph-arrow-clockwise:before {
+  content: "\e036";
+}
 .ph-fill.ph-arrow-fat-lines-up:before {
   content: "\e52a";
 }
@@ -489,6 +492,9 @@
 }
 .ph-bold.ph-apple-logo:before {
   content: "\e516";
+}
+.ph-bold.ph-arrow-clockwise:before {
+  content: "\e036";
 }
 .ph-bold.ph-arrow-fat-lines-up:before {
   content: "\e52a";
@@ -950,6 +956,14 @@
 }
 .ph-duotone.ph-apple-logo:after {
   content: "\e517";
+  margin-left: -1em;
+}
+.ph-duotone.ph-arrow-clockwise:before {
+  content: "\e036";
+  opacity: 0.2;
+}
+.ph-duotone.ph-arrow-clockwise:after {
+  content: "\e037";
   margin-left: -1em;
 }
 .ph-duotone.ph-arrow-fat-lines-up:before {
