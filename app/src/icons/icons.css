@@ -105,6 +105,9 @@
 .ph-fill.ph-calendar-check:before {
   content: "\e712";
 }
+.ph-fill.ph-calendar-plus:before {
+  content: "\e714";
+}
 .ph-fill.ph-calendar-x:before {
   content: "\e10c";
 }
@@ -567,6 +570,9 @@
 }
 .ph-bold.ph-calendar-check:before {
   content: "\e712";
+}
+.ph-bold.ph-calendar-plus:before {
+  content: "\e714";
 }
 .ph-bold.ph-calendar-x:before {
   content: "\e10c";
@@ -1154,6 +1160,14 @@
 }
 .ph-duotone.ph-calendar-check:after {
   content: "\e713";
+  margin-left: -1em;
+}
+.ph-duotone.ph-calendar-plus:before {
+  content: "\e714";
+  opacity: 0.2;
+}
+.ph-duotone.ph-calendar-plus:after {
+  content: "\e715";
   margin-left: -1em;
 }
 .ph-duotone.ph-calendar-x:before {

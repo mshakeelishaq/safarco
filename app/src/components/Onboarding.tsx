@@ -16,7 +16,7 @@ const Slider = ({ v, set }: { v: View; set: Api['set'] }) => (
   </div>
 );
 
-const SearchBox = ({ value, onChange, onClear, placeholder, label, focus }: { value: string; onChange: (v: string) => void; onClear: () => void; placeholder: string; label: string; focus: string }) => (
+export const SearchBox = ({ value, onChange, onClear, placeholder, label, focus }: { value: string; onChange: (v: string) => void; onClear: () => void; placeholder: string; label: string; focus: string }) => (
   <div style={css('position:relative')}>
     <i className="ph-bold ph-magnifying-glass" style={css('position:absolute;left:16px;top:50%;margin-top:-9px;font-size:18px;color:var(--mute);pointer-events:none')} />
     <input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} aria-label={label} className={focus} enterKeyHint="search"

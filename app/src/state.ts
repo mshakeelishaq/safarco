@@ -14,7 +14,11 @@ export interface AppState extends TripState {
   flash: 'budget' | null; offline: 'off' | 'downloading' | 'ready'; progress: number;
   offlineMB: number; offlineErr: string; mapFail: boolean; theme: Theme;
   /** Which bottom sheet is open besides Edit trip. */
-  sheet: 'none' | 'trips' | 'save' | 'signin' | 'feedback' | 'review' | 'share' | 'sos' | 'expense' | 'people' | 'food';
+  sheet: 'none' | 'trips' | 'save' | 'signin' | 'feedback' | 'review' | 'share' | 'sos' | 'expense' | 'people' | 'food' | 'dest';
+  /** Changing the destination: the place picked, before choosing what happens to the current plan. */
+  destPick: string | null;
+  /** The toast offers Undo (after switching a trip's destination). */
+  toastUndo: boolean;
   /** Where the phone was last found on the road (GPS), for progress along today's drive. */
   here: { lat: number; lon: number; at: number } | null;
   /** The trusted hotel or driver being rated in the review sheet. */
@@ -93,7 +97,7 @@ export const initialState = (): AppState => ({
   vehicle: 'sedan', tier: 'standard', groupSize: 2, adults: 2, kids: 0, elders: 0, rooms: 'separate', days: 4, cap: 120000,
   corridor: 'hunza', tab: 'trip', settings: false, flash: null,
   offline: 'off', progress: 0, offlineMB: 0, offlineErr: '', mapFail: false, theme: savedTheme(),
-  sheet: 'none', savedId: null, toast: null, lite: prefersLite(), chosen: null, reviewFor: null, foodFor: null, welcome: false, guide: false, lang: currentLang(),
+  sheet: 'none', destPick: null, toastUndo: false, savedId: null, toast: null, lite: prefersLite(), chosen: null, reviewFor: null, foodFor: null, welcome: false, guide: false, lang: currentLang(),
   have: 'any', wish: null, extra: [], capOn: false, overnight: null, roomCount: null, sleepAt: [], daysSet: false, quick: false, mood: null, breaks: [], roadPick: null, comfort: false, dayTrips: [], abroad: false, airAuto: false, here: null, building: null, dayOpen: null, edits: NO_EDITS
 });
 

@@ -1,7 +1,7 @@
 import { cardPhoto } from './photos';
 import { onInstallChange } from './install';
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
-import { EditSheet } from './components/Sheets';
+import { DestSheet, EditSheet } from './components/Sheets';
 import { FeedbackSheet, FoodSheet, ReviewSheet, SaveSheet, SignInSheet, TripsSheet } from './components/Panels';
 import { WELCOMED, Welcome, seenWelcome } from './components/Welcome';
 import { SeasonGuide } from './components/SeasonGuide';
@@ -195,7 +195,7 @@ export function App() {
   }, [user?.id]);
 
   // Toasts disappear by themselves.
-  useEffect(() => { if (!s.toast) return; const t = setTimeout(() => set({ toast: null }), 3200); return () => clearTimeout(t); }, [s.toast]);
+  useEffect(() => { if (!s.toast) return; const t = setTimeout(() => set({ toast: null, toastUndo: false }), s.toastUndo ? 7000 : 3200); return () => clearTimeout(t); }, [s.toast, s.toastUndo]);
 
   // Data saver is remembered on this device.
   useEffect(() => { try { localStorage.setItem('safarco-lite', s.lite ? '1' : '0'); } catch { /* storage blocked */ } }, [s.lite]);
@@ -345,7 +345,37 @@ export function App() {
   };
   const nextTrip = (wish: string) => { clearCurrent(); set({ screen: 'onboard', step: 1, sheet: 'none', settings: false, savedId: null, wish: wish as AppState['wish'], edits: { key: '', picks: [], drops: [] } }); view.wishOpts.find(o => o.key === wish)?.onClick(); };
 
-  const api: Api = { set, later, locate, setPeople, toggleOffline, share: () => shareTrip(), newTrip, checkIn, shareCard: makeCard, nextTrip };
+  // ---- Change destination: save this plan and start a new one (suggested), switch this one, or add a stop ----
+  const undoSwitch = useRef<{ data: ReturnType<typeof tripData>; savedId: string | null } | null>(null);
+  const changeDest = (how: 'new' | 'switch' | 'add') => {
+    const st = stRef.current, id = st.destPick; if (!id || id === st.corridor) return;
+    const next = DST(id).name, cur = DST(st.corridor).name, done = { sheet: 'none' as const, destPick: null, dq: '', settings: false, building: Date.now(), tab: 'trip' as const, dayOpen: null };
+    if (how === 'add') { set({ ...done, extra: [...(st.extra || []), id].slice(-3), toast: tx('{next} is added to your trip.', { next }) }); return; }
+    // What belonged to the old place starts fresh; dates, people, car, hotels and budget stay.
+    const fresh = { ...done, dest: id, corridor: id, chosen: id, mode: 'know' as const, pickId: null, extra: [], breaks: [], roadPick: null, sleepAt: [], dayTrips: [], overnight: null, edits: { key: '', picks: [], drops: [] } };
+    if (how === 'new') {
+      const old = st.savedId ? trips.find(x => x.id === st.savedId) : undefined;
+      const keep: SavedTrip = { id: old?.id || newId(), name: old?.name || defaultName(tripData(st)), data: tripData(st), savedAt: new Date().toISOString(), cloudId: old?.cloudId };
+      if (!saveLocal(keep)) { set({ toast: tx('Couldn’t save: this browser’s storage is full or blocked.') }); return; }
+      setTrips(localTrips());
+      if (user) cloudSave(keep).then(cid => { saveLocal({ ...keep, cloudId: cid }); setTrips(localTrips()); }, () => { /* backs up when online */ });
+      set({ ...fresh, savedId: null, toast: tx('Now planning {next}. Your {place} trip is in My trips.', { next, place: cur }) });
+      return;
+    }
+    // Switch: the same trip goes somewhere else; its checklist, expenses and family link come along.
+    undoSwitch.current = { data: tripData(st), savedId: st.savedId };
+    const to = { ...st, ...fresh };
+    moveRun(st, to);
+    const fid = getRun(runKey(to)).followId;
+    if (fid && user) updateFollow(fid, tripData(to), isoOff(to.startDate, to.days + 3)).catch(() => { /* updated next time it's shared */ });
+    set({ ...fresh, toast: tx('Switched to {next}.', { next }), toastUndo: true });
+  };
+  const undoChange = () => {
+    const u = undoSwitch.current, st = stRef.current; if (!u) return; undoSwitch.current = null;
+    moveRun(st, u.data);
+    set({ ...u.data, savedId: u.savedId, chosen: u.data.corridor, building: null, dayOpen: null, toastUndo: false, toast: tx('Back to {place}.', { place: DST(u.data.corridor).name }) });
+  };
+  const api: Api = { set, later, locate, setPeople, toggleOffline, share: () => shareTrip(), newTrip, checkIn, shareCard: makeCard, nextTrip, changeDest };
   const view = buildView(s, api);
 
   // Photos for the suggestion cards on the first steps (each place's guide photo, fetched once).
@@ -405,11 +435,12 @@ export function App() {
 
             {side && <SideMap v={view} api={api} />}
             <EditSheet v={view} api={api} />
+            <DestSheet v={view} api={api} />
             <DayPage v={view} />
             {s.building != null && <Building v={view} started={s.building} onDone={doneBuilding} />}
           </>}
 
-          {s.toast && <div role="status" style={css('position:absolute;left:18px;right:18px;top:calc(56px + env(safe-area-inset-top));z-index:60;padding:12px 14px;border-radius:20px;background:var(--sheet);backdrop-filter:blur(20px);border:1px solid rgba(46,229,157,.35);color:var(--ink);font-size:13px;font-weight:700;display:flex;align-items:center;gap:10px;box-shadow:0 20px 40px -16px rgba(0,0,0,.5)')} className="sc-toast"><div style={css('width:30px;height:30px;flex:none;border-radius:10px;background:var(--cta);color:var(--onCta);display:flex;align-items:center;justify-content:center;font-size:16px')}><i className="ph-fill ph-check" /></div>{s.toast}</div>}
+          {s.toast && <div role="status" style={css('position:absolute;left:18px;right:18px;top:calc(56px + env(safe-area-inset-top));z-index:60;padding:12px 14px;border-radius:20px;background:var(--sheet);backdrop-filter:blur(20px);border:1px solid rgba(46,229,157,.35);color:var(--ink);font-size:13px;font-weight:700;display:flex;align-items:center;gap:10px;box-shadow:0 20px 40px -16px rgba(0,0,0,.5)')} className="sc-toast"><div style={css('width:30px;height:30px;flex:none;border-radius:10px;background:var(--cta);color:var(--onCta);display:flex;align-items:center;justify-content:center;font-size:16px')}><i className="ph-fill ph-check" /></div><span style={css('flex:1;min-width:0')}>{s.toast}</span>{s.toastUndo && <button onClick={undoChange} style={css('flex:none;height:34px;padding:0 12px;border-radius:11px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);font-size:12px;font-weight:800;cursor:pointer')}>{tx('Undo')}</button>}</div>}
 
           <SaveSheet open={s.sheet === 'save'} isSaved={!!s.savedId} defaultName={(s.savedId && trips.find(t => t.id === s.savedId)?.name) || defaultName(tripData(s))} onSave={saveTrip} onClose={() => set({ sheet: 'none' })} />
           <Welcome open={s.welcome} lang={s.lang} onLang={l => { if (l !== s.lang) view.switchLang(); }} onStart={() => { try { localStorage.setItem(WELCOMED, '1'); } catch { /* storage blocked */ } set({ welcome: false }); }}

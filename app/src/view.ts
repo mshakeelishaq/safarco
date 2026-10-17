@@ -25,6 +25,7 @@ import { THEMES } from './state';
 import { tilesAlong } from './offline';
 import { cardPhoto, destPhoto, ownPhoto } from './photos';
 import { tripMode } from './view-trip';
+import { phaseOf } from './run';
 import { fuelByDay, fuelQueryPoints, type DayFuel } from './engine/fuel';
 import { LANGS, setLang, t } from './i18n';
 
@@ -42,6 +43,8 @@ export interface Api {
   shareCard?: () => void;
   /** Start a new trip with a wish already chosen. */
   nextTrip?: (wish: string) => void;
+  /** A new destination (s.destPick): save this trip and plan a new one, switch this one, or add it as a stop. */
+  changeDest?: (how: 'new' | 'switch' | 'add') => void;
 }
 
 
@@ -144,7 +147,9 @@ export function buildView(s: AppState, api: Api) {
 
   const geoOf = (q: string) => LIVE.geo[q.trim().toLowerCase()];
   const destRows = (() => {
-    if (s.step !== 2 || s.mode !== 'know') return [];
+    // Onboarding's destination step, and Edit trip → Change destination.
+    const changing = s.sheet === 'dest' && s.screen === 'app';
+    if (!changing && (s.step !== 2 || s.mode !== 'know')) return [];
     const q = s.dq.trim().toLowerCase(), o = s.origin || 'Islamabad';
     let ids: string[];
     if (!q) ids = POP_DEST.slice();
@@ -154,11 +159,12 @@ export function buildView(s: AppState, api: Api) {
       ids = [...cur, ...cit]; const g = geoOf(q); if (g && g.status === 'ok') g.data.forEach(n => { const id = 'city:' + n; if (CITY[n] && !CITY_DUP.has(n) && !ids.includes(id)) ids.push(id); });
     }
     ids = ids.filter(id => DST(id).name !== o);
-    if (!q && !ids.includes(s.dest) && DST(s.dest).name !== o) ids.unshift(s.dest);
+    if (!q && !changing && !ids.includes(s.dest) && DST(s.dest).name !== o) ids.unshift(s.dest);
+    if (changing) ids = ids.filter(id => id !== s.corridor);
     return ids.slice(0, 30).map(id => {
-      const D = DST(id), tr = trip(id, o, M), on = s.dest === id;
+      const D = DST(id), tr = trip(id, o, M), on = changing ? s.destPick === id : s.dest === id;
       const fitTxt = s.have === 'car' || s.have === 'bike' ? roadFit(HAVE_VEHICLE[s.have], id, o, M)?.text || '' : '';
-      return { key: id, name: D.name, fit: fitTxt, risk: riskOf(id) ? t(riskOf(id)!.short) : '', sub: (D.ft != null && !D.generic ? t('{region} · {ft} ft', { region: D.region, ft: fmtN(D.ft) }) : D.region) + (D.checked === false ? ' · ' + t('not checked yet') : ''), meta: t('{km} km · {h} h', { km: tr.kmStr, h: Math.round(tr.hours) }), icon: D.icon, onClick: () => set({ dest: id, corridor: id, pickId: null, ...(id !== s.corridor ? { extra: [] } : {}) }),
+      return { key: id, name: D.name, fit: fitTxt, risk: riskOf(id) ? t(riskOf(id)!.short) : '', sub: (D.ft != null && !D.generic ? t('{region} · {ft} ft', { region: D.region, ft: fmtN(D.ft) }) : D.region) + (D.checked === false ? ' · ' + t('not checked yet') : ''), meta: t('{km} km · {h} h', { km: tr.kmStr, h: Math.round(tr.hours) }) + (changing && tr.minDays > s.days ? ' · ' + t('{n}+ days', { n: tr.minDays }) : ''), icon: D.icon, onClick: changing ? () => set({ destPick: id }) : () => set({ dest: id, corridor: id, pickId: null, ...(id !== s.corridor ? { extra: [] } : {}) }),
         bg: on ? 'rgba(255,181,71,.12)' : 'transparent', border: on ? 'rgba(255,181,71,.5)' : 'transparent', iconC: on ? 'var(--amb)' : 'var(--mute)', checkOp: on ? 1 : 0 };
     });
   })();
@@ -594,6 +600,15 @@ export function buildView(s: AppState, api: Api) {
       return [{ icon: 'ph-warning', color: 'var(--cor)', text: t('OpenRouteService’s fastest road is {km} km; this plan is {planKm} km. It may use a road closed in {month}. Check before you leave.', { km: fmtN(r.data.km), planKm: c.kmStr, month: MON[M - 1] }) }];
     })(),
     roadChoice,
+    /** Edit trip → Change destination: the place picked and what can happen to this plan. */
+    destChange: s.sheet === 'dest' ? (() => {
+      const pick = s.destPick && s.destPick !== s.corridor ? s.destPick : null, cur = DST(s.corridor).name, during = phaseOf(s.startDate, s.days, isoAdd(0)) === 'during';
+      const need = pick ? trip(pick, s.origin, M).minDays : 0, extra = s.extra || [];
+      return { cur, pick: pick ? DST(pick).name : '', during, saved: !!s.savedId, canAdd: !!pick && extra.length < 3 && !extra.includes(pick),
+        need: pick && need > s.days ? t('{place} needs at least {n} days from {from}. The plan will offer to make it longer.', { place: DST(pick).name, n: need, from: s.origin || '' }) : '',
+        back: () => set({ destPick: null }), close: () => set({ sheet: 'none', destPick: null, dq: '' }), open: () => set({ sheet: 'dest', destPick: null, dq: '' }) };
+    })() : null,
+    openDestChange: () => set({ settings: false, sheet: 'dest', destPick: null, dq: '' }),
     seasonNotes: [...alertNotes, ...closedNotes, ...securityOn.map(a => ({ icon: 'ph-shield-warning', color: 'var(--cor)', text: t(a.text) })), ...seasonInfo(s, s.corridor), ...jeepNote],
     dayHint: (() => {
       const o = s.origin || 'Islamabad', okS = { tile: 'linear-gradient(135deg,#2EE59D,#0FA678)', bg: 'rgba(46,229,157,.1)', border: 'rgba(46,229,157,.3)' }, badS = { tile: 'linear-gradient(135deg,#FF8A6B,#FF4F7B)', bg: 'rgba(255,107,91,.12)', border: 'rgba(255,107,91,.4)' };
