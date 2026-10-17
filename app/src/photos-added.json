@@ -1,1 +1,33 @@
-{"own": {}, "seasonal": {}, "gallery": {}, "place": {}, "stop": {}}
+{
+ "own": {},
+ "seasonal": {},
+ "gallery": {
+  "nagar": [
+   {
+    "src": "/photos/nagar-rakaposhi-above-golden.webp",
+    "caption": "Autumn: Rakaposhi above golden poplars and red trees",
+    "first": true
+   },
+   {
+    "src": "/photos/nagar-village-lane-under.webp",
+    "caption": "Autumn: a village lane under orange apricot trees and snow peaks"
+   },
+   {
+    "src": "/photos/nagar-orchards-full-colour.webp",
+    "caption": "Autumn: orchards in full colour below the snowy ridge"
+   },
+   {
+    "src": "/photos/nagar-road-through-tall.webp",
+    "caption": "Autumn: a road through tall golden poplars below a snow peak"
+   },
+   {
+    "src": "/photos/nagar-terraced-orchards-ablaze.webp",
+    "caption": "Autumn: terraced orchards ablaze with colour, Rakaposhi range behind"
+   }
+  ]
+ },
+ "place": {
+  "nagar|Rakaposhi View Point, Ghulmet": "/photos/nagar-rakaposhi-above-golden.webp"
+ },
+ "stop": {}
+}
