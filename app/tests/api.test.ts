@@ -60,6 +60,22 @@ describe('/api/route', () => {
     expect(calls.some(c => JSON.parse(String(c.init?.body)).coordinates.length === 2 && JSON.parse(String(c.init?.body)).coordinates[0][0] === 74.34 && JSON.parse(String(c.init?.body)).coordinates[1][0] === 72.93)).toBe(false);
   });
 
+  it('refuses a detour (Naran → Chilas sent round by Besham) and keeps to the plan’s way', async () => {
+    vi.stubGlobal('fetch', vi.fn(async (url: string, init?: RequestInit) => { calls.push({ url, init });
+      const pts = JSON.parse(String(init?.body)).coordinates as number[][];
+      const naranChilas = pts.length === 2 && pts[0][0] === 73.65;
+      // Every answer "works", but the Naran → Chilas stretch is a 420 km detour.
+      const segs = pts.slice(1).map((b, i) => ({ distance: pts[i][0] === 73.65 ? 420000 : 90000 }));
+      return new Response(JSON.stringify({ features: [{ properties: { summary: { distance: naranChilas ? 420000 : 500000, duration: 36000 }, segments: segs }, geometry: { coordinates: [pts[0], [73.0, 34.9], pts[pts.length - 1]] } }] }));
+    }));
+    const r = await get(route, '/api/route?from=74.34,31.55&to=72.93,36.17&via=73.65,34.91;74.1,35.42');
+    const j = await r.json();
+    expect(r.status).toBe(200);
+    // Naran → Chilas is drawn straight between them (no detour point in between).
+    const i = j.coords.findIndex((c: number[]) => c[0] === 73.65 && c[1] === 34.91);
+    expect(j.coords[i + 1]).toEqual([74.1, 35.42]);
+  });
+
   it('rejects points outside Pakistan and works without a key by failing cleanly', async () => {
     expect((await get(route, '/api/route?from=1,2&to=3,4')).status).toBe(400);
     delete process.env.ORS_API_KEY;

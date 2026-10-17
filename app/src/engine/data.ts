@@ -156,6 +156,15 @@ export const SUNRISE: number[] = [7.1, 6.9, 6.3, 5.7, 5.2, 5.0, 5.1, 5.4, 5.8, 6
 export const STOP_DUR: Partial<Record<StopKind, number>> = { food: 40, tea: 20, view: 15, fuel: 10 };
 export const MTN_NODES: Set<string> = new Set(['MGR', 'KLM', 'MNS', 'NRN', 'CHL', 'BSM', 'RKT', 'GLT', 'KRM', 'SKD', 'MZD', 'MRE', 'KEL', 'DIR', 'CTR', 'KHP', 'PSU', 'ZRT', 'MJB', 'ABT', 'KWI', 'SHG', 'NTG', 'AST', 'NLT', 'PHD', 'MSJ', 'SST', 'KJB', 'BMB', 'THL', 'KMT']);
 // [a, b, road km, avg km/h, car toll one-way PKR, mountain?, road name]
+/**
+ * The way a road really goes, for roads the online router won't drive (it treats them as closed).
+ * Points from the first node to the second, not including either; reversed for the other direction.
+ */
+export const ROAD_SHAPES: Record<string, [number, number][]> = {
+  // Babusar Pass road: Naran, Batakundi, Burawai, Besal, Lulusar, Gittidas, Babusar Top, Babusar village, Thak.
+  'NRN-CHL': [[34.935, 73.766], [34.992, 73.838], [35.040, 73.886], [35.083, 73.932], [35.090, 73.965], [35.112, 74.010], [35.146, 74.047], [35.205, 74.070], [35.270, 74.083], [35.345, 74.095]]
+};
+
 export const EDGES: Edge[] = [
   ['KHI', 'HYD', 165, 95, 700, 0, 'M-9'], ['HYD', 'SKR', 330, 65, 400, 0, 'N-5'], ['SKR', 'MUL', 392, 100, 1900, 0, 'M-5'], ['MUL', 'FSD', 240, 100, 1150, 0, 'M-4'],
   ['FSD', 'ISB', 300, 100, 1300, 0, 'M-4 / M-2'], ['MUL', 'LHR', 335, 95, 1500, 0, 'M-3 / M-4'], ['LHR', 'ISB', 375, 100, 1850, 0, 'M-2'],

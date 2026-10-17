@@ -1,7 +1,7 @@
 // Trip engine: road routing, day-by-day plan, costs, season notes and suggestions.
 // Ported from the SafarCo App v7 design; all figures are estimates.
 import {
-  AIRPORTS, CONFIGS, DESTS, EDGES, EDGE_STOPS, FARES, MONTH_FULL, MTN_NODES, NODES, NODE_INFO, P as PR, PLACE_INFO, ROAD_NOTE, SLOTS, STOP_DUR, STOP_HOTELS,
+  AIRPORTS, CONFIGS, DESTS, EDGES, ROAD_SHAPES, EDGE_STOPS, FARES, MONTH_FULL, MTN_NODES, NODES, NODE_INFO, P as PR, PLACE_INFO, ROAD_NOTE, SLOTS, STOP_DUR, STOP_HOTELS,
   SUGGEST_POOL, SECURITY_AREAS, RISK_ROAD_NOTE, SUNRISE, SUNSET, TIERS, VEH, OWN_CONFIGS, type Have, type Edge, type EdgeStop, type Hotel, type Jeep, type Mode, type Place, type StopKind, type TierId, type TripConfig, type VehicleId
 } from './data';
 import { clock, dayLabel, dur, fmt, fmtN, hav, inM, isoOff, mapsQ, mon } from './format';
@@ -239,9 +239,24 @@ LIVE.routeHooks.add(resetTripCache);
 
 /** The towns a trip's roads pass through, so the map's road follows the day plan (at most 23, evenly picked). */
 function viaOf(legs: Leg[]) {
+  // Towns in route order, with the real shape of roads the router won't drive (Babusar) between them.
+  const pts: { p: [number, number]; town: boolean }[] = [];
+  const seq = legs.length ? [legs[0].a, ...legs.map(l => l.b)] : [];
+  seq.forEach((n, i) => {
+    if (NODES[n] && seq.indexOf(n) === i) pts.push({ p: NODES[n], town: true });
+    const next = seq[i + 1]; if (!next) return;
+    const fwd = ROAD_SHAPES[`${n}-${next}`], back = ROAD_SHAPES[`${next}-${n}`];
+    (fwd || (back ? [...back].reverse() : [])).forEach(p => pts.push({ p, town: false }));
+  });
+  // At most 23 points: road shapes always stay, towns are thinned evenly.
+  let keep = pts;
+  if (pts.length > 23) {
+    const towns = pts.filter(x => x.town), room = Math.max(2, 23 - (pts.length - towns.length));
+    const pick = new Set(Array.from({ length: room }, (_, i) => towns[Math.round(i * (towns.length - 1) / Math.max(1, room - 1))]));
+    keep = pts.filter(x => !x.town || pick.has(x)).slice(0, 23);
+  }
   const ids = legs.flatMap(l => [l.a, l.b]).filter((n, i, a) => n !== 'HOME' && n !== 'DEST' && NODES[n] && a.indexOf(n) === i);
-  const pick = ids.length <= 23 ? ids : Array.from({ length: 23 }, (_, i) => ids[Math.round(i * (ids.length - 1) / 22)]);
-  return { id: pick.join(','), pts: pick.map(n => NODES[n]) as [number, number][] };
+  return { id: ids.join(',') + (keep.some(x => !x.town) ? '+shape' : ''), pts: keep.map(x => x.p) };
 }
 /** The towns on the way for a trip, as routeFetch wants them. */
 export const roadVia = (key: string, origin: string | null, month: number) => viaOf(trip(key, origin, month).legs);

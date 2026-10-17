@@ -31,18 +31,24 @@ export async function GET(request: Request) {
     body: JSON.stringify({ coordinates: pts, radiuses })
   }).catch(() => null);
   type Route = { km: number; h: number; coords: number[][] };
-  const read = async (r: Response | null): Promise<Route | null> => {
+  const hav = (a: number[], b: number[]) => { const R = 6371, dLa = (b[1] - a[1]) * Math.PI / 180, dLo = (b[0] - a[0]) * Math.PI / 180, x = Math.sin(dLa / 2) ** 2 + Math.cos(a[1] * Math.PI / 180) * Math.cos(b[1] * Math.PI / 180) * Math.sin(dLo / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(x)); };
+  // A stretch far longer than it should be is a detour round a road the router thinks is closed
+  // (Naran → Chilas sent back down by Besham): not the plan's way, so it's refused.
+  const detour = (km: number, a: number[], b: number[]) => km > hav(a, b) * 2.6 + 15;
+  const read = async (r: Response | null, pts: number[][]): Promise<Route | null> => {
     if (!r || !r.ok) return null;
     const f = (await r.json().catch(() => null))?.features?.[0]; if (!f) return null;
+    const segs: { distance: number }[] = f.properties.segments || [];
+    if (segs.length === pts.length - 1 && segs.some((g, i) => detour(g.distance / 1000, pts[i], pts[i + 1]))) return null;
+    if (!segs.length && detour(f.properties.summary.distance / 1000, pts[0], pts[pts.length - 1]) && pts.length === 2) return null;
     return { km: f.properties.summary.distance / 1000, h: f.properties.summary.duration / 3600, coords: f.geometry.coordinates };
   };
   let first = await ask(coordinates, coordinates.map(() => 5000));
   if (first?.status === 429) return fail(429, 'Routing limit reached for today');
-  let route = await read(first);
-  if (!route && via.length) route = await read(await ask(coordinates, coordinates.map((_, i) => i === 0 || i === coordinates.length - 1 ? 5000 : -1)));
+  let route = await read(first, coordinates);
+  if (!route && via.length) route = await read(await ask(coordinates, coordinates.map((_, i) => i === 0 || i === coordinates.length - 1 ? 5000 : -1)), coordinates);
   if (!route && via.length) {
-    const parts = await Promise.all(coordinates.slice(1).map((b, i) => ask([coordinates[i], b], [-1, -1]).then(read)));
-    const hav = (a: number[], b: number[]) => { const R = 6371, dLa = (b[1] - a[1]) * Math.PI / 180, dLo = (b[0] - a[0]) * Math.PI / 180, x = Math.sin(dLa / 2) ** 2 + Math.cos(a[1] * Math.PI / 180) * Math.cos(b[1] * Math.PI / 180) * Math.sin(dLo / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(x)); };
+    const parts = await Promise.all(coordinates.slice(1).map((b, i) => ask([coordinates[i], b], [-1, -1]).then(r => read(r, [coordinates[i], b]))));
     if (parts.some(Boolean)) route = parts.reduce<Route>((acc, p, i) => {
       const a = coordinates[i], b = coordinates[i + 1];
       // A stretch with no road: straight across, at mountain-road length and speed.
