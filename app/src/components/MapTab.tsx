@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { LIVE } from '../engine/live';
 import { cityOr } from '../engine/places';
-import { liveRoadKey } from '../engine/engine';
+import { planRoadKey } from '../engine/engine';
 import { mon } from '../engine/format';
 import { css } from '../lib/css';
 import { t } from '../i18n';
@@ -15,7 +15,7 @@ const escH = (s: string) => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '
 function LiveMap({ v, onFail, fill }: { v: View; onFail: () => void; fill?: boolean }) {
   const el = useRef<HTMLDivElement>(null);
   const st = useRef<{ ml?: ML; map?: import('maplibre-gl').Map; ok?: boolean; key?: string; wxKey?: string; fuelKey?: string; markers: import('maplibre-gl').Marker[] }>({ markers: [] });
-  const { s } = v, rm = v.routeMap, o = cityOr(s.origin), r = LIVE.route[liveRoadKey(s.corridor, s.origin, mon(s))];
+  const { s } = v, rm = v.routeMap, o = cityOr(s.origin), r = LIVE.route[planRoadKey(s)];
 
   useEffect(() => {
     let dead = false;
@@ -88,7 +88,7 @@ function LiveMap({ v, onFail, fill }: { v: View; onFail: () => void; fill?: bool
     }
     const key = `${o.n}|${s.corridor}|${(s.extra || []).join()}|${s.startDate}|${s.days}|${s.vehicle}|${r ? r.status : ''}`; if (key === st.current.key) return; st.current.key = key;
     // Until the real road loads (or offline), the line still goes through every town on the plan's roads.
-    const coords: [number, number][] = rm.loop ? rm.line.map(p => [p[1], p[0]]) : !rm.isAir && r && r.status === 'ok' ? r.data.coords : rm.isAir ? rm.dots.map(d => [+d.p[1], +d.p[0]]) : rm.line.map(p => [p[1], p[0]]);
+    const coords: [number, number][] = !rm.isAir && r && r.status === 'ok' ? r.data.coords : rm.isAir ? rm.dots.map(d => [+d.p[1], +d.p[0]]) : rm.line.map(p => [p[1], p[0]]);
     (m.getSource('route') as import('maplibre-gl').GeoJSONSource).setData({ type: 'Feature', properties: {}, geometry: { type: 'LineString', coordinates: coords } });
     m.setPaintProperty('route-line', 'line-dasharray', rm.isAir ? [2, 1.5] : undefined);
     st.current.markers.forEach(x => x.remove());

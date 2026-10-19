@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { costFor, type TripState } from '../src/engine/engine';
 import { addPlace } from '../src/engine/places';
 import { DEFAULT_PRICES, applyPrices, checkedText } from '../src/prices';
@@ -42,6 +42,9 @@ describe('saved trips', () => {
 });
 
 describe('price list', () => {
+  // "Checked" turns into "may have changed" after a while, so the test runs on a fixed day.
+  beforeEach(() => { vi.useFakeTimers(); vi.setSystemTime(new Date('2026-10-10T12:00:00')); });
+  afterEach(() => { vi.useRealTimers(); });
   it('starts unchecked and changes costs when the admin updates prices', () => {
     expect(checkedText('fuel')).toBe('a typical price, may differ a little');
     const before = costFor(trip).rows.find(r => r.label === 'Fuel')!.val;

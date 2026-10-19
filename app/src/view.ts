@@ -5,7 +5,7 @@ import { P as PR, HIDE_SPOTS, SECURITY_AREAS, riskOf, HAVE_VEHICLE, EDGES, MODES
 import { FOOD } from './engine/food';
 import { dismissInstall, offerInstallNow, startInstall, wasDismissed } from './install';
 import { foodTipsFor } from './foodtips';
-import { drivingDays, vehiclesFor, pickAt, roadParts, roadSig, roadsOnlyIn, routeOptions, setRoutePick, type Trip, legClosure, liveRoadKey, AIR_IN, bestAirport, closedOnRoute, flyNorth, viaIsb, DAY_OUT_H, SHORT2_H, MAX_DRIVE_H, plannedJeeps, roomPlan, circuit, sideTrips, dayTripOptions, tripFrom, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
+import { drivingDays, shapeBetween, vehiclesFor, pickAt, roadParts, roadSig, roadsOnlyIn, routeOptions, setRoutePick, type Trip, legClosure, liveRoadKey, AIR_IN, bestAirport, closedOnRoute, flyNorth, viaIsb, DAY_OUT_H, SHORT2_H, MAX_DRIVE_H, plannedJeeps, roomPlan, circuit, sideTrips, dayTripOptions, tripFrom, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
 import { clock, dayLabel, dur, fmt, fmtN, isoAdd, isoOf, isoOff, kShort, mapsQ, mon } from './engine/format';
 import { LIVE, fxRate, placesKey, routeKey, type Spot } from './engine/live';
 import { sunTimes } from './engine/sun';
@@ -793,7 +793,8 @@ export function buildView(s: AppState, api: Api) {
     routeMap: (() => {
       const legs = c.legs, o = cityOr(s.origin), D = DST(s.corridor);
       const co = (n: string): [number, number] => { const q = pointAt(n); return [q.lat, q.lon]; };
-      const pts = isAir ? [[o.lat, o.lon], [D.lat, D.lon]] : [co(legs[0].a), ...legs.map(l => co(l.b))];
+      // Until the real road loads: every town, and the real bends between them (the M-2 by Bhera, not a straight line).
+      const pts = isAir ? [[o.lat, o.lon], [D.lat, D.lon]] : [co(legs[0].a), ...legs.flatMap(l => [...shapeBetween(l.a, l.b, l.road), co(l.b)])];
       const la0 = Math.min(...pts.map(p => p[0])), la1 = Math.max(...pts.map(p => p[0])), lo0 = Math.min(...pts.map(p => p[1])), lo1 = Math.max(...pts.map(p => p[1]));
       const kx = 0.86, aspect = 1 / 0.88; let w = Math.max(.6, (lo1 - lo0) * kx), h = Math.max(.6, la1 - la0);
       if (w / h > aspect) h = w / aspect; else w = h * aspect; w *= 1.4; h *= 1.4;

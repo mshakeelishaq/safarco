@@ -324,17 +324,21 @@ export const closedOnRoute = (key: string, origin: string | null, month: number)
 LIVE.routeHooks.add(resetTripCache);
 
 /** The towns a trip's roads pass through, so the map's road follows the day plan (at most 23, evenly picked). */
-function viaOf(legs: Leg[]) {
-  // Towns in route order, with the real shape of roads the router won't drive (Babusar) between them.
+/** The way a road really goes between two towns (Babusar's bends, the M-2 by Bhera), for that road, else the pair's main road. */
+export function shapeBetween(a: string, b: string, road: string): [number, number][] {
+  const main = !MAIN_ROAD[`${a}-${b}`] || MAIN_ROAD[`${a}-${b}`] === road;
+  const fwd = ROAD_SHAPES[`${a}-${b}|${road}`] || (main ? ROAD_SHAPES[`${a}-${b}`] : undefined), back = ROAD_SHAPES[`${b}-${a}|${road}`] || (main ? ROAD_SHAPES[`${b}-${a}`] : undefined);
+  return fwd || (back ? [...back].reverse() : []);
+}
+/** The towns on the way, with road shapes between them. `at` places other stops (a circuit's '@hunza'); the start and end are left out. */
+function viaOf(legs: Leg[], at: (n: string) => [number, number] | null = n => NODES[n] || null) {
   const pts: { p: [number, number]; town: boolean }[] = [];
   const seq = legs.length ? [legs[0].a, ...legs.map(l => l.b)] : [];
   seq.forEach((n, i) => {
-    if (NODES[n] && seq.indexOf(n) === i) pts.push({ p: NODES[n], town: true });
+    const p = i > 0 && i < seq.length - 1 || NODES[n] ? at(n) : null;
+    if (p && seq.indexOf(n) === i) pts.push({ p, town: true });
     const next = seq[i + 1]; if (!next) return;
-    // A shape for this road between the two towns, else for the pair's main road (only when that's the road taken).
-    const road = legs[i].road, main = !MAIN_ROAD[`${n}-${next}`] || MAIN_ROAD[`${n}-${next}`] === road;
-    const fwd = ROAD_SHAPES[`${n}-${next}|${road}`] || (main ? ROAD_SHAPES[`${n}-${next}`] : undefined), back = ROAD_SHAPES[`${next}-${n}|${road}`] || (main ? ROAD_SHAPES[`${next}-${n}`] : undefined);
-    (fwd || (back ? [...back].reverse() : [])).forEach(p => pts.push({ p, town: false }));
+    shapeBetween(n, next, legs[i].road).forEach(q => pts.push({ p: q, town: false }));
   });
   // At most 23 points: road shapes always stay, towns are thinned evenly.
   let keep = pts;
@@ -346,6 +350,16 @@ function viaOf(legs: Leg[]) {
   const ids = legs.flatMap(l => [l.a, l.b]).filter((n, i, a) => n !== 'HOME' && n !== 'DEST' && NODES[n] && a.indexOf(n) === i);
   return { id: ids.join(',') + (keep.some(x => !x.town) ? '+shape' : ''), pts: keep.map(x => x.p) };
 }
+/** A circuit's live road: from home round its places and back home, through the same towns as the plan. */
+export function loopRoad(s: TripState) {
+  const L = circuit(s); if (!L) return null;
+  const o = cityOr(s.origin), legs = L.hops.flatMap(h => h.legs);
+  const via = viaOf(legs, n => n === 'HOME' || n === 'DEST' ? null : n.startsWith('@') ? [DST(n.slice(1)).lat, DST(n.slice(1)).lon] : NODES[n] || null);
+  const id = 'loop:' + L.order.join(',');
+  return { key: routeKey(o.n, id, via.id + '|' + L.order.join(',')), via: { id: via.id + '|' + L.order.join(','), pts: via.pts }, to: { ...DST(s.corridor), id, lat: o.lat, lon: o.lon } };
+}
+/** The live-road key for whatever the plan is: one place there and back, or a circuit. */
+export const planRoadKey = (s: TripState) => withPick(s, () => loopRoad(s)?.key ?? liveRoadKey(s.corridor, s.origin, mon(s)));
 /** The towns on the way for a trip, as routeFetch wants them. */
 export const roadVia = (key: string, origin: string | null, month: number) => viaOf(trip(key, origin, month).legs);
 /** The live-road key for a trip, matching the day plan's roads. */

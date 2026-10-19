@@ -30,7 +30,7 @@ import { TripTab } from './components/TripTab';
 import { LIVE, fxFetch, geoSearch, placesFetch, placesKey, placesUrl, reverseGeo, routeFetch, routeUrl, wikiFetch } from './engine/live';
 import { allUrls, fetchWeather } from './weather/route';
 import { mapsQ, mon } from './engine/format';
-import { bestAirport, liveRoadKey, roadVia, setRoutePick, trip, usualDays } from './engine/engine';
+import { bestAirport, liveRoadKey, loopRoad, roadVia, setRoutePick, trip, usualDays } from './engine/engine';
 import { DESTS, NODES } from './engine/data';
 import { CITY, DST, cityOr, nearestCity } from './engine/places';
 import { travellerPatch } from './traveller';
@@ -98,8 +98,11 @@ export function App() {
     if (s.screen !== 'app') return;
     const o = cityOr(s.origin), D = DST(s.corridor);
     setRoutePick(s);
+    // A circuit's road goes round all its places and home; a one-place trip's goes there.
+    const loop = loopRoad(s);
+    if (loop) { if (s.vehicle !== 'air' || s.tab === 'map') routeFetch(o, loop.to, loop.via); return; }
     if (s.vehicle !== 'air' || s.tab === 'map') routeFetch(o, D, roadVia(s.corridor, s.origin, mon(s)));
-  }, [s.screen, s.origin, s.corridor, s.vehicle, s.tab, s.startDate, s.days, s.roadPick, closures]);
+  }, [s.screen, s.origin, s.corridor, (s.extra || []).join(), s.vehicle, s.tab, s.startDate, s.days, s.roadPick, closures]);
 
   // Destination guide, sights and places to stay (destination and each night stop).
   const nightNodes = view0NightNodes(s);
