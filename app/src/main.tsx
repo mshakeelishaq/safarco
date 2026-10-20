@@ -21,13 +21,16 @@ import { Follow } from './pages/Follow';
 import { Split } from './pages/Split';
 import { InstallHost } from './components/InstallSheet';
 import { Site } from './site/Site';
+import { lazy, Suspense } from 'react';
+// The new website, stage 1 (its WebGL and styles load only on that page).
+const Preview = lazy(() => import('./preview/Preview').then(m => ({ default: m.Preview })));
 
 const path = location.pathname.replace(/\/+$/, '') || '/';
 // The planner is at /plan. The website is everything else, but "/" still opens the planner for the installed
 // app and for trip links shared before the planner moved.
 const q = new URLSearchParams(location.search), installed = matchMedia('(display-mode: standalone)').matches || (navigator as Navigator & { standalone?: boolean }).standalone === true;
 const planner = path === '/plan' || (path === '/' && !q.has('home') && (installed || q.has('trip')));
-const Page = path === '/admin' ? Admin : path === '/privacy' ? Privacy : path === '/terms' ? Terms : path === '/follow' ? Follow : path === '/split' ? Split : planner ? App : Site;
+const Page = path === '/preview' ? () => <Suspense fallback={null}><Preview /></Suspense> : path === '/admin' ? Admin : path === '/privacy' ? Privacy : path === '/terms' ? Terms : path === '/follow' ? Follow : path === '/split' ? Split : planner ? App : Site;
 createRoot(document.getElementById('root')!).render(<><Page /><InstallHost /></>);
 
 if (import.meta.env.PROD) {

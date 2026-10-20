@@ -10,7 +10,7 @@ import { onTraveller, travellerNow } from '../traveller';
 export type SeasonId = 'spring' | 'summer' | 'autumn' | 'winter';
 export const SEASONS: { id: SeasonId; label: string }[] = [{ id: 'spring', label: 'Spring' }, { id: 'summer', label: 'Summer' }, { id: 'autumn', label: 'Autumn' }, { id: 'winter', label: 'Winter' }];
 /** Five of SafarCo's own photos for each season, each linked to its guide. */
-const SLIDES: Record<SeasonId, { src: string; place: string; id: string; pos?: string }[]> = {
+export const SLIDES: Record<SeasonId, { src: string; place: string; id: string; pos?: string }[]> = {
   spring: [
     { src: '/photos/blossom.webp', place: 'Blossom under the snow peaks', id: 'hunza' },
     { src: '/photos/islamabad-jacaranda-path.webp', place: 'Jacaranda in Islamabad', id: 'islamabad' },
