@@ -111,7 +111,7 @@ export function BudgetTab({ v }: { v: View; api: Api }) {
             {v.priceNotes.map(n => (
               <div key={n.key} style={css('display:flex;gap:10px;align-items:flex-start')}>
                 <i className={`ph-fill ${n.ok ? 'ph-seal-check' : 'ph-clock-countdown'}`} style={css(`font-size:17px;color:${n.ok ? 'var(--g)' : 'var(--amb)'};flex:none;margin-top:1px`)} />
-                <div style={css('font-size:12px;font-weight:600;line-height:1.45;color:var(--ink2)')}><b>{n.label}</b> · {n.checked} · {n.source}</div>
+                <div style={css('font-size:12px;font-weight:600;line-height:1.45;color:var(--ink2)')}><b>{n.label}</b>{n.rate ? ` · ${n.rate}` : ''} · {n.checked} · {n.source}</div>
               </div>
             ))}
           </div>

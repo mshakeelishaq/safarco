@@ -2391,4 +2391,6 @@ export const UR: Record<string, string> = {
   "Fine tune your trip": "Apna safar behtar banayein",
   "SafarCo already chose the best for you. Change anything here if you like.": "SafarCo ne aap ke liye behtareen chuna hai. Chahein to yahan kuch bhi badal lein.",
   "{amount} a person a day": "{amount} fi shakhs rozana",
+  "{amount} a litre at the pump": "pump par {amount} fi litre",
+  "petrol {petrol}, diesel {diesel} a litre at the pump (government rate + Rs {extra})": "pump par petrol {petrol}, diesel {diesel} fi litre (sarkari rate + Rs {extra})",
 };

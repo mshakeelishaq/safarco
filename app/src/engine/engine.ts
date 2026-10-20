@@ -1,7 +1,7 @@
 // Trip engine: road routing, day-by-day plan, costs, season notes and suggestions.
 // Ported from the SafarCo App v7 design; all figures are estimates.
 import {
-  AIRPORTS, CONFIGS, DESTS, EDGES, ROAD_SHAPES, EDGE_STOPS, FARES, MONTH_FULL, MTN_NODES, NODES, NODE_INFO, P as PR, PLACE_INFO, ROAD_NOTE, SLOTS, STOP_DUR, STOP_HOTELS,
+  AIRPORTS, CONFIGS, DESTS, EDGES, ROAD_SHAPES, EDGE_STOPS, FARES, MONTH_FULL, MTN_NODES, NODES, NODE_INFO, P as PR, PLACE_INFO, pumpPrice, ROAD_NOTE, SLOTS, STOP_DUR, STOP_HOTELS,
   SUGGEST_POOL, SECURITY_AREAS, RISK_ROAD_NOTE, SUNRISE, SUNSET, TIERS, VEH, OWN_CONFIGS, type Have, type Edge, type EdgeStop, type Hotel, type Jeep, type Mode, type Place, type StopKind, type TierId, type TripConfig, type VehicleId
 } from './data';
 import { clock, dayLabel, dur, fmt, fmtN, hav, inM, isoOff, mapsQ, mon } from './format';
@@ -852,9 +852,9 @@ function costOf(o: TripState): Cost {
     const fare = L ? coachFare({ flatKm, mtnKm } as Trip) : coachFare(c);
     rows.push({ icon: 'ph-bus', label: 'Transport', detail: L ? `${t('Coaches {price} for the whole route', { price: fmt(fare) })} × ${adults(AD)}${kidTxt(t('half fare'))}` : `${t('Coach {price} each way', { price: fmt(fare) })} × ${adults(AD)}${kidTxt(t('half fare'))}`, val: fare * (L ? 1 : 2) * (AD + K * 0.5) });
   } else {
-    const units = vehiclesFor(o, v), per = flatKm / (v.mileage || 1) + mtnKm / (v.mtn || 1), price = v.diesel ? PR.diesel : PR.petrol, bike = o.vehicle === 'bike';
+    const units = vehiclesFor(o, v), per = flatKm / (v.mileage || 1) + mtnKm / (v.mtn || 1), price = pumpPrice(v.diesel), bike = o.vehicle === 'bike';
     if (v.rate) rows.push({ icon: v.icon, label: 'Rental', detail: t('{n} × {vehicle} · ({rate} + {allow} driver) × {days} days', { n: units, vehicle: v.short, rate: fmt(v.rate), allow: fmtN(v.allow || 0), days: o.days }), val: units * (v.rate + (v.allow || 0)) * o.days });
-    rows.push({ icon: 'ph-gas-pump', label: 'Fuel', detail: `${fmtN(rt)} km · ${units > 1 ? `${bike ? t('{n} bikes', { n: units }) : t('{n} vehicles', { n: units })} × ` : ''}${v.diesel ? t('{litres} L diesel (about {flat} km/L on the plains, {mtn} in the mountains)', { litres: fmtN(per), flat: String(v.mileage), mtn: String(v.mtn) }) : t('{litres} L petrol (about {flat} km/L on the plains, {mtn} in the mountains)', { litres: fmtN(per), flat: String(v.mileage), mtn: String(v.mtn) })}`, val: per * units * price });
+    rows.push({ icon: 'ph-gas-pump', label: 'Fuel', detail: `${fmtN(rt)} km · ${units > 1 ? `${bike ? t('{n} bikes', { n: units }) : t('{n} vehicles', { n: units })} × ` : ''}${v.diesel ? t('{litres} L diesel (about {flat} km/L on the plains, {mtn} in the mountains)', { litres: fmtN(per), flat: String(v.mileage), mtn: String(v.mtn) }) : t('{litres} L petrol (about {flat} km/L on the plains, {mtn} in the mountains)', { litres: fmtN(per), flat: String(v.mileage), mtn: String(v.mtn) })} · ${t('{amount} a litre at the pump', { amount: fmt(price) })}`, val: per * units * price });
     const tollSum = tollList.reduce((a, b) => a + b[1], 0) * units * (v.tollX || 1);
     if (o.vehicle === 'bike') rows.push({ icon: 'ph-road-horizon', label: 'Tolls', detail: `${t('Motorways closed to bikes')} · GT Road / N-5`, val: 0 });
     else rows.push({ icon: 'ph-road-horizon', label: 'Tolls', detail: (tollList.length ? [...new Set(tollList.map(x => x[0]))].join(' + ') : t('No tolled roads')) + ` · ${L ? t('whole route') : t('return')}${units > 1 ? ` × ${units}` : ''}${v.tollX ? ` · ${t('coaster rate')}` : ''}`, val: tollSum });

@@ -48,9 +48,11 @@ describe('price list', () => {
   it('starts unchecked and changes costs when the admin updates prices', () => {
     expect(checkedText('fuel')).toBe('a typical price, may differ a little');
     const before = costFor(trip).rows.find(r => r.label === 'Fuel')!.val;
-    applyPrices({ ...DEFAULT_PRICES, fuel: { petrol: DEFAULT_PRICES.fuel.petrol * 2, diesel: 400 }, checked: { ...DEFAULT_PRICES.checked, fuel: '2026-10-01' } });
-    expect(costFor(trip).rows.find(r => r.label === 'Fuel')!.val).toBeCloseTo(before * 2, 6);
-    expect(checkedText('fuel')).toBe('checked 1 Oct 2026');
+    const p = DEFAULT_PRICES.fuel.petrol;
+    applyPrices({ ...DEFAULT_PRICES, fuel: { petrol: p * 2, diesel: 400 }, checked: { ...DEFAULT_PRICES.checked, fuel: '2026-10-25' } });
+    // At the pump: the government rate + Rs 2 a litre.
+    expect(costFor(trip).rows.find(r => r.label === 'Fuel')!.val).toBeCloseTo(before * (p * 2 + 2) / (p + 2), 6);
+    expect(checkedText('fuel')).toBe('checked 25 Oct 2026');
     applyPrices(null);
   });
 
@@ -81,11 +83,11 @@ describe('researched prices', () => {
 describe('price freshness', () => {
   it('flags prices that are older than they usually stay right', async () => {
     const { applyPrices, checkedText, isStale } = await import('../src/prices');
-    applyPrices({ checked: { fuel: '2026-10-01', tolls: '2026-10-01', stays: '', hire: '', coach: '', fares: '', jeeps: '' } });
-    const now = new Date('2026-10-12T12:00');
-    expect(checkedText('fuel', now)).toBe('checked 1 Oct 2026');
-    expect(isStale('fuel', new Date('2026-10-30T12:00'))).toBe(true);
-    expect(checkedText('fuel', new Date('2026-10-30T12:00'))).toBe('checked 1 Oct 2026, may have changed since');
+    applyPrices({ checked: { fuel: '2026-10-25', tolls: '2026-10-01', stays: '', hire: '', coach: '', fares: '', jeeps: '' } });
+    const now = new Date('2026-10-26T12:00');
+    expect(checkedText('fuel', now)).toBe('checked 25 Oct 2026');
+    expect(isStale('fuel', new Date('2026-11-14T12:00'))).toBe(true);
+    expect(checkedText('fuel', new Date('2026-11-14T12:00'))).toBe('checked 25 Oct 2026, may have changed since');
     expect(isStale('tolls', new Date('2026-10-30T12:00'))).toBe(false);
     expect(isStale('stays', now)).toBe(true);
     applyPrices(null);
@@ -112,6 +114,16 @@ describe('wrong places from the map', () => {
   it('keeps the admin list clean', () => {
     const l = applyPrices({ hiddenSpots: ['View on Nanga Parbat', '', 'X', 'X'] });
     expect(l.hiddenSpots).toEqual(['View on Nanga Parbat', 'X']);
+    applyPrices(null);
+  });
+});
+
+describe('fuel looked up after the admin saved', () => {
+  it('uses the newer figures from the code over an older saved list', async () => {
+    const { applyPrices, DEFAULT_PRICES } = await import('../src/prices');
+    const l = applyPrices({ ...DEFAULT_PRICES, fuel: { petrol: 398.3, diesel: 396.24 }, checked: { ...DEFAULT_PRICES.checked, fuel: '2026-10-12' } });
+    expect(l.fuel.petrol).toBe(381.14);
+    expect(l.checked.fuel).toBe('2026-10-20');
     applyPrices(null);
   });
 });

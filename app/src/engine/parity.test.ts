@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { buildPlan, costFor, suggestions, trip, type TripState } from './engine';
 import { DEST_PATCH } from './imported';
-import { P, TIERS } from './data';
+import { P, PUMP_EXTRA, TIERS } from './data';
 
 const html = readFileSync(new URL('../../../project/SafarCo App v7.dc.html', import.meta.url), 'utf8');
 const js = html.slice(html.indexOf('const PETROL'), html.indexOf('class Component extends DCLogic'));
@@ -30,7 +30,7 @@ describe('parity with the v7 prototype engine', () => {
   // The prototype's room rates (SafarCo's are lower now: standard 6,000, premium 25,000).
   const was = { s: TIERS.standard.night, p: TIERS.premium.night, petrol: P.petrol, diesel: P.diesel };
   // And its fuel prices (SafarCo's follow OGRA).
-  beforeAll(() => { TIERS.standard.night = 9000; TIERS.premium.night = 28000; P.petrol = 387.40; P.diesel = 395; });
+  beforeAll(() => { TIERS.standard.night = 9000; TIERS.premium.night = 28000; P.petrol = 387.40 - PUMP_EXTRA; P.diesel = 395 - PUMP_EXTRA; });
   afterAll(() => { TIERS.standard.night = was.s; TIERS.premium.night = was.p; P.petrol = was.petrol; P.diesel = was.diesel; });
   it.each(cases)('%s → %s in month %i', (origin, dest, m) => {
     const a = trip(dest, origin, m), b = orig.trip(dest, origin, 10, m);

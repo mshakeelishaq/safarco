@@ -1,7 +1,7 @@
 // Everything the screens display, derived from app state. Ported from the
 // design's renderVals(); the screens in components/ read from this.
 import { CLOSED_NOTES } from './content';
-import { P as PR, HIDE_SPOTS, SECURITY_AREAS, riskOf, HAVE_VEHICLE, EDGES, MODES, MON, MONTH_FULL, NODES, NODE_INFO, POPULAR, POP_DEST, SUGGEST_POOL, SUNRISE, SUNSET, TIERS, TIER_G, VEH, CAT, CAT2, GRADS, DESTS, STOP_KIND, type VehicleId } from './engine/data';
+import { P as PR, pumpPrice, PUMP_EXTRA, HIDE_SPOTS, SECURITY_AREAS, riskOf, HAVE_VEHICLE, EDGES, MODES, MON, MONTH_FULL, NODES, NODE_INFO, POPULAR, POP_DEST, SUGGEST_POOL, SUNRISE, SUNSET, TIERS, TIER_G, VEH, CAT, CAT2, GRADS, DESTS, STOP_KIND, type VehicleId } from './engine/data';
 import { FOOD } from './engine/food';
 import { dismissInstall, offerInstallNow, startInstall, wasDismissed } from './install';
 import { foodTipsFor } from './foodtips';
@@ -318,7 +318,8 @@ export function buildView(s: AppState, api: Api) {
   const own = ['sedan', 'suv', 'bike', 'rentcar', 'rent4x4', 'coaster'].includes(s.vehicle);
   const used: Section[] = [...(own ? ['fuel', 'tolls'] as Section[] : []), 'stays', ...(['rentcar', 'rent4x4', 'coaster'].includes(s.vehicle) || isAir ? ['hire'] as Section[] : []),
     ...(s.vehicle === 'public' ? ['coach'] as Section[] : []), ...(isAir ? ['fares'] as Section[] : []), ...(rows.some(r => /jeep/i.test(r.label)) ? ['jeeps'] as Section[] : [])];
-  const priceNotes = used.map(k => ({ key: k, label: t(SECTIONS[k].label), source: t(SECTIONS[k].source), checked: checkedText(k), ok: !isStale(k) }));
+  const priceNotes = used.map(k => ({ key: k, label: t(SECTIONS[k].label), source: t(SECTIONS[k].source), checked: checkedText(k), ok: !isStale(k),
+    rate: k === 'fuel' ? t('petrol {petrol}, diesel {diesel} a litre at the pump (government rate + Rs {extra})', { petrol: fmt(pumpPrice()), diesel: fmt(pumpPrice(true)), extra: PUMP_EXTRA }) : '' }));
   // Jeep tracks (Deosai, Basho…): locals know them, so hire a jeep even with your own 4x4.
   const jeepTrips = s.vehicle === 'air' ? [] : plannedJeeps(s, c0, M);
   const jeepNote = jeepTrips.length ? [{ icon: 'ph-jeep', color: 'var(--amb)', text: t('{places}: hire a local jeep and driver, even with your own 4x4, unless you know these roads and have driven them before.', { places: jeepTrips.map(j => t(j[1])).join(', ') }) }] : [];
@@ -332,7 +333,7 @@ export function buildView(s: AppState, api: Api) {
     if (!others.length) return null;
     const veh = VEH[s.vehicle], units = vehiclesFor(s, veh);
     // Fuel and tolls there and back, as the budget works them out.
-    const spend = (tr: Trip) => ((tr.flatKm / (veh.mileage || 1) + tr.mtnKm / (veh.mtn || 1)) * (veh.diesel ? PR.diesel : PR.petrol) + tr.tolls.reduce((a, x) => a + x[1], 0) * (veh.tollX || 1)) * units * 2;
+    const spend = (tr: Trip) => ((tr.flatKm / (veh.mileage || 1) + tr.mtnKm / (veh.mtn || 1)) * pumpPrice(veh.diesel) + tr.tolls.reduce((a, x) => a + x[1], 0) * (veh.tollX || 1)) * units * 2;
     const name = (a: Trip, b: Trip) => { const r = roadsOnlyIn(a, b); return { roads: r.roads, label: (r.roads.slice(0, 2).join(' + ') || a.via) + (r.via ? ' ' + t('via {town}', { town: r.via }) : '') }; };
     const note = (roads: string[], tr: Trip) => {
       const r = roads[0] || '';

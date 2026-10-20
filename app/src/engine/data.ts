@@ -217,6 +217,9 @@ export const EDGES: Edge[] = [
 export const DIESEL = 389.27, LOCAL_CAR = 15000;
 /** Prices the engine reads at run time. The admin price list (src/prices.ts) overwrites these. */
 export const P = { petrol: PETROL, diesel: DIESEL, localCar: LOCAL_CAR, coachFlat: 6.5, coachMtn: 9, airportCoach: 6.5, raikotJeep: 10000 };
+/** Pumps sell a little above the government (OGRA) rate, so the plan adds this to every litre. */
+export const PUMP_EXTRA = 2;
+export const pumpPrice = (diesel?: boolean) => (diesel ? P.diesel : P.petrol) + PUMP_EXTRA;
 export const AIRPORTS: Record<string, [string, number, number]> = { ISB: ['Islamabad', 33.56, 72.85], LHR: ['Lahore', 31.52, 74.40], KHI: ['Karachi', 24.90, 67.17] };
 export const FARES: Record<string, Record<string, number>> = { Skardu: { ISB: 22000, LHR: 30000, KHI: 38000 }, Gilgit: { ISB: 20000, LHR: 32000, KHI: 42000 }, Chitral: { ISB: 18000 }, Gwadar: { KHI: 18000, ISB: 32000, LHR: 32000 },
   Karachi: { ISB: 24000, LHR: 22000 }, Lahore: { KHI: 22000 }, Islamabad: { KHI: 24000 }, Quetta: { KHI: 20000, ISB: 26000, LHR: 26000 }, Peshawar: { KHI: 26000 }, Multan: { KHI: 20000 } };

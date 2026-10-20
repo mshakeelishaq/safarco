@@ -4,6 +4,7 @@
 import { DESTS, EDGES, FARES, P, TIERS, VEH, type TierId } from './engine/data';
 import { resetTripCache } from './engine/engine';
 import { t } from './i18n';
+import { RESEARCHED, RESEARCHED_LATER } from './researched';
 
 export const SECTIONS = {
   fuel: { label: 'Fuel', source: 'OGRA (ogra.org.pk)' },
@@ -96,6 +97,8 @@ export function applyPrices(saved: Partial<PriceList> | null | undefined) {
     hiddenSpots: Array.isArray(s.hiddenSpots) ? [...new Set(s.hiddenSpots.map(x => str(x, 80)).filter(Boolean))].slice(0, 300) : [],
     drivers: Array.isArray(s.drivers) ? s.drivers.filter(x => x && x.name && x.area).slice(0, 500).map(x => ({ id: str(x.id, 40) || rid(), name: str(x.name, 80), area: str(x.area, 60), vehicle: str(x.vehicle, 40) || 'Jeep', seats: num(x.seats, 0), rate: num(x.rate, 0), phone: str(x.phone, 30), note: str(x.note, 200), checked: str(x.checked, 10), active: x.active !== false })) : []
   };
+  // A section looked up again in the code (src/researched.ts) after the admin last saved it: the newer figures win.
+  if (saved && RESEARCHED_LATER.fuel && RESEARCHED.fuel && RESEARCHED_LATER.fuel > (list.checked.fuel || '')) { list.fuel = { ...list.fuel, ...RESEARCHED.fuel }; list.checked.fuel = RESEARCHED_LATER.fuel; }
   current = list;
   // Write the figures into the engine's tables.
   P.petrol = list.fuel.petrol; P.diesel = list.fuel.diesel; P.localCar = list.hire.carAtDestination;
