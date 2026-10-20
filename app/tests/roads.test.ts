@@ -104,6 +104,10 @@ describe('the map road on a circuit', () => {
     expect(r.via.pts.length).toBeLessThanOrEqual(48);
     // Gilgit to Skardu by Alam Bridge and the Indus (the Jaglot–Skardu Road), nothing on the Deosai plains.
     expect(r.via.pts.some(([la, lo]) => Math.abs(la - 35.765) < 0.01 && Math.abs(lo - 74.598) < 0.01)).toBe(true);
+    // Gilgit to Raikot down the KKH valley by Jaglot and Bunji, not straight over the hills.
+    const { shapeBetween } = await import('../src/engine/engine');
+    expect(shapeBetween('RKT', 'GLT', 'KKH').length).toBeGreaterThan(4);
+    expect(shapeBetween('RKT', 'GLT', 'KKH').every(([, lo]) => lo >= 74.37)).toBe(true);
     expect(r.via.pts.some(([la, lo]) => la > 34.85 && la < 35.22 && lo > 75.05 && lo < 75.75)).toBe(false);
   });
 });

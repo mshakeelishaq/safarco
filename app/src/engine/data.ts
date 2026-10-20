@@ -176,7 +176,9 @@ export const ROAD_SHAPES: Record<string, [number, number][]> = {
   'HSA-PSH|GT Road (N-5)': [[33.89, 72.25], [34.01, 71.98]], 'ISB-HSA|GT Road (N-5)': [[33.74, 72.80]], 'HSA-ABT|N-35 by Haripur': [[33.99, 72.93]],
   'PSH-CKD|N-45 by Mardan and Malakand': [[34.20, 72.04], [34.57, 71.93]], 'KHI-HYD|N-5 National Highway': [[24.75, 67.92]],
   // Jaglot–Skardu Road: down the KKH to Jaglot and Alam Bridge, then up the Indus by Sassi, Stak, Roundu and Kachura (never Deosai).
-  'GLT-SKD': [[35.84, 74.43], [35.765, 74.598], [35.70, 74.86], [35.61, 75.05], [35.52, 75.27], [35.44, 75.43]],
+  'GLT-SKD': [[35.925, 74.375], [35.885, 74.46], [35.835, 74.545], [35.765, 74.598], [35.70, 74.86], [35.61, 75.05], [35.52, 75.27], [35.44, 75.43]],
+  // KKH, Gilgit to Raikot Bridge: by Danyor, Jalalabad, Pari Bangla, Alam Bridge, Jaglot, Bunji and Thelichi (the valley, not over the hills).
+  'GLT-RKT': [[35.925, 74.375], [35.885, 74.46], [35.835, 74.545], [35.765, 74.598], [35.684, 74.617], [35.63, 74.625], [35.56, 74.62]],
   'RKT-SKD': [[35.684, 74.617], [35.765, 74.598], [35.70, 74.86], [35.61, 75.05], [35.52, 75.27], [35.44, 75.43]],
   'FSD-LHR|Faisalabad Road': [[31.71, 73.98]], 'MUL-FSD|Multan–Faisalabad Road': [[30.97, 72.48]], 'KLK-ISB|Chakwal Road': [[32.93, 72.86]]
 };
