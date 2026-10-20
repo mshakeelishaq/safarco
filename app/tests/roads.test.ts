@@ -91,3 +91,16 @@ describe('extra days', () => {
     expect(days.some(d => d.kind === 'explore' && !d.title.startsWith('Rest'))).toBe(true);
   });
 });
+
+describe('the map road on a circuit', () => {
+  it('keeps every town on the way home too, and keeps off Babusar when the plan does', async () => {
+    const { loopRoad, setRoutePick } = await import('../src/engine/engine');
+    const st = { ...s('Lahore', 'hunza'), startDate: '2026-11-14', days: 10, extra: ['skardu', 'khaplu'] };
+    setRoutePick(st);
+    const r = loopRoad(st)!;
+    const besham = r.via.pts.filter(([la, lo]) => Math.abs(la - 34.92) < 0.01 && Math.abs(lo - 72.87) < 0.01).length;
+    expect(besham).toBe(2);
+    expect(r.via.avoid).toEqual(['babusar']);
+    expect(r.via.pts.length).toBeLessThanOrEqual(48);
+  });
+});

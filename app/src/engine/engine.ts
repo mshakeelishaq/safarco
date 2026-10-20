@@ -340,19 +340,23 @@ function viaOf(legs: Leg[], at: (n: string) => [number, number] | null = n => NO
   const seq = legs.length ? [legs[0].a, ...legs.map(l => l.b)] : [];
   seq.forEach((n, i) => {
     const p = i > 0 && i < seq.length - 1 || NODES[n] ? at(n) : null;
-    if (p && seq.indexOf(n) === i) pts.push({ p, town: true });
+    // Every town in order, the way back too (a circuit comes home past the same towns, and the map must keep to them).
+    const prev = pts[pts.length - 1];
+    if (p && !(prev && prev.p[0] === p[0] && prev.p[1] === p[1])) pts.push({ p, town: true });
     const next = seq[i + 1]; if (!next) return;
     shapeBetween(n, next, legs[i].road).forEach(q => pts.push({ p: q, town: false }));
   });
-  // At most 23 points: road shapes always stay, towns are thinned evenly.
+  // At most 48 points: road shapes always stay, towns are thinned evenly.
   let keep = pts;
-  if (pts.length > 23) {
-    const towns = pts.filter(x => x.town), room = Math.max(2, 23 - (pts.length - towns.length));
+  if (pts.length > 48) {
+    const towns = pts.filter(x => x.town), room = Math.max(2, 48 - (pts.length - towns.length));
     const pick = new Set(Array.from({ length: room }, (_, i) => towns[Math.round(i * (towns.length - 1) / Math.max(1, room - 1))]));
-    keep = pts.filter(x => !x.town || pick.has(x)).slice(0, 23);
+    keep = pts.filter(x => !x.town || pick.has(x)).slice(0, 48);
   }
   const ids = legs.flatMap(l => [l.a, l.b]).filter((n, i, a) => n !== 'HOME' && n !== 'DEST' && NODES[n] && a.indexOf(n) === i);
-  return { id: ids.join(',') + (keep.some(x => !x.town) ? '+shape' : ''), pts: keep.map(x => x.p) };
+  // Babusar Pass is kept off the map's road whenever the plan doesn't drive it (closed for the season, or by Besham).
+  const avoid = legs.some(l => l.road === 'Babusar Pass') ? [] : ['babusar'];
+  return { id: ids.join(',') + (keep.some(x => !x.town) ? '+shape' : '') + (avoid.length ? '-' + avoid.join('-') : ''), pts: keep.map(x => x.p), avoid };
 }
 /** A circuit's live road: from home round its places and back home, through the same towns as the plan. */
 export function loopRoad(s: TripState) {
@@ -360,7 +364,7 @@ export function loopRoad(s: TripState) {
   const o = cityOr(s.origin), legs = L.hops.flatMap(h => h.legs);
   const via = viaOf(legs, n => n === 'HOME' || n === 'DEST' ? null : n.startsWith('@') ? [DST(n.slice(1)).lat, DST(n.slice(1)).lon] : NODES[n] || null);
   const id = 'loop:' + L.order.join(',');
-  return { key: routeKey(o.n, id, via.id + '|' + L.order.join(',')), via: { id: via.id + '|' + L.order.join(','), pts: via.pts }, to: { ...DST(s.corridor), id, lat: o.lat, lon: o.lon } };
+  return { key: routeKey(o.n, id, via.id + '|' + L.order.join(',')), via: { id: via.id + '|' + L.order.join(','), pts: via.pts, avoid: via.avoid }, to: { ...DST(s.corridor), id, lat: o.lat, lon: o.lon } };
 }
 /** The live-road key for whatever the plan is: one place there and back, or a circuit. */
 export const planRoadKey = (s: TripState) => withPick(s, () => loopRoad(s)?.key ?? liveRoadKey(s.corridor, s.origin, mon(s)));

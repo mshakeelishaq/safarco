@@ -59,12 +59,12 @@ export function reverseGeo(lat: number, lon: number) {
 
 /** A live road is fetched for one origin, destination and set of towns on the way (the day plan's roads). */
 export const routeKey = (originName: string, destId: string, via = '') => `${originName}|${destId}|${via}`;
-export const routeUrl = (o: { lat: number; lon: number }, D: { lat: number; lon: number }, via: [number, number][] = []) =>
-  `/api/route?v=4&from=${o.lon.toFixed(3)},${o.lat.toFixed(3)}&to=${D.lon.toFixed(3)},${D.lat.toFixed(3)}${via.length ? `&via=${via.map(([lat, lon]) => `${lon.toFixed(3)},${lat.toFixed(3)}`).join(';')}` : ''}`;
+export const routeUrl = (o: { lat: number; lon: number }, D: { lat: number; lon: number }, via: [number, number][] = [], avoid: string[] = []) =>
+  `/api/route?v=5&from=${o.lon.toFixed(3)},${o.lat.toFixed(3)}&to=${D.lon.toFixed(3)},${D.lat.toFixed(3)}${via.length ? `&via=${via.map(([lat, lon]) => `${lon.toFixed(3)},${lat.toFixed(3)}`).join(';')}` : ''}${avoid.length ? `&avoid=${avoid.join(',')}` : ''}`;
 /** Road distance and shape from OpenRouteService (via /api/route), through the same towns as the day plan. */
-export function routeFetch(o: { n: string; lat: number; lon: number }, D: Dest, via: { id: string; pts: [number, number][] } = { id: '', pts: [] }) {
+export function routeFetch(o: { n: string; lat: number; lon: number }, D: Dest, via: { id: string; pts: [number, number][]; avoid?: string[] } = { id: '', pts: [] }) {
   // A reply without a road line or distance counts as a failure, so the app falls back to its road table.
-  return liveFetch('route', routeKey(o.n, D.id, via.id), routeUrl(o, D, via.pts), (j: RouteData): RouteData => {
+  return liveFetch('route', routeKey(o.n, D.id, via.id), routeUrl(o, D, via.pts, via.avoid), (j: RouteData): RouteData => {
     if (!j || !Array.isArray(j.coords) || j.coords.length < 2 || !(j.km > 0)) throw new Error('No road in the reply');
     return j;
   });

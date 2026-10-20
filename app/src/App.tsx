@@ -260,7 +260,7 @@ export function App() {
     const o = cityOr(st.origin), D = DST(st.corridor), via = roadVia(st.corridor, st.origin, mon(st)), r = LIVE.route[liveRoadKey(st.corridor, st.origin, mon(st))];
     const coords: [number, number][] = r && r.status === 'ok' ? r.data.coords : view.routeMap.dots.map(d => [+d.p[1], +d.p[0]]);
     const abs = (u: string) => new URL(u, location.origin).href;
-    const extra = [abs(routeUrl(o, D, via.pts)), ...allUrls(view.wPlan), abs(placesUrl('hotels', D.lat, D.lon)), abs(placesUrl('sights', D.lat, D.lon)), ...view.fuelPoints.map(p => abs(placesUrl('fuel', p.lat, p.lon)))];
+    const extra = [abs(routeUrl(o, D, via.pts, via.avoid)), ...allUrls(view.wPlan), abs(placesUrl('hotels', D.lat, D.lon)), abs(placesUrl('sights', D.lat, D.lon)), ...view.fuelPoints.map(p => abs(placesUrl('fuel', p.lat, p.lon)))];
     const ac = new AbortController(); dlAbort.current = ac;
     set({ offline: 'downloading', progress: 0, offlineMB: 0, offlineErr: '' });
     downloadOffline(coords, extra, p => set({ progress: Math.round(p.done / Math.max(1, p.total) * 100), offlineMB: p.bytes / 1e6 }), ac.signal)

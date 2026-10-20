@@ -19,7 +19,11 @@ export async function GET(request: Request) {
   if (!from || !to) return fail(400, 'from and to must be lon,lat inside Pakistan');
   const viaRaw = (u.searchParams.get('via') || '').split(';').filter(Boolean);
   const via = viaRaw.map(point);
-  if (viaRaw.length > 23 || via.some(v => !v)) return fail(400, 'via must be up to 23 lon,lat points inside Pakistan');
+  if (viaRaw.length > 48 || via.some(v => !v)) return fail(400, 'via must be up to 48 lon,lat points inside Pakistan');
+  // Roads the plan doesn't take, kept off the map's road too (Babusar Pass when it's closed or the plan goes by Besham).
+  const AREAS: Record<string, number[][]> = { babusar: [[73.86, 35.0], [74.13, 35.0], [74.13, 35.26], [73.86, 35.26], [73.86, 35.0]] };
+  const avoid = (u.searchParams.get('avoid') || '').split(',').filter(k => AREAS[k]);
+  const options = avoid.length ? { avoid_polygons: { type: 'MultiPolygon', coordinates: avoid.map(k => [AREAS[k]]) } } : undefined;
   const coordinates = [from, ...(via as number[][]), to];
   // The road must follow SafarCo's day plan, so the towns on the way are never dropped. Try:
   // 1) the whole route in one go (each point within 5 km of a road, then snapped at any distance);
@@ -28,7 +32,7 @@ export async function GET(request: Request) {
   const ask = (pts: number[][], radiuses: number[]) => fetch('https://api.heigit.org/openrouteservice/v2/directions/driving-car/geojson', {
     method: 'POST',
     headers: { Authorization: key, 'Content-Type': 'application/json', Accept: 'application/geo+json' },
-    body: JSON.stringify({ coordinates: pts, radiuses })
+    body: JSON.stringify({ coordinates: pts, radiuses, ...(options ? { options } : {}) })
   }).catch(() => null);
   type Route = { km: number; h: number; coords: number[][] };
   const hav = (a: number[], b: number[]) => { const R = 6371, dLa = (b[1] - a[1]) * Math.PI / 180, dLo = (b[0] - a[0]) * Math.PI / 180, x = Math.sin(dLa / 2) ** 2 + Math.cos(a[1] * Math.PI / 180) * Math.cos(b[1] * Math.PI / 180) * Math.sin(dLo / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(x)); };

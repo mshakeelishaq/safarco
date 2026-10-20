@@ -80,7 +80,7 @@ describe('admin content edits', () => {
     expect(trip('phander', 'Lahore', 7).via).toContain('Babusar Pass');
   });
   it('keeps the map on the M-2 from Lahore, not the GT Road', () => {
-    expect(roadVia('islamabad', 'Lahore', 7).id).toBe('LHR,ISB+shape');
+    expect(roadVia('islamabad', 'Lahore', 7).id).toBe('LHR,ISB+shape-babusar');
     expect(roadVia('islamabad', 'Lahore', 7).pts.some(([la, lo]) => Math.abs(la - 32.775) < 0.01 && Math.abs(lo - 72.7) < 0.01)).toBe(true);
   });
   it('cleans bad data', () => {
