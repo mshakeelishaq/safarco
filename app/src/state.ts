@@ -14,7 +14,11 @@ export interface AppState extends TripState {
   flash: 'budget' | null; offline: 'off' | 'downloading' | 'ready'; progress: number;
   offlineMB: number; offlineErr: string; mapFail: boolean; theme: Theme;
   /** Which bottom sheet is open besides Edit trip. */
-  sheet: 'none' | 'trips' | 'save' | 'signin' | 'feedback' | 'review' | 'share' | 'sos' | 'expense' | 'people' | 'food' | 'dest';
+  sheet: 'none' | 'trips' | 'save' | 'signin' | 'feedback' | 'review' | 'share' | 'sos' | 'expense' | 'people' | 'food' | 'dest' | 'moredays';
+  /** "What's the extra day for?": how many days are being added. */
+  addDays: number;
+  /** A place picked to add to the trip that needs more days than the trip has: asks first. */
+  askAdd: string | null;
   /** Changing the destination: the place picked, before choosing what happens to the current plan. */
   destPick: string | null;
   /** The toast offers Undo (after switching a trip's destination). */
@@ -97,8 +101,8 @@ export const initialState = (): AppState => ({
   vehicle: 'sedan', tier: 'standard', groupSize: 2, adults: 2, kids: 0, elders: 0, rooms: 'separate', days: 4, cap: 120000,
   corridor: 'hunza', tab: 'home', settings: false, flash: null,
   offline: 'off', progress: 0, offlineMB: 0, offlineErr: '', mapFail: false, theme: savedTheme(),
-  sheet: 'none', destPick: null, toastUndo: false, savedId: null, toast: null, lite: prefersLite(), chosen: null, reviewFor: null, foodFor: null, welcome: false, guide: false, lang: currentLang(),
-  have: 'any', wish: null, extra: [], capOn: false, overnight: null, roomCount: null, sleepAt: [], daysSet: false, quick: false, mood: null, breaks: [], roadPick: null, comfort: false, dayTrips: [], abroad: false, airAuto: false, here: null, building: null, dayOpen: null, edits: NO_EDITS
+  sheet: 'none', addDays: 1, askAdd: null, destPick: null, toastUndo: false, savedId: null, toast: null, lite: prefersLite(), chosen: null, reviewFor: null, foodFor: null, welcome: false, guide: false, lang: currentLang(),
+  have: 'any', wish: null, extra: [], capOn: false, overnight: null, roomCount: null, sleepAt: [], daysSet: false, quick: false, mood: null, breaks: [], roadPick: null, rest: {}, comfort: false, dayTrips: [], abroad: false, airAuto: false, here: null, building: null, dayOpen: null, edits: NO_EDITS
 });
 
 export type Patch = Partial<AppState>;

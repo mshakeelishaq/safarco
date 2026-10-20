@@ -125,3 +125,52 @@ export function DestSheet({ v, api }: { v: View; api: Api }) {
     </div>
   </>;
 }
+
+/** "What's the extra day for?": the days being added, then a choice of what to do with them. */
+export function MoreDaysSheet({ v }: { v: View }) {
+  const m = v.moreDays, open = !!m;
+  return <>
+    <div onClick={m?.close} style={scrim(open)} />
+    <div data-screen-label="Add days" role="dialog" aria-modal="true" aria-label={t('What’s the extra day for?')} aria-hidden={!open} inert={!open} className="sc-sheet" style={sheet(640, open)}>
+      <Grip />
+      <div style={css('display:flex;align-items:center;gap:12px;padding:12px 16px 8px 20px')}>
+        <h2 style={css('margin:0;flex:1;font-family:var(--fontH);font-size:18px;font-weight:600')}>{m && m.n > 1 ? t('What are the extra days for?') : t('What’s the extra day for?')}</h2>
+        <button onClick={m?.close} style={css('height:44px;padding:0 16px;border-radius:15px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);font-size:14px;font-weight:800;cursor:pointer')}>{t('Close')}</button>
+      </div>
+      {m && <div style={css('flex:1;overflow-y:auto;scrollbar-width:none;padding:4px 20px 30px')}>
+        <div role="radiogroup" aria-label={t('Days to add')} style={css('display:flex;gap:6px;margin-bottom:6px')}>
+          {[1, 2, 3].filter(k => k <= Math.max(1, m.max)).map(k => <button key={k} role="radio" aria-checked={m.n === k} onClick={() => m.setN(k)} style={css(`flex:1;height:42px;border-radius:13px;border:1px solid ${m.n === k ? 'transparent' : 'var(--line2)'};background:${m.n === k ? 'var(--cta)' : 'var(--fill)'};color:${m.n === k ? 'var(--onCta)' : 'var(--ink)'};font-size:14px;font-weight:800;cursor:pointer`)}>{k === 1 ? t('+1 day') : t('+{n} days', { n: k })}</button>)}
+        </div>
+        {m.sections.map(sec => <div key={sec.key} style={css('margin-top:14px')}>
+          {sec.title && <Label style="margin:0 2px 8px">{sec.title}</Label>}
+          <div style={css('display:flex;flex-direction:column;gap:8px')}>
+            {sec.items.map(it => <button key={it.key} onClick={it.apply} style={css('display:flex;gap:12px;align-items:center;width:100%;padding:12px 14px;border-radius:18px;border:1px solid var(--line2);background:var(--card);color:var(--ink);text-align:left;cursor:pointer;font:inherit')}>
+              <span style={css('width:38px;height:38px;border-radius:12px;background:var(--fill);display:flex;align-items:center;justify-content:center;flex:none;color:var(--g);font-size:19px')}><i className={`ph-fill ${it.icon}`} /></span>
+              <span style={css('flex:1;min-width:0')}><span style={css('display:block;font-size:14px;font-weight:800;line-height:1.3')}>{it.title}</span><span style={css('display:block;font-size:12px;font-weight:600;color:var(--mute);margin-top:2px;line-height:1.4')}>{it.sub}</span></span>
+              <i className="ph-bold ph-caret-right" style={css('color:var(--mute);flex:none')} />
+            </button>)}
+          </div>
+        </div>)}
+      </div>}
+    </div>
+  </>;
+}
+
+/** Adding a place that needs more days: add the days too, add it anyway, or not now. */
+export function AskAddSheet({ v, api }: { v: View; api: Api }) {
+  const a = v.askAdd, open = !!a;
+  return <>
+    <div onClick={() => api.set({ askAdd: null })} style={scrim(open)} />
+    <div data-screen-label="Add a place" role="dialog" aria-modal="true" aria-label={a?.title || ''} aria-hidden={!open} inert={!open} className="sc-sheet" style={sheet(420, open)}>
+      <Grip />
+      {a && <div style={css('padding:14px 20px 28px;display:flex;flex-direction:column;gap:10px;overflow-y:auto')}>
+        <h2 style={css('margin:0;font-family:var(--fontH);font-size:19px;font-weight:600')}>{a.title}</h2>
+        <div style={css('font-size:14px;font-weight:600;color:var(--ink2);line-height:1.45')}>{a.text}</div>
+        {a.options.map((o, i) => <button key={o.key} onClick={o.apply} style={css(`display:flex;gap:12px;align-items:center;width:100%;padding:12px 14px;border-radius:18px;border:1px solid ${i === 0 ? 'rgba(46,229,157,.55)' : 'var(--line2)'};background:${i === 0 ? 'rgba(46,229,157,.10)' : 'var(--card)'};color:var(--ink);text-align:left;cursor:pointer;font:inherit`)}>
+          <i className={`ph-fill ${o.icon}`} style={css(`font-size:22px;color:${i === 0 ? 'var(--g)' : 'var(--mute)'};flex:none`)} />
+          <span style={css('flex:1;min-width:0')}><span style={css('display:block;font-size:14px;font-weight:800')}>{o.title}</span><span style={css('display:block;font-size:12px;font-weight:600;color:var(--mute);margin-top:2px;line-height:1.4')}>{o.sub}</span></span>
+        </button>)}
+      </div>}
+    </div>
+  </>;
+}

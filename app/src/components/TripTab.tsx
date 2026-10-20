@@ -285,6 +285,7 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
           </ol>
           <div style={css('font-size:12px;font-weight:600;color:var(--mute);margin:6px 4px 8px;display:flex;align-items:center;gap:6px;flex-wrap:wrap')}>
             <i className="ph-fill ph-hand-tap" style={css('font-size:15px')} />{t('Tap a day to see its plan, and add or remove places.')}
+            {s.days < 14 && !v.isAir && <button onClick={() => set({ sheet: 'moredays', addDays: 1 })} style={css('min-height:30px;padding:0 10px;border-radius:9px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);font-size:11px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:4px')}><i className="ph-bold ph-plus" />{t('Add a day')}</button>}
             {v.editNote && <button onClick={v.editNote.undo} style={css('min-height:30px;padding:0 8px;border-radius:9px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);font-size:11px;font-weight:800;cursor:pointer')}>{v.editNote.text} · {t('Undo all')}</button>}
           </div>
           {/* Lock the plan once the days have been seen. */}

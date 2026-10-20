@@ -74,3 +74,20 @@ describe('motorbikes', () => {
     expect(costFor(bike).rows.find(r => r.label === 'Tolls')!.val).toBe(0);
   });
 });
+
+describe('extra days', () => {
+  it('a rest day at the place is a real day off, and the other days keep their sightseeing', () => {
+    const st = { ...s('Lahore', 'hunza'), days: 8 };
+    const plain = buildPlan(st).days, rested = buildPlan({ ...st, rest: { hunza: 1 } }).days;
+    expect(rested).toHaveLength(plain.length);
+    const r = rested.find(d => d.title.startsWith('Rest day'))!;
+    expect(r.title).toBe('Rest day in Karimabad, Hunza');
+    expect(r.track).toBeUndefined();
+    expect(rested.filter(d => d.kind === 'explore' && !d.title.startsWith('Rest')).length).toBe(plain.filter(d => d.kind === 'explore').length - 1);
+  });
+  it('never turns every day at a place into rest', () => {
+    const days = buildPlan({ ...s('Islamabad', 'murree'), days: 4, rest: { murree: 5 } }).days;
+    expect(days.filter(d => d.title.startsWith('Rest')).length).toBeGreaterThan(0);
+    expect(days.some(d => d.kind === 'explore' && !d.title.startsWith('Rest'))).toBe(true);
+  });
+});

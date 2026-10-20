@@ -1,7 +1,7 @@
 import { cardPhoto } from './photos';
 import { onInstallChange } from './install';
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
-import { DestSheet, EditSheet } from './components/Sheets';
+import { AskAddSheet, DestSheet, EditSheet, MoreDaysSheet } from './components/Sheets';
 import { OverviewTab } from './components/OverviewTab';
 import { FeedbackSheet, FoodSheet, ReviewSheet, SaveSheet, SignInSheet, TripsSheet } from './components/Panels';
 import { WELCOMED, Welcome, seenWelcome } from './components/Welcome';
@@ -446,6 +446,8 @@ export function App() {
             {side && <SideMap v={view} api={api} />}
             <EditSheet v={view} api={api} />
             <DestSheet v={view} api={api} />
+            <MoreDaysSheet v={view} />
+            <AskAddSheet v={view} api={api} />
             <DayPage v={view} />
             {s.building != null && <Building v={view} started={s.building} onDone={doneBuilding} />}
           </>}

@@ -56,7 +56,13 @@ export function OverviewTab({ v, api }: { v: View; api: Api }) {
             {o.strip.map(x => <span key={x} style={css('padding:5px 10px;border-radius:10px;background:rgba(255,255,255,.18);backdrop-filter:blur(8px);font-size:12px;font-weight:800')}>{x}</span>)}
           </div>
         </div>
-        {o.share && <button onClick={o.share} aria-label={t('Share trip')} style={css('position:absolute;top:56px;right:18px;height:42px;padding:0 14px;border-radius:14px;border:1px solid rgba(255,255,255,.4);background:rgba(0,0,0,.25);backdrop-filter:blur(10px);color:#fff;font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px')}><i className="ph-bold ph-share-network" />{t('Share')}</button>}
+        {/* The same buttons as the plan: my trips, save, share and edit. */}
+        <div style={css('position:absolute;top:52px;right:16px;display:flex;gap:6px')}>
+          {([['trips', 'ph-list-bullets', t('My trips'), () => api.set({ sheet: 'trips', settings: false })], ['save', v.s.savedId ? 'ph-bookmark-simple' : 'ph-bookmark-simple', v.s.savedId ? t('Saved trip') : t('Save trip'), () => api.set({ sheet: 'save', settings: false })],
+            ['share', 'ph-share-network', t('Share trip'), () => api.set({ sheet: 'share', settings: false })]] as const).map(([k, icon, label, onClick]) => (
+            <button key={k} onClick={onClick} aria-label={label} title={label} style={css(`width:42px;height:42px;border-radius:14px;border:1px solid rgba(255,255,255,.4);background:${k === 'save' && v.s.savedId ? 'var(--cta)' : 'rgba(0,0,0,.28)'};backdrop-filter:blur(10px);color:#fff;font-size:17px;cursor:pointer`)}><i className={`${k === 'save' && v.s.savedId ? 'ph-fill' : 'ph-bold'} ${icon}`} /></button>))}
+          <button onClick={() => api.set({ settings: true })} aria-label={t('Edit trip')} style={css('height:42px;padding:0 12px;border-radius:14px;border:1px solid rgba(255,255,255,.4);background:rgba(0,0,0,.28);backdrop-filter:blur(10px);color:#fff;font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:6px')}><i className="ph-bold ph-sliders-horizontal" />{t('Edit')}</button>
+        </div>
       </div>
 
       <div style={css('padding:16px 16px 150px;display:grid;gap:12px')}>
