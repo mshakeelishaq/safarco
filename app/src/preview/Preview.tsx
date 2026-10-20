@@ -1,19 +1,14 @@
-// /preview: a first look at the new SafarCo website (stage 1). The opening (mist parts over the season's photo),
-// the hero where a touch brings the colour back, and the destinations as a grid of big photo cards. The current website stays as it is.
+// /preview: a first look at the new SafarCo website. Planning first: the title, "Plan your trip in 2 minutes", the
+// plan bar and a few places popping up; then every destination as big photo cards. The current website stays as it is.
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { planHref, seasonNow, SLIDES, type SeasonId } from '../site/Hero';
-import { startFluid, type Fluid } from './fluid';
+import { planHref, seasonNow } from '../site/Hero';
 import { Grid } from './Grid';
-import { ringDests } from './data';
-import { ROAD } from './road';
+import { gridOrder, ringDests, thumb, type RingDest } from './data';
 import { DESTS } from '../engine/data';
 import { CITIES } from '../engine/places';
 import './preview.css';
 
-const ACCENT: Record<SeasonId, [number, number, number]> = { spring: [0.97, 0.6, 0.72], summer: [0.45, 0.86, 0.6], autumn: [0.98, 0.72, 0.25], winter: [0.62, 0.8, 1] };
-const SEEN = 'safarco-preview-intro';
 const fine = () => matchMedia('(pointer: fine)').matches;
-const still = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /** A dot that follows the mouse and grows into a label over photos and links (mouse only). */
 function Cursor() {
@@ -51,114 +46,71 @@ function PlanBar({ barRef }: { barRef: React.RefObject<HTMLFormElement | null> }
   );
 }
 
+/** A photo that rises into place as it comes into view (the same as the destination cards). */
+function Pop({ d, i }: { d: RingDest; i: number }) {
+  const el = useRef<HTMLAnchorElement>(null);
+  useEffect(() => {
+    const e = el.current; if (!e) return;
+    if (!('IntersectionObserver' in window)) { e.classList.add('in'); return; }
+    const io = new IntersectionObserver(([x]) => { if (x.isIntersecting) { e.classList.add('in'); io.disconnect(); } });
+    io.observe(e); return () => io.disconnect();
+  }, []);
+  return (
+    <a ref={el} href={`/destinations/${d.id}`} className="pv-pop" style={{ transitionDelay: `${300 + i * 140}ms` }} data-cursor="View">
+      <span className="pv-pop-img" style={{ backgroundImage: `url(${thumb(d.photos[0])})` }}><img src={d.photos[0]} alt="" decoding="async" /></span>
+      <span className="pv-pop-name">{d.name}</span>
+    </a>
+  );
+}
+
 export function Preview() {
-  const season = seasonNow(), slide = SLIDES[season][0];
-  const canvas = useRef<HTMLCanvasElement>(null), fluid = useRef<Fluid | null>(null), hero = useRef<HTMLElement>(null);
-  const [gl, setGl] = useState<boolean | null>(null);
-  const [phase, setPhase] = useState<'intro' | 'part' | 'open'>(() => { try { return sessionStorage.getItem(SEEN) || still() ? 'open' : 'intro'; } catch { return 'intro'; } });
-  const [touched, setTouched] = useState(false);
+  const season = seasonNow(), dests = useMemo(() => ringDests(), []), picks = useMemo(() => gridOrder(dests).slice(0, 4), [dests]);
+  const [ready, setReady] = useState(false);
   // The pinned "Plan a trip" shows once the plan bar has scrolled away.
   const bar = useRef<HTMLFormElement>(null), [pin, setPin] = useState(false);
+  useEffect(() => {
+    document.title = 'SafarCo, see Pakistan (preview)';
+    const h = document.documentElement; h.classList.add('pv-root'); if (fine()) h.classList.add('pv-fine');
+    const t = setTimeout(() => setReady(true), 60);
+    return () => { clearTimeout(t); h.classList.remove('pv-root', 'pv-fine'); };
+  }, []);
   useEffect(() => {
     const b = bar.current; if (!b || !('IntersectionObserver' in window)) return;
     const io = new IntersectionObserver(([e]) => setPin(!e.isIntersecting && e.boundingClientRect.top < 0)); io.observe(b);
     return () => io.disconnect();
   }, []);
-  const dests = useMemo(() => ringDests(), []);
-  const small = useMemo(() => innerWidth < 760, []);
-
-  useEffect(() => { document.title = 'SafarCo, see Pakistan (preview)'; const h = document.documentElement; h.classList.add('pv-root'); if (fine()) h.classList.add('pv-fine'); return () => h.classList.remove('pv-root', 'pv-fine'); }, []);
-
-  // The fluid hero: WebGL where it runs well, a plain photo elsewhere.
-  useEffect(() => {
-    const c = canvas.current; if (!c || still()) { setGl(false); return; }
-    const f = startFluid(c, { small }); fluid.current = f; setGl(!!f);
-    if (!f) return;
-    f.setAccent(ACCENT[season]); f.setFade(phase === 'open' ? 1 : 0);
-    const img = new Image(); img.decoding = 'async'; img.src = slide.src; img.onload = () => f.setPhoto(img);
-    // Only while the hero is on screen and the tab is open.
-    const io = new IntersectionObserver(([e]) => f.setRunning(e.isIntersecting && !document.hidden), { threshold: 0 });
-    if (hero.current) io.observe(hero.current);
-    const vis = () => f.setRunning(!document.hidden);
-    document.addEventListener('visibilitychange', vis);
-    return () => { io.disconnect(); document.removeEventListener('visibilitychange', vis); f.destroy(); fluid.current = null; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // The opening: the road draws, the mist parts and the colour flows out from the middle, then fades to black and white.
-  useEffect(() => {
-    if (phase !== 'intro') { if (phase === 'open') fluid.current?.setFade(1); return; }
-    const t1 = setTimeout(() => setPhase('part'), 1900);
-    return () => clearTimeout(t1);
-  }, [phase]);
-  useEffect(() => {
-    if (phase !== 'part') return;
-    try { sessionStorage.setItem(SEEN, '1'); } catch { /* storage blocked */ }
-    const f = fluid.current, t0 = performance.now();
-    let raf = 0; const fade = () => { const k = Math.min(1, (performance.now() - t0) / 1100); f?.setFade(k * k * (3 - 2 * k)); if (k < 1) raf = requestAnimationFrame(fade); };
-    raf = requestAnimationFrame(fade);
-    const b = setTimeout(() => f?.burst(), 250), done = setTimeout(() => setPhase('open'), 1500);
-    return () => { cancelAnimationFrame(raf); clearTimeout(b); clearTimeout(done); };
-  }, [phase]);
-  const skip = () => { if (phase === 'intro') setPhase('part'); };
-
-  // Moving over the hero pushes the fluid and leaves colour behind.
-  const lastP = useRef<{ x: number; y: number } | null>(null);
-  const onMove = (e: React.PointerEvent) => {
-    const c = canvas.current, f = fluid.current; if (!c || !f || phase === 'intro') return;
-    const r = c.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height, l = lastP.current;
-    lastP.current = { x, y };
-    if (!l) return;
-    const dx = x - l.x, dy = y - l.y; if (Math.abs(dx) + Math.abs(dy) < 0.0008) return;
-    f.splat(x, y, dx, dy); if (!touched) setTouched(true);
-  };
-
-  const bestNow = dests.filter(d => d.season === season[0].toUpperCase() + season.slice(1)).slice(0, 3).map(d => d.name).join(', ');
+  const Season = season[0].toUpperCase() + season.slice(1);
+  const bestNow = dests.filter(d => d.season === Season).slice(0, 3).map(d => d.name).join(', ');
 
   return (
     <div className="pv" data-season={season}>
       <Cursor />
-
-      {/* The frame: the same four corners all the way down. */}
       <header className="pv-frame pv-top">
         <a href="/preview" className="pv-mark" data-cursor="Top">SafarCo<sup>PK</sup></a>
         <nav><a href="#where" data-cursor="Go">Destinations</a><a href="/" data-cursor="Back">Current site</a></nav>
       </header>
       <a href={planHref()} className={`pv-pin${pin ? ' show' : ''}`} aria-hidden={!pin} tabIndex={pin ? 0 : -1} data-cursor="Plan">Plan a trip <span aria-hidden="true">→</span></a>
       <footer className="pv-frame pv-bottom">
-        <span><b>{season[0].toUpperCase() + season.slice(1)} now</b>{bestNow ? ` · best: ${bestNow}` : ''}</span>
+        <span><b>{Season} now</b>{bestNow ? ` · best: ${bestNow}` : ''}</span>
         <span>Preview · © 2026 SafarCo</span>
       </footer>
 
-      {phase !== 'open' && (
-        <div className={`pv-intro${phase === 'part' ? ' part' : ''}`} onClick={skip} aria-hidden="true">
-          <div className="pv-cloud c1" /><div className="pv-cloud c2" /><div className="pv-cloud c3" />
-          <div className="pv-intro-mark">
-            <svg viewBox="8 -8 88 104" width="64" height="76"><path d={ROAD} className="pv-road" pathLength={1} /></svg>
-            <div className="pv-intro-name">SafarCo</div>
-          </div>
-        </div>
-      )}
-
-      <section ref={hero} className="pv-hero" onPointerMove={onMove} onPointerLeave={() => { lastP.current = null; }} data-cursor={gl ? 'Touch' : undefined}>
-        <canvas ref={canvas} className="pv-canvas" style={{ opacity: gl === false ? 0 : 1 }} />
-        {gl === false && <img className="pv-still" src={slide.src} alt="" />}
-        <div className={`pv-hero-text${phase !== 'intro' ? ' in' : ''}`}>
-          <h1><span>See</span><span>Pakistan</span></h1>
-          <p>Your whole trip planned in two minutes: the route, the nights, the stops and the budget.{gl ? <><br /><em>{touched ? 'There it is. Every season has its colour.' : 'Move across the photo to bring its colour back.'}</em></> : null}</p>
-          <PlanBar barRef={bar} />
-        </div>
-        <div className="pv-caption">{slide.place}</div>
-        <a href="#where" className="pv-down" data-cursor="Scroll">Where to next ↓</a>
+      <section className={`pv-hero${ready ? ' in' : ''}`}>
+        <div className="pv-kicker">Pakistan trip planner</div>
+        <h1><span>See</span><span>Pakistan</span></h1>
+        <p className="pv-sub">Plan your trip in 2 minutes</p>
+        <PlanBar barRef={bar} />
+        <div className="pv-trust"><span>Free</span><span>No sign-up</span><span>{DESTS.length} destinations</span><a href="/plan?start=quick" data-cursor="Go">Not sure where? Answer 2 questions</a></div>
+        <div className="pv-pops">{picks.map((d, i) => <Pop key={d.id} d={d} i={i} />)}</div>
       </section>
 
       <Grid dests={dests} />
 
       <section className="pv-end">
-        <h2>Plan it in<br />two minutes</h2>
-        <p>The route, the nights, the stops, the budget and the weather, in one plan. Free.</p>
-        <a href={planHref()} className="pv-cta" data-cursor="Go">Plan a trip</a>
-        <div className="pv-note">This is a preview of the new SafarCo website. <a href="/">Back to the current site</a></div>
+        <h2>Your days<br />Your budget<br />Your perfect trip</h2>
+        <p>The route, the nights, the stops and the cost, in one plan.</p>
+        <a href={planHref()} className="pv-cta" data-cursor="Go">Plan my trip →</a>
+        <div className="pv-note">A preview of the new SafarCo website. <a href="/">Back to the current site</a></div>
       </section>
     </div>
   );
