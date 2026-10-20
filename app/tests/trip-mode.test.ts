@@ -189,3 +189,13 @@ describe('changing the trip length by several days', () => {
     expect(st.days).toBe(12);
   });
 });
+
+describe('planning and the trip kept apart', () => {
+  it('shows the trip tools only once the plan is locked or the trip has begun', () => {
+    const plan = { ...base, corridor: 'naran', dest: 'naran', startDate: isoAdd(25) };
+    expect(buildView(plan, api).trip.live).toBe(false);
+    buildView(plan, api).trip.getReady!.lock();
+    expect(buildView(plan, api).trip.live).toBe(true);
+    expect(buildView({ ...base, startDate: isoAdd(-1) }, api).trip.live).toBe(true);
+  });
+});

@@ -185,6 +185,8 @@ export function tripMode(x: TripCtx) {
     next: { label: t('Next: {wish}', { wish: t(nextWish.label) }), icon: nextWish.icon, wish: nextWish.id }
   };
 
-  return { phase, run, getReady, today: today_, memories, expenses, locate, checkIn, shareLocation, vehicle: t(VEH[s.vehicle].short), checkins: run.checkins.slice(-3).reverse() };
+  // Planning and the trip are kept apart: the trip's own tools (expenses, family follow) show once the plan is locked or the trip has begun.
+  const live = phase !== 'before' || !!run.locked;
+  return { phase, live, run, getReady, today: today_, memories, expenses, locate, checkIn, shareLocation, vehicle: t(VEH[s.vehicle].short), checkins: run.checkins.slice(-3).reverse() };
 }
 export type TripModeView = ReturnType<typeof tripMode>;

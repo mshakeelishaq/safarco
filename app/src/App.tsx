@@ -466,7 +466,7 @@ export function App() {
             onSignIn={google} onSignOut={() => signOut().then(() => set({ toast: tx('Signed out. Trips stay on this device.') }))} onFeedback={() => set({ sheet: 'feedback' })} onAbout={() => set({ sheet: 'none', welcome: true })} onGuide={view.guide.open} onClose={() => set({ sheet: 'none' })} />
           <FeedbackSheet open={s.sheet === 'feedback'} onSend={feedback} onClose={() => set({ sheet: 'none' })} />
           {s.screen === 'app' && <>
-            <ShareSheet open={s.sheet === 'share'} onClose={() => set({ sheet: 'none' })} live={cloudEnabled && !!user} signedIn={!!user} cloud={cloudEnabled} following={!!view.trip.run.followId} busy={busy}
+            <ShareSheet open={s.sheet === 'share'} onClose={() => set({ sheet: 'none' })} live={cloudEnabled && !!user} signedIn={!!user} cloud={cloudEnabled} following={!!view.trip.run.followId} family={view.trip.live || !!view.trip.run.followId} busy={busy}
               onPlan={() => { set({ sheet: 'none' }); shareTrip(); }} onFamily={shareFamily} onStop={stopFamily} onCard={makeCard} onSignIn={google} />
             <SosSheet v={view} open={s.sheet === 'sos'} onClose={() => set({ sheet: 'none' })} />
             <ExpenseSheet v={view} open={s.sheet === 'expense'} onClose={() => set({ sheet: 'none' })} />

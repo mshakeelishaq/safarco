@@ -139,6 +139,7 @@ export function MemoriesCard({ v, onCard, onNext }: { v: View; onCard: () => voi
 /** Budget tab: what's been spent against the plan, and who owes whom. */
 export function ExpensesCard({ v }: { v: View }) {
   const e = v.trip.expenses, [all, setAll] = useState(false);
+  if (!v.trip.live && !e.list.length) return null;
   const sub = css('margin:16px 0 6px;font-size:12px;font-weight:800;color:var(--mute);text-transform:uppercase;letter-spacing:.06em');
   const small = css('height:34px;padding:0 11px;border-radius:11px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:5px');
   return (
@@ -271,8 +272,8 @@ export function SosSheet({ v, open, onClose }: { v: View; open: boolean; onClose
 }
 
 /** Share: the plan, a follow page for family, or the trip card picture. */
-export function ShareSheet({ open, onClose, live, signedIn, cloud, following, busy, onPlan, onFamily, onStop, onCard, onSignIn }: {
-  open: boolean; onClose: () => void; live: boolean; signedIn: boolean; cloud: boolean; following: boolean; busy: string;
+export function ShareSheet({ open, onClose, live, signedIn, cloud, following, family, busy, onPlan, onFamily, onStop, onCard, onSignIn }: {
+  open: boolean; onClose: () => void; live: boolean; signedIn: boolean; cloud: boolean; following: boolean; family: boolean; busy: string;
   onPlan: () => void; onFamily: () => void; onStop: () => void; onCard: () => void; onSignIn: () => void;
 }) {
   const opt = (icon: string, color: string, title: string, sub: string, run: () => void, key: string) => (
@@ -285,12 +286,12 @@ export function ShareSheet({ open, onClose, live, signedIn, cloud, following, bu
   return (
     <Panel open={open} onClose={onClose} title={t('Share')} height={520}>
       <div style={css('display:flex;flex-direction:column;gap:10px')}>
-        {opt('ph-users-three', 'linear-gradient(160deg,#2EE59D,#0FA678)', t('Family: follow our trip'), live ? (following ? t('Your live link is on. Family see your check-ins.') : t('A page for family: the plan, where you are today, and your check-ins.')) : t('A page for family with the plan and where you are each day.'), onFamily, 'family')}
+        {family && opt('ph-users-three', 'linear-gradient(160deg,#2EE59D,#0FA678)', t('Family: follow our trip'), live ? (following ? t('Your live link is on. Family see your check-ins.') : t('A page for family: the plan, where you are today, and your check-ins.')) : t('A page for family with the plan and where you are each day.'), onFamily, 'family')}
         {opt('ph-instagram-logo', 'linear-gradient(160deg,#F58529,#DD2A7B 55%,#8134AF)', t('Trip card for Instagram'), t('A picture of your trip for stories and WhatsApp status.'), onCard, 'card')}
         {opt('ph-share-network', 'linear-gradient(160deg,#6FD3FF,#3B8DFF)', t('Send the plan'), t('A link that opens this plan in SafarCo, so friends can change it.'), onPlan, 'plan')}
       </div>
-      <p style={css('margin:12px 2px 0;font-size:12px;font-weight:600;color:var(--mute);line-height:1.45')}>{t('Not live tracking: family see your check-ins and any location you send, so it works on weak signal and saves battery.')}</p>
-      {cloud && !signedIn && <button onClick={onSignIn} style={css('margin-top:12px;width:100%;min-height:40px;border:0;background:none;color:var(--g);font-size:13px;font-weight:800;cursor:pointer')}>{t('Sign in to send live check-ins to family')}</button>}
+      {family && <p style={css('margin:12px 2px 0;font-size:12px;font-weight:600;color:var(--mute);line-height:1.45')}>{t('Not live tracking: family see your check-ins and any location you send, so it works on weak signal and saves battery.')}</p>}
+      {family && cloud && !signedIn && <button onClick={onSignIn} style={css('margin-top:12px;width:100%;min-height:40px;border:0;background:none;color:var(--g);font-size:13px;font-weight:800;cursor:pointer')}>{t('Sign in to send live check-ins to family')}</button>}
       {following && <button onClick={onStop} style={css('margin-top:8px;width:100%;min-height:40px;border:0;background:none;color:var(--cor);font-size:13px;font-weight:800;cursor:pointer')}>{t('Stop sharing with family')}</button>}
     </Panel>
   );
