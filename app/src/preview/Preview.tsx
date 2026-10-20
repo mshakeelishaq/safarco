@@ -115,7 +115,7 @@ export function Preview() {
         <canvas ref={canvas} className="pv-canvas" style={{ opacity: gl === false ? 0 : 1 }} />
         {gl === false && <img className="pv-still" src={slide.src} alt="" />}
         <div className={`pv-hero-text${phase !== 'intro' ? ' in' : ''}`}>
-          <h1><span>See</span><span>Pakistan.</span></h1>
+          <h1><span>See</span><span>Pakistan</span></h1>
           <p>Mountains, rivers and roads, planned for you in two minutes.{gl ? <><br /><em>{touched ? 'There it is. Every season has its colour.' : 'Move across the photo to bring its colour back.'}</em></> : null}</p>
         </div>
         <div className="pv-caption">{slide.place}</div>
@@ -141,7 +141,7 @@ export function Preview() {
       </section>
 
       <section className="pv-end">
-        <h2>Plan it in<br />two minutes.</h2>
+        <h2>Plan it in<br />two minutes</h2>
         <p>The route, the nights, the stops, the budget and the weather, in one plan. Free.</p>
         <a href={planHref()} className="pv-cta" data-cursor="Go">Plan a trip</a>
         <div className="pv-note">This is a preview of the new SafarCo website. <a href="/">Back to the current site</a></div>
