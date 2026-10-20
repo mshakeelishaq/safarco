@@ -17,14 +17,14 @@ function Card({ d, i }: { d: RingDest; i: number }) {
   }, []);
   const tags = [inSeason(d) ? 'In season now' : d.when.replace(/^Best /, 'Best '), `${d.days} days`, d.province];
   return (
-    <a ref={el} href={`/destinations/${d.id}`} className={`gd-card${i % 2 ? ' low' : ''}`} data-cursor="View">
+    <a ref={el} href={`/destinations/${d.id}`} className={`gd-card${i % 2 ? ' low' : ''}`}>
       <div className="gd-media" style={{ backgroundImage: `url(${thumb(d.photos[0])})` }}>
         <img src={d.photos[0]} alt="" loading="lazy" decoding="async" className={loaded ? 'ok' : ''} onLoad={() => setLoaded(true)} />
         {d.photos[1] && <img src={d.photos[1]} alt="" loading="lazy" decoding="async" className="gd-alt" />}
       </div>
       <div className="gd-tags">{tags.join(' • ')}</div>
       <div className="gd-name">{d.name}</div>
-      <span className="gd-plan" onClick={e => { e.preventDefault(); location.href = planHref({ to: d.id }); }} data-cursor="Plan">Plan this trip →</span>
+      <span className="gd-plan" onClick={e => { e.preventDefault(); location.href = planHref({ to: d.id }); }}>Plan this trip →</span>
     </a>
   );
 }
@@ -56,12 +56,12 @@ export function Grid({ dests }: { dests: RingDest[] }) {
         <p>Pakistan’s best places, with the ones at their best right now first. Tap one for its guide, or plan the trip.</p>
       </div>
       <div className="gd-filters" role="tablist" aria-label="Show places for">
-        {FILTERS.map(x => <button key={x} role="tab" aria-selected={f === x} className={f === x ? 'on' : ''} onClick={() => { setF(x); setAll(false); }} data-cursor="Show">{x}<sup>{dests.filter(d => fits(d, x)).length}</sup></button>)}
+        {FILTERS.map(x => <button key={x} role="tab" aria-selected={f === x} className={f === x ? 'on' : ''} onClick={() => { setF(x); setAll(false); }}>{x}<sup>{dests.filter(d => fits(d, x)).length}</sup></button>)}
       </div>
       <div className="gd-grid" key={f}>
         {shown.map((d, i) => <Card key={d.id} d={d} i={i} />)}
       </div>
-      {!all && list.length > FIRST && <button className="gd-more" onClick={() => setAll(true)} data-cursor="More">All {list.length} destinations +</button>}
+      {!all && list.length > FIRST && <button className="gd-more" onClick={() => setAll(true)}>All {list.length} destinations +</button>}
     </section>
   );
 }

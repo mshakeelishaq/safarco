@@ -1,6 +1,5 @@
 /* /preview: the new SafarCo website, stage 1. Paper, ink and the photos' own colour; one big face, everything else small. */
 html.pv-root, html.pv-root body { background: #F4F1EA; margin: 0; }
-html.pv-root.pv-fine, html.pv-root.pv-fine * { cursor: none !important; }
 .pv { --paper: #F4F1EA; --ink: #121212; --mute: #7A766E; --acc: #F5B83D; --big: 'Unbounded', 'Plus Jakarta Sans', sans-serif;
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: var(--ink); background: var(--paper); -webkit-font-smoothing: antialiased; overflow-x: clip; }
 .pv[data-season=spring] { --acc: #F49AB8; } .pv[data-season=summer] { --acc: #6ED79A; } .pv[data-season=winter] { --acc: #9FCBFF; }
@@ -15,12 +14,7 @@ html.pv-root.pv-fine, html.pv-root.pv-fine * { cursor: none !important; }
 .pv-top nav { display: flex; gap: 22px; } .pv-top nav a { text-decoration: none; }
 .pv-top nav a:hover { text-decoration: underline; text-underline-offset: 4px; }
 
-/* The cursor: a dot that grows into a label over things you can use. */
-.pv-cursor { position: fixed; left: 0; top: 0; z-index: 200; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: #fff; mix-blend-mode: difference; pointer-events: none;
   display: grid; place-items: center; transition: width .28s cubic-bezier(.2,.8,.2,1), height .28s cubic-bezier(.2,.8,.2,1), margin .28s cubic-bezier(.2,.8,.2,1); }
-html:not(.pv-fine) .pv-cursor { display: none; }
-.pv-cursor span { font-size: 11px; font-weight: 800; color: #000; opacity: 0; transition: opacity .2s; letter-spacing: .02em; }
-.pv-cursor.big { width: 72px; height: 72px; margin: -36px 0 0 -36px; } .pv-cursor.big span { opacity: 1; }
 
 /* The cover: the season's photos one after another behind the title, the plan bar on glass. */
 .pv-hero { position: relative; min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; color: #fff; background: #1B1F22; }
