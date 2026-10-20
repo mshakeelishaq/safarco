@@ -6,6 +6,7 @@ import { Grid } from './Grid';
 import { ringDests } from './data';
 import { DESTS } from '../engine/data';
 import { CITIES } from '../engine/places';
+import { Logo } from '../components/Logo';
 import './preview.css';
 
 /** The main thing: from, to, when, and straight into the planner (the planner asks the rest). */
@@ -72,7 +73,9 @@ export function Preview() {
   const season = seasonNow(), dests = useMemo(() => ringDests(), []);
   const [ready, setReady] = useState(false);
   // The pinned "Plan a trip" shows once the plan bar has scrolled away.
-  const bar = useRef<HTMLFormElement>(null), [pin, setPin] = useState(false);
+  const bar = useRef<HTMLFormElement>(null), [pin, setPin] = useState(false), [solid, setSolid] = useState(false);
+  // The header turns solid (paper, the logo in colour) once the photos are behind.
+  useEffect(() => { const f = () => setSolid(scrollY > innerHeight - 90); f(); addEventListener('scroll', f, { passive: true }); return () => removeEventListener('scroll', f); }, []);
   useEffect(() => {
     document.title = 'SafarCo, see Pakistan (preview)';
     const h = document.documentElement; h.classList.add('pv-root');
@@ -89,15 +92,11 @@ export function Preview() {
 
   return (
     <div className="pv" data-season={season}>
-      <header className="pv-frame pv-top">
-        <a href="/preview" className="pv-mark">SafarCo<sup>PK</sup></a>
-        <nav><a href="#where">Destinations</a><a href="/">Current site</a></nav>
+      <header className={`pv-top${solid ? ' solid' : ''}`}>
+        <a href="/preview" className="pv-mark" aria-label="SafarCo"><Logo size={solid ? 30 : 34} light={!solid} /></a>
+        <nav><a href="#where">Destinations</a><a href="/about">About</a><a href="/">Current site</a></nav>
       </header>
       <a href={planHref()} className={`pv-pin${pin ? ' show' : ''}`} aria-hidden={!pin} tabIndex={pin ? 0 : -1}>Plan a trip <span aria-hidden="true">→</span></a>
-      <footer className="pv-frame pv-bottom">
-        <span><b>{Season} now</b>{bestNow ? ` · best: ${bestNow}` : ''}</span>
-        <span>Preview · © 2026 SafarCo</span>
-      </footer>
 
       <Slides>
         <div className={`pv-body${ready ? ' in' : ''}`}>
@@ -112,11 +111,19 @@ export function Preview() {
       <Grid dests={dests} />
 
       <section className="pv-end">
-        <h2>Your days<br />Your budget<br />Your perfect trip</h2>
-        <p>The route, the nights, the stops and the cost, in one plan.</p>
-        <a href={planHref()} className="pv-cta">Plan my trip →</a>
-        <div className="pv-note">A preview of the new SafarCo website. <a href="/">Back to the current site</a></div>
+        <div className="pv-band">
+          <div>
+            <h2>Your days. Your budget. Your perfect trip.</h2>
+            <p>The route, the nights, the stops and the cost, in one plan.</p>
+          </div>
+          <a href={planHref()} className="pv-cta">Plan my trip →</a>
+        </div>
       </section>
+      <footer className="pv-foot2">
+        <Logo size={30} />
+        <nav><a href="#where">Destinations</a><a href={planHref()}>Plan a trip</a><a href="/about">About</a><a href="/contact">Contact</a></nav>
+        <span>© 2026 SafarCo · <b>{Season} now:</b> {bestNow} · Preview of the new site, <a href="/">back to the current one</a></span>
+      </footer>
     </div>
   );
 }
