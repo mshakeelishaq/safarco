@@ -14,7 +14,6 @@ html.pv-root, html.pv-root body { background: #F4F1EA; margin: 0; }
 .pv-top nav { display: flex; gap: 22px; } .pv-top nav a { text-decoration: none; }
 .pv-top nav a:hover { text-decoration: underline; text-underline-offset: 4px; }
 
-  display: grid; place-items: center; transition: width .28s cubic-bezier(.2,.8,.2,1), height .28s cubic-bezier(.2,.8,.2,1), margin .28s cubic-bezier(.2,.8,.2,1); }
 
 /* The cover: the season's photos one after another behind the title, the plan bar on glass. */
 .pv-hero { position: relative; min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; color: #fff; background: #1B1F22; }
