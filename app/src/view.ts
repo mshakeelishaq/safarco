@@ -692,12 +692,12 @@ export function buildView(s: AppState, api: Api) {
           const st = d.stay!, nr = nightRange(s.tier, s.rateOwn ? 1 : sf, s.nightRate), night = isoOff(s.startDate, i), live = spotsAt('hotels', st.lat, st.lon);
           const picks = live.list.length ? live.list.slice(0, 4).map(h => ({ name: h.name, note: h.km ? t('{type} · {km} km from centre', { type: t(h.type), km: Math.round(h.km * 10) / 10 }) : t(h.type) }))
             : st.curated ? [{ name: st.name, note: st.note }] : [];
-          const mine = trustedAt(st.lat, st.lon).map(h => ({ name: h.name, key: 't:' + h.id, trusted: true, note: [(() => { let x = t(TIERS[h.tier].label); if (h.price) x = t('{tier} · PKR {price} a night', { tier: x, price: fmtN(h.price) }); if (h.checked) x = t('{text} (checked {date})', { text: x, date: shortDate(h.checked) }); return x; })(), h.note].filter(Boolean).join(' · '),
+          const mine = trustedAt(st.lat, st.lon).map(h => ({ name: h.name, key: 't:' + h.id, trusted: true, note: [(() => { let x = t(TIERS[h.tier].label); if (h.price) x = t('{tier} · Updated rate PKR {price} a night', { tier: x, price: fmtN(h.price) }); if (h.checked) x = t('{text} (checked {date})', { text: x, date: shortDate(h.checked) }); return x; })(), h.note].filter(Boolean).join(' · '),
             checkUrl: check(`${h.name}, ${st.town}`, night, 1), mapUrl: mapsQ(`${h.name}, ${st.town}`), ...contact(h.phone),
             rating: ratingOf('hotel', h.id), id: h.id, review: rateOpen('hotel', h.id, h.name, night) }));
           const options = [...mine, ...picks.filter(h => !mine.some(m => m.name.toLowerCase() === h.name.toLowerCase())).slice(0, Math.max(2, 4 - mine.length))
             .map(h => ({ ...h, key: h.name, trusted: false, wa: '', tel: '', rating: null, review: null, checkUrl: check(`${h.name}, ${st.town}`, night, 1), mapUrl: mapsQ(`${h.name}, ${st.town}`) }))];
-          return { ...st, range: t('{tier} · {range} ({usd}) a night', { tier: t(TIERS[s.tier].label), range: nr.text, usd: nr.usd }), href: check(st.town, night, 1), options, loading: live.loading && !picks.length, source: live.list.length ? 'OpenStreetMap, via Geoapify' : '' };
+          return { ...st, range: t('Suggested rate: {tier} · {range} ({usd}) a night', { tier: t(TIERS[s.tier].label), range: nr.text, usd: nr.usd }), href: check(st.town, night, 1), options, loading: live.loading && !picks.length, source: live.list.length ? 'OpenStreetMap, via Geoapify' : '' };
         })(), stops: edited[i].stops.map(x => ({ ...x, icon: STOP_KIND[x.kind][0], color: STOP_KIND[x.kind][1], remove: x.removable ? () => removeStop(i, x) : null })),
           places: edited[i].places, savedMin: edited[i].saved, suggest: suggestFor(d, i),
           // What to eat here: the guide's dishes, then places travellers suggested (approved by the admin).
@@ -898,8 +898,12 @@ export function buildView(s: AppState, api: Api) {
     { key: 'st2', tier: 'standard', night: Math.round(TIERS.standard.night * 1.5 / 500) * 500, label: t('Standard plus'), sub: t('A comfortable hotel with heating') },
     { key: 'pr', tier: 'premium', night: TIERS.premium.night, label: t('Premium'), sub: t('A top hotel or resort') }];
   const cur = s.nightRate && s.nightRate > 0 ? s.nightRate : TIERS[s.tier].night;
+  const listed = [...new Map(plan.days.flatMap(d => d.stay ? trustedAt(d.stay.lat, d.stay.lon) : []).filter(h => h.price > 0).map(h => [h.id, h])).values()];
   const roomRate = {
     value: fmt(cur), own: !!(s.nightRate && s.rateOwn), sf,
+    disclaimer: t('These are suggested rates to plan with. Hotels listed on SafarCo show their own, updated rates in each night’s plan.'),
+    listed: listed.length ? (listed.length === 1 ? t('1 SafarCo hotel on your route shows its updated rate: {list}', { list: `${listed[0].name} (${fmt(listed[0].price)})` })
+      : t('{n} SafarCo hotels on your route show their updated rates: {list}', { n: listed.length, list: listed.slice(0, 3).map(h => `${h.name} (${fmt(h.price)})`).join(', ') })) : '',
     note: s.nightRate && s.rateOwn ? t('Your own rate, used as it is.') : sf !== 1 ? t('A room a night, before the season: {pct} in {month}.', { pct: sf > 1 ? `+${Math.round((sf - 1) * 100)}%` : `−${Math.round((1 - sf) * 100)}%`, month: MONTH_FULL[M - 1] }) : t('A room a night. Prices vary by town and date; set your own if you know it.'),
     presets: RATES.map(r => { const on = !s.rateOwn && r.tier === s.tier && cur === r.night; return { key: r.key, label: r.label, sub: r.sub, amount: fmt(r.night), on,
       apply: () => set({ tier: r.tier, nightRate: r.night === TIERS[r.tier].night ? null : r.night, rateOwn: false, flash: 'budget' }) }; }),

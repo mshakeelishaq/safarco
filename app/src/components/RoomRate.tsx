@@ -21,12 +21,14 @@ export function RoomRate({ v }: { v: View }) {
           <div style={css('font-size:11px;font-weight:600;color:var(--mute);margin-top:2px')}>{p.sub}</div>
         </button>)}
       </div>
+      {r.listed && <div style={css('display:flex;gap:8px;align-items:flex-start;margin-top:10px;padding:9px 11px;border-radius:13px;background:rgba(46,229,157,.10);font-size:12px;font-weight:700;line-height:1.45;color:var(--ink2)')}><i className="ph-fill ph-seal-check" style={css('color:var(--g);font-size:16px;flex:none;margin-top:1px')} />{r.listed}</div>}
       <div style={css('display:flex;gap:8px;margin-top:10px')}>
         <input inputMode="numeric" value={draft} onChange={e => setDraft(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') save(); }} placeholder={r.own ? t('Your rate: {amount}', { amount: r.value }) : t('Your own rate, e.g. 7500')} aria-label={t('Your own room rate')}
           style={css('flex:1;min-width:0;height:42px;padding:0 12px;border-radius:13px;border:1px solid var(--line2);background:var(--card);color:var(--ink);font:inherit;font-size:14px')} />
         <button onClick={save} disabled={!draft.trim()} style={css(`height:42px;padding:0 14px;border-radius:13px;border:0;background:var(--cta);color:var(--onCta);font-size:13px;font-weight:800;cursor:pointer;opacity:${draft.trim() ? 1 : .5}`)}>{t('Use')}</button>
         {r.own && <button onClick={r.reset} style={css('height:42px;padding:0 12px;border-radius:13px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);font-size:12px;font-weight:800;cursor:pointer')}>{t('Reset')}</button>}
       </div>
+      <div style={css('display:flex;gap:6px;align-items:flex-start;margin-top:10px;font-size:11px;font-weight:600;color:var(--mute);line-height:1.45')}><i className="ph-bold ph-info" style={css('flex:none;margin-top:1px')} />{r.disclaimer}</div>
     </div>
   );
 }

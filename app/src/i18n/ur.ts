@@ -2362,4 +2362,9 @@ export const UR: Record<string, string> = {
   "Your own rate, used as it is.": "Aap ka apna kiraya, jaisa hai waisa.",
   "A room a night, before the season: {pct} in {month}.": "Ek kamra ek raat, mausam se pehle: {month} mein {pct}.",
   "A room a night. Prices vary by town and date; set your own if you know it.": "Ek kamra ek raat. Kiraya shehar aur tareekh se badalta hai; maloom ho to apna likhein.",
+  "{tier} · Updated rate PKR {price} a night": "{tier} · Taaza kiraya PKR {price} fi raat",
+  "Suggested rate: {tier} · {range} ({usd}) a night": "Tajweezi kiraya: {tier} · {range} ({usd}) fi raat",
+  "These are suggested rates to plan with. Hotels listed on SafarCo show their own, updated rates in each night’s plan.": "Yeh planning ke liye tajweezi kiraye hain. SafarCo par listed hotel har raat ke plan mein apna taaza kiraya dikhate hain.",
+  "1 SafarCo hotel on your route shows its updated rate: {list}": "Aap ke raaste par 1 SafarCo hotel apna taaza kiraya dikhata hai: {list}",
+  "{n} SafarCo hotels on your route show their updated rates: {list}": "Aap ke raaste par {n} SafarCo hotel apna taaza kiraya dikhate hain: {list}",
 };
