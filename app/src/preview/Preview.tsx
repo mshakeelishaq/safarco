@@ -1,10 +1,10 @@
 // /preview: a first look at the new SafarCo website (stage 1). The opening (mist parts over the season's photo),
-// the hero where a touch brings the colour back, and the destination ring. The current website stays as it is.
+// the hero where a touch brings the colour back, and the destinations as a grid of big photo cards. The current website stays as it is.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { planHref, seasonNow, SLIDES, type SeasonId } from '../site/Hero';
 import { startFluid, type Fluid } from './fluid';
-import { Ring } from './Ring';
-import { ringDests, type GroupBy } from './data';
+import { Grid } from './Grid';
+import { ringDests } from './data';
 import { ROAD } from './road';
 import './preview.css';
 
@@ -32,11 +32,9 @@ export function Preview() {
   const canvas = useRef<HTMLCanvasElement>(null), fluid = useRef<Fluid | null>(null), hero = useRef<HTMLElement>(null);
   const [gl, setGl] = useState<boolean | null>(null);
   const [phase, setPhase] = useState<'intro' | 'part' | 'open'>(() => { try { return sessionStorage.getItem(SEEN) || still() ? 'open' : 'intro'; } catch { return 'intro'; } });
-  const [by, setBy] = useState<GroupBy>('season'), [active, setActive] = useState<string | null>(null);
   const [touched, setTouched] = useState(false);
   const dests = useMemo(() => ringDests(), []);
   const small = useMemo(() => innerWidth < 760, []);
-  const cur = dests.find(d => d.id === active) || null;
 
   useEffect(() => { document.title = 'SafarCo, see Pakistan (preview)'; const h = document.documentElement; h.classList.add('pv-root'); if (fine()) h.classList.add('pv-fine'); return () => h.classList.remove('pv-root', 'pv-fine'); }, []);
 
@@ -84,7 +82,6 @@ export function Preview() {
     f.splat(x, y, dx, dy); if (!touched) setTouched(true);
   };
 
-  const groups: { key: GroupBy; label: string }[] = [{ key: 'season', label: 'Season' }, { key: 'region', label: 'Region' }, { key: 'days', label: 'Days' }];
   const bestNow = dests.filter(d => d.season === season[0].toUpperCase() + season.slice(1)).slice(0, 3).map(d => d.name).join(', ');
 
   return (
@@ -122,23 +119,7 @@ export function Preview() {
         <a href="#where" className="pv-down" data-cursor="Scroll">Where to next ↓</a>
       </section>
 
-      <section id="where" className="pv-ring">
-        <div className="pv-ring-head"><span>Destinations<sup>{dests.length}</sup></span><span>{small ? 'Swipe to turn · tap a photo' : 'Drag to turn · hover a photo'}</span></div>
-        <Ring dests={dests} by={by} active={active} onPick={setActive} onOpen={id => { location.href = `/destinations/${id}`; }} small={small} side={!!cur} />
-        <div className={`pv-centre${cur ? ' hide' : ''}`}><h2>Where to next?</h2></div>
-        <div className={`pv-card${cur ? ' show' : ''}`}>
-          {cur && <>
-            <div className="pv-card-region">{cur.region}</div>
-            <h3>{cur.name}</h3>
-            <img key={cur.photos[0]} src={cur.photos[0]} alt="" />
-            <div className="pv-card-facts"><span>{cur.when}</span><span>About {cur.days} days from Islamabad</span></div>
-            <div className="pv-card-go"><a href={planHref({ to: cur.id })} data-cursor="Plan">Plan this trip +</a><a href={`/destinations/${cur.id}`} data-cursor="Read">The guide</a></div>
-          </>}
-        </div>
-        <div className="pv-tabs" role="tablist" aria-label="Group the destinations by">
-          {groups.map(g => <button key={g.key} role="tab" aria-selected={by === g.key} className={by === g.key ? 'on' : ''} onClick={() => { setBy(g.key); setActive(null); }} data-cursor="Sort">{g.label}</button>)}
-        </div>
-      </section>
+      <Grid dests={dests} />
 
       <section className="pv-end">
         <h2>Plan it in<br />two minutes</h2>

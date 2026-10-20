@@ -39,4 +39,17 @@ export function ringDests(month = new Date().getMonth() + 1): RingDest[] {
 }
 
 export const GROUPS: Record<GroupBy, readonly string[]> = { season: SEASONS, region: PROVINCES, days: DAYS };
+
+/** The grid's filters: a place counts for a season if any of its best months fall in it. */
+export const FILTERS = ['All', 'Spring', 'Summer', 'Autumn', 'Winter'] as const;
+export type Filter = (typeof FILTERS)[number];
+const MONTHS: Record<Exclude<Filter, 'All'>, number[]> = { Spring: [3, 4, 5], Summer: [6, 7, 8], Autumn: [9, 10, 11], Winter: [12, 1, 2] };
+export const fits = (d: RingDest, f: Filter) => f === 'All' || !DST(d.id).best?.length || MONTHS[f].some(m => DST(d.id).best!.includes(m));
+const FAV = ['hunza', 'skardu', 'naran', 'khaplu', 'kalam', 'fairy', 'neelum', 'chitral', 'passu', 'nagar', 'shogran', 'swat', 'murree', 'nathia', 'lahore', 'karachi', 'gwadar', 'mohenjo'];
+/** In season now first (SafarCo's favourites leading), then the rest by name. */
+export function gridOrder(ds: RingDest[], month = new Date().getMonth() + 1) {
+  const now = (d: RingDest) => !DST(d.id).best?.length || DST(d.id).best!.includes(month), rank = (d: RingDest) => { const i = FAV.indexOf(d.id); return i < 0 ? 99 : i; };
+  return [...ds].sort((a, b) => Number(now(b)) - Number(now(a)) || rank(a) - rank(b) || a.name.localeCompare(b.name));
+}
+export const inSeason = (d: RingDest, month = new Date().getMonth() + 1) => !DST(d.id).best?.length || DST(d.id).best!.includes(month);
 export const groupOf = (d: RingDest, by: GroupBy) => by === 'season' ? d.season : by === 'region' ? d.province : d.dayGroup;
