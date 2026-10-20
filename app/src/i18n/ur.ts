@@ -2390,4 +2390,5 @@ export const UR: Record<string, string> = {
   "{n} more ideas": "{n} aur mashware",
   "Fine tune your trip": "Apna safar behtar banayein",
   "SafarCo already chose the best for you. Change anything here if you like.": "SafarCo ne aap ke liye behtareen chuna hai. Chahein to yahan kuch bhi badal lein.",
+  "{amount} a person a day": "{amount} fi shakhs rozana",
 };
