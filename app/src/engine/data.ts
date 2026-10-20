@@ -45,7 +45,7 @@ export interface DestInput {
 /** Months a to b inclusive, wrapping past December. */
 export const R = (a: number, b: number): number[] => { const o: number[] = []; for (let m = a; ; m = m % 12 + 1) { o.push(m); if (m === b) break; } return o; };
 
-export const PETROL: number = 387.40;
+export const PETROL: number = 381.14;
 /** Trip styles for travellers with their own vehicle: only that vehicle, at each kind of stay. */
 export const OWN_CONFIGS: Record<Exclude<Have, 'any'>, TripConfig[]> = {
   car: [{ id: 'value', name: 'Budget drive', vehicle: 'sedan', tier: 'backpacker' }, { id: 'std', name: 'Standard', vehicle: 'sedan', tier: 'standard' }, { id: 'carp', name: 'Premium', vehicle: 'sedan', tier: 'premium' }],
@@ -214,7 +214,7 @@ export const EDGES: Edge[] = [
   ['ISB', 'HSA', 50, 45, 0, 0, 'GT Road (N-5)'], ['HSA', 'PSH', 125, 50, 0, 0, 'GT Road (N-5)'], ['HSA', 'ABT', 70, 40, 0, 0, 'N-35 by Haripur'], ['ABT', 'MNS', 35, 35, 0, 0, 'N-35'],
   ['PSH', 'CKD', 135, 45, 0, 0, 'N-45 by Mardan and Malakand'], ['KHI', 'HYD', 185, 55, 0, 0, 'N-5 National Highway'], ['FSD', 'LHR', 135, 50, 0, 0, 'Faisalabad Road'],
   ['MUL', 'FSD', 230, 55, 0, 0, 'Multan–Faisalabad Road'], ['KLK', 'ISB', 125, 50, 0, 0, 'Chakwal Road']];
-export const DIESEL = 395, LOCAL_CAR = 15000;
+export const DIESEL = 389.27, LOCAL_CAR = 15000;
 /** Prices the engine reads at run time. The admin price list (src/prices.ts) overwrites these. */
 export const P = { petrol: PETROL, diesel: DIESEL, localCar: LOCAL_CAR, coachFlat: 6.5, coachMtn: 9, airportCoach: 6.5, raikotJeep: 10000 };
 export const AIRPORTS: Record<string, [string, number, number]> = { ISB: ['Islamabad', 33.56, 72.85], LHR: ['Lahore', 31.52, 74.40], KHI: ['Karachi', 24.90, 67.17] };

@@ -68,9 +68,11 @@ describe('researched prices', () => {
     const l = withResearched(DEFAULT_PRICES);
     for (const k of Object.keys(RESEARCHED.tolls!)) expect(tollRoads().map(t => t.key)).toContain(k);
     for (const k of Object.keys(RESEARCHED.jeeps!)) expect(Object.keys(DEFAULT_PRICES.jeeps)).toContain(k);
-    expect(l.fuel.petrol).toBe(398.3);
+    expect(l.fuel.petrol).toBe(381.14);
+    expect(l.fuel.diesel).toBe(389.27);
     expect(l.tolls['LHR-ISB']).toBe(1430);
-    expect(l.checked.fuel).toBe(RESEARCHED_ON);
+    expect(l.checked.fuel).toBe('2026-10-20');
+    expect(l.checked.tolls).toBe(RESEARCHED_ON);
     expect(l.checked.fares).toBe('');
     expect(DEFAULT_PRICES.checked.fuel).toBe('');
   });

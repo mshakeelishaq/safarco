@@ -4,13 +4,15 @@
 import type { PriceList, Section } from './prices';
 
 export const RESEARCHED_ON = '2026-10-12';
+/** Sections looked up again later than the rest. */
+export const RESEARCHED_LATER: Partial<Record<Section, string>> = { fuel: '2026-10-20' };
 
 /** Sections whose figures had 2026 sources. Flights and most jeep trips did not. */
 export const RESEARCHED_SECTIONS: Section[] = ['fuel', 'tolls', 'stays', 'hire', 'coach'];
 
 export const RESEARCHED: { [K in keyof PriceList]?: Partial<PriceList[K]> } = {
-  // OGRA price for 10 Oct 2026, as reported by Pakera and petrolfuelprices.com.pk.
-  fuel: { petrol: 398.3, diesel: 396.24 },
+  // Petroleum Division price from 20 Oct 2026 (petrol cut Rs 5.16, diesel Rs 7.69), as reported by Profit and Business Recorder.
+  fuel: { petrol: 381.14, diesel: 389.27 },
   // NHA revisions of 5 Jul (M-2: Rs 1,430) and 10 Jul 2026 (M-1 700, M-3 1,000, M-4 1,350,
   // M-5 1,500, M-14 800, E-35 400), Swat Expressway Rs 270, M-9 Rs 460. Roads that cover
   // part of a motorway are priced by distance; M-Tag rates (cars without M-Tag pay more).
@@ -38,6 +40,6 @@ export function withResearched(list: PriceList): PriceList {
   Object.assign(c.fuel, r.fuel); Object.assign(c.tolls, r.tolls); Object.assign(c.hire, r.hire); Object.assign(c.coach, r.coach); Object.assign(c.jeeps, r.jeeps);
   Object.entries(r.stays || {}).forEach(([t, v]) => Object.assign(c.stays[t as keyof PriceList['stays']], v));
   Object.entries(r.fares || {}).forEach(([d, f]) => { if (c.fares[d]) Object.assign(c.fares[d], f); });
-  RESEARCHED_SECTIONS.forEach(s => { c.checked[s] = RESEARCHED_ON; });
+  RESEARCHED_SECTIONS.forEach(s => { c.checked[s] = RESEARCHED_LATER[s] || RESEARCHED_ON; });
   return c;
 }
