@@ -67,8 +67,8 @@ export const VEH: Record<VehicleId, Vehicle> = {
 };
 export const TIERS: Record<TierId, Tier> = {
   backpacker: { label: 'Backpacker', night: 3500, meal: 1200 },
-  standard: { label: 'Standard', night: 9000, meal: 2500 },
-  premium: { label: 'Premium', night: 28000, meal: 5500 }
+  standard: { label: 'Standard', night: 6000, meal: 2500 },
+  premium: { label: 'Premium', night: 25000, meal: 5500 }
 };
 export const GRADS: [string, string][] = [['var(--g)', '#0FA678'], ['var(--amb)', '#FF7A3D'], ['var(--cor)', '#FF4F7B'], ['var(--vio)', '#5B6CFF']];
 export const MODES: { id: Mode; icon: string; label: string; sub: string }[] = [

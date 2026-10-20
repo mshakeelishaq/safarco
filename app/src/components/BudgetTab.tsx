@@ -4,6 +4,7 @@ import { t } from '../i18n';
 import type { Api, View } from '../view';
 import { BannerCard, Fold, Footer, TabHero } from './TripTab';
 import { ExpensesCard } from './TripMode';
+import { RoomRate } from './RoomRate';
 
 export function BudgetTab({ v }: { v: View; api: Api }) {
   const b = v.budget;
@@ -62,6 +63,8 @@ export function BudgetTab({ v }: { v: View; api: Api }) {
             </div>
           </Fold>
         )}
+
+        <section aria-label={t('Room rate')} style={css('border-radius:26px;padding:16px;background:var(--card);border:1px solid var(--line)')}><RoomRate v={v} /></section>
 
         <Fold icon="ph-receipt" title={t('Every cost, line by line')} summary={`PKR ${v.totalNum}`} summaryColor="var(--ink)">
           <div style={css('display:flex;flex-direction:column;gap:12px')}>

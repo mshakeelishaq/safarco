@@ -2,6 +2,7 @@ import { css } from '../lib/css';
 import { t } from '../i18n';
 import type { Api, View } from '../view';
 import { DateInput, RoomOpts, SearchBox } from './Onboarding';
+import { RoomRate } from './RoomRate';
 
 const Label = ({ children, style = '' }: { children: React.ReactNode; style?: string }) =>
   <div style={css('font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);' + style)}>{children}</div>;
@@ -37,6 +38,7 @@ export function EditSheet({ v, api }: { v: View; api: Api }) {
           <div style={css('display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;border-radius:17px;background:var(--deep)')}>
             {v.tierChips.map(t => <button key={t.key} onClick={t.onClick} aria-pressed={v.s.tier === t.key} style={css(`height:44px;border-radius:13px;border:0;background:${t.bg};color:${t.fg};font-size:13px;font-weight:800;cursor:pointer;transition:all .25s`)}>{t.label}</button>)}
           </div>
+          <RoomRate v={v} />
           <RoomOpts v={v} compact />
           {v.hasFamilyNote && <div style={css('font-size:12px;color:var(--amb2);font-weight:600;line-height:1.45')}>{v.familyNote}</div>}
           <Label style="margin-top:4px">{t('Travellers, days & budget')}</Label>

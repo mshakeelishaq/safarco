@@ -7,8 +7,8 @@ export const usd = (pkr: number) => { const v = pkr / fxRate().pkrPerUsd; return
 export const pkrUsd = (pkr: number) => `PKR ${fmtN(pkr)} (${usd(pkr)})`;
 
 /** Typical nightly range for a stay level. Live hotel prices aren't available from any free source. */
-export function nightRange(tier: TierId, season: number) {
-  const base = TIERS[tier].night * season, lo = Math.round(base * 0.7 / 500) * 500, hi = Math.round(base * 1.4 / 500) * 500;
+export function nightRange(tier: TierId, season: number, rate?: number | null) {
+  const base = (rate && rate > 0 ? rate : TIERS[tier].night) * season, lo = Math.round(base * 0.7 / 500) * 500, hi = Math.round(base * 1.4 / 500) * 500;
   return { lo, hi, text: `PKR ${fmtN(lo)}–${fmtN(hi)}`, usd: `${usd(lo)}–${usd(hi)}` };
 }
 

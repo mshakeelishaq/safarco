@@ -93,7 +93,7 @@ export function buildView(s: AppState, api: Api) {
   const tierG: Record<string, string> = { Premium: 'linear-gradient(135deg,#9B7BFF,#5B6CFF)', Standard: 'linear-gradient(135deg,#2EE59D,#0FA678)', Backpacker: 'linear-gradient(135deg,#FFB547,#FF7A3D)', Search: 'linear-gradient(135deg,#6FD3FF,#3B8DFF)' };
   const fitsS = (x: { ok: boolean; total: number }) => x.ok !== false && x.total <= cap;
   const opts = configsFor(s).map(cf => { const r = costFor({ ...s, vehicle: cf.vehicle, tier: cf.tier }); return { ...cf, total: r.total, ok: r.ok, why: r.why }; }).filter(o => !o.why && o.ok).sort((a, b) => a.total - b.total);
-  const applyCfg = (o: { vehicle: VehicleId; tier: AppState['tier'] }) => () => { set({ vehicle: o.vehicle, tier: o.tier, flash: 'budget' }); api.later(2200, () => set({ flash: null })); };
+  const applyCfg = (o: { vehicle: VehicleId; tier: AppState['tier'] }) => () => { set({ vehicle: o.vehicle, tier: o.tier, ...(o.tier !== s.tier ? { nightRate: null, rateOwn: false } : {}), flash: 'budget' }); api.later(2200, () => set({ flash: null })); };
   const warn = { bg: 'linear-gradient(135deg,rgba(255,181,71,.22),rgba(255,122,61,.06))', border: 'rgba(255,181,71,.45)', tile: 'linear-gradient(135deg,#FFB547,#FF7A3D)', icon: 'ph-trend-down' };
   const good = { bg: 'linear-gradient(135deg,rgba(155,123,255,.22),rgba(111,211,255,.06))', border: 'rgba(155,123,255,.45)', tile: 'linear-gradient(135deg,#9B7BFF,#6FD3FF)', icon: 'ph-arrow-fat-lines-up' };
   type Tip = { show: boolean; bg?: string; border?: string; tile?: string; icon?: string; title?: string; msg?: string; cta?: string; apply?: () => void };
@@ -142,7 +142,7 @@ export function buildView(s: AppState, api: Api) {
       // Too short for this kind of stay (it means going by road): one tap makes the trip long enough.
       price: !low ? (need > s.days ? t('Needs {n} days by road', { n: need }) : t('Not for this trip')) : s.mode === 'know' ? fmt(low) : t('From {amount}', { amount: fmt(low) }),
       each: low ? t('{amount} each', { amount: kShort(low / Math.max(1, s.groupSize)) }) : need > s.days ? t('Tap to make it {n} days', { n: need }) : '',
-      onClick: () => set({ tier, pickId: null, ...(!low && need > s.days && need <= 14 ? { days: need, daysSet: true } : {}) }) };
+      onClick: () => set({ tier, pickId: null, nightRate: null, rateOwn: false, ...(!low && need > s.days && need <= 14 ? { days: need, daysSet: true } : {}) }) };
   });
 
   const geoOf = (q: string) => LIVE.geo[q.trim().toLowerCase()];
@@ -689,7 +689,7 @@ export function buildView(s: AppState, api: Api) {
           return { from, to, fare: t('Tentative: about {fare} one way per adult', { fare: pkrUsd(p.air!.fare) }), href: flightSearchUrl(from, to, d.iso!, s.adults + s.elders, s.kids) }; })() : null, fuel: (() => { const f = fuel.get(i); if (!f || !(f.stops.length || f.notes.length || f.gaps.length || f.loading)) return null;
           return { ...f, stops: f.stops.map(x => ({ ...x, label: x.place || (x.name === 'Fuel station' ? t('Fuel station') : x.name), km: t('km {km}', { km: x.at }) })) }; })(), strip: rw.strips.get(i) || null, destWx: d.track ? null : rw.destDays.find(x => x.idx === i) || null, stay: d.stay && (() => {
           // Hotels for this night's town (live from OpenStreetMap), each linked to Booking.com for this exact night.
-          const st = d.stay!, nr = nightRange(s.tier, sf), night = isoOff(s.startDate, i), live = spotsAt('hotels', st.lat, st.lon);
+          const st = d.stay!, nr = nightRange(s.tier, s.rateOwn ? 1 : sf, s.nightRate), night = isoOff(s.startDate, i), live = spotsAt('hotels', st.lat, st.lon);
           const picks = live.list.length ? live.list.slice(0, 4).map(h => ({ name: h.name, note: h.km ? t('{type} · {km} km from centre', { type: t(h.type), km: Math.round(h.km * 10) / 10 }) : t(h.type) }))
             : st.curated ? [{ name: st.name, note: st.note }] : [];
           const mine = trustedAt(st.lat, st.lon).map(h => ({ name: h.name, key: 't:' + h.id, trusted: true, note: [(() => { let x = t(TIERS[h.tier].label); if (h.price) x = t('{tier} · PKR {price} a night', { tier: x, price: fmtN(h.price) }); if (h.checked) x = t('{text} (checked {date})', { text: x, date: shortDate(h.checked) }); return x; })(), h.note].filter(Boolean).join(' · '),
@@ -826,7 +826,7 @@ export function buildView(s: AppState, api: Api) {
         nights: groups.map(g => ({ key: `${g.from}`, badge: g.from === g.to ? t('Night {n}', { n: g.from }) : t('Nights {from}–{to}', { from: g.from, to: g.to }), name: g.name, hotel: g.hotel })),
         roads: Object.entries(roads).map(([name, r]) => ({ name, km: t('{km} km', { km: fmtN(Math.round(r.km / 5) * 5 || Math.round(r.km)) }), note: r.months ? (r.months.includes(M) ? t('Open in {month}', { month: MON[M - 1] }) : t('Closed in {month}', { month: MON[M - 1] })) : '', noteC: r.months && !r.months.includes(M) ? 'var(--cor)' : 'var(--g)', hasNote: !!r.months })) };
     })(),
-    tierChips: (Object.entries(TIERS) as [AppState['tier'], typeof TIERS['standard']][]).map(([k, ti]) => { const on = s.tier === k; return { key: k, label: t(ti.label), onClick: () => set({ tier: k }), bg: on ? 'var(--line2)' : 'transparent', fg: on ? 'var(--ink)' : 'var(--mute)' }; }),
+    tierChips: (Object.entries(TIERS) as [AppState['tier'], typeof TIERS['standard']][]).map(([k, ti]) => { const on = s.tier === k; return { key: k, label: t(ti.label), onClick: () => set({ tier: k, nightRate: null, rateOwn: false }), bg: on ? 'var(--line2)' : 'transparent', fg: on ? 'var(--ink)' : 'var(--mute)' }; }),
     langChips: LANGS.map(l => { const on = s.lang === l.id; return { key: l.id, label: l.label, on, onClick: () => { setLang(l.id); resetTripCache(); set({ lang: l.id }); }, bg: on ? 'var(--line2)' : 'transparent', fg: on ? 'var(--ink)' : 'var(--mute)' }; }),
     switchLang: () => { const next = s.lang === 'ur' ? 'en' : 'ur'; setLang(next); resetTripCache(); set({ lang: next }); },
     themeChips: THEMES.map(th => { const on = s.theme === th.id; return { key: th.id, label: t(th.label), onClick: () => set({ theme: th.id }), bg: on ? 'var(--line2)' : 'transparent', fg: on ? 'var(--ink)' : 'var(--mute)' }; }),
@@ -890,6 +890,22 @@ export function buildView(s: AppState, api: Api) {
       sections: [{ key: 'relax', title: t('Relax'), items: relax }, { key: 'explore', title: t('Explore more'), items: explore }, { key: 'add', title: t('Add a place'), items: add },
         { key: 'break', title: t('Break the long drive'), items: brk }, { key: 'auto', title: '', items: auto }].filter(x => x.items.length) };
   })() : null;
+
+  // ---- The room rate: the usual rates to pick from, or the traveller's own figure ----
+  const RATES: { key: string; tier: AppState['tier']; night: number; label: string; sub: string }[] = [
+    { key: 'bp', tier: 'backpacker', night: TIERS.backpacker.night, label: t('Backpacker'), sub: t('Guest house or hostel') },
+    { key: 'st1', tier: 'standard', night: TIERS.standard.night, label: t('Standard'), sub: t('A simple, clean hotel') },
+    { key: 'st2', tier: 'standard', night: Math.round(TIERS.standard.night * 1.5 / 500) * 500, label: t('Standard plus'), sub: t('A comfortable hotel with heating') },
+    { key: 'pr', tier: 'premium', night: TIERS.premium.night, label: t('Premium'), sub: t('A top hotel or resort') }];
+  const cur = s.nightRate && s.nightRate > 0 ? s.nightRate : TIERS[s.tier].night;
+  const roomRate = {
+    value: fmt(cur), own: !!(s.nightRate && s.rateOwn), sf,
+    note: s.nightRate && s.rateOwn ? t('Your own rate, used as it is.') : sf !== 1 ? t('A room a night, before the season: {pct} in {month}.', { pct: sf > 1 ? `+${Math.round((sf - 1) * 100)}%` : `−${Math.round((1 - sf) * 100)}%`, month: MONTH_FULL[M - 1] }) : t('A room a night. Prices vary by town and date; set your own if you know it.'),
+    presets: RATES.map(r => { const on = !s.rateOwn && r.tier === s.tier && cur === r.night; return { key: r.key, label: r.label, sub: r.sub, amount: fmt(r.night), on,
+      apply: () => set({ tier: r.tier, nightRate: r.night === TIERS[r.tier].night ? null : r.night, rateOwn: false, flash: 'budget' }) }; }),
+    setOwn: (n: number) => set({ nightRate: Math.max(500, Math.min(500000, Math.round(n / 100) * 100)), rateOwn: true }),
+    reset: () => set({ nightRate: null, rateOwn: false })
+  };
 
   // ---- "Which day should go?": a rest day, a free day, a little less sightseeing, a long drive, or a place ----
   const lessDays = s.sheet === 'lessdays' && s.days > 1 ? (() => {
@@ -964,6 +980,6 @@ export function buildView(s: AppState, api: Api) {
       share: api.shareCard
     };
   })();
-  return { ...view, trip: tripRun, install, overview, moreDays, askAdd, lessDays };
+  return { ...view, trip: tripRun, install, overview, moreDays, askAdd, lessDays, roomRate };
 }
 export type View = ReturnType<typeof buildView>;

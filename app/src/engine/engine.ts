@@ -37,6 +37,8 @@ export interface TripState {
   comfort?: boolean;
   /** Places the traveller chose to see on a day trip from where they're staying (on a free day), whatever the distance. */
   dayTrips?: string[];
+  /** The room rate the traveller picked (PKR a room a night), instead of the stay level's usual rate; `rateOwn` means their own figure, used as it is (no season change). */
+  nightRate?: number | null; rateOwn?: boolean;
   /** Rest days the traveller asked for, by place: no driving, nothing scheduled (from "What's the extra day for?"). */
   rest?: Record<string, number>;
   /** Flying in from abroad: the trip starts at the arrival airport (`origin`) with a day to land and rest. */
@@ -854,12 +856,14 @@ function costOf(o: TripState): Cost {
     else rows.push({ icon: 'ph-road-horizon', label: 'Tolls', detail: (tollList.length ? [...new Set(tollList.map(x => x[0]))].join(' + ') : t('No tolled roads')) + ` · ${L ? t('whole route') : t('return')}${units > 1 ? ` × ${units}` : ''}${v.tollX ? ` · ${t('coaster rate')}` : ''}`, val: tollSum });
   }
   const rp = roomPlan(o);
+  // The room rate: the traveller's pick, else the stay level's; the season changes it unless it's their own figure.
+  const night = o.nightRate && o.nightRate > 0 ? o.nightRate : tr.night, sfs = o.nightRate && o.rateOwn ? 1 : sf, rateTxt = ` · ${t('{amount} a night', { amount: fmt(night) })}${o.nightRate && o.rateOwn ? ` (${t('your rate')})` : sfTxt}`;
   if (!nights) { /* a day out: no hotel */ } else if (o.rooms === 'shared') {
     const { r, extra } = rp;
-    rows.push({ icon: 'ph-bed', label: 'Stay', detail: `${r > 1 ? t('{n} family rooms (up to 4)', { n: r }) : t('{n} family room (up to 4)', { n: r })}${extra ? ` + ${extra > 1 ? t('{n} extra beds', { n: extra }) : t('{n} extra bed', { n: extra })}` : ''} × ${nightsTxt} · ${tr.label}${sfTxt}`, val: (r * tr.night * 1.5 + extra * tr.night * 0.2) * nights * sf });
+    rows.push({ icon: 'ph-bed', label: 'Stay', detail: `${r > 1 ? t('{n} family rooms (up to 4)', { n: r }) : t('{n} family room (up to 4)', { n: r })}${extra ? ` + ${extra > 1 ? t('{n} extra beds', { n: extra }) : t('{n} extra bed', { n: extra })}` : ''} × ${nightsTxt}${rateTxt}`, val: (r * night * 1.5 + extra * night * 0.2) * nights * sfs });
   } else {
     const { r, extra } = rp;
-    rows.push({ icon: 'ph-bed', label: 'Stay', detail: `${r > 1 ? t('{n} doubles', { n: r }) : t('{n} double', { n: r })}${extra ? ` + ${extra > 1 ? t('{n} extra beds', { n: extra }) : t('{n} extra bed', { n: extra })}` : ''} × ${nightsTxt} · ${tr.label}${sfTxt}`, val: (r * tr.night + extra * tr.night * 0.2) * nights * sf });
+    rows.push({ icon: 'ph-bed', label: 'Stay', detail: `${r > 1 ? t('{n} doubles', { n: r }) : t('{n} double', { n: r })}${extra ? ` + ${extra > 1 ? t('{n} extra beds', { n: extra }) : t('{n} extra bed', { n: extra })}` : ''} × ${nightsTxt}${rateTxt}`, val: (r * night + extra * night * 0.2) * nights * sfs });
   }
   rows.push({ icon: 'ph-fork-knife', label: 'Meals', detail: `${adults(AD)}${kidTxt('60%')} × ${t('{n} days', { n: o.days })}`, val: tr.meal * o.days * (AD + K * 0.6) });
   if ((L ? L.order.some(k => DST(k).hub !== undefined) : c.hub !== undefined) && o.vehicle !== 'suv' && o.vehicle !== 'rent4x4') { const j = jeepsFor(P); rows.push({ icon: 'ph-jeep', label: 'Local jeep', detail: `Raikot Bridge ⇄ Tato · ${jeeps(j)} × ${fmt(PR.raikotJeep)}`, val: j * PR.raikotJeep }); }

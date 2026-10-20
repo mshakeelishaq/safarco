@@ -1,9 +1,10 @@
 // Runs the original v7 prototype engine side by side with this port and checks
 // they agree on distances, day plans and costs across many trips.
 import { readFileSync } from 'node:fs';
-import { describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { buildPlan, costFor, suggestions, trip, type TripState } from './engine';
 import { DEST_PATCH } from './imported';
+import { TIERS } from './data';
 
 const html = readFileSync(new URL('../../../project/SafarCo App v7.dc.html', import.meta.url), 'utf8');
 const js = html.slice(html.indexOf('const PETROL'), html.indexOf('class Component extends DCLogic'));
@@ -26,6 +27,10 @@ for (const o of origins) for (const d of dests) for (const m of [1, 7]) cases.pu
 const FASTER = new Set(['Karachi|chitral', 'Karachi|kumrat', 'Islamabad|ziarat', 'Peshawar|gwadar', 'Peshawar|city:Sukkur', 'Quetta|chitral', 'Quetta|kumrat', 'Gilgit|kumrat', 'Gilgit|ziarat']);
 
 describe('parity with the v7 prototype engine', () => {
+  // The prototype's room rates (SafarCo's are lower now: standard 6,000, premium 25,000).
+  const was = { s: TIERS.standard.night, p: TIERS.premium.night };
+  beforeAll(() => { TIERS.standard.night = 9000; TIERS.premium.night = 28000; });
+  afterAll(() => { TIERS.standard.night = was.s; TIERS.premium.night = was.p; });
   it.each(cases)('%s → %s in month %i', (origin, dest, m) => {
     const a = trip(dest, origin, m), b = orig.trip(dest, origin, 10, m);
     if (FASTER.has(`${origin}|${dest}`) && a.via !== b.via) { expect(a.hours).toBeLessThan(b.hours * 1.05); return; }

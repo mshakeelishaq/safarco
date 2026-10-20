@@ -9,10 +9,10 @@ const DEST_IDS = new Set(DESTS.map(d => d.id));
 
 /** The parts of the app state that describe a trip. */
 export type TripData = Pick<TripState, 'origin' | 'mode' | 'dest' | 'corridor' | 'startDate' | 'days' | 'depart' | 'vehicle' | 'tier' | 'adults' | 'kids' | 'elders' | 'groupSize' | 'rooms' | 'cap'>
-  & { places?: { n: string; p: string; lat: number; lon: number }[]; have?: TripState['have']; wish?: TripState['wish']; extra?: string[]; capOn?: boolean; overnight?: string | null; roomCount?: number | null; sleepAt?: string[]; breaks?: string[]; comfort?: boolean; dayTrips?: string[]; abroad?: boolean; airAuto?: boolean; roadPick?: TripState['roadPick']; rest?: Record<string, number>; edits?: PlanEdits };
+  & { places?: { n: string; p: string; lat: number; lon: number }[]; have?: TripState['have']; wish?: TripState['wish']; extra?: string[]; capOn?: boolean; overnight?: string | null; roomCount?: number | null; sleepAt?: string[]; breaks?: string[]; comfort?: boolean; dayTrips?: string[]; abroad?: boolean; airAuto?: boolean; roadPick?: TripState['roadPick']; rest?: Record<string, number>; nightRate?: number | null; rateOwn?: boolean; edits?: PlanEdits };
 export interface SavedTrip { id: string; name: string; data: TripData; savedAt: string; cloudId?: string }
 
-const KEYS: Exclude<keyof TripData, 'places'>[] = ['origin', 'mode', 'dest', 'corridor', 'startDate', 'days', 'depart', 'vehicle', 'tier', 'adults', 'kids', 'elders', 'groupSize', 'rooms', 'cap', 'capOn', 'overnight', 'roomCount', 'sleepAt', 'breaks', 'comfort', 'dayTrips', 'abroad', 'airAuto', 'roadPick', 'rest', 'have', 'wish', 'extra', 'edits'];
+const KEYS: Exclude<keyof TripData, 'places'>[] = ['origin', 'mode', 'dest', 'corridor', 'startDate', 'days', 'depart', 'vehicle', 'tier', 'adults', 'kids', 'elders', 'groupSize', 'rooms', 'cap', 'capOn', 'overnight', 'roomCount', 'sleepAt', 'breaks', 'comfort', 'dayTrips', 'abroad', 'airAuto', 'roadPick', 'rest', 'nightRate', 'rateOwn', 'have', 'wish', 'extra', 'edits'];
 /** A road choice from storage or a link: where it's for, and up to 3 road names to keep off. */
 const cleanPick = (v: unknown): TripState['roadPick'] => {
   const p = v as { at?: unknown; avoid?: unknown } | null;
@@ -73,6 +73,7 @@ export function cleanTrip(raw: unknown): TripData | null {
     breaks: (Array.isArray(r.breaks) ? r.breaks : []).filter((k: unknown): k is string => typeof k === 'string' && /^(out|back):/.test(k) && (k.split(':')[1] in NODES || (k.split(':')[1] === 'thru' && (k.split(':')[2] in NODES || k.split(':')[2] === 'HOME' || k.split(':')[2] === 'DEST')))).slice(0, 8),
     comfort: r.comfort === true,
     roadPick: cleanPick(r.roadPick),
+    nightRate: typeof r.nightRate === 'number' && r.nightRate >= 500 && r.nightRate <= 500000 ? Math.round(r.nightRate) : null, rateOwn: r.rateOwn === true && typeof r.nightRate === 'number',
     rest: Object.fromEntries(Object.entries(r.rest && typeof r.rest === 'object' ? r.rest as Record<string, unknown> : {}).filter(([k, v]) => DEST_IDS.has(k) && typeof v === 'number' && v >= 1).map(([k, v]) => [k, Math.min(5, Math.round(v as number))])),
     abroad: r.abroad === true, airAuto: r.abroad === true && r.airAuto === true,
     dayTrips: (Array.isArray(r.dayTrips) ? r.dayTrips : []).filter((k: unknown): k is string => typeof k === 'string' && DEST_IDS.has(k)).slice(0, 3),
