@@ -44,10 +44,12 @@ if (import.meta.env.PROD) {
   if ('serviceWorker' in navigator) addEventListener('load', () => { navigator.serviceWorker.register('/sw.js').catch(() => { /* offline support unavailable */ }); });
 }
 
-// The splash in index.html shows while SafarCo opens: the car drives up the S on every open of the
-// planner, the installed app and the website (a tap skips it), and not on admin, legal, follow or split pages.
+// The splash in index.html shows while SafarCo opens: once per visit (the first page of the website, the planner
+// or the installed app; a tap skips it), and not on admin, legal, follow or split pages. index.html drops it when
+// this visit has already seen it.
 const splash = document.getElementById('splash');
 if (splash) {
+  if (Page === App || Page === Site) try { sessionStorage.setItem('safarco-splash-seen', '1'); } catch { /* storage blocked: it plays each time */ }
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const min = Page !== App && Page !== Site ? 0 : still ? 800 : 5200;
   const hide = () => { splash.classList.add('sp-hide'); setTimeout(() => splash.remove(), 500); };
