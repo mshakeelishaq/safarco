@@ -140,9 +140,11 @@ export function MoreDaysSheet({ v }: { v: View }) {
         <button onClick={m?.close} style={css('height:44px;padding:0 16px;border-radius:15px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);font-size:14px;font-weight:800;cursor:pointer')}>{t('Close')}</button>
       </div>
       {m && <div style={css('flex:1;overflow-y:auto;scrollbar-width:none;padding:4px 20px 30px')}>
-        <div role="radiogroup" aria-label={t('Days to add')} style={css('display:flex;gap:6px;margin-bottom:6px')}>
-          {[1, 2, 3].filter(k => k <= Math.max(1, m.max)).map(k => <button key={k} role="radio" aria-checked={m.n === k} onClick={() => m.setN(k)} style={css(`flex:1;height:42px;border-radius:13px;border:1px solid ${m.n === k ? 'transparent' : 'var(--line2)'};background:${m.n === k ? 'var(--cta)' : 'var(--fill)'};color:${m.n === k ? 'var(--onCta)' : 'var(--ink)'};font-size:14px;font-weight:800;cursor:pointer`)}>{k === 1 ? t('+1 day') : t('+{n} days', { n: k })}</button>)}
+        <Label style="margin:0 2px 8px">{t('Make it')}</Label>
+        <div role="radiogroup" aria-label={t('Make it')} style={css('display:flex;gap:6px;margin-bottom:6px;overflow-x:auto;scrollbar-width:none')}>
+          {m.totals.map(k => <button key={k} role="radio" aria-checked={m.from + m.n === k} onClick={() => m.setN(k - m.from)} style={css(`flex:none;min-width:64px;height:42px;padding:0 12px;border-radius:13px;border:1px solid ${m.from + m.n === k ? 'transparent' : 'var(--line2)'};background:${m.from + m.n === k ? 'var(--cta)' : 'var(--fill)'};color:${m.from + m.n === k ? 'var(--onCta)' : 'var(--ink)'};font-size:14px;font-weight:800;cursor:pointer`)}>{t('{n} days', { n: k })}</button>)}
         </div>
+        <div style={css('font-size:12px;font-weight:700;color:var(--mute);margin:0 2px')}>{m.n === 1 ? t('From {a} to {b} days: 1 day to add.', { a: m.from, b: m.from + 1 }) : t('From {a} to {b} days: {n} days to add.', { a: m.from, b: m.from + m.n, n: m.n })}</div>
         {m.sections.map(sec => <div key={sec.key} style={css('margin-top:14px')}>
           {sec.title && <Label style="margin:0 2px 8px">{sec.title}</Label>}
           <div style={css('display:flex;flex-direction:column;gap:8px')}>
@@ -189,6 +191,11 @@ export function LessDaysSheet({ v }: { v: View }) {
         <button onClick={m?.close} style={css('height:44px;padding:0 16px;border-radius:15px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);font-size:14px;font-weight:800;cursor:pointer')}>{t('Close')}</button>
       </div>
       {m && <div style={css('flex:1;overflow-y:auto;scrollbar-width:none;padding:4px 20px 30px;display:flex;flex-direction:column;gap:8px')}>
+        <Label style="margin:0 2px">{t('Make it')}</Label>
+        <div role="radiogroup" aria-label={t('Make it')} style={css('display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex:none')}>
+          {m.totals.map(k => <button key={k} role="radio" aria-checked={m.target === k} onClick={() => m.setTarget(k)} style={css(`flex:none;min-width:64px;height:42px;padding:0 12px;border-radius:13px;border:1px solid ${m.target === k ? 'transparent' : 'var(--line2)'};background:${m.target === k ? 'var(--cta)' : 'var(--fill)'};color:${m.target === k ? 'var(--onCta)' : 'var(--ink)'};font-size:14px;font-weight:800;cursor:pointer`)}>{t('{n} days', { n: k })}</button>)}
+        </div>
+        <div style={css('font-size:12px;font-weight:700;color:var(--mute);margin:0 2px 4px')}>{m.left === 1 ? t('From {a} to {b} days: pick the day that goes.', { a: m.from, b: m.target }) : t('From {a} to {b} days: {n} days to take out, one at a time.', { a: m.from, b: m.target, n: m.left })}</div>
         {m.items.map((it, i) => <button key={it.key} onClick={it.apply} style={css(`display:flex;gap:12px;align-items:center;width:100%;padding:12px 14px;border-radius:18px;border:1px solid ${i === 0 ? 'rgba(46,229,157,.55)' : 'var(--line2)'};background:${i === 0 ? 'rgba(46,229,157,.10)' : 'var(--card)'};color:var(--ink);text-align:left;cursor:pointer;font:inherit`)}>
           <span style={css('width:38px;height:38px;border-radius:12px;background:var(--fill);display:flex;align-items:center;justify-content:center;flex:none;color:var(--g);font-size:19px')}><i className={`ph-fill ${it.icon}`} /></span>
           <span style={css('flex:1;min-width:0')}><span style={css('display:block;font-size:14px;font-weight:800;line-height:1.3')}>{it.title}</span><span style={css('display:block;font-size:12px;font-weight:600;color:var(--mute);margin-top:2px;line-height:1.4')}>{it.sub}</span></span>

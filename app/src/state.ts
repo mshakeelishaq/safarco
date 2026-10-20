@@ -17,6 +17,8 @@ export interface AppState extends TripState {
   sheet: 'none' | 'trips' | 'save' | 'signin' | 'feedback' | 'review' | 'share' | 'sos' | 'expense' | 'people' | 'food' | 'dest' | 'moredays' | 'lessdays';
   /** "What's the extra day for?": how many days are being added. */
   addDays: number;
+  /** Taking days out: the trip length to get down to, one choice at a time. */
+  lessTo: number;
   /** A place picked to add to the trip that needs more days than the trip has: asks first. */
   askAdd: string | null;
   /** Changing the destination: the place picked, before choosing what happens to the current plan. */
@@ -101,7 +103,7 @@ export const initialState = (): AppState => ({
   vehicle: 'sedan', tier: 'standard', groupSize: 2, adults: 2, kids: 0, elders: 0, rooms: 'separate', days: 4, cap: 120000,
   corridor: 'hunza', tab: 'home', settings: false, flash: null,
   offline: 'off', progress: 0, offlineMB: 0, offlineErr: '', mapFail: false, theme: savedTheme(),
-  sheet: 'none', addDays: 1, askAdd: null, destPick: null, toastUndo: false, savedId: null, toast: null, lite: prefersLite(), chosen: null, reviewFor: null, foodFor: null, welcome: false, guide: false, lang: currentLang(),
+  sheet: 'none', addDays: 1, lessTo: 0, askAdd: null, destPick: null, toastUndo: false, savedId: null, toast: null, lite: prefersLite(), chosen: null, reviewFor: null, foodFor: null, welcome: false, guide: false, lang: currentLang(),
   have: 'any', wish: null, extra: [], capOn: false, overnight: null, roomCount: null, sleepAt: [], daysSet: false, quick: false, mood: null, breaks: [], roadPick: null, rest: {}, nightRate: null, rateOwn: false, comfort: false, dayTrips: [], abroad: false, airAuto: false, here: null, building: null, dayOpen: null, edits: NO_EDITS
 });
 

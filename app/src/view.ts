@@ -835,7 +835,7 @@ export function buildView(s: AppState, api: Api) {
       { key: 'k', label: t('Kids (under 12)'), value: `${s.kids}`, dec: () => api.setPeople('kids', -1), inc: () => api.setPeople('kids', 1) },
       { key: 'e', label: t('Elders (60+)'), value: `${s.elders}`, dec: () => api.setPeople('elders', -1), inc: () => api.setPeople('elders', 1) },
       // In the plan, adding a day asks what it's for (relax, explore, another place, a night on the road).
-      { key: 'd', label: t('Days'), value: `${s.days}`, dec: () => s.screen === 'app' && s.days > 1 ? set({ sheet: 'lessdays', settings: false }) : set({ days: Math.max(1, s.days - 1), daysSet: true }), inc: () => s.screen === 'app' && s.days < 14 ? set({ sheet: 'moredays', addDays: 1, settings: false }) : set({ days: Math.min(14, s.days + 1), daysSet: true }) },
+      { key: 'd', label: t('Days'), value: `${s.days}`, dec: () => s.screen === 'app' && s.days > 1 ? set({ sheet: 'lessdays', lessTo: s.days - 1, settings: false }) : set({ days: Math.max(1, s.days - 1), daysSet: true }), inc: () => s.screen === 'app' && s.days < 14 ? set({ sheet: 'moredays', addDays: 1, settings: false }) : set({ days: Math.min(14, s.days + 1), daysSet: true }) },
       { key: 'b', label: t('Budget cap'), value: capOn ? `${Math.round(s.cap / 1000)}k` : t('None'), dec: () => capOn && set(s.cap <= 40000 ? { capOn: false } : { cap: Math.max(40000, s.cap - 10000) }), inc: () => set(capOn ? { cap: s.cap + 10000 } : { capOn: true, cap: Math.max(40000, Math.ceil(total / 5000) * 5000) }) }
     ],
     helplines: [['1122', t('Rescue')], ['15', t('Police')], ['130', t('Motorway Police')], ['115', t('Edhi Ambulance')]].map(([num, label]) => ({ num, label, href: `tel:${num}` })),
@@ -863,7 +863,7 @@ export function buildView(s: AppState, api: Api) {
   } : null;
   // ---- "What's the extra day for?": relax, explore more, another place, or a night on the road ----
   const moreDays = s.sheet === 'moredays' ? (() => {
-    const n = Math.max(1, Math.min(3, s.addDays || 1)), days = Math.min(14, s.days + n), places = L ? L.order : [s.corridor];
+    const n = Math.max(1, Math.min(14 - s.days, s.addDays || 1)), days = Math.min(14, s.days + n), places = L ? L.order : [s.corridor];
     const go = (p: Partial<AppState>, toast: string) => set({ ...p, days, daysSet: true, sheet: 'none', dayOpen: null, toast });
     const nDays = n === 1 ? t('1 more day') : t('{n} more days', { n });
     const seen = new Set(view.plan.days.flatMap(d => d.stops.map(x => x.label)));
@@ -884,9 +884,10 @@ export function buildView(s: AppState, api: Api) {
     const longDay = view.plan.days.map((d, i) => ({ d, i, h: d.track && d.kind !== 'explore' ? d.track.legs.reduce((a, l) => a + l.h, 0) : 0 })).filter(x => x.h >= 7 && x.d.roadNight?.options.length && !x.d.roadNight.chosen).sort((a, b) => b.h - a.h)[0];
     const brk = longDay ? [{ key: 'break', icon: 'ph-bed', title: t('A night in {place} on the way', { place: longDay.d.roadNight!.options[0].town }),
       sub: t('Day {n}: {title}, {time} at the wheel', { n: longDay.i + 1, title: longDay.d.title, time: dur(longDay.h) }),
-      apply: () => go({ breaks: [...s.breaks, `${longDay.d.roadNight!.dir}:${longDay.d.roadNight!.options[0].node}`] }, t('A night in {place} is in the plan.', { place: longDay.d.roadNight!.options[0].town })) }] : [];
+      apply: () => set({ breaks: [...s.breaks, `${longDay.d.roadNight!.dir}:${longDay.d.roadNight!.options[0].node}`], days: s.days + 1, daysSet: true, dayOpen: null,
+        ...(n > 1 ? { addDays: n - 1 } : { sheet: 'none' }), toast: t('A night in {place} is in the plan.', { place: longDay.d.roadNight!.options[0].town }) }) }] : [];
     const auto = [{ key: 'auto', icon: 'ph-magic-wand', title: t('Let SafarCo decide'), sub: t('Used where it fits best: more sightseeing, or a free day'), apply: () => go({}, t('{days} added.', { days: nDays })) }];
-    return { n, max: Math.min(3, 14 - s.days), setN: (k: number) => set({ addDays: k }), close: () => set({ sheet: 'none' }),
+    return { n, from: s.days, totals: Array.from({ length: 14 - s.days }, (_, i) => s.days + 1 + i), setN: (k: number) => set({ addDays: k }), close: () => set({ sheet: 'none' }),
       sections: [{ key: 'relax', title: t('Relax'), items: relax }, { key: 'explore', title: t('Explore more'), items: explore }, { key: 'add', title: t('Add a place'), items: add },
         { key: 'break', title: t('Break the long drive'), items: brk }, { key: 'auto', title: '', items: auto }].filter(x => x.items.length) };
   })() : null;
@@ -914,7 +915,10 @@ export function buildView(s: AppState, api: Api) {
   // ---- "Which day should go?": a rest day, a free day, a little less sightseeing, a long drive, or a place ----
   const lessDays = s.sheet === 'lessdays' && s.days > 1 ? (() => {
     const days = s.days - 1, places = L ? L.order : [s.corridor], items: { key: string; icon: string; title: string; sub: string; apply: () => void }[] = [];
-    const go = (p: Partial<AppState>, toast: string) => set({ ...p, days, daysSet: true, sheet: 'none', dayOpen: null, toast });
+    // Going down by more than one day: each choice takes one out, and the sheet asks again until the trip is that long.
+    const target = Math.max(1, Math.min(days, s.lessTo || days)), left = s.days - target;
+    const go = (p: Partial<AppState>, toast: string) => set({ ...p, days, daysSet: true, sheet: days > target ? 'lessdays' : 'none', lessTo: target, dayOpen: null,
+      toast: days > target ? `${toast} ${days - target === 1 ? t('1 more to take out.') : t('{n} more to take out.', { n: days - target })}` : toast });
     const labels = (ds: PlanDay[]) => new Set(ds.flatMap(d => d.stops.filter(x => x.kind === 'pin' || x.kind === 'view').map(x => x.label)));
     const now = labels(view.plan.days), lost = (st: AppState) => { const l = labels(buildPlan({ ...st, departAt: edits.times }).days); return [...now].filter(x => !l.has(x) && x !== t('Free day') && x !== t('Rest day')); };
     // A rest day the traveller asked for.
@@ -942,8 +946,10 @@ export function buildView(s: AppState, api: Api) {
     // Skip one of the places on a circuit.
     (s.extra || []).forEach(k => items.push({ key: 'skip:' + k, icon: 'ph-map-pin-simple-area', title: t('Skip {place}', { place: DST(k).name }), sub: t('Back to {places}', { places: places.filter(x => x !== k).map(x => DST(x).name).join(' + ') }),
       apply: () => go({ extra: (s.extra || []).filter(x => x !== k), building: Date.now(), tab: 'home' }, t('{place} is off the trip.', { place: DST(k).name })) }));
-    const need = L ? L.minDays : c.minDays, short = days < need;
-    return { close: () => set({ sheet: 'none' }), items, note: short && !items.some(x => x.key.startsWith('long') || x.key.startsWith('skip')) ? t('{days} days is less than this trip needs by road ({n} days). Try a long driving day, or fewer places.', { days, n: need }) : '' };
+    if (left > 1) items.push({ key: 'auto', icon: 'ph-magic-wand', title: t('Let SafarCo decide'), sub: t('Free time and sightseeing are trimmed to fit; the plan shows anything that’s short'),
+      apply: () => set({ days: target, daysSet: true, sheet: 'none', dayOpen: null, toast: t('A {n}-day trip now.', { n: target }) }) });
+    const need = L ? L.minDays : c.minDays, short = target < need;
+    return { from: s.days, target, left, totals: Array.from({ length: s.days - 1 }, (_, i) => s.days - 1 - i), setTarget: (k: number) => set({ lessTo: k }), close: () => set({ sheet: 'none' }), items, note: short && !items.some(x => x.key.startsWith('long') || x.key.startsWith('skip')) ? t('{days} days is less than this trip needs by road ({n} days). Try a long driving day, or fewer places.', { days: target, n: need }) : '' };
   })() : null;
 
   // ---- Adding a place that needs more days: more days, or add it anyway, or not now ----

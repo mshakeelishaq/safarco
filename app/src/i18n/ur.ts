@@ -2367,4 +2367,13 @@ export const UR: Record<string, string> = {
   "These are suggested rates to plan with. Hotels listed on SafarCo show their own, updated rates in each night’s plan.": "Yeh planning ke liye tajweezi kiraye hain. SafarCo par listed hotel har raat ke plan mein apna taaza kiraya dikhate hain.",
   "1 SafarCo hotel on your route shows its updated rate: {list}": "Aap ke raaste par 1 SafarCo hotel apna taaza kiraya dikhata hai: {list}",
   "{n} SafarCo hotels on your route show their updated rates: {list}": "Aap ke raaste par {n} SafarCo hotel apna taaza kiraya dikhate hain: {list}",
+  "Make it": "Kitne din ka",
+  "From {a} to {b} days: 1 day to add.": "{a} se {b} din: 1 din barhana hai.",
+  "From {a} to {b} days: {n} days to add.": "{a} se {b} din: {n} din barhane hain.",
+  "From {a} to {b} days: pick the day that goes.": "{a} se {b} din: chunein kaunsa din nikalna hai.",
+  "From {a} to {b} days: {n} days to take out, one at a time.": "{a} se {b} din: {n} din nikalne hain, ek ek kar ke.",
+  "1 more to take out.": "1 aur nikalna hai.",
+  "{n} more to take out.": "{n} aur nikalne hain.",
+  "Free time and sightseeing are trimmed to fit; the plan shows anything that’s short": "Fursat ka waqt aur ghoomna phirna kam kar ke fit kiya jaye ga; jo kam ho plan mein nazar aaye ga",
+  "A {n}-day trip now.": "Ab {n} din ka safar.",
 };

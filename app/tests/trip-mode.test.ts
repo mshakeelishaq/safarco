@@ -167,3 +167,25 @@ describe('Plan it for me', () => {
     const b = await pick('Karachi', 'dayout', '2026-11-07'); expect([b.dest, b.days]).toEqual(['thatta', 1]);
   }, 60000);
 });
+
+describe('changing the trip length by several days', () => {
+  it('goes from 8 days to 5 one choice at a time, and from 8 to 12 in one go', () => {
+    let st: any = { ...base, startDate: '2026-07-10', days: 8, sheet: 'lessdays' as const, lessTo: 5 };
+    const set = (p: any) => { st = { ...st, ...p }; };
+    const v = buildView(st, { ...api, set } as Api);
+    expect(v.lessDays!.target).toBe(5);
+    expect(v.lessDays!.left).toBe(3);
+    expect(v.lessDays!.items.some(x => x.key === 'auto')).toBe(true);
+    v.lessDays!.items[0].apply();
+    expect(st.days).toBe(7);
+    expect(st.sheet).toBe('lessdays'); // still asking: two more to take out
+    buildView(st, { ...api, set } as Api).lessDays!.items.find(x => x.key === 'auto')!.apply();
+    expect(st.days).toBe(5);
+    expect(st.sheet).toBe('none');
+    st = { ...base, startDate: '2026-07-10', days: 8, sheet: 'moredays' as const, addDays: 4 };
+    const m = buildView(st, { ...api, set } as Api).moreDays!;
+    expect(m.totals).toEqual([9, 10, 11, 12, 13, 14]);
+    m.sections.find(x => x.key === 'relax')!.items[0].apply();
+    expect(st.days).toBe(12);
+  });
+});
