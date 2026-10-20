@@ -10,7 +10,7 @@ export const THEMES: { id: Theme; label: string }[] = [
 
 export interface AppState extends TripState {
   screen: 'onboard' | 'app'; step: number; oq: string; loc: 'idle' | 'ask' | 'locating' | 'done' | 'denied' | 'failed'; locNote: string;
-  dq: string; pickId: string | null; tab: 'trip' | 'map' | 'budget' | 'prepare'; settings: boolean;
+  dq: string; pickId: string | null; tab: 'home' | 'trip' | 'map' | 'budget' | 'prepare'; settings: boolean;
   flash: 'budget' | null; offline: 'off' | 'downloading' | 'ready'; progress: number;
   offlineMB: number; offlineErr: string; mapFail: boolean; theme: Theme;
   /** Which bottom sheet is open besides Edit trip. */
@@ -95,7 +95,7 @@ const savedTheme = (): Theme => {
 export const initialState = (): AppState => ({
   screen: 'onboard', step: 0, origin: null, oq: '', loc: 'idle', locNote: '', mode: null, dest: 'hunza', dq: '', startDate: isoAdd(21), depart: null, pickId: null,
   vehicle: 'sedan', tier: 'standard', groupSize: 2, adults: 2, kids: 0, elders: 0, rooms: 'separate', days: 4, cap: 120000,
-  corridor: 'hunza', tab: 'trip', settings: false, flash: null,
+  corridor: 'hunza', tab: 'home', settings: false, flash: null,
   offline: 'off', progress: 0, offlineMB: 0, offlineErr: '', mapFail: false, theme: savedTheme(),
   sheet: 'none', destPick: null, toastUndo: false, savedId: null, toast: null, lite: prefersLite(), chosen: null, reviewFor: null, foodFor: null, welcome: false, guide: false, lang: currentLang(),
   have: 'any', wish: null, extra: [], capOn: false, overnight: null, roomCount: null, sleepAt: [], daysSet: false, quick: false, mood: null, breaks: [], roadPick: null, comfort: false, dayTrips: [], abroad: false, airAuto: false, here: null, building: null, dayOpen: null, edits: NO_EDITS

@@ -2,6 +2,7 @@ import { cardPhoto } from './photos';
 import { onInstallChange } from './install';
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { DestSheet, EditSheet } from './components/Sheets';
+import { OverviewTab } from './components/OverviewTab';
 import { FeedbackSheet, FoodSheet, ReviewSheet, SaveSheet, SignInSheet, TripsSheet } from './components/Panels';
 import { WELCOMED, Welcome, seenWelcome } from './components/Welcome';
 import { SeasonGuide } from './components/SeasonGuide';
@@ -286,7 +287,7 @@ export function App() {
       await navigator.clipboard.writeText(url); set({ toast: tx('Link copied. Paste it in WhatsApp or anywhere.') });
     } catch (e) { if ((e as Error)?.name !== 'AbortError') set({ toast: tx('Couldn’t share. Try again.') }); }
   };
-  const openTrip = (t: SavedTrip) => set({ ...t.data, savedId: t.id, chosen: t.data.corridor, screen: 'app', tab: 'trip', sheet: 'none', settings: false, pickId: null, toast: tx('Opened “{name}”', { name: t.name }) });
+  const openTrip = (t: SavedTrip) => set({ ...t.data, savedId: t.id, chosen: t.data.corridor, screen: 'app', tab: 'home', sheet: 'none', settings: false, pickId: null, toast: tx('Opened “{name}”', { name: t.name }) });
   const deleteTrip = (t: SavedTrip) => {
     deleteLocal(t.id); setTrips(localTrips());
     if (t.cloudId && user) cloudDelete(t.cloudId).catch(() => set({ toast: tx('Deleted here; couldn’t reach your account.') }));
@@ -357,7 +358,7 @@ export function App() {
   const undoSwitch = useRef<{ data: ReturnType<typeof tripData>; savedId: string | null } | null>(null);
   const changeDest = (how: 'new' | 'switch' | 'add') => {
     const st = stRef.current, id = st.destPick; if (!id || id === st.corridor) return;
-    const next = DST(id).name, cur = DST(st.corridor).name, done = { sheet: 'none' as const, destPick: null, dq: '', settings: false, building: Date.now(), tab: 'trip' as const, dayOpen: null };
+    const next = DST(id).name, cur = DST(st.corridor).name, done = { sheet: 'none' as const, destPick: null, dq: '', settings: false, building: Date.now(), tab: 'home' as const, dayOpen: null };
     if (how === 'add') { set({ ...done, extra: [...(st.extra || []), id].slice(-3), toast: tx('{next} is added to your trip.', { next }) }); return; }
     // What belonged to the old place starts fresh; dates, people, car, hotels and budget stay.
     const fresh = { ...done, dest: id, corridor: id, chosen: id, mode: 'know' as const, pickId: null, extra: [], breaks: [], roadPick: null, sleepAt: [], dayTrips: [], overnight: null, edits: { key: '', picks: [], drops: [] } };
@@ -427,6 +428,7 @@ export function App() {
 
           {s.screen === 'app' && <>
             <div ref={scrollRef} onScroll={onScroll} style={css('position:absolute;inset:0;z-index:5;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;pointer-events:none')}>
+              {s.tab === 'home' && <OverviewTab v={view} api={api} />}
               {s.tab === 'trip' && <TripTab v={view} api={api} />}
               {s.tab === 'map' && !side && <MapTab v={view} api={api} />}
               {s.tab === 'map' && side && <TripTab v={view} api={api} />}
@@ -437,7 +439,7 @@ export function App() {
             {s.tab !== 'map' && <div aria-hidden style={css('position:absolute;left:0;right:0;bottom:0;height:calc(70px + env(safe-area-inset-bottom));z-index:11;pointer-events:none;background:linear-gradient(180deg,transparent,var(--bg) 55%)')} />}
             <nav aria-label="Sections" className="sc-nav" style={css('position:absolute;left:18px;right:18px;bottom:calc(24px + env(safe-area-inset-bottom));z-index:12;display:flex;align-items:center;gap:12px')}>
               <div style={css('flex:1;height:64px;border-radius:24px;background:var(--sheet);backdrop-filter:blur(20px) saturate(1.4);border:1px solid var(--line);display:flex;align-items:center;padding:6px;gap:6px;box-shadow:0 12px 30px -14px rgba(0,0,0,.35)')}>
-                {view.tabs.filter(t => !side || t.key !== 'map').map(t => <button key={t.key} onClick={t.onClick} aria-current={s.tab === t.key ? 'page' : undefined} style={css(`flex:1;height:52px;border-radius:19px;border:0;background:${t.bg};color:${t.fg};display:flex;align-items:center;justify-content:center;gap:5px;font-size:13px;font-weight:800;cursor:pointer;transition:all .25s`)}><i className={`ph-fill ${t.icon}`} style={css('font-size:19px')} />{t.label}</button>)}
+                {view.tabs.filter(t => !side || t.key !== 'map').map(t => <button key={t.key} onClick={t.onClick} aria-current={s.tab === t.key ? 'page' : undefined} style={css(`flex:1;min-width:0;height:52px;border-radius:19px;border:0;background:${t.bg};color:${t.fg};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;font-weight:800;cursor:pointer;transition:all .25s;padding:0 2px`)}><i className={`ph-fill ${t.icon}`} style={css('font-size:20px')} /><span style={css('max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap')}>{t.label}</span></button>)}
               </div>
             </nav>
 

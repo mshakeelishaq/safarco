@@ -5,7 +5,7 @@ import { P as PR, HIDE_SPOTS, SECURITY_AREAS, riskOf, HAVE_VEHICLE, EDGES, MODES
 import { FOOD } from './engine/food';
 import { dismissInstall, offerInstallNow, startInstall, wasDismissed } from './install';
 import { foodTipsFor } from './foodtips';
-import { drivingDays, shapeBetween, vehiclesFor, pickAt, roadParts, roadSig, roadsOnlyIn, routeOptions, setRoutePick, type Trip, legClosure, liveRoadKey, AIR_IN, bestAirport, closedOnRoute, flyNorth, viaIsb, DAY_OUT_H, SHORT2_H, MAX_DRIVE_H, plannedJeeps, roomPlan, circuit, sideTrips, dayTripOptions, tripFrom, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
+import { drivingDays, planRoadKey, shapeBetween, vehiclesFor, pickAt, roadParts, roadSig, roadsOnlyIn, routeOptions, setRoutePick, type Trip, legClosure, liveRoadKey, AIR_IN, bestAirport, closedOnRoute, flyNorth, viaIsb, DAY_OUT_H, SHORT2_H, MAX_DRIVE_H, plannedJeeps, roomPlan, circuit, sideTrips, dayTripOptions, tripFrom, airFor, babusarClosed, buildPlan, coachFare, configsFor, costFor, freeDays, jeepMatch, jeepsFor, roadFit, scheduledPlaces, seasonInfo, suggestions, trip, type PlanDay, type Suggestion, resetTripCache } from './engine/engine';
 import { clock, dayLabel, dur, fmt, fmtN, isoAdd, isoOf, isoOff, kShort, mapsQ, mon } from './engine/format';
 import { LIVE, fxRate, placesKey, routeKey, type Spot } from './engine/live';
 import { sunTimes } from './engine/sun';
@@ -663,11 +663,11 @@ export function buildView(s: AppState, api: Api) {
         // Places SafarCo has checked, at least two days there, by road when it fits; then by the mood.
         const q = quickPick();
         if (!q) { set({ toast: t('Nothing close enough for that from {city}. Try another feeling, or more days.', { city: s.origin || '' }) }); return; }
-        if (q) set({ ...('days' in q && typeof q.days === 'number' && !s.daysSet ? { days: q.days } : {}), screen: 'app', tab: 'trip', mode: 'know', quick: false, chosen: q.corridor, corridor: q.corridor, dest: q.corridor, vehicle: q.vehicle, tier: q.tier, extra: [], building: Date.now(), dayOpen: null });
+        if (q) set({ ...('days' in q && typeof q.days === 'number' && !s.daysSet ? { days: q.days } : {}), screen: 'app', tab: 'home', mode: 'know', quick: false, chosen: q.corridor, corridor: q.corridor, dest: q.corridor, vehicle: q.vehicle, tier: q.tier, extra: [], building: Date.now(), dayOpen: null });
         return;
       }
       if (s.step < 6) set({ step: s.step + 1, pickId: null });
-      else { const g = sug.sel; if (g) set({ screen: 'app', tab: 'trip', chosen: g.corridor, corridor: g.corridor, dest: g.corridor, vehicle: g.vehicle, tier: g.tier, building: Date.now(), dayOpen: null, ...(s.mode === 'know' ? {} : { extra: [] }) }); }
+      else { const g = sug.sel; if (g) set({ screen: 'app', tab: 'home', chosen: g.corridor, corridor: g.corridor, dest: g.corridor, vehicle: g.vehicle, tier: g.tier, building: Date.now(), dayOpen: null, ...(s.mode === 'know' ? {} : { extra: [] }) }); }
     },
     nextLabel: s.quick && s.step === 1 ? t('Make my plan') : s.step < 6 ? t('Continue') : t('Build this trip'),
     restart: () => api.newTrip(),
@@ -834,7 +834,7 @@ export function buildView(s: AppState, api: Api) {
     ],
     helplines: [['1122', t('Rescue')], ['15', t('Police')], ['130', t('Motorway Police')], ['115', t('Edhi Ambulance')]].map(([num, label]) => ({ num, label, href: `tel:${num}` })),
     hotels: stays.list.map(h => ({ ...h, tierC: tierC[h.tier] || 'var(--sky)', grad: tierG[h.tier] || 'linear-gradient(135deg,#6FD3FF,#3B8DFF)' })),
-    tabs: ([['trip', 'ph-path', t('Plan')], ['map', 'ph-map-trifold', t('Map')], ['budget', 'ph-wallet', t('Budget')], ['prepare', 'ph-backpack', t('Prepare')]] as const).map(([k, icon, label]) => {
+    tabs: ([['home', 'ph-squares-four', t('Overview')], ['trip', 'ph-path', t('Plan')], ['map', 'ph-map-trifold', t('Map')], ['budget', 'ph-wallet', t('Budget')], ['prepare', 'ph-backpack', t('Prepare')]] as const).map(([k, icon, label]) => {
       const on = s.tab === k; return { key: k, icon, label, bg: on ? 'linear-gradient(135deg,rgba(46,229,157,.22),rgba(25,194,184,.12))' : 'transparent', fg: on ? 'var(--g)' : 'var(--mute)', onClick: () => set({ tab: k }) };
     }),
     pillA: isAir ? t('{from} ⇄ {to} by air', { from: air!.dep, to: air!.arr }) : t('{km} km by road', { km: c.kmStr }),
@@ -855,6 +855,33 @@ export function buildView(s: AppState, api: Api) {
     install: () => { startInstall(); },
     dismiss: () => dismissInstall()
   } : null;
-  return { ...view, trip: tripRun, install };
+  // ---- The overview: the plan in four cards (days, map, budget, getting ready) ----------------
+  const overview = (() => {
+    const days = view.plan.days, first = days[0], last = days[days.length - 1], rp = roomPlan(s);
+    const driving = days.filter(d => d.track && d.kind !== 'explore'), explore = days.filter(d => d.kind === 'explore').length;
+    const longest = Math.max(0, ...driving.map(d => d.track!.legs.reduce((a, l) => a + l.h, 0)));
+    const people = s.groupSize > 1 ? t('{n} people', { n: s.groupSize }) : t('{n} person', { n: 1 });
+    const road = LIVE.route[planRoadKey(s)];
+    const line: [number, number][] = road && road.status === 'ok' ? road.data.coords.map(([lon, lat]) => [lat, lon] as [number, number]) : view.routeMap.line;
+    const KIND: Record<string, string> = { drive: 'ph-car-profile', return: 'ph-house-line', explore: 'ph-mountains', fly: 'ph-airplane-tilt', transfer: 'ph-van', arrive: 'ph-airplane-landing' };
+    const g = tripRun.getReady, warn = view.seasonNotes.filter(n => n.color === 'var(--cor)').slice(0, 2).map(n => n.text);
+    const todo = g ? g.groups.flatMap(x => x.tasks).filter(k => !k.done).slice(0, Math.max(1, 3 - warn.length)).map(k => k.text) : [];
+    const wx = rw.destDays, lo = wx.length ? Math.min(...wx.map(x => x.lo ?? 99)) : null, hi = wx.length ? Math.max(...wx.map(x => x.hi ?? -99)) : null;
+    return {
+      title: t('Your {place} trip is ready', { place: L ? stopNames.join(' & ') : D.name }), route: `${c.from} → ${c.to}`,
+      photo: view.photo?.src || view.cardPhoto,
+      strip: [days.length === 1 ? t('1 day') : t('{n} days', { n: days.length }), people, rp.r > 1 ? t('{n} rooms', { n: rp.r }) : t('{n} room', { n: 1 }), t(VEH[s.vehicle].short), first && last ? (first.date === last.date ? first.date : `${first.date} – ${last.date}`) : ''].filter(Boolean),
+      days: days.map((d, i) => ({ key: String(i), num: i + 1, icon: KIND[d.kind] || 'ph-map-pin', title: d.title, date: d.date || '', kind: d.kind })),
+      facts: [driving.length === 1 ? t('1 driving day') : t('{n} driving days', { n: driving.length }), explore ? (explore === 1 ? t('1 day to explore') : t('{n} days to explore', { n: explore })) : '', longest > 0.5 ? t('Longest drive {time}', { time: dur(longest) }) : ''].filter(Boolean),
+      map: { line, dots: view.routeMap.dots.map(d => ({ p: d.p, label: d.label, color: d.color })), stat: isAir ? view.pillA : t('{km} km · {time} driving', { km: c.kmStr, time: dur(c.hours) }), via: isAir ? '' : c.via, live: !!(road && road.status === 'ok') },
+      budget: { total: fmt(Math.round(total / 100) * 100), each: s.groupSize > 1 ? t('{amount} each', { amount: fmt(Math.round(total / s.groupSize / 100) * 100) }) : '', segs: budget.segs.map(x => ({ key: x.key, label: x.label, pct: x.pct, color: x.color, amount: x.amount })),
+        cap: capOn ? (total <= s.cap ? { ok: true, text: t('Within your budget of {amount}', { amount: fmt(s.cap) }) } : { ok: false, text: t('{amount} over your budget', { amount: fmt(total - s.cap) }) }) : null },
+      ready: { countdown: g ? g.countdown : '', done: g ? g.done : 0, total: g ? g.total : 0, warn, todo,
+        weather: lo != null && hi != null && lo < 90 && hi > -90 ? t('{place}: {lo}° to {hi}° on your dates', { place: D.town, lo, hi }) : '' },
+      open: (tab: 'trip' | 'map' | 'budget' | 'prepare') => set({ tab }),
+      share: api.shareCard
+    };
+  })();
+  return { ...view, trip: tripRun, install, overview };
 }
 export type View = ReturnType<typeof buildView>;

@@ -29,13 +29,13 @@ describe('the road on the map and in Google Maps', () => {
 
 describe('changing the dates', () => {
   it('moves the checklist, expenses and family link to the new dates', () => {
-    const a = { origin: 'Lahore', corridor: 'hunza', startDate: '2026-11-02' }, b = { ...a, startDate: '2026-11-09' };
+    const a = { origin: 'Lahore', corridor: 'hunza', startDate: '2025-11-02' }, b = { ...a, startDate: '2025-11-09' };
     updateRun(runKey(a), () => ({ locked: '2026-10-01', ticks: ['family'], people: ['Ali', 'Sara'], followId: '11111111-2222-3333-4444-555555555555' }));
-    localStorage.setItem('safarco-pack:hunza|2026-11-02', '["jacket"]');
+    localStorage.setItem('safarco-pack:hunza|2025-11-02', '["jacket"]');
     expect(moveRun(a, b)).toBe(true);
     expect(getRun(runKey(b))).toMatchObject({ locked: '2026-10-01', ticks: ['family'], people: ['Ali', 'Sara'], followId: '11111111-2222-3333-4444-555555555555' });
     expect(getRun(runKey(a)).locked).toBeNull();
-    expect(localStorage.getItem('safarco-pack:hunza|2026-11-09')).toBe('["jacket"]');
+    expect(localStorage.getItem('safarco-pack:hunza|2025-11-09')).toBe('["jacket"]');
     // A trip already on the new dates keeps its own progress.
     updateRun(runKey(a), () => ({ ticks: ['other'] }));
     expect(moveRun(a, b)).toBe(false);
