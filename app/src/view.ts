@@ -805,7 +805,7 @@ export function buildView(s: AppState, api: Api) {
       if (w / h > aspect) h = w / aspect; else w = h * aspect; w *= 1.4; h *= 1.4;
       const cx = (lo0 + lo1) / 2 * kx, cy = (la0 + la1) / 2, X = (lo: number) => ((lo * kx - (cx - w / 2)) / w) * 100, Y = (la: number) => (((cy + h / 2) - la) / h) * 100;
       const seg = (a: [number, number], b: [number, number]) => `M${X(a[1]).toFixed(2)} ${Y(a[0]).toFixed(2)}L${X(b[1]).toFixed(2)} ${Y(b[0]).toFixed(2)}`;
-      const net = EDGES.map(e => seg(NODES[e[0]], NODES[e[1]])).join('');
+      const net = EDGES.map(e => [NODES[e[0]], ...shapeBetween(e[0], e[1], e[6]), NODES[e[1]]].map((p, i) => `${i ? 'L' : 'M'}${X(p[1]).toFixed(2)} ${Y(p[0]).toFixed(2)}`).join('')).join('');
       const route = pts.map((p, i) => `${i ? 'L' : 'M'}${X(p[1]).toFixed(2)} ${Y(p[0]).toFixed(2)}`).join('');
       const summer = isAir || L ? null : trip(s.corridor, s.origin, 7);
       const closed = summer ? summer.legs.filter(l => l.months && !l.months.includes(M)).map(l => seg(co(l.a), co(l.b))).join('') : '';

@@ -100,7 +100,10 @@ describe('the map road on a circuit', () => {
     const r = loopRoad(st)!;
     const besham = r.via.pts.filter(([la, lo]) => Math.abs(la - 34.92) < 0.01 && Math.abs(lo - 72.87) < 0.01).length;
     expect(besham).toBe(2);
-    expect(r.via.avoid).toEqual(['babusar']);
+    expect(r.via.avoid).toEqual(['babusar', 'deosai']);
     expect(r.via.pts.length).toBeLessThanOrEqual(48);
+    // Gilgit to Skardu by Alam Bridge and the Indus (the Jaglot–Skardu Road), nothing on the Deosai plains.
+    expect(r.via.pts.some(([la, lo]) => Math.abs(la - 35.765) < 0.01 && Math.abs(lo - 74.598) < 0.01)).toBe(true);
+    expect(r.via.pts.some(([la, lo]) => la > 34.85 && la < 35.22 && lo > 75.05 && lo < 75.75)).toBe(false);
   });
 });

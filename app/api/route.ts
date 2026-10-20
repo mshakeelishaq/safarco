@@ -20,8 +20,12 @@ export async function GET(request: Request) {
   const viaRaw = (u.searchParams.get('via') || '').split(';').filter(Boolean);
   const via = viaRaw.map(point);
   if (viaRaw.length > 48 || via.some(v => !v)) return fail(400, 'via must be up to 48 lon,lat points inside Pakistan');
-  // Roads the plan doesn't take, kept off the map's road too (Babusar Pass when it's closed or the plan goes by Besham).
-  const AREAS: Record<string, number[][]> = { babusar: [[73.86, 35.0], [74.13, 35.0], [74.13, 35.26], [73.86, 35.26], [73.86, 35.0]] };
+  // Roads the plan doesn't take, kept off the map's road too (Babusar Pass when it's closed or the plan goes by Besham,
+  // the Deosai plains unless the plan crosses them).
+  const AREAS: Record<string, number[][]> = {
+    babusar: [[73.86, 35.0], [74.13, 35.0], [74.13, 35.26], [73.86, 35.26], [73.86, 35.0]],
+    deosai: [[75.05, 34.85], [75.75, 34.85], [75.75, 35.22], [75.05, 35.22], [75.05, 34.85]]
+  };
   const avoid = (u.searchParams.get('avoid') || '').split(',').filter(k => AREAS[k]);
   const options = avoid.length ? { avoid_polygons: { type: 'MultiPolygon', coordinates: avoid.map(k => [AREAS[k]]) } } : undefined;
   const coordinates = [from, ...(via as number[][]), to];

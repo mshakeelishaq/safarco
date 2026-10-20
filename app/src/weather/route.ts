@@ -2,7 +2,7 @@
 // Free Open-Meteo APIs, no key: hourly forecast (next 16 days), pass weather at the
 // pass's real height, the last 5 years on the same dates for later trips, and air quality.
 import { EDGES, MTN_NODES, NODES, NODE_INFO } from '../engine/data';
-import { hoursAt, type Leg, type Plan, type TripState } from '../engine/engine';
+import { hoursAt, shapeBetween, type Leg, type Plan, type TripState } from '../engine/engine';
 import { clock, dayLabel, isoAdd, isoOff } from '../engine/format';
 import { LIVE, liveFetch } from '../engine/live';
 import { DST, cityOr } from '../engine/places';
@@ -71,8 +71,9 @@ export function routePoints(s: TripState, plan: Plan, road: [number, number][] |
         return along(road, g / tripKm);
       }
       let li = c.findIndex(x => x >= km) - 1; if (li < 0) li = 0; li = Math.min(li, tr.legs.length - 1);
-      const f = (km - c[li]) / Math.max(1e-6, tr.legs[li].km), [a, b] = [tr.coords[li], tr.coords[li + 1]];
-      return [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f];
+      // Along the road's real bends between the towns, not straight across the mountains.
+      const l = tr.legs[li], f = (km - c[li]) / Math.max(1e-6, l.km);
+      return along([tr.coords[li], ...shapeBetween(l.a, l.b, l.road), tr.coords[li + 1]].map(([la, lo]) => [lo, la] as [number, number]), f);
     };
     const legAt = (km: number) => tr.legs[Math.max(0, Math.min(tr.legs.length - 1, c.findIndex(x => x >= km) - 1))];
     const add = (km: number, label?: string, extra: Partial<RoutePoint> = {}) => {

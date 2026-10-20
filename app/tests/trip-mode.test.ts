@@ -21,7 +21,7 @@ describe('the road on the map and in Google Maps', () => {
     expect(link).toContain(`${NODES.NRN[0].toFixed(4)},${NODES.NRN[1].toFixed(4)}`);
     expect(link).not.toContain(`${NODES.CTR[0].toFixed(4)},${NODES.CTR[1].toFixed(4)}`);
     const via = roadVia('phander', 'Lahore', 7);
-    expect(via.id.replace('+shape', '').split(',')).toEqual(expect.arrayContaining(['NRN', 'CHL', 'GLT', 'PHD']));
+    expect(via.id.replace(/[+-].*/, '').split(',')).toEqual(expect.arrayContaining(['NRN', 'CHL', 'GLT', 'PHD']));
     // The Babusar road's own shape goes along, with Babusar Top on it.
     expect(via.pts).toContainEqual([35.146, 74.047]);
   });

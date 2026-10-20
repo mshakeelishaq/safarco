@@ -354,8 +354,8 @@ function viaOf(legs: Leg[], at: (n: string) => [number, number] | null = n => NO
     keep = pts.filter(x => !x.town || pick.has(x)).slice(0, 48);
   }
   const ids = legs.flatMap(l => [l.a, l.b]).filter((n, i, a) => n !== 'HOME' && n !== 'DEST' && NODES[n] && a.indexOf(n) === i);
-  // Babusar Pass is kept off the map's road whenever the plan doesn't drive it (closed for the season, or by Besham).
-  const avoid = legs.some(l => l.road === 'Babusar Pass') ? [] : ['babusar'];
+  // Babusar Pass and Deosai are kept off the map's road whenever the plan doesn't drive them (closed for the season, or another way).
+  const avoid = [...legs.some(l => l.road === 'Babusar Pass') ? [] : ['babusar'], ...legs.some(l => /Deosai/.test(l.road)) ? [] : ['deosai']];
   return { id: ids.join(',') + (keep.some(x => !x.town) ? '+shape' : '') + (avoid.length ? '-' + avoid.join('-') : ''), pts: keep.map(x => x.p), avoid };
 }
 /** A circuit's live road: from home round its places and back home, through the same towns as the plan. */
