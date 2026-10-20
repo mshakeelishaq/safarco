@@ -41,7 +41,7 @@ export const SLIDES: Record<SeasonId, { src: string; place: string; id: string; 
   ]
 };
 export const seasonNow = (m = new Date().getMonth() + 1): SeasonId => (m >= 3 && m <= 5 ? 'spring' : m >= 6 && m <= 8 ? 'summer' : m >= 9 && m <= 11 ? 'autumn' : 'winter');
-const SLIDE_MS = 6500;
+export const SLIDE_MS = 6500;
 const reduced = () => typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export function useTraveller() {
