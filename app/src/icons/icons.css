@@ -123,11 +123,17 @@
 .ph-fill.ph-car-simple:before {
   content: "\e114";
 }
+.ph-fill.ph-caret-down:before {
+  content: "\e136";
+}
 .ph-fill.ph-caret-left:before {
   content: "\e138";
 }
 .ph-fill.ph-caret-right:before {
   content: "\e13a";
+}
+.ph-fill.ph-caret-up:before {
+  content: "\e13c";
 }
 .ph-fill.ph-castle-turret:before {
   content: "\e9d0";
@@ -432,6 +438,12 @@
 .ph-fill.ph-thermometer-simple:before {
   content: "\e5cc";
 }
+.ph-fill.ph-toggle-left:before {
+  content: "\e674";
+}
+.ph-fill.ph-toggle-right:before {
+  content: "\e676";
+}
 .ph-fill.ph-translate:before {
   content: "\e4a2";
 }
@@ -616,11 +628,17 @@
 .ph-bold.ph-car-simple:before {
   content: "\e114";
 }
+.ph-bold.ph-caret-down:before {
+  content: "\e136";
+}
 .ph-bold.ph-caret-left:before {
   content: "\e138";
 }
 .ph-bold.ph-caret-right:before {
   content: "\e13a";
+}
+.ph-bold.ph-caret-up:before {
+  content: "\e13c";
 }
 .ph-bold.ph-castle-turret:before {
   content: "\e9d0";
@@ -924,6 +942,12 @@
 }
 .ph-bold.ph-thermometer-simple:before {
   content: "\e5cc";
+}
+.ph-bold.ph-toggle-left:before {
+  content: "\e674";
+}
+.ph-bold.ph-toggle-right:before {
+  content: "\e676";
 }
 .ph-bold.ph-translate:before {
   content: "\e4a2";
@@ -1264,6 +1288,14 @@
   content: "\e115";
   margin-left: -1em;
 }
+.ph-duotone.ph-caret-down:before {
+  content: "\e136";
+  opacity: 0.2;
+}
+.ph-duotone.ph-caret-down:after {
+  content: "\e137";
+  margin-left: -1em;
+}
 .ph-duotone.ph-caret-left:before {
   content: "\e138";
   opacity: 0.2;
@@ -1278,6 +1310,14 @@
 }
 .ph-duotone.ph-caret-right:after {
   content: "\e13b";
+  margin-left: -1em;
+}
+.ph-duotone.ph-caret-up:before {
+  content: "\e13c";
+  opacity: 0.2;
+}
+.ph-duotone.ph-caret-up:after {
+  content: "\e13d";
   margin-left: -1em;
 }
 .ph-duotone.ph-castle-turret:before {
@@ -2086,6 +2126,22 @@
 }
 .ph-duotone.ph-thermometer-simple:after {
   content: "\e5cd";
+  margin-left: -1em;
+}
+.ph-duotone.ph-toggle-left:before {
+  content: "\e674";
+  opacity: 0.2;
+}
+.ph-duotone.ph-toggle-left:after {
+  content: "\e675";
+  margin-left: -1em;
+}
+.ph-duotone.ph-toggle-right:before {
+  content: "\e676";
+  opacity: 0.2;
+}
+.ph-duotone.ph-toggle-right:after {
+  content: "\e677";
   margin-left: -1em;
 }
 .ph-duotone.ph-translate:before {

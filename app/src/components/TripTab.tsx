@@ -1,4 +1,5 @@
 import { clock } from '../engine/format';
+import { FineTune } from './FineTune';
 import { parseClock } from '../edits';
 import { useEffect, useState } from 'react';
 import { cloudEnabled } from '../cloud';
@@ -121,7 +122,7 @@ const tile = 'flex:1;min-width:0;padding:10px 10px 9px;border-radius:16px;backgr
 /** Which road: the one the plan takes, and the others worth a thought, with what each changes. */
 function RoadChoice({ rc }: { rc: NonNullable<View['roadChoice']> }) {
   return (
-    <div style={css('margin:12px 4px 4px;padding:12px;border-radius:18px;background:var(--fill);border:1px solid var(--line2)')}>
+    <div style={css('padding:12px;border-radius:18px;background:var(--fill);border:1px solid var(--line2)')}>
       <div style={css('display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800')}><i className="ph-fill ph-road-horizon" style={css('font-size:18px;color:var(--sky)')} />{t('Which road?')}</div>
       <div style={css('display:flex;gap:8px;align-items:flex-start;margin-top:8px')}>
         <i className="ph-fill ph-check-circle" style={css('font-size:18px;color:var(--g);flex:none;margin-top:1px')} />
@@ -194,7 +195,8 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
         <TodayCard v={v} api={api} onCheckIn={(p, arrived) => api.checkIn?.(p, arrived)} />
         <MemoriesCard v={v} onCard={() => api.shareCard?.()} onNext={w => api.nextTrip?.(w)} />
         {v.gate.show && <BannerCard b={v.gate} />}
-        {v.install && <div style={css('display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:20px;background:var(--card);border:1px solid rgba(46,229,157,.4)')}>
+        {/* One suggestion at most up here; the rest wait in Fine tune. The app install waits until the plan is locked. */}
+        {v.install && v.trip.live && <div style={css('display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:20px;background:var(--card);border:1px solid rgba(46,229,157,.4)')}>
           <i className="ph-fill ph-device-mobile" style={css('font-size:24px;color:var(--g);flex:none;margin-top:2px')} />
           <div style={css('flex:1;min-width:0')}>
             <div style={css('font-size:14px;font-weight:800')}>{t('Add SafarCo to your home screen')}</div>
@@ -205,13 +207,8 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
             </div>
           </div>
         </div>}
-        {v.tip.show && <BannerCard b={v.tip} center><button onClick={v.tip.apply} style={css('flex:none;height:44px;padding:0 14px;border-radius:14px;border:0;background:var(--ink);color:var(--bg);font-size:13px;font-weight:800;cursor:pointer')}>{v.tip.cta}</button></BannerCard>}
+        {v.tip.show && !v.gate.show && <BannerCard b={v.tip} center><button onClick={v.tip.apply} style={css('flex:none;height:44px;padding:0 14px;border-radius:14px;border:0;background:var(--ink);color:var(--bg);font-size:13px;font-weight:800;cursor:pointer')}>{v.tip.cta}</button></BannerCard>}
 
-        {v.comfort && <button onClick={v.comfort.toggle} role="switch" aria-checked={v.comfort.on} style={css('display:flex;align-items:center;gap:12px;min-height:56px;padding:10px 12px;border-radius:16px;border:1px solid var(--line2);background:var(--card);color:var(--ink);text-align:left;cursor:pointer')}>
-          <i className="ph-fill ph-bed" style={css('font-size:20px;color:var(--g);flex:none')} />
-          <span style={css('flex:1;min-width:0')}><span style={css('display:block;font-size:14px;font-weight:800')}>{t('Comfort: fewer hotel changes')}</span><span style={css('display:block;font-size:12px;font-weight:600;color:var(--mute);margin-top:1px;line-height:1.4')}>{v.comfort.sub}</span></span>
-          <span aria-hidden="true" style={css(`flex:none;width:46px;height:28px;border-radius:14px;background:${v.comfort.on ? 'var(--g)' : 'var(--line2)'};position:relative;transition:background .2s`)}><span style={css(`position:absolute;top:3px;left:${v.comfort.on ? 21 : 3}px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:left .2s`)} /></span>
-        </button>}
         {v.draftGuide && <div style={css('display:flex;gap:8px;align-items:flex-start;padding:10px 12px;border-radius:16px;background:rgba(255,181,71,.12);border:1px solid rgba(255,181,71,.4);font-size:12px;font-weight:700;line-height:1.45;color:var(--ink2)')}><i className="ph-fill ph-info" style={css('font-size:16px;color:var(--amb2);flex:none;margin-top:1px')} />{v.draftGuide}</div>}
         <section aria-label={t('Trip at a glance')} style={css(`border-radius:30px;overflow:hidden;background:var(--card);border:1px solid var(--line);box-shadow:${v.budgetShadow};transition:box-shadow .4s`)}>
           <div style={css(`position:relative;height:${img ? (v.photo ? 190 : 150) : 96}px;background:${img ? 'var(--fill)' : 'linear-gradient(135deg,#2EE59D,#19C2B8 55%,#3B8DFF)'}`)}>
@@ -248,7 +245,6 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
               </div>
             ); })()}
             {v.wishNote && !v.wishNote.good && <WishNote n={v.wishNote} />}
-            {!v.isAir && <div style={css('margin-top:12px')}><TripPlaces v={v} /></div>}
             {glance.warnings.length > 0 && <button onClick={() => set({ tab: 'prepare' })} style={css('display:flex;flex-direction:column;gap:6px;margin-top:12px;padding:0;border:0;background:none;color:var(--ink);text-align:left;cursor:pointer;width:100%')}>
               {glance.warnings.slice(0, 2).map(w => <span key={w} style={css('display:flex;gap:8px;align-items:flex-start;font-size:13px;font-weight:700;line-height:1.4;color:var(--cor)')}><i className="ph-fill ph-warning" style={css('margin-top:2px;flex:none')} />{w}</span>)}
               <span style={css('font-size:12px;font-weight:800;color:var(--g);display:flex;align-items:center;gap:4px')}>{glance.warnings.length > 2 ? t('{n} more things to know in Prepare', { n: glance.warnings.length - 2 }) : t('Precautions in Prepare')}<i className="ph-bold ph-caret-right" /></span>
@@ -261,7 +257,6 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
             <h2 style={css('margin:0;font-size:16px;font-weight:800')}>{t('Your route, day by day')}</h2>
             <div style={css('font-size:12px;color:var(--mute);font-weight:600;margin-top:4px;line-height:1.45')}>{plan.via}</div>
           </div>
-          {v.roadChoice && <RoadChoice rc={v.roadChoice} />}
           <ol style={css('display:flex;flex-direction:column;margin:10px 0 0;padding:0;list-style:none;position:relative')}>
             {plan.days.map((d, i) => {
               const q = dayQuick(d);
@@ -290,21 +285,10 @@ export function TripTab({ v, api }: { v: View; api: Api }) {
           </div>
           {/* Lock the plan once the days have been seen. */}
           <div style={css('padding:0 4px')}><LockChip v={v} api={api} /></div>
-          {plan.hasDep && <div style={css('padding:4px 4px 8px;border-top:1px solid var(--line);margin-top:4px')}>
-            <div style={css('display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:12px -18px 0;padding:0 18px 2px;align-items:center')}>
-              <span style={css('flex:none;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)')}>{t('Leave at')}</span>
-              {plan.depChips.map(p => <button key={p.key} onClick={p.onClick} style={css(`flex:none;height:36px;padding:0 11px;border-radius:12px;border:1px solid ${p.border};background:${p.bg};color:${p.fg};font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;transition:all .2s`)}>{p.label}</button>)}
-            </div>
-            <div style={css(`font-size:12px;color:${plan.depNoteC};font-weight:600;margin-top:6px;line-height:1.45`)}>{plan.depNote}</div>
-            {plan.wxDepart && (
-              <div style={css('display:flex;align-items:center;gap:10px;margin-top:10px;padding:10px 12px;border-radius:16px;background:rgba(91,184,245,.12);border:1px solid rgba(91,184,245,.4)')}>
-                <i className="ph-fill ph-cloud-sun" style={css('font-size:20px;color:var(--sky);flex:none')} />
-                <div style={css('flex:1;min-width:0;font-size:12px;font-weight:700;line-height:1.45;color:var(--ink2)')}>{plan.wxDepart.text}</div>
-                <button onClick={plan.wxDepart.apply} style={css('flex:none;height:36px;padding:0 12px;border-radius:12px;border:0;background:var(--ink);color:var(--bg);font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap')}>{t('Use {label}', { label: plan.wxDepart.label })}</button>
-              </div>
-            )}
-          </div>}
         </section>
+
+        <FineTune v={v} api={api} road={v.roadChoice ? <RoadChoice rc={v.roadChoice} /> : undefined} places={v.isAir ? undefined : <TripPlaces v={v} />}
+          ideas={v.tip.show && v.gate.show ? [<BannerCard key="tip" b={v.tip} center><button onClick={v.tip.apply} style={css('flex:none;height:44px;padding:0 14px;border-radius:14px;border:0;background:var(--ink);color:var(--bg);font-size:13px;font-weight:800;cursor:pointer')}>{v.tip.cta}</button></BannerCard>] : []} />
 
         {(v.wiki.info || v.wiki.loading) && (
           <Fold icon="ph-book-open-text" title={t('About {name}', { name: c.name })} summary={v.wiki.info ? v.wiki.info.source : t('Loading…')}>
