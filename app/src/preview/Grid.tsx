@@ -24,7 +24,7 @@ function Card({ d, i }: { d: RingDest; i: number }) {
       </div>
       <div className="gd-tags">{tags.join(' • ')}</div>
       <div className="gd-name">{d.name}</div>
-      <span className="gd-plan" onClick={e => { e.preventDefault(); location.href = planHref({ to: d.id }); }} data-cursor="Plan">Plan this trip +</span>
+      <span className="gd-plan" onClick={e => { e.preventDefault(); location.href = planHref({ to: d.id }); }} data-cursor="Plan">Plan this trip →</span>
     </a>
   );
 }

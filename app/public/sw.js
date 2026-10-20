@@ -3,7 +3,7 @@
 // - /api trip data: network first, falling back to the offline copy.
 // - Map tiles, style and glyphs saved by "Download for offline" (in the
 //   safarco-offline cache) are served from there first; weather is network first.
-const SHELL = 'safarco-shell-v43';
+const SHELL = 'safarco-shell-v44';
 const OFFLINE = 'safarco-offline';
 
 self.addEventListener('install', e => {

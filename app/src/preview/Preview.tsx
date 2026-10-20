@@ -6,6 +6,8 @@ import { startFluid, type Fluid } from './fluid';
 import { Grid } from './Grid';
 import { ringDests } from './data';
 import { ROAD } from './road';
+import { DESTS } from '../engine/data';
+import { CITIES } from '../engine/places';
 import './preview.css';
 
 const ACCENT: Record<SeasonId, [number, number, number]> = { spring: [0.97, 0.6, 0.72], summer: [0.45, 0.86, 0.6], autumn: [0.98, 0.72, 0.25], winter: [0.62, 0.8, 1] };
@@ -27,12 +29,41 @@ function Cursor() {
   return <div ref={el} className={`pv-cursor${label ? ' big' : ''}`} aria-hidden="true"><span>{label}</span></div>;
 }
 
+/** The main thing: from, to, when, and straight into the planner (the planner asks the rest). */
+function PlanBar({ barRef }: { barRef: React.RefObject<HTMLFormElement | null> }) {
+  const [from, setFrom] = useState(() => { try { return localStorage.getItem('safarco-from') || ''; } catch { return ''; } });
+  const [to, setTo] = useState(''), [date, setDate] = useState('');
+  const today = new Date().toISOString().slice(0, 10);
+  const city = CITIES.find(c => c.n.toLowerCase() === from.trim().toLowerCase())?.n;
+  const dests = useMemo(() => DESTS.filter(d => !d.id.startsWith('city:')).slice().sort((a, b) => a.name.localeCompare(b.name)), []);
+  const go = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (city) { try { localStorage.setItem('safarco-from', city); } catch { /* storage blocked */ } }
+    location.href = planHref({ from: city, to: to || undefined, date: date && date >= today ? date : undefined });
+  };
+  return (
+    <form ref={barRef} className="pv-plan" onSubmit={go} aria-label="Plan a trip">
+      <label><span>From</span><input list="pv-cities" value={from} onChange={e => setFrom(e.target.value)} placeholder="Your city" autoComplete="off" /><datalist id="pv-cities">{CITIES.map(c => <option key={c.n} value={c.n} />)}</datalist></label>
+      <label><span>To</span><select value={to} onChange={e => setTo(e.target.value)}><option value="">Anywhere: suggest one</option>{dests.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}</select></label>
+      <label><span>When</span><input type="date" value={date} min={today} onChange={e => setDate(e.target.value)} /></label>
+      <button type="submit" data-cursor="Go">Plan my trip <span aria-hidden="true">→</span></button>
+    </form>
+  );
+}
+
 export function Preview() {
   const season = seasonNow(), slide = SLIDES[season][0];
   const canvas = useRef<HTMLCanvasElement>(null), fluid = useRef<Fluid | null>(null), hero = useRef<HTMLElement>(null);
   const [gl, setGl] = useState<boolean | null>(null);
   const [phase, setPhase] = useState<'intro' | 'part' | 'open'>(() => { try { return sessionStorage.getItem(SEEN) || still() ? 'open' : 'intro'; } catch { return 'intro'; } });
   const [touched, setTouched] = useState(false);
+  // The pinned "Plan a trip" shows once the plan bar has scrolled away.
+  const bar = useRef<HTMLFormElement>(null), [pin, setPin] = useState(false);
+  useEffect(() => {
+    const b = bar.current; if (!b || !('IntersectionObserver' in window)) return;
+    const io = new IntersectionObserver(([e]) => setPin(!e.isIntersecting && e.boundingClientRect.top < 0)); io.observe(b);
+    return () => io.disconnect();
+  }, []);
   const dests = useMemo(() => ringDests(), []);
   const small = useMemo(() => innerWidth < 760, []);
 
@@ -91,8 +122,9 @@ export function Preview() {
       {/* The frame: the same four corners all the way down. */}
       <header className="pv-frame pv-top">
         <a href="/preview" className="pv-mark" data-cursor="Top">SafarCo<sup>PK</sup></a>
-        <nav><a href="#where" data-cursor="Go">Destinations</a><a href={planHref()} data-cursor="Plan">Plan a trip</a><a href="/" data-cursor="Back">Current site</a></nav>
+        <nav><a href="#where" data-cursor="Go">Destinations</a><a href="/" data-cursor="Back">Current site</a></nav>
       </header>
+      <a href={planHref()} className={`pv-pin${pin ? ' show' : ''}`} aria-hidden={!pin} tabIndex={pin ? 0 : -1} data-cursor="Plan">Plan a trip <span aria-hidden="true">→</span></a>
       <footer className="pv-frame pv-bottom">
         <span><b>{season[0].toUpperCase() + season.slice(1)} now</b>{bestNow ? ` · best: ${bestNow}` : ''}</span>
         <span>Preview · © 2026 SafarCo</span>
@@ -113,7 +145,8 @@ export function Preview() {
         {gl === false && <img className="pv-still" src={slide.src} alt="" />}
         <div className={`pv-hero-text${phase !== 'intro' ? ' in' : ''}`}>
           <h1><span>See</span><span>Pakistan</span></h1>
-          <p>Mountains, rivers and roads, planned for you in two minutes.{gl ? <><br /><em>{touched ? 'There it is. Every season has its colour.' : 'Move across the photo to bring its colour back.'}</em></> : null}</p>
+          <p>Your whole trip planned in two minutes: the route, the nights, the stops and the budget.{gl ? <><br /><em>{touched ? 'There it is. Every season has its colour.' : 'Move across the photo to bring its colour back.'}</em></> : null}</p>
+          <PlanBar barRef={bar} />
         </div>
         <div className="pv-caption">{slide.place}</div>
         <a href="#where" className="pv-down" data-cursor="Scroll">Where to next ↓</a>
