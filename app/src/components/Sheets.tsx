@@ -174,3 +174,27 @@ export function AskAddSheet({ v, api }: { v: View; api: Api }) {
     </div>
   </>;
 }
+
+/** "Which day should go?": what each way of taking a day off the trip costs. */
+export function LessDaysSheet({ v }: { v: View }) {
+  const m = v.lessDays, open = !!m;
+  return <>
+    <div onClick={m?.close} style={scrim(open)} />
+    <div data-screen-label="One day less" role="dialog" aria-modal="true" aria-label={t('Which day should go?')} aria-hidden={!open} inert={!open} className="sc-sheet" style={sheet(520, open)}>
+      <Grip />
+      <div style={css('display:flex;align-items:center;gap:12px;padding:12px 16px 8px 20px')}>
+        <h2 style={css('margin:0;flex:1;font-family:var(--fontH);font-size:18px;font-weight:600')}>{t('Which day should go?')}</h2>
+        <button onClick={m?.close} style={css('height:44px;padding:0 16px;border-radius:15px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);font-size:14px;font-weight:800;cursor:pointer')}>{t('Close')}</button>
+      </div>
+      {m && <div style={css('flex:1;overflow-y:auto;scrollbar-width:none;padding:4px 20px 30px;display:flex;flex-direction:column;gap:8px')}>
+        {m.items.map((it, i) => <button key={it.key} onClick={it.apply} style={css(`display:flex;gap:12px;align-items:center;width:100%;padding:12px 14px;border-radius:18px;border:1px solid ${i === 0 ? 'rgba(46,229,157,.55)' : 'var(--line2)'};background:${i === 0 ? 'rgba(46,229,157,.10)' : 'var(--card)'};color:var(--ink);text-align:left;cursor:pointer;font:inherit`)}>
+          <span style={css('width:38px;height:38px;border-radius:12px;background:var(--fill);display:flex;align-items:center;justify-content:center;flex:none;color:var(--g);font-size:19px')}><i className={`ph-fill ${it.icon}`} /></span>
+          <span style={css('flex:1;min-width:0')}><span style={css('display:block;font-size:14px;font-weight:800;line-height:1.3')}>{it.title}</span><span style={css('display:block;font-size:12px;font-weight:600;color:var(--mute);margin-top:2px;line-height:1.4')}>{it.sub}</span></span>
+          <i className="ph-bold ph-caret-right" style={css('color:var(--mute);flex:none')} />
+        </button>)}
+        {m.note && <div style={css('display:flex;gap:8px;align-items:flex-start;padding:10px 12px;border-radius:14px;background:rgba(255,181,71,.12);font-size:12px;font-weight:700;line-height:1.45;color:var(--ink2)')}><i className="ph-fill ph-warning" style={css('font-size:16px;color:var(--amb);flex:none;margin-top:1px')} />{m.note}</div>}
+        {!m.items.length && !m.note && <div style={css('font-size:13px;font-weight:600;color:var(--mute)')}>{t('There’s no spare day in this plan to take out.')}</div>}
+      </div>}
+    </div>
+  </>;
+}

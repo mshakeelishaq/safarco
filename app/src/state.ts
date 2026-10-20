@@ -14,7 +14,7 @@ export interface AppState extends TripState {
   flash: 'budget' | null; offline: 'off' | 'downloading' | 'ready'; progress: number;
   offlineMB: number; offlineErr: string; mapFail: boolean; theme: Theme;
   /** Which bottom sheet is open besides Edit trip. */
-  sheet: 'none' | 'trips' | 'save' | 'signin' | 'feedback' | 'review' | 'share' | 'sos' | 'expense' | 'people' | 'food' | 'dest' | 'moredays';
+  sheet: 'none' | 'trips' | 'save' | 'signin' | 'feedback' | 'review' | 'share' | 'sos' | 'expense' | 'people' | 'food' | 'dest' | 'moredays' | 'lessdays';
   /** "What's the extra day for?": how many days are being added. */
   addDays: number;
   /** A place picked to add to the trip that needs more days than the trip has: asks first. */

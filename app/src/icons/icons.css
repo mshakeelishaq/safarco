@@ -108,6 +108,9 @@
 .ph-fill.ph-calendar-check:before {
   content: "\e712";
 }
+.ph-fill.ph-calendar-minus:before {
+  content: "\ea14";
+}
 .ph-fill.ph-calendar-plus:before {
   content: "\e714";
 }
@@ -155,6 +158,9 @@
 }
 .ph-fill.ph-clock-countdown:before {
   content: "\ed2c";
+}
+.ph-fill.ph-clock-counter-clockwise:before {
+  content: "\e1a0";
 }
 .ph-fill.ph-cloud:before {
   content: "\e1aa";
@@ -218,6 +224,9 @@
 }
 .ph-fill.ph-export:before {
   content: "\eaf0";
+}
+.ph-fill.ph-fast-forward:before {
+  content: "\e6a6";
 }
 .ph-fill.ph-first-aid:before {
   content: "\e56e";
@@ -299,6 +308,9 @@
 }
 .ph-fill.ph-map-pin-plus:before {
   content: "\e314";
+}
+.ph-fill.ph-map-pin-simple-area:before {
+  content: "\ee3c";
 }
 .ph-fill.ph-map-trifold:before {
   content: "\e31a";
@@ -589,6 +601,9 @@
 .ph-bold.ph-calendar-check:before {
   content: "\e712";
 }
+.ph-bold.ph-calendar-minus:before {
+  content: "\ea14";
+}
 .ph-bold.ph-calendar-plus:before {
   content: "\e714";
 }
@@ -636,6 +651,9 @@
 }
 .ph-bold.ph-clock-countdown:before {
   content: "\ed2c";
+}
+.ph-bold.ph-clock-counter-clockwise:before {
+  content: "\e1a0";
 }
 .ph-bold.ph-cloud:before {
   content: "\e1aa";
@@ -699,6 +717,9 @@
 }
 .ph-bold.ph-export:before {
   content: "\eaf0";
+}
+.ph-bold.ph-fast-forward:before {
+  content: "\e6a6";
 }
 .ph-bold.ph-first-aid:before {
   content: "\e56e";
@@ -780,6 +801,9 @@
 }
 .ph-bold.ph-map-pin-plus:before {
   content: "\e314";
+}
+.ph-bold.ph-map-pin-simple-area:before {
+  content: "\ee3c";
 }
 .ph-bold.ph-map-trifold:before {
   content: "\e31a";
@@ -1200,6 +1224,14 @@
   content: "\e713";
   margin-left: -1em;
 }
+.ph-duotone.ph-calendar-minus:before {
+  content: "\ea14";
+  opacity: 0.2;
+}
+.ph-duotone.ph-calendar-minus:after {
+  content: "\ea15";
+  margin-left: -1em;
+}
 .ph-duotone.ph-calendar-plus:before {
   content: "\e714";
   opacity: 0.2;
@@ -1326,6 +1358,14 @@
 }
 .ph-duotone.ph-clock-countdown:after {
   content: "\ed2d";
+  margin-left: -1em;
+}
+.ph-duotone.ph-clock-counter-clockwise:before {
+  content: "\e1a0";
+  opacity: 0.2;
+}
+.ph-duotone.ph-clock-counter-clockwise:after {
+  content: "\e1a1";
   margin-left: -1em;
 }
 .ph-duotone.ph-cloud:before {
@@ -1494,6 +1534,14 @@
 }
 .ph-duotone.ph-export:after {
   content: "\eaf1";
+  margin-left: -1em;
+}
+.ph-duotone.ph-fast-forward:before {
+  content: "\e6a6";
+  opacity: 0.2;
+}
+.ph-duotone.ph-fast-forward:after {
+  content: "\e6a7";
   margin-left: -1em;
 }
 .ph-duotone.ph-first-aid:before {
@@ -1710,6 +1758,14 @@
 }
 .ph-duotone.ph-map-pin-plus:after {
   content: "\e315";
+  margin-left: -1em;
+}
+.ph-duotone.ph-map-pin-simple-area:before {
+  content: "\ee3c";
+  opacity: 0.2;
+}
+.ph-duotone.ph-map-pin-simple-area:after {
+  content: "\ee3d";
   margin-left: -1em;
 }
 .ph-duotone.ph-map-trifold:before {

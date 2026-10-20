@@ -108,6 +108,11 @@ export function TodayCard({ v, api, onCheckIn }: { v: View; api: Api; onCheckIn:
         <button onClick={v.trip.shareLocation} style={css('min-height:48px;border-radius:14px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);font-size:12px;font-weight:800;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px')}><i className="ph-fill ph-map-pin" style={css('font-size:18px;color:var(--sky)')} />{t('Send location')}</button>
         <button onClick={() => api.set({ sheet: 'sos' })} style={css('min-height:48px;border-radius:14px;border:0;background:linear-gradient(135deg,#FF8A6B,#FF4F7B);color:#fff;font-size:12px;font-weight:800;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px')}><i className="ph-fill ph-first-aid" style={css('font-size:18px')} />{t('Emergency')}</button>
       </div>
+      {/* Plans change on the road: a day stuck (weather, a closed road) or a day ahead. */}
+      <div style={css('display:flex;gap:8px;margin-top:12px;flex-wrap:wrap')}>
+        {v.s.days < 14 && <button onClick={() => api.set({ sheet: 'moredays', addDays: 1 })} style={css('flex:1;min-width:140px;min-height:40px;padding:0 10px;border-radius:12px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px')}><i className="ph-bold ph-clock-counter-clockwise" />{t('Running late? Add a day')}</button>}
+        {v.s.days > 1 && <button onClick={() => api.set({ sheet: 'lessdays' })} style={css('flex:1;min-width:140px;min-height:40px;padding:0 10px;border-radius:12px;border:1px solid var(--line2);background:var(--fill);color:var(--ink);font-size:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px')}><i className="ph-bold ph-fast-forward" />{t('Ahead of plan? One day less')}</button>}
+      </div>
     </section>
   );
 }

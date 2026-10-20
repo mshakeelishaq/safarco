@@ -835,7 +835,7 @@ export function buildView(s: AppState, api: Api) {
       { key: 'k', label: t('Kids (under 12)'), value: `${s.kids}`, dec: () => api.setPeople('kids', -1), inc: () => api.setPeople('kids', 1) },
       { key: 'e', label: t('Elders (60+)'), value: `${s.elders}`, dec: () => api.setPeople('elders', -1), inc: () => api.setPeople('elders', 1) },
       // In the plan, adding a day asks what it's for (relax, explore, another place, a night on the road).
-      { key: 'd', label: t('Days'), value: `${s.days}`, dec: () => set({ days: Math.max(1, s.days - 1), daysSet: true }), inc: () => s.screen === 'app' && s.days < 14 ? set({ sheet: 'moredays', addDays: 1, settings: false }) : set({ days: Math.min(14, s.days + 1), daysSet: true }) },
+      { key: 'd', label: t('Days'), value: `${s.days}`, dec: () => s.screen === 'app' && s.days > 1 ? set({ sheet: 'lessdays', settings: false }) : set({ days: Math.max(1, s.days - 1), daysSet: true }), inc: () => s.screen === 'app' && s.days < 14 ? set({ sheet: 'moredays', addDays: 1, settings: false }) : set({ days: Math.min(14, s.days + 1), daysSet: true }) },
       { key: 'b', label: t('Budget cap'), value: capOn ? `${Math.round(s.cap / 1000)}k` : t('None'), dec: () => capOn && set(s.cap <= 40000 ? { capOn: false } : { cap: Math.max(40000, s.cap - 10000) }), inc: () => set(capOn ? { cap: s.cap + 10000 } : { capOn: true, cap: Math.max(40000, Math.ceil(total / 5000) * 5000) }) }
     ],
     helplines: [['1122', t('Rescue')], ['15', t('Police')], ['130', t('Motorway Police')], ['115', t('Edhi Ambulance')]].map(([num, label]) => ({ num, label, href: `tel:${num}` })),
@@ -891,6 +891,41 @@ export function buildView(s: AppState, api: Api) {
         { key: 'break', title: t('Break the long drive'), items: brk }, { key: 'auto', title: '', items: auto }].filter(x => x.items.length) };
   })() : null;
 
+  // ---- "Which day should go?": a rest day, a free day, a little less sightseeing, a long drive, or a place ----
+  const lessDays = s.sheet === 'lessdays' && s.days > 1 ? (() => {
+    const days = s.days - 1, places = L ? L.order : [s.corridor], items: { key: string; icon: string; title: string; sub: string; apply: () => void }[] = [];
+    const go = (p: Partial<AppState>, toast: string) => set({ ...p, days, daysSet: true, sheet: 'none', dayOpen: null, toast });
+    const labels = (ds: PlanDay[]) => new Set(ds.flatMap(d => d.stops.filter(x => x.kind === 'pin' || x.kind === 'view').map(x => x.label)));
+    const now = labels(view.plan.days), lost = (st: AppState) => { const l = labels(buildPlan({ ...st, departAt: edits.times }).days); return [...now].filter(x => !l.has(x) && x !== t('Free day') && x !== t('Rest day')); };
+    // A rest day the traveller asked for.
+    places.filter(k => (s.rest?.[k] || 0) > 0).forEach(k => items.push({ key: 'rest:' + k, icon: 'ph-coffee', title: t('One rest day less in {place}', { place: DST(k).name }), sub: t('Nothing you planned to see is lost'),
+      apply: () => { const r = { ...(s.rest || {}) }; r[k] = (r[k] || 1) - 1; if (!r[k]) delete r[k]; go({ rest: r }, t('One rest day less.')); } }));
+    // A free day, or a little less sightseeing (showing what goes).
+    const free = view.plan.days.some(d => d.kind === 'explore' && d.stops.some(x => x.label === t('Free day')));
+    const shorter = { ...s, days }, gone = lost(shorter), anyExplore = view.plan.days.some(d => d.kind === 'explore');
+    if (anyExplore && !items.length) items.push(free || !gone.length
+      ? { key: 'free', icon: 'ph-calendar-minus', title: t('Drop the free day'), sub: t('Nothing you planned to see is lost'), apply: () => go({}, t('One day less.')) }
+      : { key: 'less', icon: 'ph-calendar-minus', title: t('One day less sightseeing'), sub: t('You’d miss: {list}', { list: gone.slice(0, 4).join(', ') }), apply: () => go({}, t('One day less.')) });
+    // Drive further in one long day instead of a night on the way.
+    if (!L) view.plan.days.some((d, i) => {
+      const rn = d.roadNight; if (!rn?.next || !rn.from) return false;
+      const key = (n: string) => `${rn.dir}:${n}`, others = s.breaks.filter(b => !b.startsWith(rn.dir + ':')), base = drivingDays(s);
+      return rn.next.filter(x => x.long).some(x => {
+        const breaks = [...others, ...(rn.keep || []).map(key), ...(x.node ? [key(x.node)] : []), key('thru:' + rn.from!)];
+        if (drivingDays({ ...s, breaks }) - base !== -1) return false;
+        const to = x.node ? x.town : (rn.dir === 'out' ? DST(s.corridor).town : cityOr(s.origin).n);
+        items.push({ key: 'long:' + i, icon: 'ph-steering-wheel', title: t('Drive on to {place} in one long day', { place: to }), sub: t('Day {n}: about {time} at the wheel, leaving at 4:30 am{dark}', { n: i + 1, time: dur(x.h), dark: x.dark ? t(', in after dark') : '' }),
+          apply: () => go({ breaks }, t('A long day to {place}, and one day less.', { place: to })) });
+        return true;
+      });
+    });
+    // Skip one of the places on a circuit.
+    (s.extra || []).forEach(k => items.push({ key: 'skip:' + k, icon: 'ph-map-pin-simple-area', title: t('Skip {place}', { place: DST(k).name }), sub: t('Back to {places}', { places: places.filter(x => x !== k).map(x => DST(x).name).join(' + ') }),
+      apply: () => go({ extra: (s.extra || []).filter(x => x !== k), building: Date.now(), tab: 'home' }, t('{place} is off the trip.', { place: DST(k).name })) }));
+    const need = L ? L.minDays : c.minDays, short = days < need;
+    return { close: () => set({ sheet: 'none' }), items, note: short && !items.some(x => x.key.startsWith('long') || x.key.startsWith('skip')) ? t('{days} days is less than this trip needs by road ({n} days). Try a long driving day, or fewer places.', { days, n: need }) : '' };
+  })() : null;
+
   // ---- Adding a place that needs more days: more days, or add it anyway, or not now ----
   const askAdd = s.askAdd ? (() => {
     const id = s.askAdd, c2 = circuit({ ...s, extra: [...(s.extra || []), id] }), need = c2 ? c2.minDays : s.days, more = Math.min(14, need) - s.days, name = DST(id).name;
@@ -929,6 +964,6 @@ export function buildView(s: AppState, api: Api) {
       share: api.shareCard
     };
   })();
-  return { ...view, trip: tripRun, install, overview, moreDays, askAdd };
+  return { ...view, trip: tripRun, install, overview, moreDays, askAdd, lessDays };
 }
 export type View = ReturnType<typeof buildView>;
