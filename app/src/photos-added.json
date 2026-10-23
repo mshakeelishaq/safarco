@@ -41,6 +41,13 @@
     "src": "/photos/saif-ul-malook-snow-peaks.webp",
     "caption": "Early summer: fresh snow on the peaks above Lake Saif-ul-Malook"
    }
+  ],
+  "hunza": [
+   {
+    "src": "/photos/hunza-rakaposhi-above-golden.webp",
+    "caption": "Autumn: Rakaposhi above the golden Hunza valley and its turquoise river",
+    "first": true
+   }
   ]
  },
  "place": {
@@ -53,6 +60,7 @@
   "/photos/lahore-winter-fog-bikes.webp": "/photos/hero/lahore-winter-fog-bikes.webp",
   "/photos/saif-ul-malook-snow-peaks.webp": "/photos/hero/saif-ul-malook-snow-peaks.webp",
   "/photos/autumn-hunza.webp": "/photos/hero/autumn-hunza.webp",
-  "/photos/hunza-autumn-peaks.webp": "/photos/hero/hunza-autumn-peaks.webp"
+  "/photos/hunza-autumn-peaks.webp": "/photos/hero/hunza-autumn-peaks.webp",
+  "/photos/hunza-rakaposhi-above-golden.webp": "/photos/hero/hunza-rakaposhi-above-golden.webp"
  }
 }

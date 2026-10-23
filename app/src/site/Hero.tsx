@@ -27,7 +27,7 @@ export const SLIDES: Record<SeasonId, { src: string; place: string; id: string; 
     { src: '/photos/phander-lake-poplars.webp', place: 'Phander Lake, Ghizer', id: 'phander' }
   ],
   autumn: [
-    { src: '/photos/autumn-hunza.webp', place: 'Hunza and Rakaposhi', id: 'hunza', pos: '50% 40%' },
+    { src: '/photos/hunza-rakaposhi-above-golden.webp', place: 'Hunza and Rakaposhi', id: 'hunza', pos: '50% 45%' },
     { src: '/photos/shangrila-autumn.webp', place: 'Shangrila, Skardu', id: 'skardu' },
     { src: '/photos/ghowari-poplar-avenue.webp', place: 'Ghowari poplars, Khaplu', id: 'khaplu' },
     { src: '/photos/hunza-autumn-peaks.webp', place: 'Nagar Valley', id: 'nagar' },
