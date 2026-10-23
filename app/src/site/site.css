@@ -233,7 +233,7 @@
 .h-slide.on { opacity: 1; }
 .h-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .h-slide.on img { animation: h-zoom 10s ease-out forwards; }
-@keyframes h-zoom { from { transform: scale(1); } to { transform: scale(1.09); } }
+@keyframes h-zoom { from { transform: scale(1); } to { transform: scale(1.03); } }
 .h-shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(4,18,26,.55) 0%, rgba(4,18,26,.06) 28%, rgba(4,18,26,.18) 50%, rgba(4,18,26,.86) 100%); }
 .h-body { position: relative; z-index: 2; width: 100%; box-sizing: border-box; padding-top: 120px; padding-bottom: 26px; }
 .hero2 h1 { font-size: clamp(36px, 5.4vw, 68px); line-height: 1.04; margin: 0; max-width: 860px; text-shadow: 0 2px 30px rgba(0,0,0,.25); }

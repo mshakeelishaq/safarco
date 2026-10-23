@@ -10,6 +10,9 @@ The owner sends photos with a place and season. Use only the owner's own photos,
    - caption style: `Autumn: Baltit Fort above the golden poplars`
 2. Run `python3 app/scripts/add-photos.py list.txt --ship "Add Hunza autumn photos"`
 
+Add `hero` for a photo used full screen (the home page cover): it also gets a sharp 2560 px copy that only big screens load.
+To sharpen a photo already on the site, give its original with `for:/photos/name.webp` (destination and caption can be `-`).
+
 It shrinks each photo to ~1300 px WebP under 250 KB, lists it in `app/src/photos-added.json`,
 checks the build and tests, bumps the service worker, commits and pushes. Leave out `--ship` to try it first.
 

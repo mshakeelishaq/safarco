@@ -7,6 +7,7 @@ import { ringDests } from './data';
 import { DESTS } from '../engine/data';
 import { CITIES } from '../engine/places';
 import { Logo } from '../components/Logo';
+import { heroSrcSet } from '../photos';
 import './preview.css';
 
 /** The main thing: from, to, when, and straight into the planner (the planner asks the rest). */
@@ -48,7 +49,7 @@ function Slides({ children }: { children: React.ReactNode }) {
       aria-roledescription="carousel" aria-label={`${label} in Pakistan`}>
       <div className="pv-slides">
         {slides.map((s, k) => <div key={season + s.src} className={`pv-slide${k === i ? ' on' : ''}`} aria-hidden={k !== i}>
-          {seen.has(s.src) && <img src={s.src} alt={k === i ? s.place : ''} fetchPriority={k === 0 ? 'high' : 'low'} style={{ objectPosition: s.pos || 'center' }} />}
+          {seen.has(s.src) && <img src={s.src} srcSet={heroSrcSet(s.src)} sizes="100vw" alt={k === i ? s.place : ''} fetchPriority={k === 0 ? 'high' : 'low'} style={{ objectPosition: s.pos || 'center' }} />}
         </div>)}
       </div>
       <div className="pv-shade" />

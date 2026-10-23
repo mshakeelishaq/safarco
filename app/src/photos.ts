@@ -546,10 +546,15 @@ export const MONTHLY: Record<string, { title: string; photos: { src: string; cap
   ] }
 };
 
+/** Sharper versions of cover photos for big screens (scripts/add-photos.py, "hero" or "for:"): photo → 2560 px copy. */
+export const HERO_HI: Record<string, string> = {};
+/** srcSet for a full-screen photo: the usual copy for phones, the sharp one for laptops and big screens when there is one. */
+export const heroSrcSet = (src: string) => HERO_HI[src] ? `${src} 1300w, ${HERO_HI[src]} 2560w` : undefined;
+
 // Photos added with scripts/add-photos.py (shrunk to WebP and listed in photos-added.json).
 {
-  const a = ADDED as { own: Record<string, string>; seasonal: Record<string, Partial<Record<SeasonName, string>>>; gallery: Record<string, { src: string; caption: string; first?: boolean }[]>; place: Record<string, string>; stop: Record<string, string> };
-  Object.assign(OWN, a.own); Object.assign(PLACE_PHOTOS, a.place); Object.assign(STOP_PHOTOS, a.stop);
+  const a = ADDED as { hero?: Record<string, string>; own: Record<string, string>; seasonal: Record<string, Partial<Record<SeasonName, string>>>; gallery: Record<string, { src: string; caption: string; first?: boolean }[]>; place: Record<string, string>; stop: Record<string, string> };
+  Object.assign(HERO_HI, a.hero || {}); Object.assign(OWN, a.own); Object.assign(PLACE_PHOTOS, a.place); Object.assign(STOP_PHOTOS, a.stop);
   for (const [id, by] of Object.entries(a.seasonal)) SEASONAL[id] = { ...SEASONAL[id], ...by };
   for (const [id, list] of Object.entries(a.gallery)) {
     const known = new Set(list.map(x => x.src)), old = (GALLERY[id] || []).filter(x => !known.has(x.src));

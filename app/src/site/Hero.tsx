@@ -5,6 +5,7 @@ import { DESTS } from '../engine/data';
 import { CITIES } from '../engine/places';
 import { IG_HANDLE, IG_PROFILE } from '../contact';
 import { TravellerFig } from '../components/TravellerFig';
+import { heroSrcSet } from '../photos';
 import { onTraveller, travellerNow } from '../traveller';
 
 export type SeasonId = 'spring' | 'summer' | 'autumn' | 'winter';
@@ -155,7 +156,7 @@ export function Hero() {
       aria-roledescription="carousel" aria-label={`${SEASONS.find(s => s.id === season)!.label} in Pakistan`}>
       <div className="h-slides">
         {slides.map((s, k) => <div key={season + s.src} className={`h-slide${k === i ? ' on' : ''}`} aria-hidden={k !== i}>
-          {seen.has(s.src) && <img src={s.src} alt={k === i ? s.place : ''} fetchPriority={k === 0 ? 'high' : 'low'} style={{ objectPosition: s.pos || 'center' }} />}
+          {seen.has(s.src) && <img src={s.src} srcSet={heroSrcSet(s.src)} sizes="100vw" alt={k === i ? s.place : ''} fetchPriority={k === 0 ? 'high' : 'low'} style={{ objectPosition: s.pos || 'center' }} />}
         </div>)}
       </div>
       <div className="h-shade" />

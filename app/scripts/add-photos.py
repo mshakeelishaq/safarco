@@ -15,11 +15,14 @@ photos.txt has one photo per line, fields split by "|":
       stop:Balakot                  the photo for a stop on the road
       first                         put it first in the gallery
       nogallery                     don't add it to the gallery
+      hero                          also make a sharp 2560 px copy, for full-screen covers on big screens
+      for:/photos/autumn-hunza.webp the original of a photo already on the site: remakes it from this file and
+                                    adds its sharp cover copy (nothing else changes; destination and caption can be -)
   - caption, shown under the photo in the gallery
 Blank lines and lines starting with # are skipped.
 
 Photos become ~1300 px WebP under ~250 KB in public/photos, and are listed in src/photos-added.json
-(read by src/photos.ts). RAW files (ARW, NEF, CR2, DNG) use the full-size JPEG the camera stores inside them.
+(read by src/photos.ts). Cover copies are 2560 px, under ~700 KB, in public/photos/hero; phones never load them. RAW files (ARW, NEF, CR2, DNG) use the full-size JPEG the camera stores inside them.
 """
 import io, json, os, re, subprocess, sys
 from PIL import Image, ImageOps
@@ -29,7 +32,8 @@ OUT = os.path.join(APP, 'public', 'photos')
 REG = os.path.join(APP, 'src', 'photos-added.json')
 MAX_SIDE, MAX_KB = 1300, 250
 SEASONS = {'spring', 'summer', 'autumn', 'winter'}
-KNOWN = {'main', 'gallery', 'first', 'nogallery'}
+KNOWN = {'main', 'gallery', 'first', 'nogallery', 'hero'}
+HERO_OUT = os.path.join(OUT, 'hero')
 
 
 def dest_ids():
@@ -65,9 +69,23 @@ def shrink(path, name):
     im = ImageOps.exif_transpose(open_image(path)).convert('RGB')
     im.thumbnail((MAX_SIDE, MAX_SIDE), Image.LANCZOS)
     out = os.path.join(OUT, name + '.webp')
-    for q in (58, 54, 50, 46, 42, 38):
+    # As good as fits: start high and step down only as far as the size needs.
+    for q in (80, 76, 72, 68, 64, 60, 56, 52, 48, 44, 40):
         im.save(out, 'WEBP', quality=q, method=6)
         if os.path.getsize(out) <= MAX_KB * 1024: break
+    return os.path.getsize(out) // 1024, im.size
+
+
+def shrink_hero(path, name):
+    """The sharp copy for full-screen covers: 2560 px on the long side, as good as fits in ~700 KB."""
+    os.makedirs(HERO_OUT, exist_ok=True)
+    im = ImageOps.exif_transpose(open_image(path)).convert('RGB')
+    if max(im.size) < 1700: print(f'  note: {os.path.basename(path)} is only {im.size[0]}x{im.size[1]}; the cover copy can\'t be much sharper')
+    im.thumbnail((2560, 2560), Image.LANCZOS)
+    out = os.path.join(HERO_OUT, name + '.webp')
+    for q in (74, 70, 66, 62, 58):
+        im.save(out, 'WEBP', quality=q, method=6)
+        if os.path.getsize(out) <= 700 * 1024: break
     return os.path.getsize(out) // 1024, im.size
 
 
@@ -90,7 +108,7 @@ def main():
         k = args.index('--ship'); ship = args[k + 1] if k + 1 < len(args) else 'Add photos'; del args[k:k + 2]
     lines = [l.strip() for l in open(args[0], encoding='utf8') if l.strip() and not l.strip().startswith('#')]
     reg = json.load(open(REG)) if os.path.exists(REG) else {}
-    for k in ('own', 'seasonal', 'gallery', 'place', 'stop'): reg.setdefault(k, {})
+    for k in ('own', 'seasonal', 'gallery', 'place', 'stop', 'hero'): reg.setdefault(k, {})
     ids, taken, done = dest_ids(), set(), []
     for line in lines:
         parts = [p.strip() for p in line.split('|')]
@@ -101,18 +119,30 @@ def main():
         for u in (x.strip() for x in parts[2].split(',') if x.strip()):
             if uses and uses[-1].startswith(('place:', 'stop:')) and u not in KNOWN and u not in SEASONS and not u.startswith(('place:', 'stop:')): uses[-1] += ', ' + u
             else: uses.append(u)
+        # The original of a photo already on the site: remake it, add its cover copy, change nothing else.
+        old = next((u[4:].strip() for u in uses if u.startswith('for:')), None)
+        if old:
+            name = os.path.splitext(os.path.basename(old))[0]
+            if not os.path.exists(os.path.join(OUT, name + '.webp')): raise SystemExit(f'No photo {old} on the site, in: {line}')
+            kb, size = shrink(path, name); hkb, hsize = shrink_hero(path, name)
+            reg['hero'][f'/photos/{name}.webp'] = f'/photos/hero/{name}.webp'
+            done.append(f'/photos/{name}.webp  {size[0]}x{size[1]}  {kb} KB  + cover {hsize[0]}x{hsize[1]} {hkb} KB  [for]')
+            continue
         bad = [u for u in uses if u not in KNOWN and u not in SEASONS and not u.startswith(('place:', 'stop:'))]
         if bad: raise SystemExit(f'Unknown use "{bad[0]}" in: {line}')
         if dest not in ids: raise SystemExit(f'Unknown destination "{dest}" in: {line}')
         name = slug(dest, caption, taken)
         kb, size = shrink(path, name)
         src = f'/photos/{name}.webp'
+        if 'hero' in uses:
+            hkb, hsize = shrink_hero(path, name); reg['hero'][src] = f'/photos/hero/{name}.webp'
+            kb = f'{kb} KB + cover {hsize[0]}x{hsize[1]} {hkb}'
         for u in uses:
             if u == 'main': reg['own'][dest] = src
             elif u in SEASONS: reg['seasonal'].setdefault(dest, {})[u] = src
             elif u.startswith('place:'): reg['place'][f'{dest}|{u[6:].strip()}'] = src
             elif u.startswith('stop:'): reg['stop'][u[5:].strip()] = src
-            elif u not in ('first', 'nogallery', 'gallery'): raise SystemExit(f'Unknown use "{u}" in: {line}')
+            elif u not in ('first', 'nogallery', 'gallery', 'hero'): raise SystemExit(f'Unknown use "{u}" in: {line}')
         if 'nogallery' not in uses:
             g = [x for x in reg['gallery'].setdefault(dest, []) if x['src'] != src]
             item = {'src': src, 'caption': caption, **({'first': True} if 'first' in uses else {})}
@@ -126,6 +156,7 @@ def main():
         run = lambda c: subprocess.run(c, cwd=APP, shell=True, check=True, capture_output=True, text=True)
         run('npx tsc -b'); run('npx vitest run tests/photos.test.ts'); run('npx vite build')
         trailer = '\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_016igYTkJfUr5gXwGpezEfdx'
+        run('python3 scripts/thumbs.py')
         run('git add -A public/photos src/photos-added.json public/sw.js')
         subprocess.run(['git', 'commit', '-qm', ship + trailer], cwd=APP, check=True)
         for i in range(4):
