@@ -24,10 +24,20 @@
     "src": "/photos/nagar-terraced-orchards-ablaze.webp",
     "caption": "Autumn: terraced orchards ablaze with colour, Rakaposhi range behind"
    }
+  ],
+  "lahore": [
+   {
+    "src": "/photos/lahore-golden-headlights-motorbikes.webp",
+    "caption": "Winter: golden headlights and motorbikes in the night fog"
+   }
   ]
  },
  "place": {
   "nagar|Rakaposhi View Point, Ghulmet": "/photos/nagar-rakaposhi-above-golden.webp"
  },
- "stop": {}
+ "stop": {},
+ "hero": {
+  "/photos/lahore-winter-fog-road.webp": "/photos/hero/lahore-winter-fog-road.webp",
+  "/photos/lahore-winter-fog-bikes.webp": "/photos/hero/lahore-winter-fog-bikes.webp"
+ }
 }
