@@ -85,7 +85,7 @@ def shrink(path, name):
     im.thumbnail((MAX_SIDE, MAX_SIDE), Image.LANCZOS)
     out = os.path.join(OUT, name + '.webp')
     # As good as fits: start high and step down only as far as the size needs.
-    for q in (80, 76, 72, 68, 64, 60, 56, 52, 48, 44, 40):
+    for q in (88, 84, 80, 76, 72, 68, 64, 60, 56, 52, 48, 44, 40):
         im.save(out, 'WEBP', quality=q, method=6)
         if os.path.getsize(out) <= MAX_KB * 1024: break
     return os.path.getsize(out) // 1024, im.size
@@ -98,7 +98,7 @@ def shrink_hero(path, name):
     if max(im.size) < 1700: print(f'  note: {os.path.basename(path)} is only {im.size[0]}x{im.size[1]}; the cover copy can\'t be much sharper')
     im.thumbnail((2560, 2560), Image.LANCZOS)
     out = os.path.join(HERO_OUT, name + '.webp')
-    for q in (74, 70, 66, 62, 58):
+    for q in (88, 84, 80, 76, 72, 68, 64, 60):
         im.save(out, 'WEBP', quality=q, method=6)
         if os.path.getsize(out) <= 700 * 1024: break
     return os.path.getsize(out) // 1024, im.size
