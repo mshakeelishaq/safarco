@@ -30,7 +30,7 @@ export const SLIDES: Record<SeasonId, { src: string; place: string; id: string; 
     { src: '/photos/autumn-hunza.webp', place: 'Hunza and Rakaposhi', id: 'hunza', pos: '50% 40%' },
     { src: '/photos/shangrila-autumn.webp', place: 'Shangrila, Skardu', id: 'skardu' },
     { src: '/photos/ghowari-poplar-avenue.webp', place: 'Ghowari poplars, Khaplu', id: 'khaplu' },
-    { src: '/photos/nagar-autumn-poplars.webp', place: 'Nagar Valley', id: 'nagar' },
+    { src: '/photos/hunza-autumn-peaks.webp', place: 'Nagar Valley', id: 'nagar' },
     { src: '/photos/naran-autumn-road.webp', place: 'The road into Naran', id: 'naran' }
   ],
   winter: [
