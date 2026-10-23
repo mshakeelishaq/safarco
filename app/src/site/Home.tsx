@@ -124,7 +124,7 @@ export function Home() {
             </ul>
             <div className="hero-actions"><A href="/app" className="btn btn-sun">Get the app</A><a href={planHref()} className="btn btn-glass">Open in the browser</a></div>
           </div>
-          <div className="phone home-phone"><div className="scr" style={{ backgroundImage: 'url(/photos/attabad-summer-cones.webp)', backgroundPosition: '60% center' }}>
+          <div className="phone home-phone"><div className="scr" style={{ backgroundImage: 'url(/photos/hunza-rakaposhi-above-golden.webp)', backgroundPosition: '30% center' }}>
             <div style={{ fontFamily: 'var(--fontH)', fontSize: 26, fontWeight: 700 }}>Where to next?</div>
             <div style={{ fontSize: 13, opacity: .9, margin: '6px 0 14px' }}>Your budget. Your days. Your perfect trip.</div>
             <div style={{ background: '#FFC75F', color: '#2A1A00', borderRadius: 14, padding: '12px 0', textAlign: 'center', fontWeight: 800, fontSize: 14 }}>Start planning →</div>
