@@ -25,7 +25,7 @@ Photos become ~1300 px WebP under ~250 KB in public/photos, and are listed in sr
 (read by src/photos.ts). Cover copies are 2560 px, under ~700 KB, in public/photos/hero; phones never load them. RAW files (ARW, NEF, CR2, DNG) use the full-size JPEG the camera stores inside them.
 """
 import io, json, os, re, subprocess, sys
-from PIL import Image, ImageOps
+from PIL import Image, ImageCms, ImageOps
 
 APP = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(APP, 'public', 'photos')
@@ -65,8 +65,23 @@ def open_image(path):
         return Image.open(io.BytesIO(best))
 
 
+def load(path):
+    """The photo upright and in web colours: a wide-colour photo (Adobe RGB, Display P3) is converted to sRGB, so it
+    keeps its colour on the site and doesn't come out dull."""
+    im = ImageOps.exif_transpose(open_image(path))
+    icc = im.info.get('icc_profile')
+    if icc:
+        try:
+            src = ImageCms.ImageCmsProfile(io.BytesIO(icc))
+            if 'srgb' not in (ImageCms.getProfileDescription(src) or '').lower():
+                im = ImageCms.profileToProfile(im.convert('RGB') if im.mode not in ('RGB', 'CMYK') else im, src, ImageCms.createProfile('sRGB'), outputMode='RGB')
+        except Exception:
+            pass  # an unreadable profile: use the colours as they are
+    return im.convert('RGB')
+
+
 def shrink(path, name):
-    im = ImageOps.exif_transpose(open_image(path)).convert('RGB')
+    im = load(path)
     im.thumbnail((MAX_SIDE, MAX_SIDE), Image.LANCZOS)
     out = os.path.join(OUT, name + '.webp')
     # As good as fits: start high and step down only as far as the size needs.
@@ -79,7 +94,7 @@ def shrink(path, name):
 def shrink_hero(path, name):
     """The sharp copy for full-screen covers: 2560 px on the long side, as good as fits in ~700 KB."""
     os.makedirs(HERO_OUT, exist_ok=True)
-    im = ImageOps.exif_transpose(open_image(path)).convert('RGB')
+    im = load(path)
     if max(im.size) < 1700: print(f'  note: {os.path.basename(path)} is only {im.size[0]}x{im.size[1]}; the cover copy can\'t be much sharper')
     im.thumbnail((2560, 2560), Image.LANCZOS)
     out = os.path.join(HERO_OUT, name + '.webp')
