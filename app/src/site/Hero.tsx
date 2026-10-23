@@ -22,7 +22,7 @@ export const SLIDES: Record<SeasonId, { src: string; place: string; id: string; 
   summer: [
     { src: '/photos/attabad-summer-cones.webp', place: 'Attabad Lake, Hunza', id: 'hunza' },
     { src: '/photos/ratti-gali-lake-flowers.webp', place: 'Ratti Gali Lake, Neelum', id: 'neelum' },
-    { src: '/photos/saif-ul-malook-summer.webp', place: 'Lake Saif-ul-Malook, Naran', id: 'naran' },
+    { src: '/photos/saif-ul-malook-snow-peaks.webp', place: 'Lake Saif-ul-Malook, Naran', id: 'naran' },
     { src: '/photos/deosai-sheosar-horses.webp', place: 'Sheosar Lake, Deosai', id: 'skardu' },
     { src: '/photos/phander-lake-poplars.webp', place: 'Phander Lake, Ghizer', id: 'phander' }
   ],

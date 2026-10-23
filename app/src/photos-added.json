@@ -30,14 +30,22 @@
     "src": "/photos/lahore-golden-headlights-motorbikes.webp",
     "caption": "Winter: golden headlights and motorbikes in the night fog"
    }
+  ],
+  "naran": [
+   {
+    "src": "/photos/saif-ul-malook-snow-peaks.webp",
+    "caption": "Early summer: fresh snow on the peaks above Lake Saif-ul-Malook"
+   }
   ]
  },
  "place": {
-  "nagar|Rakaposhi View Point, Ghulmet": "/photos/nagar-rakaposhi-above-golden.webp"
+  "nagar|Rakaposhi View Point, Ghulmet": "/photos/nagar-rakaposhi-above-golden.webp",
+  "naran|Lake Saif-ul-Malook": "/photos/saif-ul-malook-snow-peaks.webp"
  },
  "stop": {},
  "hero": {
   "/photos/lahore-winter-fog-road.webp": "/photos/hero/lahore-winter-fog-road.webp",
-  "/photos/lahore-winter-fog-bikes.webp": "/photos/hero/lahore-winter-fog-bikes.webp"
+  "/photos/lahore-winter-fog-bikes.webp": "/photos/hero/lahore-winter-fog-bikes.webp",
+  "/photos/saif-ul-malook-snow-peaks.webp": "/photos/hero/saif-ul-malook-snow-peaks.webp"
  }
 }
