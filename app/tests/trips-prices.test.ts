@@ -66,14 +66,14 @@ describe('price list', () => {
 describe('researched prices', () => {
   it('fill every field they name and mark only their sections checked', async () => {
     const { DEFAULT_PRICES, tollRoads } = await import('../src/prices');
-    const { withResearched, RESEARCHED, RESEARCHED_ON } = await import('../src/researched');
+    const { withResearched, RESEARCHED, RESEARCHED_ON, RESEARCHED_LATER } = await import('../src/researched');
     const l = withResearched(DEFAULT_PRICES);
     for (const k of Object.keys(RESEARCHED.tolls!)) expect(tollRoads().map(t => t.key)).toContain(k);
     for (const k of Object.keys(RESEARCHED.jeeps!)) expect(Object.keys(DEFAULT_PRICES.jeeps)).toContain(k);
-    expect(l.fuel.petrol).toBe(352.59);
-    expect(l.fuel.diesel).toBe(382.25);
+    expect(l.fuel.petrol).toBe(RESEARCHED.fuel!.petrol);
+    expect(l.fuel.diesel).toBe(RESEARCHED.fuel!.diesel);
     expect(l.tolls['LHR-ISB']).toBe(1430);
-    expect(l.checked.fuel).toBe('2026-11-06');
+    expect(l.checked.fuel).toBe(RESEARCHED_LATER.fuel);
     expect(l.checked.tolls).toBe(RESEARCHED_ON);
     expect(l.checked.fares).toBe('');
     expect(DEFAULT_PRICES.checked.fuel).toBe('');
@@ -121,9 +121,10 @@ describe('wrong places from the map', () => {
 describe('fuel looked up after the admin saved', () => {
   it('uses the newer figures from the code over an older saved list', async () => {
     const { applyPrices, DEFAULT_PRICES } = await import('../src/prices');
+    const { RESEARCHED, RESEARCHED_LATER } = await import('../src/researched');
     const l = applyPrices({ ...DEFAULT_PRICES, fuel: { petrol: 398.3, diesel: 396.24 }, checked: { ...DEFAULT_PRICES.checked, fuel: '2026-10-12' } });
-    expect(l.fuel.petrol).toBe(352.59);
-    expect(l.checked.fuel).toBe('2026-11-06');
+    expect(l.fuel.petrol).toBe(RESEARCHED.fuel!.petrol);
+    expect(l.checked.fuel).toBe(RESEARCHED_LATER.fuel);
     applyPrices(null);
   });
 });
