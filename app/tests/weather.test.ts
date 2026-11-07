@@ -1,10 +1,13 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { buildPlan, type TripState } from '../src/engine/engine';
 import { clock, isoAdd } from '../src/engine/format';
 import { LIVE } from '../src/engine/live';
 import { sunTimes } from '../src/engine/sun';
 import { bestDeparture, flagsFor, pointWx, routePoints, weatherPlan } from '../src/weather/route';
 import { weatherView } from '../src/weather/view';
+
+// A June "today", so the trip (3 days on) crosses Babusar Pass while it's open (June to October).
+vi.useFakeTimers({ toFake: ['Date'] }); vi.setSystemTime(new Date('2026-06-20T08:00:00'));
 
 const base: TripState = {
   origin: 'Lahore', mode: 'know', dest: 'skardu', corridor: 'skardu', startDate: isoAdd(3), days: 8, depart: null,
